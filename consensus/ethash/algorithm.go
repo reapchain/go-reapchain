@@ -15,7 +15,7 @@
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
 package ethash
-
+//yichoi git test 
 import (
 	"encoding/binary"
 	"hash"
