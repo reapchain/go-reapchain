@@ -41,6 +41,12 @@ type IstanbulExtra struct {
 	Seal          []byte
 	CommittedSeal [][]byte
 }
+// Reapchain PoDC extra struct
+type PoDCExtra struct {
+	Validators    []common.Address
+	Seal          []byte
+	CommittedSeal [][]byte
+}
 
 // EncodeRLP serializes ist into the Ethereum RLP format.
 func (ist *IstanbulExtra) EncodeRLP(w io.Writer) error {

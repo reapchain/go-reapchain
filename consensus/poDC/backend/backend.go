@@ -14,7 +14,7 @@
 //
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
-/*
+
 package backend
 
 import (
@@ -25,8 +25,8 @@ import (
 "github.com/ethereum/go-ethereum/common"
 "github.com/ethereum/go-ethereum/consensus"
 "github.com/ethereum/go-ethereum/consensus/istanbul"
-istanbulCore "github.com/ethereum/go-ethereum/consensus/istanbul/core"
-// poDCCore "github.com/ethereum/go-ethereum/consensus/poDC/core"
+//istanbulCore "github.com/ethereum/go-ethereum/consensus/istanbul/core"
+ poDCCore "github.com/ethereum/go-ethereum/consensus/poDC/core"
 "github.com/ethereum/go-ethereum/consensus/istanbul/validator"
 "github.com/ethereum/go-ethereum/core"
 "github.com/ethereum/go-ethereum/core/types"
@@ -69,8 +69,8 @@ type simpleBackend struct {
 	poDCEventMux     *event.TypeMux
 	privateKey       *ecdsa.PrivateKey
 	address          common.Address
-	core             istanbulCore.Engine
-//	core             poDCCore.Engine
+//	core             istanbulCore.Engine
+	core             poDCCore.Engine
 	logger           log.Logger
 	quitSync         chan struct{}
 	db               ethdb.Database
@@ -218,4 +218,3 @@ func (sb *simpleBackend) CheckSignature(data []byte, address common.Address, sig
 	}
 	return nil
 }
-*/
