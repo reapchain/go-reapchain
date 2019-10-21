@@ -17,6 +17,7 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -26,7 +27,7 @@ import (
 // Start implements core.Engine.Start
 
 // proposer = front node in podc
-func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal) error {
+func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal poDC.Proposal) error {
 	// Initialize last proposer
 	c.lastProposer = lastProposer
 	c.lastProposal = lastProposal

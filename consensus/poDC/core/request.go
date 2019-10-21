@@ -16,10 +16,12 @@
 
 package core
 
-import "github.com/ethereum/go-ethereum/consensus/istanbul"
-//import "github.com/ethereum/go-ethereum/consensus/poDC"
+import "github.com/ethereum/go-ethereum/consensus/poDC"
 
-func (c *core) handleRequest(request *istanbul.Request) error {
+//import "github.com/ethereum/go-ethereum/consensus/istanbul"
+import "github.com/ethereum/go-ethereum/consensus/poDC"
+
+func (c *core) handleRequest(request *poDC.Request) error {
 	logger := c.logger.New("state", c.state, "seq", c.current.sequence)
 
 	if err := c.checkRequestMsg(request); err != nil {

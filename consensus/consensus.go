@@ -110,7 +110,7 @@ type PoDC interface {
 	Hashrate() float64
 }
 // Istanbul is a consensus engine to avoid byzantine failure
-type Istanbul interface {
+/* type Istanbul interface {
 	Engine
 
 	// Handle a message from peer
@@ -124,7 +124,7 @@ type Istanbul interface {
 
 	// Stop the engine
 	Stop() error
-}
+} */
 type PoDC interface {
 	Engine
 

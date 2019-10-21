@@ -43,7 +43,7 @@ type IstanbulExtra struct {
 }
 // Reapchain PoDC extra struct
 type PoDCExtra struct {
-	Validators    []common.Address
+	Validators    []common.Address  //다른가? podc에서는 ?
 	Seal          []byte
 	CommittedSeal [][]byte
 }

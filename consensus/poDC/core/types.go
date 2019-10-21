@@ -38,6 +38,8 @@ const (
 	StatePreprepared
 	StatePrepared
 	StateCommitted
+	StateD_selected  //podc
+	StateD_committed //podc
 )
 
 func (s State) String() string {
@@ -49,6 +51,10 @@ func (s State) String() string {
 		return "Prepared"
 	} else if s == StateCommitted {
 		return "Committed"
+	} else if s == StateD_selected { //podc
+		return "D_selected"
+	} else if s == StateD_committed { //podc
+		return "D_committed"
 	} else {
 		return "Unknown"
 	}
@@ -73,6 +79,8 @@ const (
 	msgPrepare
 	msgCommit
 	msgRoundChange
+	msgD_select  //podc
+	msgD_commit  //podc
 	msgAll
 )
 

@@ -17,18 +17,19 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 )
 
-func (c *core) sendPreprepare(request *istanbul.Request) {
+func (c *core) sendPreprepare(request *poDC.Request) {
 	logger := c.logger.New("state", c.state)
 
 	// If I'm the proposer and I have the same sequence with the proposal
 	if c.current.Sequence().Cmp(request.Proposal.Number()) == 0 && c.isProposer() {
 		curView := c.currentView()
-		preprepare, err := Encode(&istanbul.Preprepare{
+		preprepare, err := Encode(&poDC.Preprepare{
 			View:     curView,
 			Proposal: request.Proposal,
 		})
@@ -37,6 +38,7 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 			return
 		}
 
+// proposal block 전파 / pre-prepare 상태
 		c.broadcast(&message{
 			Code: msgPreprepare,
 			Msg:  preprepare,
@@ -44,11 +46,11 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 	}
 }
 
-func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
+func (c *core) handlePreprepare(msg *message, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	// Decode preprepare
-	var preprepare *istanbul.Preprepare
+	var preprepare *poDC.Preprepare
 	err := msg.Decode(&preprepare)
 	if err != nil {
 		return errFailedDecodePreprepare
@@ -59,7 +61,7 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 		return err
 	}
 
-	// Check if the message comes from current proposer
+	// Check if the message comes from current proposer( = Front node ) in PoDC
 	if !c.valSet.IsProposer(src.Address()) {
 		logger.Warn("Ignore preprepare messages from non-proposer")
 		return errNotFromProposer
@@ -81,7 +83,7 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 	return nil
 }
 
-func (c *core) acceptPreprepare(preprepare *istanbul.Preprepare) {
+func (c *core) acceptPreprepare(preprepare *poDC.Preprepare) {
 	c.consensusTimestamp = time.Now()
 	c.current.SetPreprepare(preprepare)
 }

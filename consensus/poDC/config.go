@@ -1,4 +1,3 @@
-/*
 
 // Copyright 2019 Reapchain
 // This file is part of the go-ethereum library.
@@ -37,7 +36,7 @@ var DefaultConfig = &Config{
 	RequestTimeout: 10000,
 	BlockPeriod:    1,
 	BlockPauseTime: 2,
-	ProposerPolicy: RoundRobin,
+	ProposerPolicy: RoundRobin,   // pilot 으로 1차는 proposer 선택 정책은 라운드로빈 유지, 2차로 수정 예정,
 	Epoch:          30000,
 }
-*/
+
