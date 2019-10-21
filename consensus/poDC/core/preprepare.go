@@ -39,10 +39,12 @@ func (c *core) sendPreprepare(request *poDC.Request) {
 		}
 
 // proposal block 전파 / pre-prepare 상태
+
 		c.broadcast(&message{
 			Code: msgPreprepare,
 			Msg:  preprepare,
 		})
+		// 다음은 d-select 상태로 상태 전이함.
 	}
 }
 
@@ -74,6 +76,7 @@ func (c *core) handlePreprepare(msg *message, src poDC.Validator) error {
 		return err
 	}
 
+	// 상태 전이 모드
 	if c.state == StateAcceptRequest {
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)

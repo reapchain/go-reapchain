@@ -38,6 +38,7 @@ const (
 	StatePreprepared
 	StatePrepared
 	StateCommitted
+	StateAcceptQMan  //podc
 	StateD_selected  //podc
 	StateD_committed //podc
 )
@@ -45,6 +46,9 @@ const (
 func (s State) String() string {
 	if s == StateAcceptRequest {
 		return "Accept request"
+	} else if s== StateAcceptQMan {
+		return "Accept request from Qman"
+
 	} else if s == StatePreprepared {
 		return "Preprepared"
 	} else if s == StatePrepared {

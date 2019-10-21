@@ -34,6 +34,16 @@ func (c *core) handleRequest(request *poDC.Request) error {
 	if c.state == StateAcceptRequest {
 		c.sendPreprepare(request)
 	}
+	if c.state == StateAcceptQMan {  //podc
+		c.sendPreprepare(request)
+	}
+
+
+
+
+
+
+
 	return nil
 }
 
@@ -72,7 +82,7 @@ func (c *core) processPendingRequests() {
 
 	for !(c.pendingRequests.Empty()) {
 		m, prio := c.pendingRequests.Pop()
-		r, ok := m.(*istanbul.Request)
+		r, ok := m.(*poDC.Request)
 		if !ok {
 			c.logger.Warn("Malformed request, skip", "msg", m)
 			continue
@@ -90,7 +100,7 @@ func (c *core) processPendingRequests() {
 		}
 		c.logger.Trace("Post pending request", "request", r)
 
-		go c.sendEvent(istanbul.RequestEvent{
+		go c.sendEvent(poDC.RequestEvent{
 			Proposal: r.Proposal,
 		})
 	}

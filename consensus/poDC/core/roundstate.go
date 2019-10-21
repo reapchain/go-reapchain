@@ -32,6 +32,12 @@ func newRoundState(view *istanbul.View, validatorSet istanbul.ValidatorSet) *rou
 		Preprepare:  nil,
 		Prepares:    newMessageSet(validatorSet),
 		Commits:     newMessageSet(validatorSet),
+		/*
+		D_select:
+		D_commit:
+
+
+		*/
 		Checkpoints: newMessageSet(validatorSet),
 		mu:          new(sync.RWMutex),
 	}
@@ -72,6 +78,7 @@ func (s *roundState) SetPreprepare(preprepare *istanbul.Preprepare) {
 
 	s.Preprepare = preprepare
 }
+//왜 락을 걸지 ?
 
 func (s *roundState) Proposal() istanbul.Proposal {
 	s.mu.RLock()
