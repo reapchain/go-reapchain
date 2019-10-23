@@ -27,7 +27,7 @@ type Backend interface {
 	Address() common.Address
 
 	// Validators returns the validator set
-	Validators(proposal Proposal) ValidatorSet
+	Validators(proposal Proposal) ValidatorSet  // 상원, 하원,
 
 	// EventMux returns the event mux in backend
 	EventMux() *event.TypeMux

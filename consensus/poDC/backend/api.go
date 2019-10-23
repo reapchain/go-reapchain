@@ -26,7 +26,8 @@ import (
 // API is a user facing RPC API to dump Istanbul state
 type API struct {
 	chain    consensus.ChainReader
-	istanbul *simpleBackend
+	//istanbul *simpleBackend
+	podc     *simpleBackend
 }
 
 // GetSnapshot retrieves the state snapshot at a given block.
@@ -42,7 +43,7 @@ func (api *API) GetSnapshot(number *rpc.BlockNumber) (*Snapshot, error) {
 	if header == nil {
 		return nil, errUnknownBlock
 	}
-	return api.istanbul.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
+	return api.podc.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
 }
 
 // GetSnapshotAtHash retrieves the state snapshot at a given block.
@@ -51,7 +52,7 @@ func (api *API) GetSnapshotAtHash(hash common.Hash) (*Snapshot, error) {
 	if header == nil {
 		return nil, errUnknownBlock
 	}
-	return api.istanbul.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
+	return api.podc.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
 }
 
 // GetValidators retrieves the list of authorized validators at the specified block.
@@ -67,7 +68,7 @@ func (api *API) GetValidators(number *rpc.BlockNumber) ([]common.Address, error)
 	if header == nil {
 		return nil, errUnknownBlock
 	}
-	snap, err := api.istanbul.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
+	snap, err := api.podc.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +81,7 @@ func (api *API) GetValidatorsAtHash(hash common.Hash) ([]common.Address, error) 
 	if header == nil {
 		return nil, errUnknownBlock
 	}
-	snap, err := api.istanbul.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
+	snap, err := api.podc.snapshot(api.chain, header.Number.Uint64(), header.Hash(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -89,11 +90,11 @@ func (api *API) GetValidatorsAtHash(hash common.Hash) ([]common.Address, error) 
 
 // Candidates returns the current candidates the node tries to uphold and vote on.
 func (api *API) Candidates() map[common.Address]bool {
-	api.istanbul.candidatesLock.RLock()
-	defer api.istanbul.candidatesLock.RUnlock()
+	api.podc.candidatesLock.RLock()
+	defer api.podc.candidatesLock.RUnlock()
 
 	proposals := make(map[common.Address]bool)
-	for address, auth := range api.istanbul.candidates {
+	for address, auth := range api.podc.candidates {
 		proposals[address] = auth
 	}
 	return proposals
@@ -102,17 +103,17 @@ func (api *API) Candidates() map[common.Address]bool {
 // Propose injects a new authorization candidate that the validator will attempt to
 // push through.
 func (api *API) Propose(address common.Address, auth bool) {
-	api.istanbul.candidatesLock.Lock()
-	defer api.istanbul.candidatesLock.Unlock()
+	api.podc.candidatesLock.Lock()
+	defer api.podc.candidatesLock.Unlock()
 
-	api.istanbul.candidates[address] = auth
+	api.podc.candidates[address] = auth
 }
 
 // Discard drops a currently running candidate, stopping the validator from casting
 // further votes (either for or against).
 func (api *API) Discard(address common.Address) {
-	api.istanbul.candidatesLock.Lock()
-	defer api.istanbul.candidatesLock.Unlock()
+	api.podc.candidatesLock.Lock()
+	defer api.podc.candidatesLock.Unlock()
 
-	delete(api.istanbul.candidates, address)
+	delete(api.podc.candidates, address)
 }

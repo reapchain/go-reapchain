@@ -125,7 +125,7 @@ func (h UnprefixedHash) MarshalText() ([]byte, error) {
 /////////// Address
 
 // Address represents the 20 byte address of an Ethereum account.
-type Address [AddressLength]byte
+type Address [AddressLength]byte  //enode address ?
 
 func BytesToAddress(b []byte) Address {
 	var a Address

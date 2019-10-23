@@ -22,12 +22,27 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
+const {
+	Senator
+	Parliamentarian
+	Candidate
+	General
+
+
+}
+
+
+// 모든 Validator 로 선언하고, 여기서 각 Label/ tag 붙여서 관리한다.
 type Validator interface {
 	// Address returns address
 	Address() common.Address
 
 	// String representation of Validator
 	String() string
+
+	Tag()  string  // Tag()  is bug ,, just test by yichoi
+	               // Tag define : Senator(상원), parliamentarian(하원), general(일반), candidate(운영위 후보)
+	               //
 }
 
 // ----------------------------------------------------------------------------
@@ -51,6 +66,10 @@ func (slice Validators) Swap(i, j int) {
 type ValidatorSet interface {
 	// Calculate the proposer
 	CalcProposer(lastProposer common.Address, round uint64)
+
+	// 코디 후보군 선정 ?
+	RecvCordinator(lastProposer common.Address, round uint64) //yichoi
+
 	// Return the validator size
 	Size() int
 	// Return the validator array
@@ -61,6 +80,10 @@ type ValidatorSet interface {
 	GetByAddress(addr common.Address) (int, Validator)
 	// Get current proposer
 	GetProposer() Validator
+
+	// 상임위, 운영위 확정 구성 위원회 정보 가져오기 , Steering committee ( 운영위원회 )
+	GetConfirmedCommittee() Validator  //yichoi
+
 	// Check whether the validator with given address is a proposer
 	IsProposer(address common.Address) bool
 	// Add validator

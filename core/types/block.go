@@ -143,7 +143,7 @@ type Body struct {
 	Uncles       []*Header
 }
 
-// Block represents an entire block in the Ethereum blockchain.
+// Block represents an entire block in the Ethereum blockchain. - reviewed by yichoi : Full block 구조체
 type Block struct {
 	header       *Header
 	uncles       []*Header

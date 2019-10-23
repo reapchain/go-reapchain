@@ -53,7 +53,7 @@ type Transaction struct {
 	size atomic.Value
 	from atomic.Value
 }
-
+// transaction data : yichoi
 type txdata struct {
 	AccountNonce uint64          `json:"nonce"    gencodec:"required"`
 	Price        *big.Int        `json:"gasPrice" gencodec:"required"`

@@ -22,6 +22,7 @@ type ProposerPolicy uint64
 const (
 	RoundRobin ProposerPolicy = iota
 	Sticky
+	QRF   //yichoi
 )
 
 type Config struct {

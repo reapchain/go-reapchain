@@ -18,21 +18,24 @@ package validator
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
-func New(addr common.Address) istanbul.Validator {
+func New(addr common.Address) poDC.Validator {
 	return &defaultValidator{
 		address: addr,
 	}
 }
 
-func NewSet(addrs []common.Address, policy istanbul.ProposerPolicy) istanbul.ValidatorSet {
+func NewSet(addrs []common.Address, policy poDC.ProposerPolicy) poDC.ValidatorSet {
 	switch policy {
-	case istanbul.RoundRobin:
+	case poDC.RoundRobin:
 		return newDefaultSet(addrs, roundRobinProposer)
-	case istanbul.Sticky:
+	case poDC.Sticky:
 		return newDefaultSet(addrs, stickyProposer)
+	case poDC.QRF:
+		return newDefaultSet(addrs, qrfProposer) //yichoi
+
 	}
 
 	// use round-robin policy as default proposal policy

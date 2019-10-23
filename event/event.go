@@ -194,7 +194,8 @@ func (s *TypeMuxSubscription) closewait() {
 	s.postC = nil
 	s.postMu.Unlock()
 }
-
+// 이더리움 내부의 런타임/ 이벤트 핸들러에게 전달 하는 함수
+// 전달시 락, 언락을 활용 ?
 func (s *TypeMuxSubscription) deliver(event *TypeMuxEvent) {
 	// Short circuit delivery if stale event
 	if s.created.After(event.Time) {

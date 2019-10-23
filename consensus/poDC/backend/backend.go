@@ -107,7 +107,7 @@ func (sb *simpleBackend) Validators(proposal poDC.Proposal) poDC.ValidatorSet {
 }
 
 func (sb *simpleBackend) Send(payload []byte, target common.Address) error {
-	go sb.eventMux.Post(istanbul.ConsensusDataEvent{
+	go sb.eventMux.Post(poDC.ConsensusDataEvent{
 		Target: target,
 		Data:   payload,
 	})
@@ -115,14 +115,14 @@ func (sb *simpleBackend) Send(payload []byte, target common.Address) error {
 }
 
 // Broadcast implements istanbul.Backend.Send
-func (sb *simpleBackend) Broadcast(valSet istanbul.ValidatorSet, payload []byte) error {
+func (sb *simpleBackend) Broadcast(valSet poDC.ValidatorSet, payload []byte) error {
 	for _, val := range valSet.List() {
 		if val.Address() == sb.Address() {
 			// send to self
-			msg := istanbul.MessageEvent{
+			msg := poDC.MessageEvent{
 				Payload: payload,
 			}
-			go sb.istanbulEventMux.Post(msg)
+			go sb.poDCEventMux.Post(msg)
 
 		} else {
 			// send to other peers
@@ -133,7 +133,7 @@ func (sb *simpleBackend) Broadcast(valSet istanbul.ValidatorSet, payload []byte)
 }
 
 // Commit implements istanbul.Backend.Commit
-func (sb *simpleBackend) Commit(proposal istanbul.Proposal, seals []byte) error {
+func (sb *simpleBackend) Commit(proposal poDC.Proposal, seals []byte) error {
 	// Check if the proposal is a valid block
 	block := &types.Block{}
 	block, ok := proposal.(*types.Block)
@@ -165,7 +165,8 @@ func (sb *simpleBackend) Commit(proposal istanbul.Proposal, seals []byte) error 
 		return nil
 	}
 
-	return sb.inserter(block)
+	return sb.inserter(block)  // commit 끝나면 최종적으로 체인에 블럭을 삽입하는 마지막 단계 , PoDC에서 D-Commit 단계
+	       // 합의가 끝나는 최종 단계
 }
 
 // NextRound will broadcast ChainHeadEvent to trigger next seal()
@@ -178,11 +179,11 @@ func (sb *simpleBackend) NextRound() error {
 
 // EventMux implements istanbul.Backend.EventMux
 func (sb *simpleBackend) EventMux() *event.TypeMux {
-	return sb.istanbulEventMux
+	return sb.poDCEventMux
 }
 
 // Verify implements istanbul.Backend.Verify
-func (sb *simpleBackend) Verify(proposal istanbul.Proposal) error {
+func (sb *simpleBackend) Verify(proposal poDC.Proposal) error {
 	// Check if the proposal is a valid block
 	block := &types.Block{}
 	block, ok := proposal.(*types.Block)

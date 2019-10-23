@@ -37,16 +37,39 @@ func (val *defaultValidator) Address() common.Address {
 func (val *defaultValidator) String() string {
 	return val.Address().String()
 }
+func (val *defaultValidator) Tag() string {
+	return val.Address().Tag() //?
+}
 
 // ----------------------------------------------------------------------------
 
+/* yichoi unmarked for replace istanbul with PoDC default validator set
 type defaultSet struct {
-	validators  poDC.Validators
-	proposer    poDC.Validator
+	validators  poDC.Validators  // 상임위, 운영위, 운영위 후보, 코디로 나누는 방법 연구
+	proposer    poDC.Validator  // front node for podc
+	validatorMu sync.RWMutex
+
+	selector poDC.ProposalSelector
+} */
+type defaultSet struct {
+	validators  poDC.Validators  // 상임위, 운영위, 운영위 후보, 코디로 나누는 방법 연구
+
+
+	quantum_manager poDC.Validator // Quantum manager, 일반노드 같이 enode 번호를 갖게끔 설계
+	cordinator  poDC.Validator //
+
+	proposer    poDC.Validator  // = front node for podc
 	validatorMu sync.RWMutex
 
 	selector poDC.ProposalSelector
 }
+
+
+
+
+
+
+
 
 func newDefaultSet(addrs []common.Address, selector poDC.ProposalSelector) *defaultSet {
 	valSet := &defaultSet{}
@@ -62,8 +85,19 @@ func newDefaultSet(addrs []common.Address, selector poDC.ProposalSelector) *defa
 	if valSet.Size() > 0 {
 		valSet.proposer = valSet.GetByIndex(0)
 	}
-	//set proposal selector
+	//set proposal selector : front node
 	valSet.selector = selector
+
+	//get cordinator and steering committee from Qmanager
+    //get cordinator
+	//valSet.cordinator = func (valSet *defaultSet) RecvCordinator(lastProposer common.Address, round uint64)
+
+
+
+    //get candidates  of steering committe
+    //  valSet.GetConfirmedCommittee() = .......determin and select steering committee
+
+
 
 	return valSet
 }
@@ -101,6 +135,10 @@ func (valSet *defaultSet) GetByAddress(addr common.Address) (int, poDC.Validator
 func (valSet *defaultSet) GetProposer() poDC.Validator {
 	return valSet.proposer
 }
+//yichoi Get Confirmed Committee
+func (valSet *defaultSet) GetConfirmedCommittee() poDC.Validator {
+	return valSet.proposer
+}
 
 func (valSet *defaultSet) IsProposer(address common.Address) bool {
 	_, val := valSet.GetByAddress(address)
@@ -110,8 +148,20 @@ func (valSet *defaultSet) IsProposer(address common.Address) bool {
 func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64) {
 	valSet.validatorMu.RLock()
 	defer valSet.validatorMu.RUnlock()
-	valSet.proposer = valSet.selector(valSet, lastProposer, round)
+	valSet.proposer = valSet.selector(valSet, lastProposer, round)  //Front node 선택 계산.
 }
+
+//yichoi cordinator infomation is received from Qmanger server
+func (valSet *defaultSet) RecvCordinator(lastProposer common.Address, round uint64) {
+	valSet.validatorMu.RLock()
+	defer valSet.validatorMu.RUnlock()
+// Quantum manager로부터 Cordinator 정보를 가져온다.
+
+
+	valSet.cordinator = valSet.selector(valSet, lastProposer, round)  //Front node 선택 계산.
+}
+
+
 
 func calcSeed(valSet poDC.ValidatorSet, proposer common.Address, round uint64) uint64 {
 	offset := 0
@@ -151,6 +201,24 @@ func stickyProposer(valSet poDC.ValidatorSet, proposer common.Address, round uin
 	}
 	pick := seed % uint64(valSet.Size())
 	return valSet.GetByIndex(pick)
+}
+
+func qrfProposer(valSet poDC.ValidatorSet, proposer common.Address, round uint64) poDC.Validator {
+
+	/* Quantum manager 와 주고 받는 것 구현 ?
+
+
+
+	로부터 데이타 수신해서,
+	Extra data를 수신한다.
+	 */
+
+
+
+
+
+
+
 }
 
 func (valSet *defaultSet) AddValidator(address common.Address) bool {

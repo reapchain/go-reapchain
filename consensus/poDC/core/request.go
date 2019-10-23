@@ -31,12 +31,16 @@ func (c *core) handleRequest(request *poDC.Request) error {
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
 
-	if c.state == StateAcceptRequest {
-		c.sendPreprepare(request)
-	}
+	//Qmanager response check is more prefer then StateAccepRequest state.
+
 	if c.state == StateAcceptQMan {  //podc
 		c.sendPreprepare(request)
 	}
+
+	if c.state == StateAcceptRequest {
+		c.sendPreprepare(request)
+	}
+
 
 
 
@@ -51,7 +55,7 @@ func (c *core) handleRequest(request *poDC.Request) error {
 // return errInvalidMessage if the message is invalid
 // return errFutureMessage if the sequence of proposal is larger than current sequence
 // return errOldMessage if the sequence of proposal is smaller than current sequence
-func (c *core) checkRequestMsg(request *istanbul.Request) error {
+func (c *core) checkRequestMsg(request *poDC.Request) error {
 	if request == nil || request.Proposal == nil {
 		return errInvalidMessage
 	}
@@ -65,7 +69,7 @@ func (c *core) checkRequestMsg(request *istanbul.Request) error {
 	}
 }
 
-func (c *core) storeRequestMsg(request *istanbul.Request) {
+func (c *core) storeRequestMsg(request *poDC.Request) {
 	logger := c.logger.New("state", c.state)
 
 	logger.Trace("Store future requests", "request", request)
@@ -100,6 +104,11 @@ func (c *core) processPendingRequests() {
 		}
 		c.logger.Trace("Post pending request", "request", r)
 
+		/* Processing if not responsed from qmanger */
+
+
+
+        /* **************** */
 		go c.sendEvent(poDC.RequestEvent{
 			Proposal: r.Proposal,
 		})
