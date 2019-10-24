@@ -15,7 +15,7 @@
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
 // made by yichoi for PoDC
-
+// PoDC ExtraDATA 타입 정의와 헤더 등이 맞는지 검증 하는 모듈
 package types
 
 import (
@@ -25,7 +25,7 @@ import (
 "github.com/ethereum/go-ethereum/common"
 "github.com/ethereum/go-ethereum/rlp"
 )
-
+//yichoi
 var (
 	// IstanbulDigest represents a hash of "Istanbul practical byzantine fault tolerance"
 	// to identify whether the block is from Istanbul consensus engine
@@ -47,8 +47,11 @@ type IstanbulExtra struct {
 // Reapchain PoDC extra struct
 type PoDCExtra struct {
 	Validators    []common.Address  //다른가? podc에서는 ?
+	//Validator들이 3종류, 상원, 하원 운영위, 운영위 후보, 일반 검증자,,로 세분화됨...
+	// 이걸 나누는 것보다,  Tag를 다는게 효율적일듯.
 	Seal          []byte
 	CommittedSeal [][]byte
+	Tag           []byte   // podc validator 종류 표시 태크  , 1, 상원, 2, 하원 3, 운영위 후보, Candidates, 4. 일반노드
 }
 
 // EncodeRLP serializes ist into the Ethereum RLP format.
@@ -57,6 +60,7 @@ func (ist *PoDCExtra) EncodeRLP(w io.Writer) error {
 		ist.Validators,
 		ist.Seal,
 		ist.CommittedSeal,
+		ist.Tag, //podc
 	})
 }
 
@@ -66,24 +70,28 @@ func (ist *PoDCExtra) DecodeRLP(s *rlp.Stream) error {
 		Validators    []common.Address
 		Seal          []byte
 		CommittedSeal [][]byte
+		Tag           []byte //podc
 	}
 	if err := s.Decode(&poDCExtra); err != nil {
 		return err
 	}
 	ist.Validators, ist.Seal, ist.CommittedSeal = poDCExtra.Validators, poDCExtra.Seal, poDCExtra.CommittedSeal
+	// ?  poDCExtra.Tag   추가 ?
 	return nil
 }
 
 // ExtractIstanbulExtra extracts all values of the IstanbulExtra from the header. It returns an
 // error if the length of the given extra-data is less than 32 bytes or the extra-data can not
 // be decoded.
+
+// made by yichoi for podc ExtractPoDCExtra data
 func ExtractPoDCExtra(h *Header) (*PoDCExtra, error) {
-	if len(h.Extra) < IstanbulExtraVanity {
-		return nil, ErrInvalidIstanbulHeaderExtra
+	if len(h.Extra) < PoDCExtraVanity {
+		return nil, ErrInvalidPoDCHeaderExtra
 	}
 
 	var poDCExtra *PoDCExtra
-	err := rlp.DecodeBytes(h.Extra[IstanbulExtraVanity:], &poDCExtra)
+	err := rlp.DecodeBytes(h.Extra[PoDCExtraVanity:], &poDCExtra)
 	if err != nil {
 		return nil, err
 	}
@@ -93,6 +101,8 @@ func ExtractPoDCExtra(h *Header) (*PoDCExtra, error) {
 // IstanbulFilteredHeader returns a filtered header which some information (like seal, committed seals)
 // are clean to fulfill the Istanbul hash rules. It returns nil if the extra-data cannot be
 // decoded/encoded by rlp.
+
+
 func PoDCFilteredHeader(h *Header, keepSeal bool) *Header {
 	newHeader := CopyHeader(h)
 	poDCExtra, err := ExtractPoDCExtra(newHeader)
