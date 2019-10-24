@@ -270,7 +270,7 @@ func (sb *simpleBackend) verifyCommittedSeals(chain consensus.ChainReader, heade
 	// 1. Get committed seals from current header
 	for _, seal := range extra.CommittedSeal {
 		// 2. Get the original address by seal and parent block hash
-		addr, err := istanbul.GetSignatureAddress(proposalSeal, seal)
+		addr, err := poDC.GetSignatureAddress(proposalSeal, seal)
 		if err != nil {
 			sb.logger.Error("not a valid address", "err", err)
 			return errInvalidSignature
@@ -476,12 +476,13 @@ func (sb *simpleBackend) APIs(chain consensus.ChainReader) []rpc.API {
 	return []rpc.API{{
 		Namespace: "istanbul",
 		Version:   "1.0",
-		Service:   &API{chain: chain, istanbul: sb},
+		Service:   &API{chain: chain, poDC: sb},
 		Public:    true,
 	}}
 }
 
-// HandleMsg implements consensus.Istanbul.HandleMsg
+// HandleMsg implements consensus.PoDC.HandleMsg
+// 합의 메시지 핸들러
 func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 	addr := crypto.PubkeyToAddress(*pubKey)
 	// get the latest snapshot
@@ -494,10 +495,10 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 
 	if _, val := snap.ValSet.GetByAddress(addr); val == nil {
 		sb.logger.Error("Not in validator set", "peerAddr", addr)
-		return istanbul.ErrUnauthorizedAddress
+		return poDC.ErrUnauthorizedAddress
 	}
 
-	go sb.istanbulEventMux.Post(istanbul.MessageEvent{
+	go sb.poDCEventMux.Post(poDC.MessageEvent{
 		Payload: data,
 	})
 	return nil
@@ -510,7 +511,7 @@ func (sb *simpleBackend) NewChainHead(block *types.Block) {
 		sb.logger.Error("Failed to get block proposer", "err", err)
 		return
 	}
-	go sb.istanbulEventMux.Post(istanbul.FinalCommittedEvent{
+	go sb.poDCEventMux.Post(istanbul.FinalCommittedEvent{
 		Proposal: block,
 		Proposer: p,
 	})
@@ -520,7 +521,7 @@ func (sb *simpleBackend) NewChainHead(block *types.Block) {
 func (sb *simpleBackend) Start(chain consensus.ChainReader, inserter func(block *types.Block) error) error {
 	sb.chain = chain
 	sb.inserter = inserter
-	sb.core = istanbulCore.New(sb, sb.config)
+	sb.core = poDCCore.New(sb, sb.config)
 
 	curHeader := chain.CurrentHeader()
 	lastSequence := new(big.Int).Set(curHeader.Number)
@@ -646,7 +647,7 @@ func ecrecover(header *types.Header) (common.Address, error) {
 	if err != nil {
 		return common.Address{}, err
 	}
-	return istanbul.GetSignatureAddress(sigHash(header).Bytes(), istanbulExtra.Seal)
+	return poDC.GetSignatureAddress(sigHash(header).Bytes(), istanbulExtra.Seal)
 }
 
 // prepareExtra returns a extra-data of the given header and validators
