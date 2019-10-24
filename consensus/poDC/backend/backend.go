@@ -39,7 +39,7 @@ lru "github.com/hashicorp/golang-lru"
 
 // New creates an Ethereum backend for Istanbul core engine.
 
-
+// NewRound 인가 ? 스테이트 머신의 ?
 func New(config *poDC.Config, eventMux *event.TypeMux, privateKey *ecdsa.PrivateKey, db ethdb.Database) consensus.PoDC {
 	// Allocate the snapshot caches and create the engine
 	recents, _ := lru.NewARC(inmemorySnapshots)
@@ -96,7 +96,7 @@ func (sb *simpleBackend) Address() common.Address {
 	return sb.address
 }
 
-// Validators implements istanbul.Backend.Validators
+// Validators implements podc.Backend.Validators
 //Validators implements PoDC.Backend.Validators
 func (sb *simpleBackend) Validators(proposal poDC.Proposal) poDC.ValidatorSet {
 	snap, err := sb.snapshot(sb.chain, proposal.Number().Uint64(), proposal.Hash(), nil)
@@ -114,7 +114,7 @@ func (sb *simpleBackend) Send(payload []byte, target common.Address) error {
 	return nil
 }
 
-// Broadcast implements istanbul.Backend.Send
+// Broadcast implements podc.Backend.Send
 func (sb *simpleBackend) Broadcast(valSet poDC.ValidatorSet, payload []byte) error {
 	for _, val := range valSet.List() {
 		if val.Address() == sb.Address() {
@@ -132,7 +132,7 @@ func (sb *simpleBackend) Broadcast(valSet poDC.ValidatorSet, payload []byte) err
 	return nil
 }
 
-// Commit implements istanbul.Backend.Commit
+// Commit implements podc.Backend.Commit
 func (sb *simpleBackend) Commit(proposal poDC.Proposal, seals []byte) error {
 	// Check if the proposal is a valid block
 	block := &types.Block{}
@@ -170,6 +170,9 @@ func (sb *simpleBackend) Commit(proposal poDC.Proposal, seals []byte) error {
 }
 
 // NextRound will broadcast ChainHeadEvent to trigger next seal()
+
+
+// NewRound는 어디에? 있나? Start? New.. set?
 func (sb *simpleBackend) NextRound() error {
 	header := sb.chain.CurrentHeader()
 	sb.logger.Debug("NextRound", "address", sb.Address(), "current_hash", header.Hash(), "current_number", header.Number)
@@ -182,7 +185,7 @@ func (sb *simpleBackend) EventMux() *event.TypeMux {
 	return sb.poDCEventMux
 }
 
-// Verify implements istanbul.Backend.Verify
+// Verify implements podc.Backend.Verify
 func (sb *simpleBackend) Verify(proposal poDC.Proposal) error {
 	// Check if the proposal is a valid block
 	block := &types.Block{}
@@ -200,15 +203,18 @@ func (sb *simpleBackend) Verify(proposal poDC.Proposal) error {
 	return nil
 }
 
-// Sign implements istanbul.Backend.Sign
+// Sign implements podc.Backend.Sign
 func (sb *simpleBackend) Sign(data []byte) ([]byte, error) {
 	hashData := crypto.Keccak256([]byte(data))
-	return crypto.Sign(hashData, sb.privateKey)
+	return crypto.Sign(hashData, sb.privateKey)  // 해시와 개인키로 싸인하고 암호화
 }
 
-// CheckSignature implements istanbul.Backend.CheckSignature
+// CheckSignature implements podc.Backend.CheckSignature
+// 서명 먼저 체크 한다.
+
+
 func (sb *simpleBackend) CheckSignature(data []byte, address common.Address, sig []byte) error {
-	signer, err := istanbul.GetSignatureAddress(data, sig)
+	signer, err := poDC.GetSignatureAddress(data, sig)
 	if err != nil {
 		log.Error("Failed to get signer address", "err", err)
 		return err
@@ -217,5 +223,5 @@ func (sb *simpleBackend) CheckSignature(data []byte, address common.Address, sig
 	if signer != address {
 		return errInvalidSignature
 	}
-	return nil
+	return nil  //에러 없으면 널 리턴
 }

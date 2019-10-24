@@ -106,7 +106,7 @@ type PoW interface {
 type PoDC interface {
 	Engine
 
-	// Hashrate returns the current mining hashrate of a PoW consensus engine.
+	// Hashrate returns the current mining hashrate of a PoDC consensus engine.
 	Hashrate() float64
 }
 // Istanbul is a consensus engine to avoid byzantine failure

@@ -121,7 +121,7 @@ func FromECDSAPub(pub *ecdsa.PublicKey) []byte {
 	if pub == nil || pub.X == nil || pub.Y == nil {
 		return nil
 	}
-	return elliptic.Marshal(S256(), pub.X, pub.Y)
+	return elliptic.Marshal(S256(), pub.X, pub.Y)  // 타원 곡선 함수로 암호화 하는 표준 함수
 }
 
 // HexToECDSA parses a secp256k1 private key.
@@ -178,9 +178,12 @@ func ValidateSignatureValues(v byte, r, s *big.Int, homestead bool) bool {
 	return r.Cmp(secp256k1_N) < 0 && s.Cmp(secp256k1_N) < 0 && (v == 0 || v == 1)
 }
 
+// 공개키를 주면, 일반 enode 주소 리턴 ?
 func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
-	pubBytes := FromECDSAPub(&p)
-	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])
+	pubBytes := FromECDSAPub(&p)  // 공개키를 입력으로 받아서, 타원함수를 써서, 일반 바이트 만듦. pubBytes : type byte , size 65 ?
+	                              // 1차 타원함수 써서 암호화
+	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])  // Keccak256알고리즘으로 해시값을 만들고,
+	              // 바이트를 enode type 20바이트 주소열로 만듦
 }
 
 func zeroBytes(bytes []byte) {
@@ -188,3 +191,5 @@ func zeroBytes(bytes []byte) {
 		bytes[i] = 0
 	}
 }
+
+/* 퀀컴 난수 처리 함수도 여기에 정의 할 것 - yichoi  */

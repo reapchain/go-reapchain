@@ -15,6 +15,8 @@
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
 // Package event deals with subscriptions to real-time events.
+// 이벤트 처리 패키지.  리얼타임이고,, 코어 부분이라.. 변경 되도록 하면 안됨.. yichoi
+// 이 파일 보면 시간 낭비.. 볼 필요 없음.
 package event
 
 import (
@@ -80,6 +82,9 @@ func (mux *TypeMux) Subscribe(types ...interface{}) *TypeMuxSubscription {
 
 // Post sends an event to all receivers registered for the given type.
 // It returns ErrMuxClosed if the mux has been stopped.
+// 이벤트를 코어 쪽에  잠시 멈춘상태에서,, 이벤트를 던진다.
+
+
 func (mux *TypeMux) Post(ev interface{}) error {
 	event := &TypeMuxEvent{
 		Time: time.Now(),
@@ -94,7 +99,7 @@ func (mux *TypeMux) Post(ev interface{}) error {
 	subs := mux.subm[rtyp]
 	mux.mutex.RUnlock()
 	for _, sub := range subs {
-		sub.deliver(event)
+		sub.deliver(event)  // 이더리움 내부 코어쪽 이벤트 핸들러한테 이벤트를 던저준다. 치리하라고,, 알아서,,,
 	}
 	return nil
 }
@@ -196,14 +201,14 @@ func (s *TypeMuxSubscription) closewait() {
 }
 // 이더리움 내부의 런타임/ 이벤트 핸들러에게 전달 하는 함수
 // 전달시 락, 언락을 활용 ?
-func (s *TypeMuxSubscription) deliver(event *TypeMuxEvent) {
+func (s *TypeMuxSubscription) deliver(event *TypeMuxEvent) {  // 변경 불필요.. 그데로 살려야,, 코어쪽이라..
 	// Short circuit delivery if stale event
 	if s.created.After(event.Time) {
 		return
 	}
 	// Otherwise deliver the event
 	s.postMu.RLock()
-	defer s.postMu.RUnlock()
+	defer s.postMu.RUnlock()  // 언락을 지연시키고,, 처리...
 
 	select {
 	case s.postC <- event:

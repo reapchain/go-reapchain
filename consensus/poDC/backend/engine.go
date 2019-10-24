@@ -27,7 +27,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"  //yichoi
 //	istanbulCore "github.com/ethereum/go-ethereum/consensus/istanbul/core"
 	poDCCore "github.com/ethereum/go-ethereum/consensus/poDC/core"
 	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
@@ -241,6 +242,8 @@ func (sb *simpleBackend) verifySigner(chain consensus.ChainReader, header *types
 }
 
 // verifyCommittedSeals checks whether every committed seal is signed by one of the parent's validators
+// 매 커밋된 동봉이 부모 검증자의 하나에 의해서 싸인되었는지 검증하는 함수
+
 func (sb *simpleBackend) verifyCommittedSeals(chain consensus.ChainReader, header *types.Header, parents []*types.Header) error {
 	number := header.Number.Uint64()
 	// We don't need to verify committed seals in the genesis block
@@ -254,7 +257,7 @@ func (sb *simpleBackend) verifyCommittedSeals(chain consensus.ChainReader, heade
 		return err
 	}
 
-	extra, err := types.ExtractIstanbulExtra(header)
+	extra, err := types.ExtractPoDCExtra(header)
 	if err != nil {
 		return err
 	}
@@ -332,16 +335,18 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 	}
 
 	// get valid candidate list
-	sb.candidatesLock.RLock()
+
+	// 최종 검증자들 목록을 가져온다. yichoi
+	sb.candidatesLock.RLock()  //락 하고,
 	var addresses []common.Address
 	var authorizes []bool
 	for address, authorize := range sb.candidates {
-		if snap.checkVote(address, authorize) {
+		if snap.checkVote(address, authorize) {  //투표...
 			addresses = append(addresses, address)
 			authorizes = append(authorizes, authorize)
 		}
 	}
-	sb.candidatesLock.RUnlock()
+	sb.candidatesLock.RUnlock() // 락을 푼다. 아마도 동시성,, 때문에,, 잠시 락 하고 처리후 푸는듯
 
 	// pick one of the candidates randomly
 	if len(addresses) > 0 {
@@ -356,6 +361,9 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 	}
 
 	// add validators in snapshot to extraData's validators section
+	// extraDATA의 검증자 섹션에 검증자를 집어넣는다.
+
+
 	extra, err := prepareExtra(header, snap.validators())
 	if err != nil {
 		return err
@@ -421,8 +429,9 @@ func (sb *simpleBackend) Seal(chain consensus.ChainReader, block *types.Block, s
 	}
 	defer clear()
 
-	// post block into Istanbul engine
-	go sb.EventMux().Post(istanbul.RequestEvent{
+	// post block into PoDC engine
+	// 엔진에 블럭을 붙인다.
+	go sb.EventMux().Post(poDC.RequestEvent{
 		Proposal: block,
 	})
 
@@ -504,14 +513,18 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 	return nil
 }
 
-// NewChainHead implements consensus.Istanbul.NewChainHead
+// NewChainHead implements consensus.PoDC.NewChainHead
+// 새로 블럭체인 헤더를 받는다. // 합의 시작되기 전에,
 func (sb *simpleBackend) NewChainHead(block *types.Block) {
 	p, err := sb.Author(block.Header())
+	// 왜 작가라고 표현 ? 이유 ?
+
+
 	if err != nil {
 		sb.logger.Error("Failed to get block proposer", "err", err)
 		return
 	}
-	go sb.poDCEventMux.Post(istanbul.FinalCommittedEvent{
+	go sb.poDCEventMux.Post(poDC.FinalCommittedEvent{
 		Proposal: block,
 		Proposer: p,
 	})
