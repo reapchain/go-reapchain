@@ -23,7 +23,8 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"  //yichoi
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 	metrics "github.com/ethereum/go-ethereum/metrics"
@@ -32,14 +33,14 @@ import (
 )
 
 // New creates an Istanbul consensus core
-func New(backend istanbul.Backend, config *istanbul.Config) Engine {
+func New(backend poDC.Backend, config *poDC.Config) Engine {
 	c := &core{
 		config:             config,
 		address:            backend.Address(),
 		state:              StateAcceptRequest,
 		logger:             log.New("address", backend.Address()),
 		backend:            backend,
-		backlogs:           make(map[istanbul.Validator]*prque.Prque),
+		backlogs:           make(map[poDC.Validator]*prque.Prque),
 		backlogsMu:         new(sync.Mutex),
 		pendingRequests:    prque.New(),
 		pendingRequestsMu:  new(sync.Mutex),
@@ -55,21 +56,21 @@ func New(backend istanbul.Backend, config *istanbul.Config) Engine {
 // ----------------------------------------------------------------------------
 
 type core struct {
-	config  *istanbul.Config
+	config  *poDC.Config
 	address common.Address
 	state   State
 	logger  log.Logger
 
-	backend istanbul.Backend
+	backend poDC.Backend
 	events  *event.TypeMuxSubscription
 
 	lastProposer          common.Address
-	lastProposal          istanbul.Proposal
-	valSet                istanbul.ValidatorSet
+	lastProposal          poDC.Proposal
+	valSet                poDC.ValidatorSet
 	waitingForRoundChange bool
 	validateFn            func([]byte, []byte) (common.Address, error)
 
-	backlogs   map[istanbul.Validator]*prque.Prque
+	backlogs   map[poDC.Validator]*prque.Prque
 	backlogsMu *sync.Mutex
 
 	current *roundState
@@ -156,8 +157,8 @@ func (c *core) broadcast(msg *message) {
 	}
 }
 
-func (c *core) currentView() *istanbul.View {
-	return &istanbul.View{
+func (c *core) currentView() *poDC.View {
+	return &poDC.View{
 		Sequence: new(big.Int).Set(c.current.Sequence()),
 		Round:    new(big.Int).Set(c.current.Round()),
 	}
@@ -187,8 +188,8 @@ func (c *core) commit() {
 		}
 	}
 }
-
-func (c *core) startNewRound(newView *istanbul.View, roundChange bool) {
+// state machine 의 NewRound start 여기서  .. yichoi
+func (c *core) startNewRound(newView *poDC.View, roundChange bool) {
 	var logger log.Logger
 	if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
@@ -213,7 +214,7 @@ func (c *core) startNewRound(newView *istanbul.View, roundChange bool) {
 	logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "valSet", c.valSet.List(), "size", c.valSet.Size())
 }
 
-func (c *core) catchUpRound(view *istanbul.View) {
+func (c *core) catchUpRound(view *poDC.View) {
 	logger := c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())
 
 	if view.Round.Cmp(c.current.Round()) > 0 {
@@ -266,7 +267,7 @@ func (c *core) newRoundChangeTimer() {
 }
 
 func (c *core) checkValidatorSignature(data []byte, sig []byte) (common.Address, error) {
-	return istanbul.CheckValidatorSignature(c.valSet, data, sig)
+	return poDC.CheckValidatorSignature(c.valSet, data, sig)
 }
 
 // PrepareCommittedSeal returns a committed seal for the given hash
