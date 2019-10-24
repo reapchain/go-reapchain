@@ -16,7 +16,7 @@
 
 package core
 
-import "github.com/ethereum/go-ethereum/consensus/poDC"
+
 
 //import "github.com/ethereum/go-ethereum/consensus/istanbul"
 import "github.com/ethereum/go-ethereum/consensus/poDC"
@@ -32,6 +32,10 @@ func (c *core) handleRequest(request *poDC.Request) error {
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
 
 	//Qmanager response check is more prefer then StateAccepRequest state.
+
+	if c.state == StateRequestQMan {  //podc
+		c.sendPreprepare(request)
+	}
 
 	if c.state == StateAcceptQMan {  //podc
 		c.sendPreprepare(request)
@@ -55,6 +59,7 @@ func (c *core) handleRequest(request *poDC.Request) error {
 // return errInvalidMessage if the message is invalid
 // return errFutureMessage if the sequence of proposal is larger than current sequence
 // return errOldMessage if the sequence of proposal is smaller than current sequence
+// 리퀘스트 메시지의 에러를 먼저 체크한다..
 func (c *core) checkRequestMsg(request *poDC.Request) error {
 	if request == nil || request.Proposal == nil {
 		return errInvalidMessage
