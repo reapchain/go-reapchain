@@ -32,7 +32,7 @@ import (
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
 )
 
-// New creates an Istanbul consensus core
+// New creates an PoDC consensus core
 func New(backend poDC.Backend, config *poDC.Config) Engine {
 	c := &core{
 		config:             config,
@@ -45,9 +45,9 @@ func New(backend poDC.Backend, config *poDC.Config) Engine {
 		pendingRequests:    prque.New(),
 		pendingRequestsMu:  new(sync.Mutex),
 		consensusTimestamp: time.Time{},
-		roundMeter:         metrics.NewMeter("consensus/istanbul/core/round"),
-		sequenceMeter:      metrics.NewMeter("consensus/istanbul/core/sequence"),
-		consensusTimer:     metrics.NewTimer("consensus/istanbul/core/consensus"),
+		roundMeter:         metrics.NewMeter("consensus/poDC/core/round"),
+		sequenceMeter:      metrics.NewMeter("consensus/poDC/core/sequence"),
+		consensusTimer:     metrics.NewTimer("consensus/poDC/core/consensus"),
 	}
 	c.validateFn = c.checkValidatorSignature
 	return c
@@ -163,6 +163,18 @@ func (c *core) currentView() *poDC.View {
 		Round:    new(big.Int).Set(c.current.Round()),
 	}
 }
+
+/* Qmanager에게 ExtraData를 요청하는 거 맞는지 확인 하는 함수 */
+/*
+func (c *core) isRequestQman() bool {
+	v := c.valSet
+	if v == nil {
+		return false
+	}
+	return v.IsRequestQman(c.backend.Address())
+}
+*/
+
 
 func (c *core) isProposer() bool {
 	v := c.valSet

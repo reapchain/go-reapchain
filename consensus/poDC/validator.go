@@ -86,6 +86,9 @@ type ValidatorSet interface {
 
 	// Check whether the validator with given address is a proposer
 	IsProposer(address common.Address) bool
+	// Is request a ExtraDATA to Qmanager
+	IsRequestQman(address common.Address) bool  //podc
+
 	// Add validator
 	AddValidator(address common.Address) bool
 	// Remove validator

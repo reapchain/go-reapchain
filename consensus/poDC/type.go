@@ -12,7 +12,8 @@ import (
 
 
 
-// Proposal supports retrieving height and serialized block to be used during Istanbul consensus.
+// Proposal supports retrieving height and serialized block to be used during PoDC consensus.
+// Proposal block ?
 type Proposal interface {
 	// Number retrieves the sequence number of this proposal.
 	Number() *big.Int
@@ -78,11 +79,20 @@ func (v *View) Cmp(y *View) int {
 	}
 	return 0
 }
-
+// yichoi begin :
 type Preprepare struct {
 	View     *View
 	Proposal Proposal
 }
+type D_select struct {
+	View     *View
+	Proposal Proposal
+}
+type D_commit struct {
+	View     *View
+	Proposal Proposal
+}
+// end
 
 // EncodeRLP serializes b into the Ethereum RLP format.
 func (b *Preprepare) EncodeRLP(w io.Writer) error {

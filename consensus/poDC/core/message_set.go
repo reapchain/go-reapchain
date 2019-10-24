@@ -23,13 +23,14 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"  //podc
 )
 
 // Construct a new message set to accumulate messages for given sequence/view number.
-func newMessageSet(valSet istanbul.ValidatorSet) *messageSet {
+func newMessageSet(valSet poDC.ValidatorSet) *messageSet {
 	return &messageSet{
-		view: &istanbul.View{
+		view: &poDC.View{  // yichoi for podc
 			Round:    new(big.Int),
 			Sequence: new(big.Int),
 		},
@@ -42,13 +43,21 @@ func newMessageSet(valSet istanbul.ValidatorSet) *messageSet {
 // ----------------------------------------------------------------------------
 
 type messageSet struct {
-	view       *istanbul.View
-	valSet     istanbul.ValidatorSet
+	view       *poDC.View
+	valSet     poDC.ValidatorSet
 	messagesMu *sync.Mutex
 	messages   map[common.Hash]*message
 }
+// yichoi begin
+type messageSet struct {
+	view       *poDC.View
+	valSet     poDC.ValidatorSet
+	messagesMu *sync.Mutex
+	messages   map[common.Hash]*message
+}
+// end
 
-func (ms *messageSet) View() *istanbul.View {
+func (ms *messageSet) View() *poDC.View {  //yichoi
 	return ms.view
 }
 
@@ -85,7 +94,7 @@ func (ms *messageSet) Size() int {
 func (ms *messageSet) verify(msg *message) error {
 	// verify if the message comes from one of the validators
 	if _, v := ms.valSet.GetByAddress(msg.Address); v == nil {
-		return istanbul.ErrUnauthorizedAddress
+		return poDC.ErrUnauthorizedAddress
 	}
 
 	// TODO: check view number and sequence number
@@ -94,7 +103,7 @@ func (ms *messageSet) verify(msg *message) error {
 }
 
 func (ms *messageSet) addVerifiedMessage(msg *message) error {
-	ms.messages[istanbul.RLPHash(msg)] = msg
+	ms.messages[poDC.RLPHash(msg)] = msg
 	return nil
 }
 

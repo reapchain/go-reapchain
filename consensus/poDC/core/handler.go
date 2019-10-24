@@ -34,6 +34,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	c.valSet = c.backend.Validators(c.lastProposal)
 
 	// Start a new round from last sequence + 1
+	// a New Round of the State Machine of PoDC : yichoi
 	c.startNewRound(&poDC.View{
 		Sequence: new(big.Int).Add(lastSequence, common.Big1),
 		Round:    common.Big0,
@@ -41,8 +42,8 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 
 	// Tests will handle events itself, so we have to make subscribeEvents()
 	// be able to call in test.
-	c.subscribeEvents()
-	go c.handleEvents()
+	c.subscribeEvents()  /* 이벤트를 수신하는 이벤트 핸들러 */
+	go c.handleEvents()  /* 이벤트를 처리하는 핸들러로 분리 되어 있음 */
 
 	return nil
 }

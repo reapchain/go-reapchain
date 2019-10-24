@@ -21,23 +21,30 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
+
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-func newRoundState(view *istanbul.View, validatorSet istanbul.ValidatorSet) *roundState {
+func newRoundState(view *poDC.View, validatorSet poDC.ValidatorSet) *roundState {
 	return &roundState{
 		round:       view.Round,
 		sequence:    view.Sequence,
-		Preprepare:  nil,
+		//-------------------------
+		/* Preprepare:  nil,
 		Prepares:    newMessageSet(validatorSet),
 		Commits:     newMessageSet(validatorSet),
-		/*
-		D_select:
-		D_commit:
-
-
 		*/
+
+		//--------------------------
+/* podc */
+		Preprepare:  nil,
+		D_select:    newMessageSet(validatorSet),
+		D_commit:     newMessageSet(validatorSet),
+
+
+/* end */
 		Checkpoints: newMessageSet(validatorSet),
 		mu:          new(sync.RWMutex),
 	}
@@ -47,15 +54,21 @@ func newRoundState(view *istanbul.View, validatorSet istanbul.ValidatorSet) *rou
 type roundState struct {
 	round       *big.Int
 	sequence    *big.Int
-	Preprepare  *istanbul.Preprepare
+	//Preprepare  *istanbul.Preprepare  //yichoi
+	Preprepare  *poDC.Preprepare
+	D_select  *poDC.D_select
+	D_commit  *poDC.D_commit
+
+
 	Prepares    *messageSet
+	Dselects    *messageSet  //podc
 	Commits     *messageSet
 	Checkpoints *messageSet
 
 	mu *sync.RWMutex
 }
 
-func (s *roundState) Subject() *istanbul.Subject {
+func (s *roundState) Subject() *poDC.Subject {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -63,8 +76,8 @@ func (s *roundState) Subject() *istanbul.Subject {
 		return nil
 	}
 
-	return &istanbul.Subject{
-		View: &istanbul.View{
+	return &poDC.Subject{
+		View: &poDC.View{
 			Round:    new(big.Int).Set(s.round),
 			Sequence: new(big.Int).Set(s.sequence),
 		},
@@ -72,12 +85,39 @@ func (s *roundState) Subject() *istanbul.Subject {
 	}
 }
 
-func (s *roundState) SetPreprepare(preprepare *istanbul.Preprepare) {
+func (s *roundState) SetPreprepare(preprepare *poDC.Preprepare) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.Preprepare = preprepare
 }
+/* begin : yichoi added for d-select and d-commit */
+func (s *roundState) SetD_select(d_select *poDC.Preprepare) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.D_select = d_select
+}
+
+func (s *roundState) SetD_commit(d_commit *poDC.Preprepare) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.D_commit = d_commit
+}
+/* end */
+
+
+
+
+
+
+
+
+
+
+
+
 //왜 락을 걸지 ?
 
 func (s *roundState) Proposal() istanbul.Proposal {

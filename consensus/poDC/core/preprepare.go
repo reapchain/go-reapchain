@@ -20,9 +20,34 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"time"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul"
 )
 
+/* 최초 Qmanager 에게 ExtraDATA를 요청하는 단계 */
+func (c *core) sendRequestExtraDataToQman(request *poDC.Request) {
+	logger := c.logger.New("state", c.state)
+
+	// If I'm the proposer and I have the same sequence with the proposal
+	if c.current.Sequence().Cmp(request.Proposal.Number()) == 0 && c.isRequestQman() { //?
+		curView := c.currentView()
+		preprepare, err := Encode(&poDC.Preprepare{
+			View:     curView,
+			Proposal: request.Proposal,
+		})
+		if err != nil {
+			logger.Error("Failed to encode", "view", curView)
+			return
+		}
+
+		// proposal block 전파 / pre-prepare 상태
+
+		/* c.broadcast(&message{
+			Code: msgPreprepare,
+			Msg:  preprepare,
+		}) */
+		// 다음은 d-select 상태로 상태 전이함.
+	}
+}
 func (c *core) sendPreprepare(request *poDC.Request) {
 	logger := c.logger.New("state", c.state)
 
@@ -90,3 +115,13 @@ func (c *core) acceptPreprepare(preprepare *poDC.Preprepare) {
 	c.consensusTimestamp = time.Now()
 	c.current.SetPreprepare(preprepare)
 }
+/* begin yichoi added */
+func (c *core) acceptD_select(preprepare *poDC.Preprepare) {
+	c.consensusTimestamp = time.Now()
+	c.current.SetD_select(d_select)
+}
+func (c *core) acceptD_commit(preprepare *poDC.Preprepare) {
+	c.consensusTimestamp = time.Now()
+	c.current.SetD_commit(d_commit)
+}
+/* end */
