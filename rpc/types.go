@@ -112,7 +112,7 @@ type ServerCodec interface {
 	// Assemble error response with extra information about the error through info
 	CreateErrorResponseWithInfo(id interface{}, err Error, info interface{}) interface{}
 	// Create notification response
-	CreateNotification(id, namespace string, event interface{}) interface{}
+	CreateNotification(id, namespace string, event interface{}) interface{}  // use for podc qmanager check,,, later
 	// Write msg to client.
 	Write(msg interface{}) error
 	// Close underlying data stream

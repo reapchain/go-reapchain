@@ -134,7 +134,7 @@ func HexToECDSA(hexkey string) (*ecdsa.PrivateKey, error) {
 }
 
 // LoadECDSA loads a secp256k1 private key from the given file.
-func LoadECDSA(file string) (*ecdsa.PrivateKey, error) {
+func LoadECDSA(file string) (*ecdsa.PrivateKey, error) {  // 합의에서 쓸 함수, 키 파일롤 부터 읽을 함수
 	buf := make([]byte, 64)
 	fd, err := os.Open(file)
 	if err != nil {
@@ -159,7 +159,7 @@ func SaveECDSA(file string, key *ecdsa.PrivateKey) error {
 	return ioutil.WriteFile(file, []byte(k), 0600)
 }
 
-func GenerateKey() (*ecdsa.PrivateKey, error) {
+func GenerateKey() (*ecdsa.PrivateKey, error) {  // key 생성..
 	return ecdsa.GenerateKey(S256(), rand.Reader)
 }
 

@@ -58,7 +58,7 @@ var errServerStopped = errors.New("server stopped")
 // Config holds Server options.
 type Config struct {
 	// This field must be set to a valid secp256k1 private key.
-	PrivateKey *ecdsa.PrivateKey `toml:"-"`
+	PrivateKey *ecdsa.PrivateKey `toml:"-"`   // private key 저장하는 변수 서버쪽
 
 	// MaxPeers is the maximum number of peers that can be
 	// connected. It must be greater than zero.

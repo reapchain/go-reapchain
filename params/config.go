@@ -128,6 +128,7 @@ type ChainConfig struct {
 	Ethash   *EthashConfig   `json:"ethash,omitempty"`
 	Clique   *CliqueConfig   `json:"clique,omitempty"`
 	Istanbul *IstanbulConfig `json:"istanbul,omitempty"`
+	PoDC     *PoDCConfig     `json:"podc,omitempty"`     // PoDC consensus engines by yichoi
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -154,12 +155,19 @@ type IstanbulConfig struct {
 	Epoch          uint64 `json:"epoch"`  // Epoch length to reset votes and checkpoint
 	ProposerPolicy uint64 `json:"policy"` // The policy for proposer selection
 }
-
+// PoDCConfig is the consensus engine configs for Istanbul based sealing.
+type PoDCConfig struct {
+	Epoch          uint64 `json:"epoch"`  // Epoch length to reset votes and checkpoint
+	ProposerPolicy uint64 `json:"policy"` // The policy for proposer selection
+}
 // String implements the stringer interface, returning the consensus engine details.
 func (c *IstanbulConfig) String() string {
 	return "istanbul"
 }
-
+// String implements the stringer interface, returning the consensus engine details.
+func (c *PoDCConfig) String() string {
+	return "podc"
+}
 // String implements the fmt.Stringer interface.
 func (c *ChainConfig) String() string {
 	var engine interface{}
@@ -170,6 +178,9 @@ func (c *ChainConfig) String() string {
 		engine = c.Clique
 	case c.Istanbul != nil:
 		engine = c.Istanbul
+	case c.PoDC != nil:     /* podc */
+		engine = c.PoDC
+
 	default:
 		engine = "unknown"
 	}

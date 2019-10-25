@@ -31,7 +31,9 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/poDC"  //yichoi
 //	istanbulCore "github.com/ethereum/go-ethereum/consensus/istanbul/core"
 	poDCCore "github.com/ethereum/go-ethereum/consensus/poDC/core"
-	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+	"github.com/ethereum/go-ethereum/consensus/poDC/validator"
+
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -95,6 +97,8 @@ var (
 // Author retrieves the Ethereum address of the account that minted the given
 // block, which may be different from the header's coinbase if a consensus
 // engine is based on signatures.
+/*
+작성자는 주어진 블록을 발행 한 계정의 이더 리움 주소를 가져옵니다. 컨센서스 엔진이 서명을 기반으로하는 경우 헤더의 코인베이스와 다를 수 있습니다. */
 func (sb *simpleBackend) Author(header *types.Header) (common.Address, error) {
 	return ecrecover(header)
 }
@@ -121,7 +125,7 @@ func (sb *simpleBackend) verifyHeader(chain consensus.ChainReader, header *types
 	}
 
 	// Ensure that the extra data format is satisfied
-	if _, err := types.ExtractIstanbulExtra(header); err != nil {
+	if _, err := types.ExtractPoDCExtra(header); err != nil {
 		return errInvalidExtraDataFormat
 	}
 
@@ -485,7 +489,7 @@ func (sb *simpleBackend) APIs(chain consensus.ChainReader) []rpc.API {
 	return []rpc.API{{
 		Namespace: "istanbul",
 		Version:   "1.0",
-		Service:   &API{chain: chain, poDC: sb},
+		Service:   &API{chain: chain, podc: sb},   /* podc */
 		Public:    true,
 	}}
 }
@@ -648,7 +652,7 @@ func sigHash(header *types.Header) (hash common.Hash) {
 	hasher := sha3.NewKeccak256()
 
 	// Clean seal is required for calculating proposer seal.
-	rlp.Encode(hasher, types.IstanbulFilteredHeader(header, false))
+	rlp.Encode(hasher, types.PoDCFilteredHeader(header, false))
 	hasher.Sum(hash[:0])
 	return hash
 }
@@ -656,11 +660,11 @@ func sigHash(header *types.Header) (hash common.Hash) {
 // ecrecover extracts the Ethereum account address from a signed header.
 func ecrecover(header *types.Header) (common.Address, error) {
 	// Retrieve the signature from the header extra-data
-	istanbulExtra, err := types.ExtractIstanbulExtra(header)
+	poDCExtra, err := types.ExtractPoDCExtra(header)
 	if err != nil {
 		return common.Address{}, err
 	}
-	return poDC.GetSignatureAddress(sigHash(header).Bytes(), istanbulExtra.Seal)
+	return poDC.GetSignatureAddress(sigHash(header).Bytes(), poDCExtra.Seal)
 }
 
 // prepareExtra returns a extra-data of the given header and validators
@@ -668,8 +672,8 @@ func prepareExtra(header *types.Header, vals []common.Address) ([]byte, error) {
 	var buf bytes.Buffer
 
 	// compensate the lack bytes if header.Extra is not enough IstanbulExtraVanity bytes.
-	if len(header.Extra) < types.IstanbulExtraVanity {
-		header.Extra = append(header.Extra, bytes.Repeat([]byte{0x00}, types.IstanbulExtraVanity-len(header.Extra))...)
+	if len(header.Extra) < types.PoDCExtraVanity {
+		header.Extra = append(header.Extra, bytes.Repeat([]byte{0x00}, types.PoDCExtraVanity-len(header.Extra))...)
 	}
 	buf.Write(header.Extra[:types.IstanbulExtraVanity])
 
