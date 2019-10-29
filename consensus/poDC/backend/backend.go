@@ -40,6 +40,7 @@ lru "github.com/hashicorp/golang-lru"
 // New creates an Ethereum backend for Istanbul core engine.
 
 // NewRound 인가 ? 스테이트 머신의 ?
+// 합의 엔진 메모리 로드 후 최초 여기로 분기됨.
 func New(config *poDC.Config, eventMux *event.TypeMux, privateKey *ecdsa.PrivateKey, db ethdb.Database) consensus.PoDC {
 	// Allocate the snapshot caches and create the engine
 	recents, _ := lru.NewARC(inmemorySnapshots)
@@ -80,7 +81,7 @@ type simpleBackend struct {
 
 	// the channels for istanbul engine notifications
 	commitCh          chan *types.Block
-	proposedBlockHash common.Hash
+	proposedBlockHash common.Hash  //   ?
 	sealMu            sync.Mutex
 
 	// Current list of candidates we are pushing
@@ -101,11 +102,12 @@ func (sb *simpleBackend) Address() common.Address {
 func (sb *simpleBackend) Validators(proposal poDC.Proposal) poDC.ValidatorSet {
 	snap, err := sb.snapshot(sb.chain, proposal.Number().Uint64(), proposal.Hash(), nil)
 	if err != nil {
-		return validator.NewSet(nil, sb.config.ProposerPolicy)
+		return validator.NewSet(nil, sb.config.ProposerPolicy)  // 지금은 라운드로빈으로, 동작 예정, 
 	}
 	return snap.ValSet
 }
-
+// 특정 enode 주소에 바이트 데이타를 보낸다.
+// Low layer에 ( 즉 코어 쪽에 ) 배달만 하면, EVM과 RPC가 알아서, 전송해준다. 우리는 코어쪽에 배달만 하면 된다.
 func (sb *simpleBackend) Send(payload []byte, target common.Address) error {
 	go sb.eventMux.Post(poDC.ConsensusDataEvent{
 		Target: target,
@@ -114,19 +116,27 @@ func (sb *simpleBackend) Send(payload []byte, target common.Address) error {
 	return nil
 }
 
+
+//
+
 // Broadcast implements podc.Backend.Send
+// 모든 Validator에게 Validator 집합에서 있는 목록으로 메시지 전송
 func (sb *simpleBackend) Broadcast(valSet poDC.ValidatorSet, payload []byte) error {
+
+	// 모든 Validator 리스트에 다 보냄.
 	for _, val := range valSet.List() {
-		if val.Address() == sb.Address() {
+		if val.Address() == sb.Address() {  // 목록에 있는 Validator node가 송신자, 자기 자신이라면,
 			// send to self
 			msg := poDC.MessageEvent{
 				Payload: payload,
 			}
-			go sb.poDCEventMux.Post(msg)
+			go sb.poDCEventMux.Post(msg)  // 이더리움 내부 , Evm에 메시지 전달
 
 		} else {
 			// send to other peers
-			sb.Send(payload, val.Address())
+			sb.Send(payload, val.Address())  // 외부 노드로 보낸다.
+			// Proposer( Front node )는 Qmanager로 부터 ExtraDATA수신 후, 이걸로 메시지를 만들어서,
+			//   Validator 집합에 있는 노드들에게 메시지를 던진다.
 		}
 	}
 	return nil

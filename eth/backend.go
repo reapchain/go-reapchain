@@ -149,7 +149,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		core.WriteBlockChainVersion(chainDb, core.BlockChainVersion)
 	}
 
-	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}
+	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}  //vm interpreter : Evm 명령어 해석기
 	eth.blockchain, err = core.NewBlockChain(chainDb, eth.chainConfig, eth.engine, eth.eventMux, vmConfig)
 	if err != nil {
 		return nil, err
@@ -162,7 +162,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	}
 
 	newPool := core.NewTxPool(config.TxPool, eth.chainConfig, eth.EventMux(), eth.blockchain.State, eth.blockchain.GasLimit)
-	eth.txPool = newPool
+	eth.txPool = newPool   // 새로운 TxPool를 만들고 이더리움 오브젝트의 txPool 포인터랑 연결
 
 	maxPeers := config.MaxPeers
 	if config.LightServ > 0 {
@@ -182,7 +182,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	eth.miner = miner.New(eth, eth.chainConfig, eth.EventMux(), eth.engine)
 	eth.miner.SetExtra(makeExtraData(config.ExtraData))
 
-	eth.ApiBackend = &EthApiBackend{eth, nil}
+	eth.ApiBackend = &EthApiBackend{eth, nil}  //풀노드에 대한 백엔드 api 만든다.
 	gpoParams := config.GPO
 	if gpoParams.Default == nil {
 		gpoParams.Default = config.GasPrice
@@ -191,7 +191,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 
 	return eth, nil
 }
-
+// 이스탄불에서 ExtraData를 만든다.
 func makeExtraData(extra []byte) []byte {
 	if len(extra) == 0 {
 		// create default extradata
@@ -232,6 +232,7 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 		config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
 		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)
 	}
+<<<<<<< HEAD
 	// yichoi - begin for podc 
 	// If Istanbul is requested, set it up
 	if chainConfig.PoDC != nil {
@@ -243,6 +244,14 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 	}
     // end 
     
+=======
+	// PoDC ..
+
+
+
+
+
+>>>>>>> update
 	// Otherwise assume proof-of-work
 	switch {
 	case config.PowFake:
@@ -254,6 +263,10 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 	case config.PowShared:
 		log.Warn("Ethash used in shared mode")
 		return ethash.NewShared()
+
+
+
+
 	default:
 		engine := ethash.New(ctx.ResolvePath(config.EthashCacheDir), config.EthashCachesInMem, config.EthashCachesOnDisk,
 			config.EthashDatasetDir, config.EthashDatasetsInMem, config.EthashDatasetsOnDisk)
@@ -373,7 +386,7 @@ func (s *Ethereum) StartMining(local bool) error {
 		// will ensure that private networks work in single miner mode too.
 		s.protocolManager.SetAcceptTxs(1)
 	}
-	go s.miner.Start(eb)
+	go s.miner.Start(eb)  // -> miner.go
 	return nil
 }
 
@@ -385,7 +398,7 @@ func (s *Ethereum) AccountManager() *accounts.Manager  { return s.accountManager
 func (s *Ethereum) BlockChain() *core.BlockChain       { return s.blockchain }
 func (s *Ethereum) TxPool() *core.TxPool               { return s.txPool }
 func (s *Ethereum) EventMux() *event.TypeMux           { return s.eventMux }
-func (s *Ethereum) Engine() consensus.Engine           { return s.engine }
+func (s *Ethereum) Engine() consensus.Engine           { return s.engine }  //합의
 func (s *Ethereum) ChainDb() ethdb.Database            { return s.chainDb }
 func (s *Ethereum) IsListening() bool                  { return true } // Always listening
 func (s *Ethereum) EthVersion() int                    { return int(s.protocolManager.Protocols()[0].Version) }

@@ -69,7 +69,7 @@ type defaultSet struct {
 
 
 
-
+// 최초 Proposer 는 newDefaultSet를 호출할때, sort 후 GetByIndex (0) 로 선택하고, 추후에는 selector를 사용해서 한다.
 
 func newDefaultSet(addrs []common.Address, selector poDC.ProposalSelector) *defaultSet {
 	valSet := &defaultSet{}
@@ -78,6 +78,7 @@ func newDefaultSet(addrs []common.Address, selector poDC.ProposalSelector) *defa
 	valSet.validators = make([]poDC.Validator, len(addrs))
 	for i, addr := range addrs {
 		valSet.validators[i] = New(addr)
+		// 추후 Validators 를 로그로 찍어볼것
 	}
 	// sort validator
 	sort.Sort(valSet.validators)
@@ -135,6 +136,31 @@ func (valSet *defaultSet) GetByAddress(addr common.Address) (int, poDC.Validator
 func (valSet *defaultSet) GetProposer() poDC.Validator {
 	return valSet.proposer
 }
+// Check that " I'm coordinator or not " , self check.
+// 코디네이트는 핸들어에서 브로드캐스트 메시지를 받으면,
+//
+func (valSet *defaultSet) SelfCheckCordi() poDC.Validator {
+	return valSet.cordinator  //"
+}
+
+//yichoi cordinator infomation is received from Qmanger server
+func (valSet *defaultSet) RecvCordinator(lastProposer common.Address, round uint64) {  //?
+	valSet.validatorMu.RLock()
+	defer valSet.validatorMu.RUnlock()
+	// Quantum manager로부터 Cordinator 정보를 가져온다.
+
+
+	valSet.cordinator = valSet.selector(valSet, lastProposer, round)  //Front node 선택 계산.
+}
+//
+// Check that "I'm a candidate of steering committee from Qmanager"
+
+func (valSet *defaultSet) SelfCheckCandidate() poDC.Validator {
+	return valSet.candidate  //
+}
+//
+
+
 //yichoi Get Confirmed Committee
 func (valSet *defaultSet) GetConfirmedCommittee() poDC.Validator {
 	return valSet.proposer
@@ -151,15 +177,7 @@ func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64
 	valSet.proposer = valSet.selector(valSet, lastProposer, round)  //Front node 선택 계산.
 }
 
-//yichoi cordinator infomation is received from Qmanger server
-func (valSet *defaultSet) RecvCordinator(lastProposer common.Address, round uint64) {
-	valSet.validatorMu.RLock()
-	defer valSet.validatorMu.RUnlock()
-// Quantum manager로부터 Cordinator 정보를 가져온다.
 
-
-	valSet.cordinator = valSet.selector(valSet, lastProposer, round)  //Front node 선택 계산.
-}
 
 
 
@@ -203,10 +221,11 @@ func stickyProposer(valSet poDC.ValidatorSet, proposer common.Address, round uin
 	return valSet.GetByIndex(pick)
 }
 
+//Quantum Random Finding .. ?
 func qrfProposer(valSet poDC.ValidatorSet, proposer common.Address, round uint64) poDC.Validator {
 
 	/* Quantum manager 와 주고 받는 것 구현 ?
-
+    // ExtraDATA에서,, 코디와 운영위, 상임위등, Validator들의 정보를 파싱해서, 수집
 
 
 	로부터 데이타 수신해서,

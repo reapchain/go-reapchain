@@ -174,6 +174,7 @@ func (g *Genesis) configOrDefault(ghash common.Hash) *params.ChainConfig {
 }
 
 // ToBlock creates the block and state of a genesis specification.
+// 중요
 func (g *Genesis) ToBlock() (*types.Block, *state.StateDB) {
 	db, _ := ethdb.NewMemDatabase()
 	statedb, _ := state.New(common.Hash{}, db)
@@ -219,6 +220,7 @@ func (g *Genesis) Commit(db ethdb.Database) (*types.Block, error) {
 	if err := WriteBlock(db, block); err != nil {
 		return nil, err
 	}
+	// 배치 또는 토큰,, 사용할 함수 .. 허용환 본부장
 	if err := WriteBlockReceipts(db, block.Hash(), block.NumberU64(), nil); err != nil {
 		return nil, err
 	}

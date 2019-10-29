@@ -88,10 +88,11 @@ func (sb *simpleBackend) Address() common.Address {
 }
 
 // Validators implements istanbul.Backend.Validators
+// 이스탄불 백엔드 Validator구현
 func (sb *simpleBackend) Validators(proposal istanbul.Proposal) istanbul.ValidatorSet {
 	snap, err := sb.snapshot(sb.chain, proposal.Number().Uint64(), proposal.Hash(), nil)
 	if err != nil {
-		return validator.NewSet(nil, sb.config.ProposerPolicy)
+		return validator.NewSet(nil, sb.config.ProposerPolicy)  //proposer 찾는 clue
 	}
 	return snap.ValSet
 }

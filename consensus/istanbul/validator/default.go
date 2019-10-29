@@ -42,7 +42,7 @@ func (val *defaultValidator) String() string {
 
 type defaultSet struct {
 	validators  istanbul.Validators
-	proposer    istanbul.Validator
+	proposer    istanbul.Validator   // 사전에 설정된 디폴트 집합에서 proposer를 ...
 	validatorMu sync.RWMutex
 
 	selector istanbul.ProposalSelector
@@ -52,15 +52,16 @@ func newDefaultSet(addrs []common.Address, selector istanbul.ProposalSelector) *
 	valSet := &defaultSet{}
 
 	// init validators
-	valSet.validators = make([]istanbul.Validator, len(addrs))
+	valSet.validators = make([]istanbul.Validator, len(addrs))  // Validator 목록 만든다.
 	for i, addr := range addrs {
 		valSet.validators[i] = New(addr)
 	}
 	// sort validator
 	sort.Sort(valSet.validators)
-	// init proposer
+	// init proposer   : 여기서 최초로 proposer를 설정한다. yichoi
 	if valSet.Size() > 0 {
-		valSet.proposer = valSet.GetByIndex(0)
+		valSet.proposer = valSet.GetByIndex(0)  // 최초 proposer = front node of podc
+		       // Validator 목록에서 index 0 를 proposer로 설정한다.
 	}
 	//set proposal selector
 	valSet.selector = selector
@@ -124,7 +125,7 @@ func calcSeed(valSet istanbul.ValidatorSet, proposer common.Address, round uint6
 func emptyAddress(addr common.Address) bool {
 	return addr == common.Address{}
 }
-
+// 라운드로빈 방식으로 Proposer를 결정한다.
 func roundRobinProposer(valSet istanbul.ValidatorSet, proposer common.Address, round uint64) istanbul.Validator {
 	if valSet.Size() == 0 {
 		return nil
@@ -136,7 +137,7 @@ func roundRobinProposer(valSet istanbul.ValidatorSet, proposer common.Address, r
 		seed = calcSeed(valSet, proposer, round) + 1
 	}
 	pick := seed % uint64(valSet.Size())
-	return valSet.GetByIndex(pick)
+	return valSet.GetByIndex(pick)  // 라운드로빈 index를 넣어준다.
 }
 
 func stickyProposer(valSet istanbul.ValidatorSet, proposer common.Address, round uint64) istanbul.Validator {

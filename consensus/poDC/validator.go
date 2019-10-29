@@ -22,14 +22,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-const {
-	Senator
-	Parliamentarian
-	Candidate
-	General
+const (
 
+	Senator   // 상원
+	Parliamentarian  // 하원
+	Candidate   // 하원, 운영위 후보군
+	General    // 일반 노드, 상원, 하원도 아닌.
 
-}
+)
 
 
 // 모든 Validator 로 선언하고, 여기서 각 Label/ tag 붙여서 관리한다.
@@ -65,7 +65,7 @@ func (slice Validators) Swap(i, j int) {
 
 type ValidatorSet interface {
 	// Calculate the proposer
-	CalcProposer(lastProposer common.Address, round uint64)
+	CalcProposer(lastProposer common.Address, round uint64)  // 최초 Proposer 가 누군지 계산 ,,
 
 	// 코디 후보군 선정 ?
 	RecvCordinator(lastProposer common.Address, round uint64) //yichoi

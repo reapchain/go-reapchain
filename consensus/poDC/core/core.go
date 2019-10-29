@@ -89,17 +89,17 @@ type core struct {
 	// the timer to record consensus duration (from accepting a preprepare to final committed stage)
 	consensusTimer goMetrics.Timer
 }
-
+// 최종 전송할 메시지를 만듦
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
 	var err error
 	// Add sender address
-	msg.Address = c.Address()
+	msg.Address = c.Address()  //message 에 송신자 enode 주소를 탑재
 
 	// Add proof of consensus
-	msg.CommittedSeal = []byte{}
+	msg.CommittedSeal = []byte{}  // CommittedSeal 배열 초기화
 	// Assign the CommittedSeal if it's a commit message and proposal is not nil
 	if msg.Code == msgCommit && c.current.Proposal() != nil {
-		seal := PrepareCommittedSeal(c.current.Proposal().Hash())
+		seal := PrepareCommittedSeal(c.current.Proposal().Hash())  // message 구조체에 CommittedSeal 배열을 채움
 		msg.CommittedSeal, err = c.backend.Sign(seal)
 		if err != nil {
 			return nil, err
@@ -140,11 +140,11 @@ func (c *core) send(msg *message, target common.Address) {
 		return
 	}
 }
-
+// message 구조체 내에 enode address가 있음.
 func (c *core) broadcast(msg *message) {
 	logger := c.logger.New("state", c.state)
 
-	payload, err := c.finalizeMessage(msg)
+	payload, err := c.finalizeMessage(msg)  //최종적으로 메시지 구조체에 탑재할 모든 메시지를 만듦
 	if err != nil {
 		logger.Error("Failed to finalize message", "msg", msg, "err", err)
 		return
@@ -181,7 +181,7 @@ func (c *core) isProposer() bool {
 	if v == nil {
 		return false
 	}
-	return v.IsProposer(c.backend.Address())
+	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,
 }
 
 func (c *core) commit() {
@@ -261,11 +261,12 @@ func (c *core) newRoundChangeTimer() {
 
 	// set timeout based on the round number
 	timeout := time.Duration(c.config.RequestTimeout)*time.Millisecond + time.Duration(c.current.Round().Uint64()*c.config.BlockPeriod)*time.Second
+	           // 타임아웃 시간은 우측 수식에 의해서 계산됨 값.
 	c.roundChangeTimer = time.AfterFunc(timeout, func() {
 		// If we're not waiting for round change yet, we can try to catch up
 		// the max round with F+1 round change message. We only need to catch up
 		// if the max round is larger than current round.
-		if !c.waitingForRoundChange {
+		if !c.waitingForRoundChange {  // bool 값
 			maxRound := c.roundChangeSet.MaxRound(c.valSet.F() + 1)
 			if maxRound != nil && maxRound.Cmp(c.current.Round()) > 0 {
 				c.sendRoundChange(maxRound)

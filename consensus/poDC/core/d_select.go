@@ -62,7 +62,7 @@ func (c *core) sendD_select() {
 
 func (c *core) handleD_select(msg *message, src istanbul.Validator) error {
 	// Decode prepare message
-	var prepare *istanbul.Subject
+	var prepare *poDC.Subject
 	err := msg.Decode(&prepare)
 	if err != nil {
 		return errFailedDecodePrepare

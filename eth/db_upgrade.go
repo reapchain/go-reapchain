@@ -276,7 +276,7 @@ func addMipmapBloomBins(db ethdb.Database) (err error) {
 			return
 		}
 	}()
-	latestHash := core.GetHeadBlockHash(db)
+	latestHash := core.GetHeadBlockHash(db)  // HeadBlockHash - yichoi
 	latestBlock := core.GetBlock(db, latestHash, core.GetBlockNumber(db, latestHash))
 	if latestBlock == nil { // clean database
 		return
