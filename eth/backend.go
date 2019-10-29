@@ -232,7 +232,17 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 		config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
 		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)
 	}
-
+	// yichoi - begin for podc 
+	// If Istanbul is requested, set it up
+	if chainConfig.PoDC != nil {
+		if chainConfig.PoDC.Epoch != 0 {
+			config.PoDC.Epoch = chainConfig.PoDC.Epoch
+		}
+		config.PoDC.ProposerPolicy = poDC.ProposerPolicy(chainConfig.PoDC.ProposerPolicy)
+		return istanbulBackend.New(&config.PoDC, ctx.EventMux, ctx.NodeKey(), db)
+	}
+    // end 
+    
 	// Otherwise assume proof-of-work
 	switch {
 	case config.PowFake:
