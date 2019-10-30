@@ -57,9 +57,14 @@ func (h Hash) TerminalString() string {
 
 // String implements the stringer interface and is used also by the logger when
 // doing full logging into a file.
-func (h Hash) String() string {
+func (h Hash) String() string {  // from validator.go
 	return h.Hex()
 }
+// Tag information return, different validator
+func (h Hash) Tag() string {  // from validator.go
+	return h.Hex()
+}
+
 
 // Format implements fmt.Formatter, forcing the byte slice to be formatted as is,
 // without going through the stringer interface used for logging.

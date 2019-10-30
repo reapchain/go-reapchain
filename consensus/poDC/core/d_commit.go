@@ -7,30 +7,6 @@ import (
 	"reflect"
 )
 
-// Copyright 2017 AMIS Technologies
-// This file is part of the go-ethereum library.
-//
-// The go-ethereum library is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// The go-ethereum library is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU Lesser General Public License for more details.
-//
-// You should have received a copy of the GNU Lesser General Public License
-// along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
-
-package core
-
-import (
-"reflect"
-
-"github.com/ethereum/go-ethereum/consensus/istanbul"
-)
-
 func (c *core) sendD_Commit() {
 	logger := c.logger.New("state", c.state)
 
@@ -76,7 +52,7 @@ func (c *core) handleD_Commit(msg *message, src poDC.Validator) error {
 }
 
 // verifyCommit verifies if the received commit message is equivalent to our subject
-func (c *core) verifyD_Commit(commit *istanbul.Subject, src istanbul.Validator) error {
+func (c *core) verifyD_Commit(commit *poDC.Subject, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	sub := c.current.Subject()
@@ -88,7 +64,7 @@ func (c *core) verifyD_Commit(commit *istanbul.Subject, src istanbul.Validator) 
 	return nil
 }
 
-func (c *core) acceptD_Commit(msg *message, src istanbul.Validator) error {
+func (c *core) acceptD_Commit(msg *message, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	// Add the commit message to current round state

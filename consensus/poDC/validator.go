@@ -47,8 +47,22 @@ type Validator interface {
 
 // ----------------------------------------------------------------------------
 
-type Validators []Validator
+type Validators []Validator   // go 배열 표현
 
+/* 설명 : Validators = [ address, String, Tag ] [ ... ] [ ... ] ......... */
+/*  Validator node
+|-------------------------|
+|  enode address(20 byte)
+|-------------------------|
+   String인데,,String()모르겠으나, 그냥 문자열,
+   Validator 를 나타내는
+|-------------------------|
+   Tag를 새로 달았음.
+|-------------------------|        ............   N 개 Validators
+
+
+
+*/
 func (slice Validators) Len() int {
 	return len(slice)
 }
