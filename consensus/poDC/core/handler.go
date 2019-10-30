@@ -22,7 +22,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/poDC"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	// "github.com/ethereum/go-ethereum/consensus/istanbul"
 )
 
 // Start implements core.Engine.Start
@@ -36,7 +36,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 
 	// Start a new round from last sequence + 1
 	// a New Round of the State Machine of PoDC : yichoi
-	c.startNewRound(&poDC.View{
+	c.startNewRound(&poDC.View{ //1.
 		Sequence: new(big.Int).Add(lastSequence, common.Big1),
 		Round:    common.Big0,
 	}, false)
@@ -61,7 +61,7 @@ func (c *core) Stop() error {
 func (c *core) subscribeEvents() {
 	c.events = c.backend.EventMux().Subscribe(
 		// external events
-		poDC.RequestEvent{},
+		poDC.RequestEvent{}, // Qmanger request event도 여기.. 속함.
 		poDC.MessageEvent{},
 		poDC.FinalCommittedEvent{},
 		// internal events
@@ -116,14 +116,16 @@ func (c *core) handleMsg(payload []byte) error {
 	_, src := c.valSet.GetByAddress(msg.Address)
 	if src == nil {
 		logger.Error("Invalid address in message", "msg", msg)
-		return istanbul.ErrUnauthorizedAddress
+		return poDC.ErrUnauthorizedAddress
 	}
-
-	return c.handleCheckedMsg(msg, src)
+	// 위는 코어 쪽에서 메시지 받고, 검증하고, Payload를 가져오고,
+	return c.handleCheckedMsg(msg, src) // 메시지 처리 핸들러는 여기서,
 }
 
-func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
-	logger := c.logger.New("address", c.address, "from", src)
+// 실제 모든 코어단에서 받는 메시지를 처리하는 마지막 핸들러...
+
+func (c *core) handleCheckedMsg(msg *message, src poDC.Validator) error {
+	logger := c.logger.New("address", c.address, "from", src) // 송진자 enode address를 가지고, 로깅
 
 	// Store the message if it's a future message
 	testBacklog := func(err error) error {
@@ -136,16 +138,19 @@ func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
 	}
 
 	switch msg.Code {
+
+	// 경우에 따라서 테스트시 오류 검증을 위해서, 이스탄불 소스를 돌릴수 있기 때문에, 여기서는 메시지 상태 머신을 섞어서 쓴다.
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
 	case msgPrepare:
 		return testBacklog(c.handlePrepare(msg, src))
 
-	case msgD_select: //yichoi
-		return testBacklog(c.handlePrepare(msg, src))
 	case msgCommit:
 		return testBacklog(c.handleCommit(msg, src))
 
+		// message handler - begin
+	case msgD_select: //yichoi
+		return testBacklog(c.handlePrepare(msg, src))
 	case msgD_commit: //yichoi d-commit
 		return testBacklog(c.handleD_commit(msg, src))
 

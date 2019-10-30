@@ -22,12 +22,13 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
 type Engine interface {
-	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal) error
+	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal poDC.Proposal) error
 	Stop() error
 }
 

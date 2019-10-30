@@ -42,8 +42,10 @@ func newRoundState(view *poDC.View, validatorSet poDC.ValidatorSet) *roundState 
 		Preprepare:  nil,
 		D_select:    newMessageSet(validatorSet),
 		D_commit:     newMessageSet(validatorSet),
-
-
+     // 기존 이스탄불이 동작하도록 공존 시킴 - begin
+		Prepares:    newMessageSet(validatorSet),
+		Commits:     newMessageSet(validatorSet),
+     // end
 /* end */
 		Checkpoints: newMessageSet(validatorSet),
 		mu:          new(sync.RWMutex),
@@ -61,7 +63,7 @@ type roundState struct {
 
 
 	Prepares    *messageSet
-	Dselects    *messageSet  //podc
+	selects    *messageSet  //podc  ?
 	Commits     *messageSet
 	Checkpoints *messageSet
 
@@ -120,7 +122,7 @@ func (s *roundState) SetD_commit(d_commit *poDC.Preprepare) {
 
 //왜 락을 걸지 ?
 
-func (s *roundState) Proposal() istanbul.Proposal {
+func (s *roundState) Proposal() poDC.Proposal {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -166,7 +168,7 @@ func (s *roundState) DecodeRLP(stream *rlp.Stream) error {
 	var ss struct {
 		Round       *big.Int
 		Sequence    *big.Int
-		Preprepare  *istanbul.Preprepare
+		Preprepare  *poDC.Preprepare
 		Prepares    *messageSet
 		Commits     *messageSet
 		Checkpoints *messageSet

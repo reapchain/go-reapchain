@@ -32,10 +32,10 @@ type Backend interface {
 	// EventMux returns the event mux in backend
 	EventMux() *event.TypeMux
 
-	// Send sends a message to specific target
+	// Send sends a message to specific target : 특정 노드에 보낼때,
 	Send(payload []byte, target common.Address) error
 
-	// Broadcast sends a message to all validators
+	// Broadcast sends a message to all validators : 전체 노드에 보낼때, 기 정의된 Validator집합에..
 	Broadcast(valSet ValidatorSet, payload []byte) error
 
 	// Commit delivers an approved proposal to backend.

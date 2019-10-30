@@ -72,7 +72,7 @@ func (c *core) sendPreprepare(request *poDC.Request) {
 		// 다음은 d-select 상태로 상태 전이함.
 	}
 }
-
+// PoDC pre-prepare state 에서 이 함수를 맞게 수정
 func (c *core) handlePreprepare(msg *message, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
@@ -102,10 +102,20 @@ func (c *core) handlePreprepare(msg *message, src poDC.Validator) error {
 	}
 
 	// 상태 전이 모드
-	if c.state == StateAcceptRequest {
-		c.acceptPreprepare(preprepare)
-		c.setState(StatePreprepared)
-		c.sendPrepare()
+	if istanbul {
+		if c.state == StateAcceptRequest {
+			c.acceptPreprepare(preprepare)
+			c.setState(StatePreprepared)
+			c.sendPrepare()
+		}
+	}
+	if poDC {
+
+
+
+
+
+
 	}
 
 	return nil

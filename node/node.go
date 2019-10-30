@@ -154,13 +154,28 @@ func (n *Node) Start() error {
 	// Initialize the p2p server. This creates the node key and
 	// discovery databases.
 	n.serverConfig = n.config.P2P
-	n.serverConfig.PrivateKey = n.config.NodeKey()  //최초 노드 키 생성 부분, PriVateKey 가져옴.
+	n.serverConfig.PrivateKey = n.config.NodeKey()  //최초 노드 키 생성 부분, PriVateKey 가져옴. yichoi
+	n.serverConfig.PublicKey = n.config.NodeKey().PublicKey   //?
+	// Public key print 할 것, 제대로 생성되었는지.
+
+	//var p ecdsa.PublicKey
+
     /* p2p/server.go   */
 
 	n.serverConfig.Name = n.config.NodeName()
 	if n.serverConfig.StaticNodes == nil {
 		n.serverConfig.StaticNodes = n.config.StaticNodes()
 	}
+	//Qmanager : yichoi - begin : json file에서 qmanager node 3개 enode 주소를 읽어온다.
+	//Qmanager 1, 2, 3를 파일로 부터 읽어온다.
+	if n.serverConfig.QmanagerNodes == nil {
+		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
+	}
+    //end
+
+
+
+
 	if n.serverConfig.TrustedNodes == nil {
 		n.serverConfig.TrustedNodes = n.config.TrusterNodes()
 	}
@@ -279,6 +294,12 @@ func (n *Node) startRPC(services map[reflect.Type]Service) error {
 		n.stopInProc()
 		return err
 	}
+	//yichoi - begin
+	if err := n.startQmanagerRegister(apis); err != nil {
+		//
+		return err
+	}
+	// end
 	if err := n.startHTTP(n.httpEndpoint, apis, n.config.HTTPModules, n.config.HTTPCors); err != nil {
 		n.stopIPC()
 		n.stopInProc()
@@ -324,7 +345,7 @@ func (n *Node) startIPC(apis []rpc.API) error {
 		return nil
 	}
 	// Register all the APIs exposed by the services
-	handler := rpc.NewServer()
+	handler := rpc.NewServer()  // 핸들러 등록
 	for _, api := range apis {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err

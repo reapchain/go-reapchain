@@ -22,7 +22,7 @@ type ProposerPolicy uint64
 const (
 	RoundRobin ProposerPolicy = iota   //?
 	Sticky
-	QRF   //yichoi 립체인 퀀텀메카니즘 합의 정책 상수,
+	QRF   //yichoi 립체인 퀀텀메카니즘 합의 정책 상수, 1단계 : 라운드로빈 방식으로 ,, 2단계에서 Quntum Random 으로
 )
 
 type Config struct {

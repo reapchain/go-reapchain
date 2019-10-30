@@ -30,6 +30,7 @@ var (
 	// IstanbulDigest represents a hash of "Istanbul practical byzantine fault tolerance"
 	// to identify whether the block is from Istanbul consensus engine
 	PoDCDigest = common.HexToHash("0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365")
+    // 블럭이 이스탄불 합의 엔진으로부터 온건지 구분하는 다이제스트 ?
 
 	PoDCExtraVanity = 32 // Fixed number of extra-data bytes reserved for validator vanity
 	PoDCExtraSeal   = 65 // Fixed number of extra-data bytes reserved for validator seal
@@ -46,7 +47,7 @@ type IstanbulExtra struct {
 
 // Reapchain PoDC extra struct
 type PoDCExtra struct {
-	Validators    []common.Address  //다른가? podc에서는 ?
+	Validators    []common.Address  //다른가? podc에서는 ?  그냥 20바이트 enode 주소 구조체 아님. 20 바이트 배열 한개
 	//Validator들이 3종류, 상원, 하원 운영위, 운영위 후보, 일반 검증자,,로 세분화됨...
 	// 이걸 나누는 것보다,  Tag를 다는게 효율적일듯.
 	Seal          []byte
@@ -75,7 +76,7 @@ func (ist *PoDCExtra) DecodeRLP(s *rlp.Stream) error {
 	if err := s.Decode(&poDCExtra); err != nil {
 		return err
 	}
-	ist.Validators, ist.Seal, ist.CommittedSeal = poDCExtra.Validators, poDCExtra.Seal, poDCExtra.CommittedSeal
+	ist.Validators, ist.Seal, ist.CommittedSeal, ist.Tag = poDCExtra.Validators, poDCExtra.Seal, poDCExtra.CommittedSeal, poDCExtra.Tag
 	// ?  poDCExtra.Tag   추가 ?
 	return nil
 }
@@ -85,6 +86,7 @@ func (ist *PoDCExtra) DecodeRLP(s *rlp.Stream) error {
 // be decoded.
 
 // made by yichoi for podc ExtractPoDCExtra data
+// 블럭헤더 정보의 ExtraData를 가져오는데, 아래 함수를 Qmanager 서버로부터 가져오는 것으로 바꿔야함.
 func ExtractPoDCExtra(h *Header) (*PoDCExtra, error) {
 	if len(h.Extra) < PoDCExtraVanity {
 		return nil, ErrInvalidPoDCHeaderExtra
@@ -96,6 +98,26 @@ func ExtractPoDCExtra(h *Header) (*PoDCExtra, error) {
 		return nil, err
 	}
 	return poDCExtra, nil
+}
+
+func RequestPoDCExtraToQman(Qmanager common.Address) ( error) {
+
+	/* send request to Qmanager
+
+	하고 에러 없는지만 체크
+
+
+
+
+	handler 함수에서,, Qmanger로부터 ,, ExtraData를 받는 부분 구현.
+
+	요청 메시지 보내고,, state는 Extradata waiting 상태로 변경,
+
+*/
+
+
+
+
 }
 
 // IstanbulFilteredHeader returns a filtered header which some information (like seal, committed seals)

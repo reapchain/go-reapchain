@@ -197,7 +197,7 @@ func (self *worker) start() {
 
 	// spin up agents
 	for agent := range self.agents {
-		agent.Start()
+		agent.Start()  // 시작점, 에이전트,,
 	}
 }
 
@@ -375,7 +375,7 @@ func (self *worker) makeCurrent(parent *types.Block, header *types.Header) error
 	return nil
 }
 
-func (self *worker) commitNewWork() {
+func (self *worker) commitNewWork() {  // 합의.... ?
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	self.uncleMu.Lock()
@@ -497,7 +497,7 @@ func (self *worker) commitUncle(work *Work, uncle *types.Header) error {
 	work.uncles.Add(uncle.Hash())
 	return nil
 }
-
+// yichoi : 합의 .....
 func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsByPriceAndNonce, bc *core.BlockChain, coinbase common.Address) {
 	gp := new(core.GasPool).AddGas(env.header.GasLimit)
 
@@ -523,7 +523,7 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 			continue
 		}
 		// Start executing the transaction
-		env.state.Prepare(tx.Hash(), common.Hash{}, env.tcount)
+		env.state.Prepare(tx.Hash(), common.Hash{}, env.tcount)  //evm으로부터 해시, 등 준비.
 
 		err, logs := env.commitTransaction(tx, bc, coinbase, gp)
 		switch err {
@@ -569,7 +569,7 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 func (env *Work) commitTransaction(tx *types.Transaction, bc *core.BlockChain, coinbase common.Address, gp *core.GasPool) (error, []*types.Log) {
 	snap := env.state.Snapshot()
 
-	receipt, _, err := core.ApplyTransaction(env.config, bc, &coinbase, gp, env.state, env.header, tx, env.header.GasUsed, vm.Config{})
+	receipt, _, err := core.ApplyTransaction(env.config, bc, &coinbase, gp, env.state, env.header, tx, env.header.GasUsed, vm.Config{}) // 중요
 	if err != nil {
 		env.state.RevertToSnapshot(snap)
 		return err, nil

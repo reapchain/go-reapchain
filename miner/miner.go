@@ -115,8 +115,8 @@ func (self *Miner) Start(coinbase common.Address) {
 	atomic.StoreInt32(&self.mining, 1)
 
 	log.Info("Starting mining operation")
-	self.worker.start()
-	self.worker.commitNewWork()
+	self.worker.start()  // worker start -> worker.go
+	self.worker.commitNewWork()  // commit network
 }
 
 func (self *Miner) Stop() {

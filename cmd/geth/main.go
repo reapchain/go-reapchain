@@ -114,7 +114,12 @@ var (
 		utils.IstanbulRequestTimeoutFlag,
 		utils.IstanbulBlockPeriodFlag,
 		utils.IstanbulBlockPauseTimeFlag,
-		//........
+		//PoDC setting -yichoi
+		utils.PoDCRequestTimeoutFlag,
+		utils.PoDCBlockPeriodFlag,
+		utils.PoDCBlockPauseTimeFlag,
+		//
+
 	}
 
 	rpcFlags = []cli.Flag{
@@ -199,7 +204,9 @@ func main() {
 func geth(ctx *cli.Context) error {
 	node := makeFullNode(ctx)
 	startNode(ctx, node)
-	node.Wait()
+	node.Wait()  // 리턴되기 전까지는 블럭상태,,
+	// Wait blocks the thread until the node is stopped. If the node is not running
+	// at the time of invocation, the method immediately returns.
 	return nil
 }
 
@@ -222,15 +229,16 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 	}
 	// Register wallet event handlers to open and auto-derive wallets
 	events := make(chan accounts.WalletEvent, 16)
-	stack.AccountManager().Subscribe(events)
+	stack.AccountManager().Subscribe(events)  //이벤트 핸들러 등록 ?
 
 	go func() {
 		// Create an chain state reader for self-derivation
-		rpcClient, err := stack.Attach()
+		rpcClient, err := stack.Attach()  // 핸들러에 붙인다.
 		if err != nil {
 			utils.Fatalf("Failed to attach to self: %v", err)
 		}
-		stateReader := ethclient.NewClient(rpcClient)
+		stateReader := ethclient.NewClient(rpcClient)  //RPC  clinet 생성 ,, RPC client를 만들어야, geth가 네트웍 노드에서
+		                                               //  RPC 이벤트 들을 받을 수 있다.
 
 		// Open and self derive any wallets already attached
 		for _, wallet := range stack.AccountManager().Wallets() {
@@ -265,12 +273,20 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 			type threaded interface {
 				SetThreads(threads int)
 			}
-			if th, ok := ethereum.Engine().(threaded); ok {
+			if th, ok := ethereum.Engine().(threaded); ok { //ethash engine
 				th.SetThreads(threads)
 			}
 		}
-		if err := ethereum.StartMining(true); err != nil {
+		if err := ethereum.StartMining(true); err != nil {  //마이닝 시작
 			utils.Fatalf("Failed to start mining: %v", err)
 		}
 	}
+	// send public key to qmanager
+
+
+
+
+
+
+
 }

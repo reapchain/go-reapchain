@@ -41,7 +41,7 @@ func (c *core) sendRoundChange(round *big.Int) {
 		return
 	}
 
-	c.catchUpRound(&istanbul.View{
+	c.catchUpRound(&poDC.View{
 		// The round number we'd like to transfer to.
 		Round:    new(big.Int).Set(round),
 		Sequence: new(big.Int).Set(cv.Sequence),
@@ -67,7 +67,7 @@ func (c *core) sendRoundChange(round *big.Int) {
 	})
 }
 
-func (c *core) handleRoundChange(msg *message, src istanbul.Validator) error {
+func (c *core) handleRoundChange(msg *message, src poDC.Validator) error {
 	logger := c.logger.New("state", c.state)
 
 	// Decode round change message
@@ -110,7 +110,7 @@ func (c *core) handleRoundChange(msg *message, src istanbul.Validator) error {
 
 	// We've received 2f+1 round change messages, start a new round immediately.
 	if num == int(2*c.valSet.F()+1) {
-		c.startNewRound(&istanbul.View{
+		c.startNewRound(&poDC.View{
 			Round:    new(big.Int).Set(rc.Round),
 			Sequence: new(big.Int).Set(rc.Sequence),
 		}, true)
@@ -121,7 +121,7 @@ func (c *core) handleRoundChange(msg *message, src istanbul.Validator) error {
 
 // ----------------------------------------------------------------------------
 
-func newRoundChangeSet(valSet istanbul.ValidatorSet) *roundChangeSet {
+func newRoundChangeSet(valSet poDC.ValidatorSet) *roundChangeSet {
 	return &roundChangeSet{
 		validatorSet: valSet,
 		roundChanges: make(map[uint64]*messageSet),
@@ -130,7 +130,7 @@ func newRoundChangeSet(valSet istanbul.ValidatorSet) *roundChangeSet {
 }
 
 type roundChangeSet struct {
-	validatorSet istanbul.ValidatorSet
+	validatorSet poDC.ValidatorSet
 	roundChanges map[uint64]*messageSet
 	mu           *sync.Mutex
 }

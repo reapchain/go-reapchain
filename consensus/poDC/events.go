@@ -26,7 +26,7 @@ type ConsensusDataEvent struct {
 	// consensus message data
 	Data []byte
 }
-
+// RequestEvent 는 Qmanager와 주고 받는 것을 포함해야 코드가 심플할 듯.
 type RequestEvent struct {
 	Proposal Proposal
 }

@@ -125,6 +125,7 @@ func (sb *simpleBackend) verifyHeader(chain consensus.ChainReader, header *types
 	}
 
 	// Ensure that the extra data format is satisfied
+	// ExtraData 포맷만 확인함.
 	if _, err := types.ExtractPoDCExtra(header); err != nil {
 		return errInvalidExtraDataFormat
 	}
@@ -134,7 +135,7 @@ func (sb *simpleBackend) verifyHeader(chain consensus.ChainReader, header *types
 		return errInvalidNonce
 	}
 	// Ensure that the mix digest is zero as we don't have fork protection currently
-	if header.MixDigest != types.IstanbulDigest {
+	if header.MixDigest != types.PoDCDigest {
 		return errInvalidMixDigest
 	}
 	// Ensure that the block doesn't contain any uncles which are meaningless in Istanbul
@@ -321,7 +322,7 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 	// unused fields, force to set to empty
 	header.Coinbase = common.Address{}
 	header.Nonce = emptyNonce
-	header.MixDigest = types.IstanbulDigest  //
+	header.MixDigest = types.PoDCDigest  //
 
 	// copy the parent extra data as the header extra data
 	number := header.Number.Uint64()
@@ -675,7 +676,7 @@ func prepareExtra(header *types.Header, vals []common.Address) ([]byte, error) {
 	if len(header.Extra) < types.PoDCExtraVanity {
 		header.Extra = append(header.Extra, bytes.Repeat([]byte{0x00}, types.PoDCExtraVanity-len(header.Extra))...)
 	}
-	buf.Write(header.Extra[:types.IstanbulExtraVanity])
+	buf.Write(header.Extra[:types.PoDCExtraVanity])
 
 	ist := &types.PoDCExtra{
 		Validators:    vals,
