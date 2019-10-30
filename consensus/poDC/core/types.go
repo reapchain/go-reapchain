@@ -46,7 +46,7 @@ const (
 func (s State) String() string {
 	if s == StateAcceptRequest {
 		return "Accept request"
-	} else if s== StateAcceptQMan {
+	} else if s == StateAcceptQMan {
 		return "Accept request from Qman"
 
 	} else if s == StatePreprepared {
@@ -83,8 +83,11 @@ const (
 	msgPrepare
 	msgCommit
 	msgRoundChange
-	msgD_select  //podc
-	msgD_commit  //podc
+	msgD_select          // podc
+	msgGetCandiateList   // podc
+	msgStartRacing       // podc
+	msgRegisterCommittee // podc
+	msgD_commit          // podc
 	msgAll
 )
 

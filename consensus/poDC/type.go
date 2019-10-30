@@ -1,16 +1,14 @@
-
 package poDC
 
 import (
 	"fmt"
+	"io"
+	"math/big"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
-	"io"
-	"math/big"
 )
-
-
 
 // Proposal supports retrieving height and serialized block to be used during PoDC consensus.
 // Proposal block ?
@@ -79,19 +77,29 @@ func (v *View) Cmp(y *View) int {
 	}
 	return 0
 }
+
 // yichoi begin :
 type Preprepare struct {
 	View     *View
 	Proposal Proposal
 }
+
+// I add coordinator info and self-node info in here, because they are recognized when D-select
 type D_select struct {
-	View     *View
-	Proposal Proposal
+	// TODO: define Coordinator struct like
+	// type Coordinator struct {
+	//		address common.Address
+	//		candidates []Node
+	// }
+	Coordinator *Coordinator
+	// kind of self-node
+	SelfNode *Node
 }
 type D_commit struct {
 	View     *View
 	Proposal Proposal
 }
+
 // end
 
 // EncodeRLP serializes b into the Ethereum RLP format.

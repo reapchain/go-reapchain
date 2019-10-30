@@ -1,7 +1,5 @@
 /* PoDC D-Select */
 
-
-
 // Copyright 2017 AMIS Technologies
 // This file is part of the go-ethereum library.
 //
@@ -21,9 +19,7 @@
 package core
 
 import (
-"reflect"
-
-"github.com/ethereum/go-ethereum/consensus/poDC"
+	"reflect"
 )
 
 /* D-selct has 6 states.
@@ -41,7 +37,7 @@ import (
 
 
 
- */
+*/
 
 // just I renamed func name in order to implement podc, so yours modify inside of func below
 
@@ -60,36 +56,42 @@ func (c *core) sendD_select() {
 	})
 }
 
-func (c *core) handleD_select(msg *message, src istanbul.Validator) error {
+// TODO: define FrontNode like
+// type FrontNode struct {
+//		address common.Address
+// }
+func (c *core) handleD_select(msg *message, src poDC.FrontNode) error {
 	// Decode prepare message
-	var prepare *istanbul.Subject
-	err := msg.Decode(&prepare)
+	var dselect *poDC.Subject
+	err := msg.Decode(&dselect)
 	if err != nil {
 		return errFailedDecodePrepare
 	}
 
-	if err := c.checkMessage(msgPrepare, prepare.View); err != nil {
+	if err := c.checkMessage(msgPrepare, dselect.View); err != nil {
 		return err
 	}
 
-	if err := c.verifyPrepare(prepare, src); err != nil {
+	if err := c.verifyD_select(dselect, src); err != nil {
 		return err
 	}
 
-	c.acceptPrepare(msg, src)
+	c.identifySelfNode(msg, src)
+
+	c.acceptD_select(msg, src)
 
 	// Change to StatePrepared if we've received enough prepare messages
 	// and we are in earlier state before StatePrepared
-	if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StatePrepared) < 0 {
-		c.setState(StatePrepared)
-		c.sendCommit()
+	if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StatePrepared) < 0 && c.current.D_select.selfNode.isCoordinator() {
+		// c.setState(StatePrepared)
+		c.requestCandidateList()
 	}
 
 	return nil
 }
 
 // verifyPrepare verifies if the received prepare message is equivalent to our subject
-func (c *core) verifyD_select(prepare *istanbul.Subject, src istanbul.Validator) error {
+func (c *core) verifyD_select(prepare *poDC.Subject, src poDC.FrontNode) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	sub := c.current.Subject()
@@ -101,7 +103,7 @@ func (c *core) verifyD_select(prepare *istanbul.Subject, src istanbul.Validator)
 	return nil
 }
 
-func (c *core) acceptD_select(msg *message, src istanbul.Validator) error {
+func (c *core) acceptD_select(msg *message, src poDC.FrontNode) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	// Add the prepare message to current round state
@@ -113,5 +115,39 @@ func (c *core) acceptD_select(msg *message, src istanbul.Validator) error {
 	return nil
 }
 
+// identify what self-node kind is : committee candidate, coordinator, senator
+func (c *core) identifySelfNode(msg *message, src poDC.FrontNode) error {
+	// TODO
+}
 
+// send request to QManager to get committee candidate list
+func (c *core) requestCandidateList() error {
+	// TODO
+}
 
+// when QManager response, handle the candidate list and notify selection of coordinator to committee candidates
+func (c *core) handleCandidateList(msg *message, src poDC.QManager) error {
+	// TODO
+
+	// target would be c.current.D_select.Coordinator.candidates
+	c.notifyCoordinator()
+}
+
+// if a committee candidate listen notification from coordinator, start racing
+func (c *core) handleStartRacing(msg *message, src poDC.Coordinator) error {
+	// TODO
+
+	// target would be c.current.D_select.Coordinator
+	c.racing()
+}
+
+// register committee candidate to committee by the order of arrival
+// and set round as d-commit
+func (c *core) handleRegisterCommittee(msg *messgae, src poDC.Candidate) error {
+	// TODO
+
+	if committee.Number() == 15 {
+		c.setState(StateD_selected)
+		c.sendD_commit()
+	}
+}

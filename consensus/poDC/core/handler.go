@@ -17,8 +17,9 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"math/big"
+
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
@@ -42,8 +43,8 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 
 	// Tests will handle events itself, so we have to make subscribeEvents()
 	// be able to call in test.
-	c.subscribeEvents()  /* 이벤트를 수신하는 이벤트 핸들러 */
-	go c.handleEvents()  /* 이벤트를 처리하는 핸들러로 분리 되어 있음 */
+	c.subscribeEvents() /* 이벤트를 수신하는 이벤트 핸들러 */
+	go c.handleEvents() /* 이벤트를 처리하는 핸들러로 분리 되어 있음 */
 
 	return nil
 }
@@ -148,12 +149,14 @@ func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
 	case msgD_commit: //yichoi d-commit
 		return testBacklog(c.handleD_commit(msg, src))
 
+	case msgGetCandiateList:
+		return testBacklog(c.handleCandidateList(msg, src))
 
+	case msgStartRacing:
+		return testBacklog(c.handleStartRacing(msg, src))
 
-
-
-
-
+	case msgRegisterCommittee:
+		return testBacklog(c.RegisterCommittee(msg, src))
 
 	case msgRoundChange:
 		return c.handleRoundChange(msg, src)
