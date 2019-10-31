@@ -68,6 +68,9 @@ type core struct {
 	lastProposal          poDC.Proposal
 	valSet                poDC.ValidatorSet
 	waitingForRoundChange bool
+	waitingForStateChange bool // added for PoDC, because Proposer release it's right to random coordinator
+    //statechange flag will be need, I think , by yichoi
+
 	validateFn            func([]byte, []byte) (common.Address, error)
 
 	backlogs   map[poDC.Validator]*prque.Prque
@@ -203,25 +206,72 @@ func (c *core) commit() {
 // state machine 의 NewRound start 여기서  .. yichoi
 func (c *core) startNewRound(newView *poDC.View, roundChange bool) {
 	var logger log.Logger
-	if c.current == nil {
+
+	// Qmanager에게 Extradata 요청
+
+    // 핸들러는 나중에 추가하고,
+    // 여기서는 일단, Qman 에서 바로 응답이 온다고 가정하고, 짜고, 나중에 핸들러로 옮긴다. 2단계로.
+
+   //1.  send qman
+
+   //2. receive qman
+
+   //3. 그냥 블럭을 모든 노드에 던지면, 블럭연결 제안자는 여기서 빠지고,
+       // 임의로 선정된 코디가,, Qman에 통보하고, 자기가, 그 받은 블럭을 검증하고, 처리해서,
+       // 체인에 연결하고, 전체 노드에 전파시,
+       // 내 노드가 핸들러를 통해서, 받는다.
+       // 핸들러에서 처리되면,
+       // 아래 타이머를 리셋해서,, 본 라운드가 끝났다는 것을 통지하고, 다음 라운드로 돌아간다.
+       // Proposer( = Front node in PoDC ) 가,, 자기 권한을 임의로 선정된 코디에게 위임하는 개념잉
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	/* if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
 	} else {
 		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())
 	}
 
-	c.valSet = c.backend.Validators(c.lastProposal)
+
+
+	c.valSet = c.backend.Validators(c.lastProposal) */
+
+
+
 	// Clear invalid round change messages
-	c.roundChangeSet = newRoundChangeSet(c.valSet)
+/* 	c.roundChangeSet = newRoundChangeSet(c.valSet)
 	// New snapshot for new round
 	c.current = newRoundState(newView, c.valSet)
 	// Calculate new proposer
 	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64())
+
+ */
 	c.waitingForRoundChange = false
+	c.waitingForStateChange = true   //
+
+
 	c.setState(StateAcceptRequest)
-	if roundChange && c.isProposer() {
+	/* if roundChange && c.isProposer() {
+		c.backend.NextRound()
+	} */
+	if roundChange  {
 		c.backend.NextRound()
 	}
-	c.newRoundChangeTimer()
+	c.newRoundChangeTimer()  //마냥 기다릴수 없어서, 여기서 타이머 설정하고, 빠져나감, 나머지는 메시지/이벤트 핸들러에서, 이벤트/메시지 수신시
+	// 처리함.
 
 	logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "valSet", c.valSet.List(), "size", c.valSet.Size())
 }

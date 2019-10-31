@@ -27,11 +27,11 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
-//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+
 	"github.com/ethereum/go-ethereum/consensus/poDC"  //yichoi
-//	istanbulCore "github.com/ethereum/go-ethereum/consensus/istanbul/core"
+
 	poDCCore "github.com/ethereum/go-ethereum/consensus/poDC/core"
-//	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+
 	"github.com/ethereum/go-ethereum/consensus/poDC/validator"
 
 	"github.com/ethereum/go-ethereum/core/state"
@@ -98,7 +98,7 @@ var (
 // block, which may be different from the header's coinbase if a consensus
 // engine is based on signatures.
 /*
-작성자는 주어진 블록을 발행 한 계정의 이더 리움 주소를 가져옵니다. 컨센서스 엔진이 서명을 기반으로하는 경우 헤더의 코인베이스와 다를 수 있습니다. */
+작성자는 주어진 블록을 발행 한 계정의 이더리움 주소를 가져옵니다. 컨센서스 엔진이 서명을 기반으로하는 경우 헤더의 코인베이스와 다를 수 있습니다. */
 func (sb *simpleBackend) Author(header *types.Header) (common.Address, error) {
 	return ecrecover(header)
 }
@@ -496,7 +496,7 @@ func (sb *simpleBackend) APIs(chain consensus.ChainReader) []rpc.API {
 }
 
 // HandleMsg implements consensus.PoDC.HandleMsg
-// 합의 메시지 핸들러
+// 중요: 합의 메시지 핸들러
 func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 	addr := crypto.PubkeyToAddress(*pubKey)
 	// get the latest snapshot
@@ -535,7 +535,7 @@ func (sb *simpleBackend) NewChainHead(block *types.Block) {
 	})
 }
 
-// Start implements consensus.Istanbul.Start
+// Start implements consensus.PoDC.Start
 func (sb *simpleBackend) Start(chain consensus.ChainReader, inserter func(block *types.Block) error) error {
 	sb.chain = chain
 	sb.inserter = inserter
@@ -545,12 +545,14 @@ func (sb *simpleBackend) Start(chain consensus.ChainReader, inserter func(block 
 	lastSequence := new(big.Int).Set(curHeader.Number)
 	lastProposer := common.Address{}
 	// should get proposer if the block is not genesis
+	// 여기서 proposer를 최초로 가져온다. proposer가 Front node in PoDC
+
 	if lastSequence.Cmp(common.Big0) > 0 {
-		p, err := sb.Author(curHeader)
+		p, err := sb.Author(curHeader)  //블럭을 발행한 계정의 이더리움 주소를 가져옴.
 		if err != nil {
 			return err
 		}
-		lastProposer = p
+		lastProposer = p  // proposer를 가장 최신 Proposer로 대입
 	}
 	block := chain.GetBlock(curHeader.Hash(), lastSequence.Uint64())
 	return sb.core.Start(lastSequence, lastProposer, block)
@@ -591,7 +593,7 @@ func (sb *simpleBackend) snapshot(chain consensus.ChainReader, number uint64, ha
 			if err := sb.VerifyHeader(chain, genesis, false); err != nil {
 				return nil, err
 			}
-			istanbulExtra, err := types.ExtractIstanbulExtra(genesis)
+			istanbulExtra, err := types.ExtractPoDCExtra(genesis)
 			if err != nil {
 				return nil, err
 			}
@@ -641,7 +643,7 @@ func (sb *simpleBackend) snapshot(chain consensus.ChainReader, number uint64, ha
 	return snap, err
 }
 
-// FIXME: Need to update this for Istanbul
+// FIXME: Need to update this for Istanbul  -> ?
 // sigHash returns the hash which is used as input for the Istanbul
 // signing. It is the hash of the entire header apart from the 65 byte signature
 // contained at the end of the extra data.
@@ -700,11 +702,11 @@ func prepareExtra(header *types.Header, vals []common.Address) ([]byte, error) {
 // writeSeal writes the extra-data field of the given header with the given seals.
 // suggest to rename to writeSeal.
 func writeSeal(h *types.Header, seal []byte) error {
-	if len(seal)%types.IstanbulExtraSeal != 0 {
+	if len(seal)%types.PoDCExtraSeal != 0 {
 		return errInvalidSignature
 	}
 
-	istanbulExtra, err := types.ExtractIstanbulExtra(h)
+	istanbulExtra, err := types.ExtractPoDCExtra(h)
 	if err != nil {
 		return err
 	}
@@ -715,25 +717,25 @@ func writeSeal(h *types.Header, seal []byte) error {
 		return err
 	}
 
-	h.Extra = append(h.Extra[:types.IstanbulExtraVanity], payload...)
+	h.Extra = append(h.Extra[:types.PoDCExtraVanity], payload...)
 	return nil
 }
 
 // writeCommittedSeals writes the extra-data field of a block header with given committed seals.
 func writeCommittedSeals(h *types.Header, committedSeals []byte) error {
-	if len(committedSeals)%types.IstanbulExtraSeal != 0 {
+	if len(committedSeals)%types.PoDCExtraSeal != 0 {
 		return errInvalidCommittedSeals
 	}
 
-	istanbulExtra, err := types.ExtractIstanbulExtra(h)
+	istanbulExtra, err := types.ExtractPoDCExtra(h)
 	if err != nil {
 		return err
 	}
 
-	istanbulExtra.CommittedSeal = make([][]byte, len(committedSeals)/types.IstanbulExtraSeal)
+	istanbulExtra.CommittedSeal = make([][]byte, len(committedSeals)/types.PoDCExtraSeal)
 	for i := 0; i < len(istanbulExtra.CommittedSeal); i++ {
-		istanbulExtra.CommittedSeal[i] = make([]byte, types.IstanbulExtraSeal)
-		copy(istanbulExtra.CommittedSeal[i][:], committedSeals[i*types.IstanbulExtraSeal:])
+		istanbulExtra.CommittedSeal[i] = make([]byte, types.PoDCExtraSeal)
+		copy(istanbulExtra.CommittedSeal[i][:], committedSeals[i*types.PoDCExtraSeal:])
 	}
 
 	payload, err := rlp.EncodeToBytes(&istanbulExtra)
@@ -741,6 +743,6 @@ func writeCommittedSeals(h *types.Header, committedSeals []byte) error {
 		return err
 	}
 
-	h.Extra = append(h.Extra[:types.IstanbulExtraVanity], payload...)
+	h.Extra = append(h.Extra[:types.PoDCExtraVanity], payload...)
 	return nil
 }

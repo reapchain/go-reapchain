@@ -28,15 +28,16 @@ import (
 // Start implements core.Engine.Start
 
 // proposer = front node in podc
+// 앞에서 Proposer가 결정된 상태에서, 여기서 합의 시작
 func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal poDC.Proposal) error {
 	// Initialize last proposer
-	c.lastProposer = lastProposer
-	c.lastProposal = lastProposal
+	c.lastProposer = lastProposer  // 여기서 lastProposer는 최신을 의미
+	c.lastProposal = lastProposal  //합의할 블럭을 제시하는데, 시리얼화된 블럭을 데이터로 가져옴.
 	c.valSet = c.backend.Validators(c.lastProposal)
 
 	// Start a new round from last sequence + 1
 	// a New Round of the State Machine of PoDC : yichoi
-	c.startNewRound(&poDC.View{ //1.
+	c.startNewRound(&poDC.View{ // 1. 최초 라운드 시작
 		Sequence: new(big.Int).Add(lastSequence, common.Big1),
 		Round:    common.Big0,
 	}, false)
@@ -73,6 +74,11 @@ func (c *core) subscribeEvents() {
 func (c *core) unsubscribeEvents() {
 	c.events.Unsubscribe()
 }
+// 새 라운드에서, Proposer는 블럭을 노드에 던져주면 끝나고, D-select, D-commit 상태는,, 랜덤으로 선정된. 코디와 큐매니저끼리 검증하고,
+// 최종 검증된 블럭을 다시 전체 노드에 던지면, 그때,, 이 노드가,, 타이머 등을 리셋하고,
+// 검증된 블럭을 자신의 노드의 체인에 연결해서 새 블럭을 생성시키면 된다. ?
+
+// 여기서 블럭 전체를 노드에 전파해야,, 코디가,, 해당블럭을 검증하고, 커밋을 완료하게 된다.
 
 func (c *core) handleEvents() {
 	for event := range c.events.Chan() {
@@ -86,7 +92,7 @@ func (c *core) handleEvents() {
 			if err == errFutureMessage {
 				c.storeRequestMsg(r)
 			}
-		case poDC.MessageEvent:
+		case poDC.MessageEvent:  //cordi로부터 합의를 통해서, 최종 검증된 블럭을 받으면,
 			c.handleMsg(ev.Payload)
 		case poDC.FinalCommittedEvent:
 			c.handleFinalCommitted(ev.Proposal, ev.Proposer)
@@ -165,6 +171,11 @@ func (c *core) handleCheckedMsg(msg *message, src poDC.Validator) error {
 
 	case msgRoundChange:
 		return c.handleRoundChange(msg, src)
+// cordi로부터  최종 확정된 블럭을 받으면, 커밋
+	case msgGetVerifiedBlock:
+		return testBacklog(c.handleCommit(msg, src))
+//
+
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}

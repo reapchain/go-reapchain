@@ -58,7 +58,7 @@ func newPoDCProtocolManager(config *params.ChainConfig, mode downloader.SyncMode
 		return nil, err
 	}
 
-	// Create the istanbul protocol manager
+	// Create the PoDC protocol manager
 	manager := &poDCProtocolManager{
 		protocolManager: defaultManager,
 		engine:          engine,
@@ -99,9 +99,9 @@ func newPoDCProtocolManager(config *params.ChainConfig, mode downloader.SyncMode
 func (pm *poDCProtocolManager) Start() {
 	// Subscribe required events
 	pm.eventSub = pm.eventMux.Subscribe(poDC.ConsensusDataEvent{}, core.ChainHeadEvent{})
-	go pm.eventLoop()
-	pm.protocolManager.Start()
-	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)  // error ?
+	go pm.eventLoop()  // 순서 중요할듯 1. 이벤트루프
+	pm.protocolManager.Start() //    2. 프로토콜매니저의 일반 핸들러 시작
+	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)  // 합의 엔진 핸들러 시작
 }
 
 func (pm *poDCProtocolManager) Stop() {
@@ -111,13 +111,18 @@ func (pm *poDCProtocolManager) Stop() {
 	pm.eventSub.Unsubscribe() // quits eventLoop
 }
 
-// handleMsg handles Istanbul related consensus messages or
+// handleMsg handles PoDC related consensus messages or
 // fallback to default procotol manager's handler
+// PoDC handler and  general handler decision and conditional jump
+
+
 func (pm *poDCProtocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 	// Handle Istanbul messages
 	switch {
 	case msg.Code == PoDCMsg:
-		pubKey, err := p.ID().Pubkey()
+		pubKey, err := p.ID().Pubkey()  //enode://"public key@IP address: port number"
+		                                //if PoDC message, for example a response ( extradata from Qmanager)
+		                                // extract pubkey and err
 		if err != nil {
 			return err
 		}
@@ -125,14 +130,14 @@ func (pm *poDCProtocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 		if err := msg.Decode(&data); err != nil {
 			return errResp(ErrDecode, "msg %v: %v", msg, err)
 		}
-		return pm.engine.HandleMsg(pubKey, data)
+		return pm.engine.HandleMsg(pubKey, data)  // -> PoDC message handler : type PoDC interface.. /consensus.go
 	default:
 		// Invoke default protocol manager's message handler
-		return pm.protocolManager.handleMsg(p, msg)
+		return pm.protocolManager.handleMsg(p, msg) // -> general protocol message handler /eth/handler.go
 	}
 }
 
-// event loop for Istanbul
+// event loop for PoDC
 func (pm *poDCProtocolManager) eventLoop() {
 	for obj := range pm.eventSub.Chan() {
 		switch ev := obj.Data.(type) {

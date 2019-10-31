@@ -37,10 +37,10 @@ func (val *defaultValidator) Address() common.Address {
 func (val *defaultValidator) String() string {
 	return val.Address().String()
 }
-func (val *defaultValidator) Tag() string {
+/* func (val *defaultValidator) Tag() string {
 	// return val.Address().Tag() //?
 	return val.Address().Tag() //?
-}
+} */
 
 // ----------------------------------------------------------------------------
 

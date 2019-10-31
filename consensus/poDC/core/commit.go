@@ -37,9 +37,9 @@ func (c *core) sendCommit() {
 	})
 }
 
-func (c *core) handleCommit(msg *message, src istanbul.Validator) error {
+func (c *core) handleCommit(msg *message, src poDC.Validator) error {
 	// Decode commit message
-	var commit *istanbul.Subject
+	var commit *poDC.Subject
 	err := msg.Decode(&commit)
 	if err != nil {
 		return errFailedDecodeCommit
@@ -67,7 +67,7 @@ func (c *core) handleCommit(msg *message, src istanbul.Validator) error {
 }
 
 // verifyCommit verifies if the received commit message is equivalent to our subject
-func (c *core) verifyCommit(commit *istanbul.Subject, src istanbul.Validator) error {
+func (c *core) verifyCommit(commit *poDC.Subject, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	sub := c.current.Subject()
@@ -79,7 +79,7 @@ func (c *core) verifyCommit(commit *istanbul.Subject, src istanbul.Validator) er
 	return nil
 }
 
-func (c *core) acceptCommit(msg *message, src istanbul.Validator) error {
+func (c *core) acceptCommit(msg *message, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	// Add the commit message to current round state

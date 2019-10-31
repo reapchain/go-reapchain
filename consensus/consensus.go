@@ -104,7 +104,12 @@ type Engine interface {
 } */
 // PoDC is a consensus engine based on PoDC algorimth.
 // yichoi 2019-10-21
-type PoDC interface {
+
+// if PoDC will be used in consensus engine, this ethash PoS_PoDC is legacy POW,
+//   this can not used but some code re usable in very block ?
+//   so check it more.. future
+
+type PoS_PoDC interface {  //we should convert PoW to PoDC a new name . PoS_PoDC
 	Engine
 
 	// Hashrate returns the current mining hashrate of a PoDC consensus engine.
