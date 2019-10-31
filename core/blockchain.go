@@ -324,7 +324,7 @@ func (bc *BlockChain) LastBlockHash() common.Hash {
 	return bc.currentBlock.Hash()
 }
 
-// CurrentBlock retrieves the current head block of the canonical chain. The
+// CurrentBlock retrieves the current head block of the canonical(표준) chain. The
 // block is retrieved from the blockchain's internal cache.
 func (bc *BlockChain) CurrentBlock() *types.Block {
 	bc.mu.RLock()

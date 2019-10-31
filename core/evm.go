@@ -41,6 +41,7 @@ func NewEVMContext(msg Message, header *types.Header, chain ChainContext, author
 	var beneficiary common.Address
 	if author == nil {
 		beneficiary, _ = chain.Engine().Author(header) // Ignore error, we're past header validation
+		                 // 합의 엔진
 	} else {
 		beneficiary = *author
 	}

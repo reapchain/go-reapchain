@@ -38,7 +38,7 @@ import (
 type Backend interface {
 	AccountManager() *accounts.Manager
 	BlockChain() *core.BlockChain
-	TxPool() *core.TxPool
+	TxPool() *core.TxPool   // <- self.eth.Txpool()
 	ChainDb() ethdb.Database
 }
 

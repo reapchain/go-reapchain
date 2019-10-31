@@ -54,6 +54,7 @@ type Engine interface {
 	// Author retrieves the Ethereum address of the account that minted the given
 	// block, which may be different from the header's coinbase if a consensus
 	// engine is based on signatures.
+	// 작성자는 주어진 블록을 발행 한 계정의 이더 리움 주소를 가져합니다. 이는 컨센서스 엔진이 서명을 기반으로하는 경우 헤더의 코인베이스와 다를 수 있습니다.
 	Author(header *types.Header) (common.Address, error)
 
 	// VerifyHeader checks whether a header conforms to the consensus rules of a
