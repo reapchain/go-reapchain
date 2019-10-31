@@ -38,12 +38,7 @@ var (
 	// ErrInvalidIstanbulHeaderExtra is returned if the length of extra-data is less than 32 bytes
 	ErrInvalidPoDCHeaderExtra = errors.New("invalid poDC header extra-data")
 )
-/* unmarked by yichoi
-type IstanbulExtra struct {
-	Validators    []common.Address
-	Seal          []byte
-	CommittedSeal [][]byte
-} */
+
 
 // Reapchain PoDC extra struct
 type PoDCExtra struct {
@@ -100,7 +95,10 @@ func ExtractPoDCExtra(h *Header) (*PoDCExtra, error) {
 	return poDCExtra, nil
 }
 
-func RequestPoDCExtraToQman(Qmanager common.Address) ( error) {
+/* func RequestPoDCExtraToQman(Qmanager common.Address) ( error) {
+
+
+To do future
 
 	/* send request to Qmanager
 
@@ -111,14 +109,14 @@ func RequestPoDCExtraToQman(Qmanager common.Address) ( error) {
 
 	handler 함수에서,, Qmanger로부터 ,, ExtraData를 받는 부분 구현.
 
-	요청 메시지 보내고,, state는 Extradata waiting 상태로 변경,
-
-*/
+	요청 메시지 보내고,, state는 Extradata waiting 상태로 변경, */
 
 
 
 
-}
+//return error
+
+// }
 
 // IstanbulFilteredHeader returns a filtered header which some information (like seal, committed seals)
 // are clean to fulfill the Istanbul hash rules. It returns nil if the extra-data cannot be

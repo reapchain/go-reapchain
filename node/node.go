@@ -155,7 +155,7 @@ func (n *Node) Start() error {
 	// discovery databases.
 	n.serverConfig = n.config.P2P
 	n.serverConfig.PrivateKey = n.config.NodeKey()  //최초 노드 키 생성 부분, PriVateKey 가져옴. yichoi
-	n.serverConfig.PublicKey = n.config.NodeKey().PublicKey   //?
+//	n.serverConfig.PublicKey = n.config.NodeKey().PublicKey   //?
 	// Public key print 할 것, 제대로 생성되었는지.
 
 	//var p ecdsa.PublicKey

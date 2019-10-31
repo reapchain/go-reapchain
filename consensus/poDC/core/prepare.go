@@ -19,7 +19,7 @@ package core
 import (
 	"reflect"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
 func (c *core) sendPrepare() {
@@ -37,9 +37,9 @@ func (c *core) sendPrepare() {
 	})
 }
 
-func (c *core) handlePrepare(msg *message, src istanbul.Validator) error {
+func (c *core) handlePrepare(msg *message, src poDC.Validator) error {
 	// Decode prepare message
-	var prepare *istanbul.Subject
+	var prepare *poDC.Subject
 	err := msg.Decode(&prepare)
 	if err != nil {
 		return errFailedDecodePrepare
@@ -66,7 +66,7 @@ func (c *core) handlePrepare(msg *message, src istanbul.Validator) error {
 }
 
 // verifyPrepare verifies if the received prepare message is equivalent to our subject
-func (c *core) verifyPrepare(prepare *istanbul.Subject, src istanbul.Validator) error {
+func (c *core) verifyPrepare(prepare *poDC.Subject, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	sub := c.current.Subject()
@@ -78,7 +78,7 @@ func (c *core) verifyPrepare(prepare *istanbul.Subject, src istanbul.Validator) 
 	return nil
 }
 
-func (c *core) acceptPrepare(msg *message, src istanbul.Validator) error {
+func (c *core) acceptPrepare(msg *message, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	// Add the prepare message to current round state

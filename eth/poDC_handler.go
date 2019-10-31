@@ -36,7 +36,7 @@ import (
 )
 
 const (
-	// istanbul is compatible with eth63 protocol
+	// poDC is compatible with eth63 protocol  //?
 	poDCName           = "podc"
 	poDCVersion        = 1
 	poDCProtocolLength = 18  //?
@@ -101,7 +101,7 @@ func (pm *poDCProtocolManager) Start() {
 	pm.eventSub = pm.eventMux.Subscribe(poDC.ConsensusDataEvent{}, core.ChainHeadEvent{})
 	go pm.eventLoop()
 	pm.protocolManager.Start()
-	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)
+	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)  // error ?
 }
 
 func (pm *poDCProtocolManager) Stop() {

@@ -24,10 +24,10 @@ import (
 
 const (
 
-	Senator   // 상원
-	Parliamentarian  // 하원
-	Candidate   // 하원, 운영위 후보군
-	General    // 일반 노드, 상원, 하원도 아닌.
+	Senator         = 0x1 // 상원
+	Parliamentarian = 0x2 // 하원
+	Candidate       = 0x3 // 하원, 운영위 후보군
+	General         = 0x4 // 일반 노드, 상원, 하원도 아닌.
 
 )
 

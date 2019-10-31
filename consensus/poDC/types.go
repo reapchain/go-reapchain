@@ -103,9 +103,9 @@ type D_select struct {
 	//		address common.Address
 	//		candidates []Node
 	// }
-	Coordinator *Coordinator
+	//Coordinator *Coordinator
 	// kind of self-node
-	SelfNode *Node
+	//SelfNode *Node
 }
 type D_commit struct {
 	View     *View

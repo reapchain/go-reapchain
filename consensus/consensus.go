@@ -96,12 +96,12 @@ type Engine interface {
 }
 
 // PoW is a consensus engine based on proof-of-work.
-type PoW interface {
+/* type PoW interface {
 	Engine
 
 	// Hashrate returns the current mining hashrate of a PoW consensus engine.
 	Hashrate() float64
-}
+} */
 // PoDC is a consensus engine based on PoDC algorimth.
 // yichoi 2019-10-21
 type PoDC interface {

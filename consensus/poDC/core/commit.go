@@ -19,7 +19,7 @@ package core
 import (
 	"reflect"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
 func (c *core) sendCommit() {

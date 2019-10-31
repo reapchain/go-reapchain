@@ -17,10 +17,10 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
 type backlogEvent struct {
-	src istanbul.Validator
+	src poDC.Validator
 	msg *message
 }

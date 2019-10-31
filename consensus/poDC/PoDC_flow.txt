@@ -90,8 +90,7 @@ States:
 
 
  */
- */
- */
+/*
 •	NEW ROUND: Proposer(= Front node) to send new block proposal. Validators wait for PRE-PREPARE message.
 •
 •	PRE-PREPARED: A validator has received PRE-PREPARE message and broadcasts PREPARE message. Then it waits for 14 + 15 of PREPARE or COMMIT messages.
@@ -109,8 +108,8 @@ States:
 
     d-commited:
  */
- */
- */
+
+/*
 •
 •	FINAL COMMITTED: A new block is successfully inserted into the blockchain and the validator is ready for the next round.
 •
@@ -123,15 +122,7 @@ States:
 
 
 =============================================
- */
- */
- */
- */
- */
- */
- */
- */
- */
+
 
 우리가 노드에서 블록을 생성하는 과정에서는 어떤 일들이 일어나는지 확인하기 위해 디버그할 메소드 목록은 다음과 같습니다.
 •	worker.commitTransaction()

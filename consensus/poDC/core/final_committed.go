@@ -21,10 +21,10 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
-func (c *core) handleFinalCommitted(proposal istanbul.Proposal, proposer common.Address) error {
+func (c *core) handleFinalCommitted(proposal poDC.Proposal, proposer common.Address) error {
 	logger := c.logger.New("state", c.state, "number", proposal.Number(), "hash", proposal.Hash())
 	logger.Trace("Received a final committed proposal")
 
@@ -41,7 +41,7 @@ func (c *core) handleFinalCommitted(proposal istanbul.Proposal, proposer common.
 
 		c.lastProposer = proposer
 		c.lastProposal = proposal
-		c.startNewRound(&istanbul.View{
+		c.startNewRound(&poDC.View{
 			Sequence: new(big.Int).Add(proposal.Number(), common.Big1),
 			Round:    new(big.Int).Set(common.Big0),
 		}, false)
