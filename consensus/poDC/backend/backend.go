@@ -66,7 +66,7 @@ type simpleBackend struct {
 	config           *poDC.Config
 	eventMux         *event.TypeMux
 	//istanbulEventMux *event.TypeMux
-	poDCEventMux     *event.TypeMux
+	poDCEventMux     *event.TypeMux  //podc
 	privateKey       *ecdsa.PrivateKey
 	address          common.Address
 //	core             istanbulCore.Engine
@@ -96,7 +96,7 @@ func (sb *simpleBackend) Address() common.Address {
 	return sb.address
 }
 
-// Validators implements podc.Backend.Validators
+
 //Validators implements PoDC.Backend.Validators
 func (sb *simpleBackend) Validators(proposal poDC.Proposal) poDC.ValidatorSet {
 	snap, err := sb.snapshot(sb.chain, proposal.Number().Uint64(), proposal.Hash(), nil)
@@ -189,7 +189,7 @@ func (sb *simpleBackend) NextRound() error {
 	return nil
 }
 
-// EventMux implements istanbul.Backend.EventMux
+// EventMux implements PoDC.Backend.EventMux
 func (sb *simpleBackend) EventMux() *event.TypeMux {
 	return sb.poDCEventMux
 }

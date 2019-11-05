@@ -78,6 +78,7 @@ var (
 		executablePath("rlpdump"),
 		executablePath("swarm"),
 		executablePath("wnode"),
+		executablePath("test"), //yichoi
 	}
 
 	// A debian package is created for all executables listed here.
@@ -113,6 +114,10 @@ var (
 		{
 			Name:        "wnode",
 			Description: "Ethereum Whisper diagnostic tool",
+		},
+		{
+			Name:        "test",
+			Description: "sample program to understand go special functions",
 		},
 	}
 

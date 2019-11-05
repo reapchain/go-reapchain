@@ -21,11 +21,11 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
-func newTestPreprepare(v *istanbul.View) *istanbul.Preprepare {
-	return &istanbul.Preprepare{
+func newTestPreprepare(v *poDC.View) *poDC.Preprepare {
+	return &poDC.Preprepare{
 		View:     v,
 		Proposal: newTestProposal(),
 	}
@@ -37,7 +37,7 @@ func TestHandlePreprepare(t *testing.T) {
 
 	testCases := []struct {
 		system          *testSystem
-		expectedRequest istanbul.Proposal
+		expectedRequest poDC.Proposal
 		expectedErr     error
 	}{
 		{
@@ -69,7 +69,7 @@ func TestHandlePreprepare(t *testing.T) {
 						c.state = StateAcceptRequest
 						// hack: force set subject that future message can be simulated
 						c.current = newTestRoundState(
-							&istanbul.View{
+							&poDC.View{
 								Round:    big.NewInt(0),
 								Sequence: big.NewInt(0),
 							},
@@ -136,7 +136,7 @@ OUTER:
 
 		curView := r0.currentView()
 
-		preprepare := &istanbul.Preprepare{
+		preprepare := &poDC.Preprepare{
 			View:     curView,
 			Proposal: test.expectedRequest,
 		}
@@ -181,7 +181,7 @@ OUTER:
 			if decodedMsg.Code != msgPrepare {
 				t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgPrepare)
 			}
-			var subject *istanbul.Subject
+			var subject *poDC.Subject
 			err = decodedMsg.Decode(&subject)
 			if err != nil {
 				t.Errorf("error mismatch: have %v, want nil", err)

@@ -22,7 +22,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/core/types"
 	elog "github.com/ethereum/go-ethereum/log"
 )
@@ -39,7 +39,7 @@ func makeBlock(number int64) *types.Block {
 	return block.WithSeal(header)
 }
 
-func newTestProposal() istanbul.Proposal {
+func newTestProposal() poDC.Proposal {
 	return makeBlock(1)
 }
 

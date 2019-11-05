@@ -22,12 +22,12 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
 func testPreprepare(t *testing.T) {
-	pp := &istanbul.Preprepare{
-		View: &istanbul.View{
+	pp := &poDC.Preprepare{
+		View: &poDC.View{
 			Round:    big.NewInt(1),
 			Sequence: big.NewInt(2),
 		},
@@ -52,7 +52,7 @@ func testPreprepare(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want nil", err)
 	}
 
-	var decodedPP *istanbul.Preprepare
+	var decodedPP *poDC.Preprepare
 	err = decodedMsg.Decode(&decodedPP)
 	if err != nil {
 		t.Errorf("error mismatch: have %v, want nil", err)
@@ -74,8 +74,8 @@ func testPreprepare(t *testing.T) {
 }
 
 func testSubject(t *testing.T) {
-	s := &istanbul.Subject{
-		View: &istanbul.View{
+	s := &poDC.Subject{
+		View: &poDC.View{
 			Round:    big.NewInt(1),
 			Sequence: big.NewInt(2),
 		},
@@ -101,7 +101,7 @@ func testSubject(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want nil", err)
 	}
 
-	var decodedSub *istanbul.Subject
+	var decodedSub *poDC.Subject
 	err = decodedMsg.Decode(&decodedSub)
 	if err != nil {
 		t.Errorf("error mismatch: have %v, want nil", err)
@@ -113,8 +113,8 @@ func testSubject(t *testing.T) {
 }
 
 func testSubjectWithSignature(t *testing.T) {
-	s := &istanbul.Subject{
-		View: &istanbul.View{
+	s := &poDC.Subject{
+		View: &poDC.View{
 			Round:    big.NewInt(1),
 			Sequence: big.NewInt(2),
 		},
@@ -165,10 +165,10 @@ func testSubjectWithSignature(t *testing.T) {
 	// 2.3 Test failed validate func
 	decodedMsg = new(message)
 	err = decodedMsg.FromPayload(msgPayload, func(data []byte, sig []byte) (common.Address, error) {
-		return common.Address{}, istanbul.ErrUnauthorizedAddress
+		return common.Address{}, poDC.ErrUnauthorizedAddress
 	})
-	if err != istanbul.ErrUnauthorizedAddress {
-		t.Errorf("error mismatch: have %v, want %v", err, istanbul.ErrUnauthorizedAddress)
+	if err != poDC.ErrUnauthorizedAddress {
+		t.Errorf("error mismatch: have %v, want %v", err, poDC.ErrUnauthorizedAddress)
 	}
 }
 

@@ -21,8 +21,8 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
+	"github.com/ethereum/go-ethereum/consensus/poDC/validator"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
@@ -36,10 +36,10 @@ type testSystemBackend struct {
 	sys *testSystem
 
 	engine Engine
-	peers  istanbul.ValidatorSet
+	peers  poDC.ValidatorSet
 	events *event.TypeMux
 
-	commitMsgs     []istanbul.Proposal
+	commitMsgs     []poDC.Proposal
 	committedSeals [][]byte
 	sentMsgs       [][]byte // store the message when Send is called by core
 
@@ -56,7 +56,7 @@ func (self *testSystemBackend) Address() common.Address {
 }
 
 // Peers returns all connected peers
-func (self *testSystemBackend) Validators(proposal istanbul.Proposal) istanbul.ValidatorSet {
+func (self *testSystemBackend) Validators(proposal poDC.Proposal) poDC.ValidatorSet {
 	return self.peers
 }
 
@@ -67,16 +67,16 @@ func (self *testSystemBackend) EventMux() *event.TypeMux {
 func (self *testSystemBackend) Send(message []byte, target common.Address) error {
 	testLogger.Info("enqueuing a message...", "address", self.Address())
 	self.sentMsgs = append(self.sentMsgs, message)
-	self.sys.queuedMessage <- istanbul.MessageEvent{
+	self.sys.queuedMessage <- poDC.MessageEvent{
 		Payload: message,
 	}
 	return nil
 }
 
-func (self *testSystemBackend) Broadcast(valSet istanbul.ValidatorSet, message []byte) error {
+func (self *testSystemBackend) Broadcast(valSet poDC.ValidatorSet, message []byte) error {
 	testLogger.Info("enqueuing a message...", "address", self.Address())
 	self.sentMsgs = append(self.sentMsgs, message)
-	self.sys.queuedMessage <- istanbul.MessageEvent{
+	self.sys.queuedMessage <- poDC.MessageEvent{
 		Payload: message,
 	}
 	return nil
@@ -87,19 +87,19 @@ func (self *testSystemBackend) NextRound() error {
 	return nil
 }
 
-func (self *testSystemBackend) Commit(proposal istanbul.Proposal, seals []byte) error {
+func (self *testSystemBackend) Commit(proposal poDC.Proposal, seals []byte) error {
 	testLogger.Info("commit message", "address", self.Address())
 	self.commitMsgs = append(self.commitMsgs, proposal)
 	self.committedSeals = append(self.committedSeals, seals)
 
 	// fake new head events
-	go self.events.Post(istanbul.FinalCommittedEvent{
+	go self.events.Post(poDC.FinalCommittedEvent{
 		Proposal: proposal,
 	})
 	return nil
 }
 
-func (self *testSystemBackend) Verify(proposal istanbul.Proposal) error {
+func (self *testSystemBackend) Verify(proposal poDC.Proposal) error {
 	return nil
 }
 
@@ -120,8 +120,8 @@ func (self *testSystemBackend) Hash(b interface{}) common.Hash {
 	return common.StringToHash("Test")
 }
 
-func (self *testSystemBackend) NewRequest(request istanbul.Proposal) {
-	go self.events.Post(istanbul.RequestEvent{
+func (self *testSystemBackend) NewRequest(request poDC.Proposal) {
+	go self.events.Post(poDC.RequestEvent{
 		Proposal: request,
 	})
 }
@@ -133,7 +133,7 @@ func (self *testSystemBackend) NewRequest(request istanbul.Proposal) {
 type testSystem struct {
 	backends []*testSystemBackend
 
-	queuedMessage chan istanbul.MessageEvent
+	queuedMessage chan poDC.MessageEvent
 	quit          chan struct{}
 }
 
@@ -142,7 +142,7 @@ func newTestSystem(n uint64) *testSystem {
 	return &testSystem{
 		backends: make([]*testSystemBackend, n),
 
-		queuedMessage: make(chan istanbul.MessageEvent),
+		queuedMessage: make(chan poDC.MessageEvent),
 		quit:          make(chan struct{}),
 	}
 }
@@ -156,8 +156,8 @@ func generateValidators(n int) []common.Address {
 	return vals
 }
 
-func newTestValidatorSet(n int) istanbul.ValidatorSet {
-	return validator.NewSet(generateValidators(n), istanbul.RoundRobin)
+func newTestValidatorSet(n int) poDC.ValidatorSet {
+	return validator.NewSet(generateValidators(n), poDC.RoundRobin)
 }
 
 // FIXME: int64 is needed for N and F
@@ -166,10 +166,10 @@ func NewTestSystemWithBackend(n, f uint64) *testSystem {
 
 	addrs := generateValidators(int(n))
 	sys := newTestSystem(n)
-	config := istanbul.DefaultConfig
+	config := poDC.DefaultConfig
 
 	for i := uint64(0); i < n; i++ {
-		vset := validator.NewSet(addrs, istanbul.RoundRobin)
+		vset := validator.NewSet(addrs, poDC.RoundRobin)
 		backend := sys.NewBackend(i)
 		backend.peers = vset
 		backend.address = vset.GetByIndex(i).Address()
@@ -177,7 +177,7 @@ func NewTestSystemWithBackend(n, f uint64) *testSystem {
 		core := New(backend, config).(*core)
 		core.state = StateAcceptRequest
 		core.lastProposer = common.Address{}
-		core.current = newRoundState(&istanbul.View{
+		core.current = newRoundState(&poDC.View{
 			Round:    big.NewInt(0),
 			Sequence: big.NewInt(1),
 		}, vset)

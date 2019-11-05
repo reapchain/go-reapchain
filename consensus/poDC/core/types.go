@@ -81,6 +81,7 @@ func (s State) Cmp(y State) int {
 
 const (
 	msgPreprepare uint64 = iota
+	msgReceivedFromQman   // When receive a message from Qmanager, msg is ExtraData
 	msgPrepare
 	msgCommit
 	msgRoundChange
@@ -164,9 +165,9 @@ func (m *message) PayloadNoSig() ([]byte, error) {
 		CommittedSeal: m.CommittedSeal,
 	})
 }
-
+// 메시지를 주면 val 값으로 돌려줌
 func (m *message) Decode(val interface{}) error {
-	return rlp.DecodeBytes(m.Msg, val)
+	return rlp.DecodeBytes(m.Msg, val)  //DecodeBytes parses RLP data from b into val.
 }
 
 func (m *message) String() string {

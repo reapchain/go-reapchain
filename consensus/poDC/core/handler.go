@@ -84,7 +84,7 @@ func (c *core) handleEvents() {
 	for event := range c.events.Chan() {
 		// A real event arrived, process interesting content
 		switch ev := event.Data.(type) {
-		case poDC.RequestEvent:
+		case poDC.RequestEvent:  // Proposal 구조체
 			r := &poDC.Request{
 				Proposal: ev.Proposal,
 			}
@@ -92,9 +92,9 @@ func (c *core) handleEvents() {
 			if err == errFutureMessage {
 				c.storeRequestMsg(r)
 			}
-		case poDC.MessageEvent:  //cordi로부터 합의를 통해서, 최종 검증된 블럭을 받으면,
+		case poDC.MessageEvent:  //cordi로부터 합의를 통해서, 최종 검증된 블럭을 받으면, payload  배열
 			c.handleMsg(ev.Payload)
-		case poDC.FinalCommittedEvent:
+		case poDC.FinalCommittedEvent:  //Proposal 구조체
 			c.handleFinalCommitted(ev.Proposal, ev.Proposer)
 		case backlogEvent:
 			// No need to check signature for internal messages
@@ -146,6 +146,11 @@ func (c *core) handleCheckedMsg(msg *message, src poDC.Validator) error {
 	switch msg.Code {
 
 	// 경우에 따라서 테스트시 오류 검증을 위해서, 이스탄불 소스를 돌릴수 있기 때문에, 여기서는 메시지 상태 머신을 섞어서 쓴다.
+	// Qmanager로부터 메시지를 받으면 블럭헤더의 ExtraDATA의 내용을 채운다.
+	// 상원, 하원, 운영위 후보군, 코디 등.
+	case msgReceivedFromQman:
+		return testBacklog(c.handleExtraData(msg, src))
+
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
 	case msgPrepare:
