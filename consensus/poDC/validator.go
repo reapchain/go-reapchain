@@ -22,16 +22,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-const (
-
-	Senator         = 0x1 // 상원
-	Parliamentarian = 0x2 // 하원
-	Candidate       = 0x3 // 하원, 운영위 후보군
-	General         = 0x4 // 일반 노드, 상원, 하원도 아닌.
-
-)
-
-
 // 모든 Validator 로 선언하고, 여기서 각 Label/ tag 붙여서 관리한다.
 type Validator interface {
 	// Address returns address
@@ -40,14 +30,14 @@ type Validator interface {
 	// String representation of Validator
 	String() string
 
-	Tag()  string  // Tag()  is bug ,, just test by yichoi
-	               // Tag define : Senator(상원), parliamentarian(하원), general(일반), candidate(운영위 후보)
-	               //
+	Tag() uint64 // Tag()  is bug ,, just test by yichoi
+	// Tag define : Senator(상원), parliamentarian(하원), general(일반), candidate(운영위 후보)
+	//
 }
 
 // ----------------------------------------------------------------------------
 
-type Validators []Validator   // go 배열 표현
+type Validators []Validator // go 배열 표현
 
 /* 설명 : Validators = [ address, String, Tag ] [ ... ] [ ... ] ......... */
 /*  Validator node
@@ -79,7 +69,7 @@ func (slice Validators) Swap(i, j int) {
 
 type ValidatorSet interface {
 	// Calculate the proposer
-	CalcProposer(lastProposer common.Address, round uint64)  // 최초 Proposer 가 누군지 계산 ,,
+	CalcProposer(lastProposer common.Address, round uint64) // 최초 Proposer 가 누군지 계산 ,,
 
 	// 코디 후보군 선정 ?
 	RecvCordinator(lastProposer common.Address, round uint64) //yichoi
@@ -96,12 +86,12 @@ type ValidatorSet interface {
 	GetProposer() Validator
 
 	// 상임위, 운영위 확정 구성 위원회 정보 가져오기 , Steering committee ( 운영위원회 )
-	GetConfirmedCommittee() Validator  //yichoi
+	GetConfirmedCommittee() Validator //yichoi
 
 	// Check whether the validator with given address is a proposer
 	IsProposer(address common.Address) bool
 	// Is request a ExtraDATA to Qmanager
-	IsRequestQman(address common.Address) bool  //podc
+	IsRequestQman(address common.Address) bool //podc
 
 	// Add validator
 	AddValidator(address common.Address) bool
