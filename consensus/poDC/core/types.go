@@ -22,7 +22,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	//	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/rlp"
 )
@@ -80,8 +80,8 @@ func (s State) Cmp(y State) int {
 }
 
 const (
-	msgPreprepare uint64 = iota
-	msgReceivedFromQman   // When receive a message from Qmanager, msg is ExtraData
+	msgPreprepare       uint64 = iota
+	msgReceivedFromQman        // When receive a message from Qmanager, msg is ExtraData
 	msgPrepare
 	msgCommit
 	msgRoundChange
@@ -165,9 +165,10 @@ func (m *message) PayloadNoSig() ([]byte, error) {
 		CommittedSeal: m.CommittedSeal,
 	})
 }
+
 // 메시지를 주면 val 값으로 돌려줌
 func (m *message) Decode(val interface{}) error {
-	return rlp.DecodeBytes(m.Msg, val)  //DecodeBytes parses RLP data from b into val.
+	return rlp.DecodeBytes(m.Msg, val) //DecodeBytes parses RLP data from b into val.
 }
 
 func (m *message) String() string {
@@ -210,5 +211,34 @@ func (rc *roundChange) DecodeRLP(s *rlp.Stream) error {
 		return err
 	}
 	rc.Round, rc.Sequence, rc.Digest = rawRoundChange.Round, rawRoundChange.Sequence, rawRoundChange.Digest
+	return nil
+}
+
+// ----------------------------------------------------------------------------
+
+type extraData struct {
+	HashValue common.Hash
+	Details   details
+	Signature []byte
+}
+
+func (ed *extraData) EncodeRLP(w io.Writer) error {
+	return rlp.Encode(w, []interface{}{
+		ed.HashValue,
+		ed.Details,
+		ed.Signature,
+	})
+}
+
+func (ed *extraData) DecodeRLP(s *rlp.Stream) error {
+	var extraData struct {
+		HashValue common.Hash
+		Details   Validator
+		Signature []byte
+	}
+	if err := s.Decode(&extraData); err != nil {
+		return err
+	}
+	ed.HashValue, ed.Details, ed.Signature = extraData.HashValue, extraData.Details, extraData.Signature
 	return nil
 }

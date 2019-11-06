@@ -32,7 +32,8 @@ type Validator interface {
 
 	Tag() uint64 // Tag()  is bug ,, just test by yichoi
 	// Tag define : Senator(상원), parliamentarian(하원), general(일반), candidate(운영위 후보)
-	//
+
+	Qrnd() uint64
 }
 
 // ----------------------------------------------------------------------------

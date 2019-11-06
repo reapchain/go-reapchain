@@ -38,6 +38,7 @@ const (
 type defaultValidator struct {
 	address common.Address
 	tag     uint64
+	qrnd    uint64
 }
 
 func (val *defaultValidator) Address() common.Address {
@@ -50,6 +51,10 @@ func (val *defaultValidator) String() string {
 
 func (val *defaultValidator) Tag() uint64 {
 	return val.tag
+}
+
+func (val *defaultValidator) Qrand() uint64 {
+	return val.qrnd
 }
 
 // ----------------------------------------------------------------------------
