@@ -19,8 +19,9 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"reflect"
+
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
 /* D-selct has 6 states.
@@ -57,11 +58,7 @@ func (c *core) sendD_select() {
 	})
 }
 
-// TODO: define FrontNode like
-// type FrontNode struct {
-//		address common.Address
-// }
-func (c *core) handleD_select(msg *message, src poDC.FrontNode) error {
+func (c *core) handleD_select(msg *message, src poDC.Validator) error {
 	// Decode prepare message
 	var dselect *poDC.Subject
 	err := msg.Decode(&dselect)
@@ -92,7 +89,7 @@ func (c *core) handleD_select(msg *message, src poDC.FrontNode) error {
 }
 
 // verifyPrepare verifies if the received prepare message is equivalent to our subject
-func (c *core) verifyD_select(prepare *poDC.Subject, src poDC.FrontNode) error {
+func (c *core) verifyD_select(prepare *poDC.Subject, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	sub := c.current.Subject()
@@ -104,7 +101,7 @@ func (c *core) verifyD_select(prepare *poDC.Subject, src poDC.FrontNode) error {
 	return nil
 }
 
-func (c *core) acceptD_select(msg *message, src poDC.FrontNode) error {
+func (c *core) acceptD_select(msg *message, src poDC.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	// Add the prepare message to current round state
@@ -117,7 +114,7 @@ func (c *core) acceptD_select(msg *message, src poDC.FrontNode) error {
 }
 
 // identify what self-node kind is : committee candidate, coordinator, senator
-func (c *core) identifySelfNode(msg *message, src poDC.FrontNode) error {
+func (c *core) identifySelfNode(msg *message, src poDC.Validator) error {
 	// TODO
 }
 
@@ -127,7 +124,7 @@ func (c *core) requestCandidateList() error {
 }
 
 // when QManager response, handle the candidate list and notify selection of coordinator to committee candidates
-func (c *core) handleCandidateList(msg *message, src poDC.QManager) error {
+func (c *core) handleCandidateList(msg *message, src poDC.Validator) error {
 	// TODO
 
 	// target would be c.current.D_select.Coordinator.candidates
@@ -135,7 +132,7 @@ func (c *core) handleCandidateList(msg *message, src poDC.QManager) error {
 }
 
 // if a committee candidate listen notification from coordinator, start racing
-func (c *core) handleStartRacing(msg *message, src poDC.Coordinator) error {
+func (c *core) handleStartRacing(msg *message, src poDC.Validator) error {
 	// TODO
 
 	// target would be c.current.D_select.Coordinator
@@ -144,7 +141,7 @@ func (c *core) handleStartRacing(msg *message, src poDC.Coordinator) error {
 
 // register committee candidate to committee by the order of arrival
 // and set round as d-commit
-func (c *core) handleRegisterCommittee(msg *messgae, src poDC.Candidate) error {
+func (c *core) handleRegisterCommittee(msg *messgae, src poDC.Validator) error {
 	// TODO
 
 	if committee.Number() == 15 {
