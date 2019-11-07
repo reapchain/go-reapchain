@@ -25,9 +25,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-
-	"github.com/ethereum/go-ethereum/consensus/poDC"    //podc
-	// "github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/eth/downloader"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
@@ -54,7 +52,6 @@ var DefaultConfig = Config{
 	},
 
 	Istanbul: *istanbul.DefaultConfig,
-	PoDC: *poDC.DefaultConfig,  /* podc  - error now , fix later */
 }
 
 func init() {
@@ -117,8 +114,6 @@ type Config struct {
 
 	// Istanbul options
 	Istanbul istanbul.Config
-	// PoDC options
-	PoDC     poDC.Config   //podc
 
 	// Miscellaneous options
 	DocRoot   string `toml:"-"`

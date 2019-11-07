@@ -88,10 +88,6 @@ func (n *Notifier) CreateSubscription() *Subscription {
 
 // Notify sends a notification to the client with the given data as payload.
 // If an error occurs the RPC connection is closed and the error is returned.
-
-/* reviewed by yichoi */
-
-
 func (n *Notifier) Notify(id ID, data interface{}) error {
 	n.subMu.RLock()
 	defer n.subMu.RUnlock()

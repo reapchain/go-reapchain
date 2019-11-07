@@ -115,8 +115,6 @@ type BlockChain struct {
 // NewBlockChain returns a fully initialised block chain using information
 // available in the database. It initialises the default Ethereum Validator and
 // Processor.
-// Jump 3 : yichoi
-// 새 블럭체인을 가져온다
 func NewBlockChain(chainDb ethdb.Database, config *params.ChainConfig, engine consensus.Engine, mux *event.TypeMux, vmConfig vm.Config) (*BlockChain, error) {
 	bodyCache, _ := lru.New(bodyCacheLimit)
 	bodyRLPCache, _ := lru.New(bodyCacheLimit)
@@ -133,7 +131,7 @@ func NewBlockChain(chainDb ethdb.Database, config *params.ChainConfig, engine co
 		bodyRLPCache: bodyRLPCache,
 		blockCache:   blockCache,
 		futureBlocks: futureBlocks,
-		engine:       engine,   // 설정된 합의 엔진
+		engine:       engine,
 		vmConfig:     vmConfig,
 		badBlocks:    badBlocks,
 	}
@@ -324,7 +322,7 @@ func (bc *BlockChain) LastBlockHash() common.Hash {
 	return bc.currentBlock.Hash()
 }
 
-// CurrentBlock retrieves the current head block of the canonical(표준) chain. The
+// CurrentBlock retrieves the current head block of the canonical chain. The
 // block is retrieved from the blockchain's internal cache.
 func (bc *BlockChain) CurrentBlock() *types.Block {
 	bc.mu.RLock()
@@ -352,7 +350,6 @@ func (bc *BlockChain) Status() (td *big.Int, currentBlock common.Hash, genesisBl
 }
 
 // SetProcessor sets the processor required for making state modifications.
-// 상태머신 셋팅 하는 부분 : yichoi
 func (bc *BlockChain) SetProcessor(processor Processor) {
 	bc.procmu.Lock()
 	defer bc.procmu.Unlock()
@@ -360,8 +357,6 @@ func (bc *BlockChain) SetProcessor(processor Processor) {
 }
 
 // SetValidator sets the validator which is used to validate incoming blocks.
-// Validator 설정하는 부분 : yichoi
-
 func (bc *BlockChain) SetValidator(validator Validator) {
 	bc.procmu.Lock()
 	defer bc.procmu.Unlock()

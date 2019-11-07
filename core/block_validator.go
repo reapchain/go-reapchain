@@ -41,7 +41,7 @@ type BlockValidator struct {
 func NewBlockValidator(config *params.ChainConfig, blockchain *BlockChain, engine consensus.Engine) *BlockValidator {
 	validator := &BlockValidator{
 		config: config,
-		engine: engine,  // 합의 엔진 설정값
+		engine: engine,
 		bc:     blockchain,
 	}
 	return validator

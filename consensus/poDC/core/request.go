@@ -16,9 +16,6 @@
 
 package core
 
-
-
-//import "github.com/ethereum/go-ethereum/consensus/istanbul"
 import "github.com/ethereum/go-ethereum/consensus/poDC"
 
 func (c *core) handleRequest(request *poDC.Request) error {
@@ -34,7 +31,7 @@ func (c *core) handleRequest(request *poDC.Request) error {
 	//Qmanager response check is more prefer then StateAccepRequest state.
 
 	if c.state == StateRequestQMan {  //podc
-		c.sendPreprepare(request)
+		c.sendRequestExtraDataToQman(request)
 	}
 
 	if c.state == StateAcceptQMan {  //podc
@@ -44,13 +41,6 @@ func (c *core) handleRequest(request *poDC.Request) error {
 	if c.state == StateAcceptRequest {
 		c.sendPreprepare(request)
 	}
-
-
-
-
-
-
-
 
 	return nil
 }

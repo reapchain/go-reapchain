@@ -59,7 +59,7 @@ func Fatalf(format string, args ...interface{}) {
 }
 
 func StartNode(stack *node.Node) {
-	if err := stack.Start(); err != nil {  // p2p server외 각종 서비스 실행
+	if err := stack.Start(); err != nil {
 		Fatalf("Error starting protocol stack: %v", err)
 	}
 	go func() {

@@ -174,7 +174,6 @@ func (g *Genesis) configOrDefault(ghash common.Hash) *params.ChainConfig {
 }
 
 // ToBlock creates the block and state of a genesis specification.
-// 중요
 func (g *Genesis) ToBlock() (*types.Block, *state.StateDB) {
 	db, _ := ethdb.NewMemDatabase()
 	statedb, _ := state.New(common.Hash{}, db)
@@ -220,7 +219,6 @@ func (g *Genesis) Commit(db ethdb.Database) (*types.Block, error) {
 	if err := WriteBlock(db, block); err != nil {
 		return nil, err
 	}
-	// 배치 또는 토큰,, 사용할 함수 .. 허용환 본부장
 	if err := WriteBlockReceipts(db, block.Hash(), block.NumberU64(), nil); err != nil {
 		return nil, err
 	}
@@ -295,13 +293,13 @@ func DefaultRinkebyGenesisBlock() *Genesis {
 // DefaultOttomanGenesisBlock returns the Ottoman network genesis block.
 func DefaultOttomanGenesisBlock() *Genesis {
 	return &Genesis{
-		Config:     params.ReapChainConfig,
+		Config:     params.OttomanChainConfig,
 		Timestamp:  1496993285,
 		ExtraData:  hexutil.MustDecode("0x0000000000000000000000000000000000000000000000000000000000000000f89af85494475cc98b5521ab2a1335683e7567c8048bfe79ed9407d8299de61faed3686ba4c4e6c3b9083d7e2371944fe035ce99af680d89e2c4d73aca01dbfc1bd2fd94dc421209441a754f79c4a4ecd2b49c935aad0312b8410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0"),
 		GasLimit:   4700000,
 		Difficulty: big.NewInt(1),
 		Mixhash:    common.HexToHash("0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365"),
-		Alloc:      decodePrealloc(reapchainAllocData),
+		Alloc:      decodePrealloc(ottomanAllocData),
 	}
 }
 

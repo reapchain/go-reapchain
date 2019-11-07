@@ -17,12 +17,32 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/poDC"
+	"github.com/ethereum/go-ethereum/node"
+	"github.com/ethereum/go-ethereum/p2p/discover"
+	"github.com/ethereum/go-ethereum/swarm/api"
 	"time"
 
-//	"github.com/ethereum/go-ethereum/consensus/istanbul"
 )
+func makemsg(    )
+{
 
+
+}
+
+//yichoi - begin
+// QmanagerNodes returns a list of node enode URLs configured as Qmanager nodes.
+//func (c *Config) QmanagerNodes() []*discover.Node {
+//	return c.parsePersistentNodes(c.resolvePath(datadirQmanagerNodes))
+//}
+// end
+func( c *core) getQman_enode() []*discover.Node {
+
+	var d node.Config
+	d.p2p.Qmanagernodes = node.QmanagerNodes( )
+
+}
 /* 최초 Qmanager 에게 ExtraDATA를 요청하는 단계 */
 func (c *core) sendRequestExtraDataToQman(request *poDC.Request) {
 	logger := c.logger.New("state", c.state)
@@ -38,13 +58,30 @@ func (c *core) sendRequestExtraDataToQman(request *poDC.Request) {
 			logger.Error("Failed to encode", "view", curView)
 			return
 		}
+		// load Qmanager enode address from static node
 
-		// proposal block 전파 / pre-prepare 상태
 
-		/* c.broadcast(&message{
-			Code: msgPreprepare,
-			Msg:  preprepare,
-		}) */
+
+        // make request massage,
+		/* type message struct {
+			Code          uint64
+			Msg           []byte
+			Address       common.Address
+			Signature     []byte
+			CommittedSeal []byte
+		} */
+        var payload = makemsg()
+        var d Config
+        var qman_enode common.Address
+        qman_enode  = getQman_enode( )
+
+		c.send(&message{
+			Code: msgRequestQman,
+			Msg: payload
+			Address:  qman_enode ,
+		})
+
+		// proposal block 전파는 핸들러로 옮겨야,, Qmanager에서 수신시,, 처리되게끔.  / pre-prepare 상태
 		// 다음은 d-select 상태로 상태 전이함.
 	}
 }
@@ -63,8 +100,7 @@ func (c *core) sendPreprepare(request *poDC.Request) {
 			return
 		}
 
-// proposal block 전파 / pre-prepare 상태
-
+       // proposal block 전파 / pre-prepare 상태
 		c.broadcast(&message{
 			Code: msgPreprepare,
 			Msg:  preprepare,
@@ -127,7 +163,7 @@ func (c *core) handleExtraData(msg *message, src poDC.Validator) error {
 	}
 
 	// Ensure we have the same view with the preprepare message
-	if err := c.checkMessage(msgPreprepare, preprepare.View); err != nil {
+	if err := c.checkMessage(msgReceivedFromQman, preprepare.View); err != nil {
 		return err
 	}
 
@@ -145,21 +181,15 @@ func (c *core) handleExtraData(msg *message, src poDC.Validator) error {
 	}
 
 	// 상태 전이 모드
-	if istanbul {
-		if c.state == StateAcceptRequest {
+	// 수정 필요
+	if poDC {
+		if c.state == StateAcceptQMan {  // 수정 필요
 			c.acceptPreprepare(preprepare)
 			c.setState(StatePreprepared)
 			c.sendPrepare()
 		}
 	}
-	if poDC {
-
-
-
-
-
-
-	}
+    //
 
 	return nil
 }

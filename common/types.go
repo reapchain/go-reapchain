@@ -57,14 +57,9 @@ func (h Hash) TerminalString() string {
 
 // String implements the stringer interface and is used also by the logger when
 // doing full logging into a file.
-func (h Hash) String() string {  // from validator.go
+func (h Hash) String() string {
 	return h.Hex()
 }
-// Tag information return, different validator
-func (h Hash) Tag() string {  // from validator.go
-	return h.Hex()
-}
-
 
 // Format implements fmt.Formatter, forcing the byte slice to be formatted as is,
 // without going through the stringer interface used for logging.
@@ -130,7 +125,7 @@ func (h UnprefixedHash) MarshalText() ([]byte, error) {
 /////////// Address
 
 // Address represents the 20 byte address of an Ethereum account.
-type Address [AddressLength]byte  //enode address ?
+type Address [AddressLength]byte
 
 func BytesToAddress(b []byte) Address {
 	var a Address

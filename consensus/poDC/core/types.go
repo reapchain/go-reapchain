@@ -22,7 +22,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
-	//	"github.com/ethereum/go-ethereum/consensus/istanbul"
+//	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/rlp"
 )
@@ -39,6 +39,7 @@ const (
 	StatePreprepared
 	StatePrepared
 	StateCommitted
+	StateRequestQMan  // state to send request for extra data to Qmanager
 	StateAcceptQMan  //podc
 	StateD_selected  //podc
 	StateD_committed //podc
@@ -80,8 +81,9 @@ func (s State) Cmp(y State) int {
 }
 
 const (
-	msgPreprepare       uint64 = iota
-	msgReceivedFromQman        // When receive a message from Qmanager, msg is ExtraData
+	msgPreprepare uint64 = iota
+	msgRequestQman        // send a request to Qmanager in order to get ExtraDATA
+	msgReceivedFromQman   // When receive a message from Qmanager, msg is ExtraData
 	msgPrepare
 	msgCommit
 	msgRoundChange

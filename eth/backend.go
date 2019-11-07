@@ -30,13 +30,8 @@ import (
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/clique"
 	"github.com/ethereum/go-ethereum/consensus/ethash"
-//	"github.com/ethereum/go-ethereum/consensus/istanbul"
-//	istanbulBackend "github.com/ethereum/go-ethereum/consensus/istanbul/backend"
-
-	"github.com/ethereum/go-ethereum/consensus/poDC"
-	poDCBackend "github.com/ethereum/go-ethereum/consensus/poDC/backend"
-
-
+	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	istanbulBackend "github.com/ethereum/go-ethereum/consensus/istanbul/backend"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -78,7 +73,7 @@ type Ethereum struct {
 	chainDb ethdb.Database // Block chain database
 
 	eventMux       *event.TypeMux
-	engine         consensus.Engine  //yichoi  이더리움 구조체 생성시, 합의엔진 정의
+	engine         consensus.Engine
 	accountManager *accounts.Manager
 
 	ApiBackend *EthApiBackend
@@ -87,7 +82,7 @@ type Ethereum struct {
 	gasPrice  *big.Int
 	etherbase common.Address
 
-	networkId     uint64   //networkID와  nodeID는 다름.
+	networkId     uint64
 	netRPCService *ethapi.PublicNetAPI
 
 	lock sync.RWMutex // Protects the variadic fields (e.g. gas price and etherbase)
@@ -123,7 +118,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		chainConfig:    chainConfig,
 		eventMux:       ctx.EventMux,
 		accountManager: ctx.AccountManager,
-		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb),  /* 합의 알고리즘 매모리 로드 시점 */
+		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb),
 		shutdownChan:   make(chan bool),
 		stopDbUpgrade:  stopDbUpgrade,
 		networkId:      config.NetworkId,
@@ -133,12 +128,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 
 	// force to set the istanbul etherbase to node key address
 	if chainConfig.Istanbul != nil {
-		eth.etherbase = crypto.PubkeyToAddress(ctx.NodeKey().PublicKey)  //이스탄불
-	}
-	// force to set the PoDC etherbase to node key address
-	if chainConfig.PoDC != nil {
-		eth.etherbase = crypto.PubkeyToAddress(ctx.NodeKey().PublicKey)  //PoDC ..
-		                                           //NodeKey()현재 구성된 노드의 Private key를 가져온다. 없다면, 새로 생성한다.
+		eth.etherbase = crypto.PubkeyToAddress(ctx.NodeKey().PublicKey)
 	}
 
 	if err := addMipmapBloomBins(chainDb); err != nil {
@@ -154,7 +144,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		core.WriteBlockChainVersion(chainDb, core.BlockChainVersion)
 	}
 
-	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}  //vm interpreter : Evm 명령어 해석기
+	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}
 	eth.blockchain, err = core.NewBlockChain(chainDb, eth.chainConfig, eth.engine, eth.eventMux, vmConfig)
 	if err != nil {
 		return nil, err
@@ -167,7 +157,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	}
 
 	newPool := core.NewTxPool(config.TxPool, eth.chainConfig, eth.EventMux(), eth.blockchain.State, eth.blockchain.GasLimit)
-	eth.txPool = newPool   // 새로운 TxPool를 만들고 이더리움 오브젝트의 txPool 포인터랑 연결
+	eth.txPool = newPool
 
 	maxPeers := config.MaxPeers
 	if config.LightServ > 0 {
@@ -187,7 +177,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	eth.miner = miner.New(eth, eth.chainConfig, eth.EventMux(), eth.engine)
 	eth.miner.SetExtra(makeExtraData(config.ExtraData))
 
-	eth.ApiBackend = &EthApiBackend{eth, nil}  //풀노드에 대한 백엔드 api 만든다.
+	eth.ApiBackend = &EthApiBackend{eth, nil}
 	gpoParams := config.GPO
 	if gpoParams.Default == nil {
 		gpoParams.Default = config.GasPrice
@@ -196,7 +186,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 
 	return eth, nil
 }
-// 이스탄불에서 ExtraData를 만든다.
+
 func makeExtraData(extra []byte) []byte {
 	if len(extra) == 0 {
 		// create default extradata
@@ -224,6 +214,7 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (ethdb.Data
 }
 
 // CreateConsensusEngine creates the required type of consensus engine instance for an Ethereum service
+//yichoi reviewed 2019-10-7
 func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig *params.ChainConfig, db ethdb.Database) consensus.Engine {
 	// If proof-of-authority is requested, set it up
 	if chainConfig.Clique != nil {
@@ -237,26 +228,7 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 		config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
 		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)
 	}
-<<<<<<< HEAD
-	// yichoi - begin for podc 
-	// If Istanbul is requested, set it up
-	if chainConfig.PoDC != nil {
-		if chainConfig.PoDC.Epoch != 0 {
-			config.PoDC.Epoch = chainConfig.PoDC.Epoch
-		}
-		config.PoDC.ProposerPolicy = poDC.ProposerPolicy(chainConfig.PoDC.ProposerPolicy)
-		return istanbulBackend.New(&config.PoDC, ctx.EventMux, ctx.NodeKey(), db)
-	}
-    // end 
-    
-=======
-	// PoDC ..
 
-
-
-
-
->>>>>>> update
 	// Otherwise assume proof-of-work
 	switch {
 	case config.PowFake:
@@ -268,10 +240,6 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 	case config.PowShared:
 		log.Warn("Ethash used in shared mode")
 		return ethash.NewShared()
-
-
-
-
 	default:
 		engine := ethash.New(ctx.ResolvePath(config.EthashCacheDir), config.EthashCachesInMem, config.EthashCachesOnDisk,
 			config.EthashDatasetDir, config.EthashDatasetsInMem, config.EthashDatasetsOnDisk)
@@ -391,7 +359,7 @@ func (s *Ethereum) StartMining(local bool) error {
 		// will ensure that private networks work in single miner mode too.
 		s.protocolManager.SetAcceptTxs(1)
 	}
-	go s.miner.Start(eb)  // -> miner.go
+	go s.miner.Start(eb)
 	return nil
 }
 
@@ -403,7 +371,7 @@ func (s *Ethereum) AccountManager() *accounts.Manager  { return s.accountManager
 func (s *Ethereum) BlockChain() *core.BlockChain       { return s.blockchain }
 func (s *Ethereum) TxPool() *core.TxPool               { return s.txPool }
 func (s *Ethereum) EventMux() *event.TypeMux           { return s.eventMux }
-func (s *Ethereum) Engine() consensus.Engine           { return s.engine }  //합의
+func (s *Ethereum) Engine() consensus.Engine           { return s.engine }
 func (s *Ethereum) ChainDb() ethdb.Database            { return s.chainDb }
 func (s *Ethereum) IsListening() bool                  { return true } // Always listening
 func (s *Ethereum) EthVersion() int                    { return int(s.protocolManager.Protocols()[0].Version) }

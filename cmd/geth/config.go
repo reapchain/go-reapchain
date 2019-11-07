@@ -136,7 +136,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 func makeFullNode(ctx *cli.Context) *node.Node {
 	stack, cfg := makeConfigNode(ctx)
 
-	utils.RegisterEthService(stack, &cfg.Eth)  //jump this
+	utils.RegisterEthService(stack, &cfg.Eth)
 
 	// Whisper must be explicitly enabled, but is auto-enabled in --dev mode.
 	shhEnabled := ctx.GlobalBool(utils.WhisperEnabledFlag.Name)

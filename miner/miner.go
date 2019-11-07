@@ -38,7 +38,7 @@ import (
 type Backend interface {
 	AccountManager() *accounts.Manager
 	BlockChain() *core.BlockChain
-	TxPool() *core.TxPool   // <- self.eth.Txpool()
+	TxPool() *core.TxPool
 	ChainDb() ethdb.Database
 }
 
@@ -115,8 +115,8 @@ func (self *Miner) Start(coinbase common.Address) {
 	atomic.StoreInt32(&self.mining, 1)
 
 	log.Info("Starting mining operation")
-	self.worker.start()  // worker start -> worker.go
-	self.worker.commitNewWork()  // commit network
+	self.worker.start()
+	self.worker.commitNewWork()
 }
 
 func (self *Miner) Stop() {

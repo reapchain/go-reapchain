@@ -204,7 +204,6 @@ func newProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 	heighter := func() uint64 {
 		return blockchain.CurrentBlock().NumberU64()
 	}
-	//yichoi reviewed because of intanbul debugging 2019-10-11
 	inserter := func(blocks types.Blocks) (int, error) {
 		// If fast sync is running, deny importing weird blocks
 		if atomic.LoadUint32(&manager.fastSync) == 1 {
@@ -212,10 +211,10 @@ func newProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 			return 0, nil
 		}
 		atomic.StoreUint32(&manager.acceptTxs, 1) // Mark initial sync done on any fetcher import
-		return blockchain.InsertChain(blocks)  //Full sync로 최초 geth 기동시켜야 체인을 삽입한다.
+		return blockchain.InsertChain(blocks)
 	}
 	manager.fetcher = fetcher.New(blockchain.GetBlockByHash, validator, manager.BroadcastBlock, heighter, inserter, manager.removePeer)
-    // Fetcherㄱㅏ 새 블럭을 삽입한다.
+
 	return manager, nil
 }
 
@@ -241,7 +240,7 @@ func (pm *protocolManager) removePeer(id string) {
 func (pm *protocolManager) Start() {
 	// broadcast transactions
 	pm.txSub = pm.eventMux.Subscribe(core.TxPreEvent{})
-	go pm.txBroadcastLoop()  // <--
+	go pm.txBroadcastLoop()
 	// broadcast mined blocks
 	pm.minedBlockSub = pm.eventMux.Subscribe(core.NewMinedBlockEvent{})
 	go pm.minedBroadcastLoop()
@@ -354,9 +353,7 @@ func (pm *protocolManager) handlePeerMsg(p *peer, handleMsg func(*peer, p2p.Msg)
 	defer msg.Discard()
 	return handleMsg(p, msg)
 }
-// 각 사용자/노드들이 트랜잭션( 메시지 )를 주고 받을때, 수신측일 경우 아래 메시지 핸들러가 대기하고 있다.
-// 메시지 수신 이벤트 발생시 여기가 메인 루프가 되어 처리한다.
-// geth가 동작되면, 대기모드일 경우, 최종적으로 여기서 메시지 핸들러 처리하는 모듈
+
 func (pm *protocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 	// Handle the message depending on its contents
 	switch {
@@ -710,7 +707,7 @@ func (pm *protocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 	}
 	return nil
 }
-// 블럭 전파
+
 func (pm *protocolManager) BroadcastBlock(block *types.Block, propagate bool) {
 	hash := block.Hash()
 	peers := pm.peers.PeersWithoutBlock(hash)
@@ -740,7 +737,7 @@ func (pm *protocolManager) BroadcastBlock(block *types.Block, propagate bool) {
 		log.Trace("Announced block", "hash", hash, "recipients", len(peers), "duration", common.PrettyDuration(time.Since(block.ReceivedAt)))
 	}
 }
-// 트랜잭션 전파
+
 func (pm *protocolManager) BroadcastTx(hash common.Hash, tx *types.Transaction) {
 	// Broadcast transaction to a batch of peers not knowing about it
 	peers := pm.peers.PeersWithoutTx(hash)
@@ -762,12 +759,12 @@ func (self *protocolManager) minedBroadcastLoop() {
 		}
 	}
 }
-// 1. 서명된 트랜잭션들을 브로드캐스드 한다. P. 87
+
 func (self *protocolManager) txBroadcastLoop() {
 	// automatically stops if unsubscribe
 	for obj := range self.txSub.Chan() {
 		event := obj.Data.(core.TxPreEvent)
-		self.BroadcastTx(event.Tx.Hash(), event.Tx)  // 트랜잭션을 연결된 노드들에게 브로드캐스트
+		self.BroadcastTx(event.Tx.Hash(), event.Tx)
 	}
 }
 

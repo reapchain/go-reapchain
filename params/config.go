@@ -73,7 +73,7 @@ var (
 	}
 
 	// OttomanChainConfig contains the chain parameters to run a node on the Ottoman test network.
-	/* OttomanChainConfig = &ChainConfig{
+	OttomanChainConfig = &ChainConfig{
 		ChainId:         big.NewInt(5),
 		HomesteadBlock:  big.NewInt(1),
 		DAOForkBlock:    nil,
@@ -85,23 +85,6 @@ var (
 		MetropolisBlock: TestNetMetropolisBlock,
 
 		Istanbul: &IstanbulConfig{
-			Epoch:          30000,
-			ProposerPolicy: 0,
-		},
-	} */
-// we should make a new test network for below in order to test PoDC consensus algorithm
-	ReapChainConfig = &ChainConfig{
-		ChainId:         big.NewInt(5),
-		HomesteadBlock:  big.NewInt(1),
-		DAOForkBlock:    nil,
-		DAOForkSupport:  true,
-		EIP150Block:     big.NewInt(2),
-		EIP150Hash:      common.HexToHash("0x9b095b36c15eaf13044373aef8ee0bd3a382a5abb92e402afa44b8249c3a90e9"),
-		EIP155Block:     big.NewInt(3),
-		EIP158Block:     big.NewInt(3),
-		MetropolisBlock: TestNetMetropolisBlock,
-
-		PoDC: &PoDCConfig{
 			Epoch:          30000,
 			ProposerPolicy: 0,
 		},
@@ -144,8 +127,7 @@ type ChainConfig struct {
 	// Various consensus engines
 	Ethash   *EthashConfig   `json:"ethash,omitempty"`
 	Clique   *CliqueConfig   `json:"clique,omitempty"`
-	// Istanbul *IstanbulConfig `json:"istanbul,omitempty"`  //deleted for building error: too few values in &ChainConfig literal
-	PoDC     *PoDCConfig     `json:"podc,omitempty"`     // PoDC consensus engines by yichoi
+	Istanbul *IstanbulConfig `json:"istanbul,omitempty"`
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -168,23 +150,16 @@ func (c *CliqueConfig) String() string {
 }
 
 // IstanbulConfig is the consensus engine configs for Istanbul based sealing.
-/* type IstanbulConfig struct {
-	Epoch          uint64 `json:"epoch"`  // Epoch length to reset votes and checkpoint
-	ProposerPolicy uint64 `json:"policy"` // The policy for proposer selection
-} */
-// PoDCConfig is the consensus engine configs for Istanbul based sealing.
-type PoDCConfig struct {
+type IstanbulConfig struct {
 	Epoch          uint64 `json:"epoch"`  // Epoch length to reset votes and checkpoint
 	ProposerPolicy uint64 `json:"policy"` // The policy for proposer selection
 }
+
 // String implements the stringer interface, returning the consensus engine details.
-/* func (c *IstanbulConfig) String() string {
+func (c *IstanbulConfig) String() string {
 	return "istanbul"
-} */
-// String implements the stringer interface, returning the consensus engine details.
-func (c *PoDCConfig) String() string {
-	return "podc"
 }
+
 // String implements the fmt.Stringer interface.
 func (c *ChainConfig) String() string {
 	var engine interface{}
@@ -193,11 +168,8 @@ func (c *ChainConfig) String() string {
 		engine = c.Ethash
 	case c.Clique != nil:
 		engine = c.Clique
-	/* case c.Istanbul != nil:
-		engine = c.Istanbul  */
-	case c.PoDC != nil:     /* podc */
-		engine = c.PoDC
-
+	case c.Istanbul != nil:
+		engine = c.Istanbul
 	default:
 		engine = "unknown"
 	}

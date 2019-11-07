@@ -54,7 +54,6 @@ type Engine interface {
 	// Author retrieves the Ethereum address of the account that minted the given
 	// block, which may be different from the header's coinbase if a consensus
 	// engine is based on signatures.
-	// 작성자는 주어진 블록을 발행 한 계정의 이더 리움 주소를 가져합니다. 이는 컨센서스 엔진이 서명을 기반으로하는 경우 헤더의 코인베이스와 다를 수 있습니다.
 	Author(header *types.Header) (common.Address, error)
 
 	// VerifyHeader checks whether a header conforms to the consensus rules of a
@@ -96,42 +95,15 @@ type Engine interface {
 }
 
 // PoW is a consensus engine based on proof-of-work.
-/* type PoW interface {
+type PoW interface {
 	Engine
 
 	// Hashrate returns the current mining hashrate of a PoW consensus engine.
 	Hashrate() float64
-} */
-// PoDC is a consensus engine based on PoDC algorimth.
-// yichoi 2019-10-21
-
-// if PoDC will be used in consensus engine, this ethash PoS_PoDC is legacy POW,
-//   this can not used but some code re usable in very block ?
-//   so check it more.. future
-
-type PoS_PoDC interface {  //we should convert PoW to PoDC a new name . PoS_PoDC
-	Engine
-
-	// Hashrate returns the current mining hashrate of a PoDC consensus engine.
-	Hashrate() float64
 }
+
 // Istanbul is a consensus engine to avoid byzantine failure
-/* type Istanbul interface {
-	Engine
-
-	// Handle a message from peer
-	HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error
-
-	// Receive new chain head block
-	NewChainHead(block *types.Block)
-
-	// Start the engine
-	Start(chain ChainReader, inserter func(block *types.Block) error) error
-
-	// Stop the engine
-	Stop() error
-} */
-type PoDC interface {
+type Istanbul interface {
 	Engine
 
 	// Handle a message from peer

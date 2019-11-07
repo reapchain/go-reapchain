@@ -83,7 +83,7 @@ type Result struct {
 // worker is the main object which takes care of applying messages to the new state
 type worker struct {
 	config *params.ChainConfig
-	engine consensus.Engine  // 엔진.. 합의
+	engine consensus.Engine
 
 	mu sync.Mutex
 
@@ -95,7 +95,7 @@ type worker struct {
 	agents map[Agent]struct{}
 	recv   chan *Result
 
-	eth     Backend   // Backend
+	eth     Backend
 	chain   *core.BlockChain
 	proc    core.Validator
 	chainDb ethdb.Database
@@ -197,7 +197,7 @@ func (self *worker) start() {
 
 	// spin up agents
 	for agent := range self.agents {
-		agent.Start()  // 시작점, 에이전트,,
+		agent.Start()
 	}
 }
 
@@ -375,7 +375,7 @@ func (self *worker) makeCurrent(parent *types.Block, header *types.Header) error
 	return nil
 }
 
-func (self *worker) commitNewWork() {  // 합의.... ?
+func (self *worker) commitNewWork() {
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	self.uncleMu.Lock()
@@ -396,12 +396,12 @@ func (self *worker) commitNewWork() {  // 합의.... ?
 		log.Info("Mining too far in the future", "wait", common.PrettyDuration(wait))
 		time.Sleep(wait)
 	}
-// 블럭 헤더 관련 설정
+
 	num := parent.Number()
-	header := &types.Header{   //package types의 Header 구조체
+	header := &types.Header{
 		ParentHash: parent.Hash(),
 		Number:     num.Add(num, common.Big1),
-		GasLimit:   core.CalcGasLimit(parent),  // 가스 제한 계산, 토큰 쪽.
+		GasLimit:   core.CalcGasLimit(parent),
 		GasUsed:    new(big.Int),
 		Extra:      self.extra,
 		Time:       big.NewInt(tstamp),
@@ -438,15 +438,15 @@ func (self *worker) commitNewWork() {  // 합의.... ?
 	if self.config.DAOForkSupport && self.config.DAOForkBlock != nil && self.config.DAOForkBlock.Cmp(header.Number) == 0 {
 		misc.ApplyDAOHardFork(work.state)
 	}
-	pending, err := self.eth.TxPool().Pending()  //TxPool에 넣고 지연상태( 마이너가 아니라면, 트랜잭션은 Pending 상태로 남는다
+	pending, err := self.eth.TxPool().Pending()
 	if err != nil {
 		log.Error("Failed to fetch pending transactions", "err", err)
 		return
 	}
 	txs := types.NewTransactionsByPriceAndNonce(pending)
-	work.commitTransactions(self.mux, txs, self.chain, self.coinbase) //트랜잭션의 가스와 밸런드를 처리하고, Receipt 생성
+	work.commitTransactions(self.mux, txs, self.chain, self.coinbase)
 
-	self.eth.TxPool().RemoveBatch(work.failedTxs) //TxPool에 넣고,,
+	self.eth.TxPool().RemoveBatch(work.failedTxs)
 
 	// compute uncles for the new block.
 	var (
@@ -457,7 +457,7 @@ func (self *worker) commitNewWork() {  // 합의.... ?
 		if len(uncles) == 2 {
 			break
 		}
-		if err := self.commitUncle(work, uncle.Header()); err != nil { /* 엉클블럭 포함 시킨다 */
+		if err := self.commitUncle(work, uncle.Header()); err != nil {
 			log.Trace("Bad uncle found and will be removed", "hash", hash)
 			log.Trace(fmt.Sprint(uncle))
 
@@ -471,7 +471,6 @@ func (self *worker) commitNewWork() {  // 합의.... ?
 		delete(self.possibleUncles, hash)
 	}
 	// Create the new block to seal with the consensus engine
-	// 신규 블럭 생성
 	if work.Block, err = self.engine.Finalize(self.chain, header, work.state, work.txs, uncles, work.receipts); err != nil {
 		log.Error("Failed to finalize block for sealing", "err", err)
 		return
@@ -481,7 +480,7 @@ func (self *worker) commitNewWork() {  // 합의.... ?
 		log.Info("Commit new mining work", "number", work.Block.Number(), "txs", work.tcount, "uncles", len(uncles), "elapsed", common.PrettyDuration(time.Since(tstart)))
 		self.unconfirmed.Shift(work.Block.NumberU64() - 1)
 	}
-	self.push(work) /* Work event 발생 시킨다. */
+	self.push(work)
 }
 
 func (self *worker) commitUncle(work *Work, uncle *types.Header) error {
@@ -498,7 +497,7 @@ func (self *worker) commitUncle(work *Work, uncle *types.Header) error {
 	work.uncles.Add(uncle.Hash())
 	return nil
 }
-// yichoi : 합의 .....
+
 func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsByPriceAndNonce, bc *core.BlockChain, coinbase common.Address) {
 	gp := new(core.GasPool).AddGas(env.header.GasLimit)
 
@@ -524,13 +523,9 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 			continue
 		}
 		// Start executing the transaction
-		// Prepare sets the current transaction hash and index and block hash which is
-		// used when the EVM emits new state logs.
-		env.state.Prepare(tx.Hash(), common.Hash{}, env.tcount)  //evm으로부터 해시, 등 준비. 합의 무관함.
-		// Prepare sets the current transaction hash and index and block hash which is
-		// used when the EVM emits new state logs.
+		env.state.Prepare(tx.Hash(), common.Hash{}, env.tcount)
 
-		err, logs := env.commitTransaction(tx, bc, coinbase, gp) //yichoi ->
+		err, logs := env.commitTransaction(tx, bc, coinbase, gp)
 		switch err {
 		case core.ErrGasLimitReached:
 			// Pop the current out-of-gas transaction without shifting in the next from the account
@@ -570,11 +565,11 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 		}(cpy, env.tcount)
 	}
 }
-// -> yichoi
+
 func (env *Work) commitTransaction(tx *types.Transaction, bc *core.BlockChain, coinbase common.Address, gp *core.GasPool) (error, []*types.Log) {
 	snap := env.state.Snapshot()
 
-	receipt, _, err := core.ApplyTransaction(env.config, bc, &coinbase, gp, env.state, env.header, tx, env.header.GasUsed, vm.Config{}) // 중요
+	receipt, _, err := core.ApplyTransaction(env.config, bc, &coinbase, gp, env.state, env.header, tx, env.header.GasUsed, vm.Config{})
 	if err != nil {
 		env.state.RevertToSnapshot(snap)
 		return err, nil

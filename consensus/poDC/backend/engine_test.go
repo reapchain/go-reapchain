@@ -19,6 +19,7 @@ package backend
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"math/big"
 	"reflect"
 	"testing"
@@ -170,11 +171,11 @@ func TestSealStopChannel(t *testing.T) {
 	chain, engine := newBlockChain(4)
 	block := makeBlockWithoutSeal(chain, engine, chain.Genesis())
 	stop := make(chan struct{}, 1)
-	eventSub := engine.EventMux().Subscribe(istanbul.RequestEvent{})
+	eventSub := engine.EventMux().Subscribe(poDC.RequestEvent{})
 	eventLoop := func() {
 		select {
 		case ev := <-eventSub.Chan():
-			_, ok := ev.Data.(istanbul.RequestEvent)
+			_, ok := ev.Data.(poDC.RequestEvent)
 			if !ok {
 				t.Errorf("unexpected event comes: %v", reflect.TypeOf(ev.Data))
 			}
@@ -195,11 +196,11 @@ func TestSealStopChannel(t *testing.T) {
 func TestSealRoundChange(t *testing.T) {
 	chain, engine := newBlockChain(4)
 	block := makeBlockWithoutSeal(chain, engine, chain.Genesis())
-	eventSub := engine.EventMux().Subscribe(istanbul.RequestEvent{})
+	eventSub := engine.EventMux().Subscribe(poDC.RequestEvent{})
 	eventLoop := func() {
 		select {
 		case ev := <-eventSub.Chan():
-			_, ok := ev.Data.(istanbul.RequestEvent)
+			_, ok := ev.Data.(poDC.RequestEvent)
 			if !ok {
 				t.Errorf("unexpected event comes: %v", reflect.TypeOf(ev.Data))
 			}
@@ -227,11 +228,11 @@ func TestSealCommittedOtherHash(t *testing.T) {
 	chain, engine := newBlockChain(4)
 	block := makeBlockWithoutSeal(chain, engine, chain.Genesis())
 	otherBlock := makeBlockWithoutSeal(chain, engine, block)
-	eventSub := engine.EventMux().Subscribe(istanbul.RequestEvent{})
+	eventSub := engine.EventMux().Subscribe(poDC.RequestEvent{})
 	eventLoop := func() {
 		select {
 		case ev := <-eventSub.Chan():
-			_, ok := ev.Data.(istanbul.RequestEvent)
+			_, ok := ev.Data.(poDC.RequestEvent)
 			if !ok {
 				t.Errorf("unexpected event comes: %v", reflect.TypeOf(ev.Data))
 			}

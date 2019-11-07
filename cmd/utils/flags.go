@@ -468,8 +468,6 @@ var (
 		Value: eth.DefaultConfig.GPO.Percentile,
 	}
 
-
-
 	// Istanbul settings
 	IstanbulRequestTimeoutFlag = cli.Uint64Flag{
 		Name:  "istanbul.requesttimeout",
@@ -486,25 +484,6 @@ var (
 		Usage: "Pause time when zero tx in previous block, values should be larger than istanbul.blockperiod",
 		Value: eth.DefaultConfig.Istanbul.BlockPauseTime,
 	}
-
-	// PoDC settings  - yichoi
-	PoDCRequestTimeoutFlag = cli.Uint64Flag{
-		Name:  "podc.requesttimeout",
-		Usage: "Timeout for each Istanbul round in milliseconds",
-		Value: eth.DefaultConfig.PoDC.RequestTimeout,
-	}
-	PoDCBlockPeriodFlag = cli.Uint64Flag{
-		Name:  "podc.blockperiod",
-		Usage: "Default minimum difference between two consecutive block's timestamps in seconds",
-		Value: eth.DefaultConfig.PoDC.BlockPeriod,
-	}
-	PoDCBlockPauseTimeFlag = cli.Uint64Flag{
-		Name:  "podc.blockpausetime",
-		Usage: "Pause time when zero tx in previous block, values should be larger than istanbul.blockperiod",
-		Value: eth.DefaultConfig.PoDC.BlockPauseTime,
-	}
-
-
 )
 
 // MakeDataDir retrieves the currently requested data directory, terminating
@@ -1035,7 +1014,7 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 		})
 	} else {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-			fullNode, err := eth.New(ctx, cfg)  //최초 이더리움 오브젝트 생성 jump 2 : full node
+			fullNode, err := eth.New(ctx, cfg)
 			if fullNode != nil && cfg.LightServ > 0 {
 				ls, _ := les.NewLesServer(fullNode, cfg)
 				fullNode.AddLesServer(ls)

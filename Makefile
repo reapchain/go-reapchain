@@ -16,12 +16,6 @@ geth:
 	@echo "Done building."
 	@echo "Run \"$(GOBIN)/geth\" to launch geth."
 
-# begin - added by yichoi for some testing go special feature
-test:
-	build/env.sh go run build/ci.go install ./cmd/test
-	@echo "Done building."
-	@echo "Run \"$(GOBIN)/test\" to launch test program."
-# end
 evm:
 	build/env.sh go run build/ci.go install ./cmd/evm
 	@echo "Done building."

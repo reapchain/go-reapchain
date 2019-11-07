@@ -78,7 +78,6 @@ var (
 		executablePath("rlpdump"),
 		executablePath("swarm"),
 		executablePath("wnode"),
-		executablePath("test"), //yichoi
 	}
 
 	// A debian package is created for all executables listed here.
@@ -114,10 +113,6 @@ var (
 		{
 			Name:        "wnode",
 			Description: "Ethereum Whisper diagnostic tool",
-		},
-		{
-			Name:        "test",
-			Description: "sample program to understand go special functions",
 		},
 	}
 
@@ -180,7 +175,10 @@ func doInstall(cmdline []string) {
 
 	// Check Go version. People regularly open issues about compilation
 	// failure with outdated Go. This should save them the trouble.
-	/* if runtime.Version() < "go1.7.0" && !strings.HasPrefix(runtime.Version(), "devel") {
+
+	/* yichoi modified
+
+	if runtime.Version() < "go1.7" && !strings.HasPrefix(runtime.Version(), "devel") {
 		log.Println("You have Go version", runtime.Version())
 		log.Println("go-ethereum requires at least Go version 1.7 and cannot")
 		log.Println("be compiled with an earlier version. Please upgrade your Go installation.")

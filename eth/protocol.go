@@ -60,14 +60,6 @@ const (
 	NodeDataMsg    = 0x0e
 	GetReceiptsMsg = 0x0f
 	ReceiptsMsg    = 0x10
-	// yichoi - begin : PODC message define by yichoi , just testing or temperary.
-    GetExtraDataRecvMsg = 0x11
-    GetC_ConfirmRecvMsg = 0x12
-    GetC_ReceiveMsg = 0x13
-    GetC_RequestMsg = 0x14
-    Get_RacingMsg = 0x15
-    // end
-
 )
 
 type errCode int

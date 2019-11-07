@@ -121,7 +121,7 @@ func FromECDSAPub(pub *ecdsa.PublicKey) []byte {
 	if pub == nil || pub.X == nil || pub.Y == nil {
 		return nil
 	}
-	return elliptic.Marshal(S256(), pub.X, pub.Y)  // 타원 곡선 함수로 암호화 하는 표준 함수
+	return elliptic.Marshal(S256(), pub.X, pub.Y)
 }
 
 // HexToECDSA parses a secp256k1 private key.
@@ -134,7 +134,7 @@ func HexToECDSA(hexkey string) (*ecdsa.PrivateKey, error) {
 }
 
 // LoadECDSA loads a secp256k1 private key from the given file.
-func LoadECDSA(file string) (*ecdsa.PrivateKey, error) {  // 합의에서 쓸 함수, 키 파일롤 부터 읽을 함수
+func LoadECDSA(file string) (*ecdsa.PrivateKey, error) {
 	buf := make([]byte, 64)
 	fd, err := os.Open(file)
 	if err != nil {
@@ -159,7 +159,7 @@ func SaveECDSA(file string, key *ecdsa.PrivateKey) error {
 	return ioutil.WriteFile(file, []byte(k), 0600)
 }
 
-func GenerateKey() (*ecdsa.PrivateKey, error) {  // key 생성..
+func GenerateKey() (*ecdsa.PrivateKey, error) {
 	return ecdsa.GenerateKey(S256(), rand.Reader)
 }
 
@@ -178,12 +178,9 @@ func ValidateSignatureValues(v byte, r, s *big.Int, homestead bool) bool {
 	return r.Cmp(secp256k1_N) < 0 && s.Cmp(secp256k1_N) < 0 && (v == 0 || v == 1)
 }
 
-// 공개키를 주면, 일반 enode 주소 리턴 ?
 func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
-	pubBytes := FromECDSAPub(&p)  // 공개키를 입력으로 받아서, 타원함수를 써서, 일반 바이트 만듦. pubBytes : type byte , size 65 ?
-	                              // 1차 타원함수 써서 암호화
-	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])  // Keccak256알고리즘으로 해시값을 만들고,
-	              // 바이트를 enode type 20바이트 주소열로 만듦
+	pubBytes := FromECDSAPub(&p)
+	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])
 }
 
 func zeroBytes(bytes []byte) {
@@ -191,5 +188,3 @@ func zeroBytes(bytes []byte) {
 		bytes[i] = 0
 	}
 }
-
-/* 퀀컴 난수 처리 함수도 여기에 정의 할 것 - yichoi  */
