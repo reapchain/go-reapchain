@@ -34,6 +34,24 @@ const (
 	General                       // 일반 노드, 상원, 하원도 아닌.
 	QManager                      // Q-Manager
 )
+// ExtraData from Validators Set from Qman
+// Validater List from Qmanager
+
+
+type ValidatorElement struct {
+	address common.Address
+	tag     uint64
+	qrnd    uint64
+
+}
+
+
+
+
+type ValidatorsBuffer []ValidatorElement  //Validator Element 의 구조체 배열,,
+
+
+
 
 type defaultValidator struct {
 	address common.Address
