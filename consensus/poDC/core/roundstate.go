@@ -127,7 +127,7 @@ func (s *roundState) Proposal() poDC.Proposal {
 	defer s.mu.RUnlock()
 
 	if s.Preprepare != nil {
-		return s.Preprepare.Proposal
+		return s.Preprepare.Proposal  //제안할 블럭을 가져온다... 합의가 끝나면,, 체인에 연결할 블럭을 가져온다.
 	}
 
 	return nil

@@ -17,6 +17,7 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"math/big"
 	"reflect"
 	"sync"
@@ -287,11 +288,11 @@ func testProcessBacklog(t *testing.T, msg *message) {
 	}
 	c := &core{
 		logger:     log.New("backend", "test", "id", 0),
-		backlogs:   make(map[istanbul.Validator]*prque.Prque),
+		backlogs:   make(map[poDC.Validator]*prque.Prque),
 		backlogsMu: new(sync.Mutex),
 		backend:    backend,
 		state:      State(msg.Code),
-		current: newRoundState(&istanbul.View{
+		current: newRoundState(&poDC.View{
 			Sequence: big.NewInt(1),
 			Round:    big.NewInt(0),
 		}, newTestValidatorSet(4)),

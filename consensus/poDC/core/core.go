@@ -64,6 +64,9 @@ type core struct {
 	backend poDC.Backend
 	events  *event.TypeMuxSubscription
 
+
+	qmanager common.Address  //최초 Qmanager enode address를 staticQnodes.json  읽어온다.
+	                         //
 	lastProposer          common.Address
 	lastProposal          poDC.Proposal
 	valSet                poDC.ValidatorSet
@@ -178,7 +181,14 @@ func (c *core) isRequestQman() bool {
 }
 */
 
-
+func (c *core) isRequestQman() bool {
+	v := c.valSet
+	if v == nil {
+		return false
+	}
+	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,  함수 내부 수정해야함.
+	         //Front node 인가
+}
 func (c *core) isProposer() bool {
 	v := c.valSet
 	if v == nil {
@@ -194,7 +204,7 @@ func (c *core) commit() {
 	if proposal != nil {
 		var signatures []byte
 		for _, v := range c.current.Commits.Values() {
-			signatures = append(signatures, v.CommittedSeal...)
+			signatures = append(signatures, v.CommittedSeal...) //  최종 커밋시, 서명이 들어가서,, 커밋함.
 		}
 
 		if err := c.backend.Commit(proposal, signatures); err != nil {

@@ -109,7 +109,7 @@ func (v *BlockValidator) ValidateState(block, parent *types.Block, statedb *stat
 // CalcGasLimit computes the gas limit of the next block after parent.
 // The result may be modified by the caller.
 // This is miner strategy, not consensus protocol.
-func CalcGasLimit(parent *types.Block) *big.Int {
+func CalcGasLimit(parent *types.Block) *big.Int {  //허용환
 	// contrib = (parentGasUsed * 3 / 2) / 1024
 	contrib := new(big.Int).Mul(parent.GasUsed(), big.NewInt(3))
 	contrib = contrib.Div(contrib, big.NewInt(2))

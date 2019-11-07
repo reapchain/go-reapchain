@@ -132,9 +132,9 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	}
 
 	// force to set the istanbul etherbase to node key address
-	if chainConfig.Istanbul != nil {
+	/* if chainConfig.PoDC != nil {  //modify
 		eth.etherbase = crypto.PubkeyToAddress(ctx.NodeKey().PublicKey)  //이스탄불
-	}
+	} */
 	// force to set the PoDC etherbase to node key address
 	if chainConfig.PoDC != nil {
 		eth.etherbase = crypto.PubkeyToAddress(ctx.NodeKey().PublicKey)  //PoDC ..

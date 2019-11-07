@@ -70,7 +70,7 @@ type Work struct {
 
 	header   *types.Header
 	txs      []*types.Transaction
-	receipts []*types.Receipt
+	receipts []*types.Receipt   //token 에서 배치 연관 구조체
 
 	createdAt time.Time
 }

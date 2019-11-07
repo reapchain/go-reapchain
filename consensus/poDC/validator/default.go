@@ -177,7 +177,14 @@ func (valSet *defaultSet) IsProposer(address common.Address) bool {
 	_, val := valSet.GetByAddress(address)
 	return reflect.DeepEqual(valSet.GetProposer(), val)
 }
-
+// yichoi
+func (valSet *defaultSet) IsRequestQman(address common.Address) bool {
+	//To do modify
+	//begin
+	_, val := valSet.GetByAddress(address)
+	return reflect.DeepEqual(valSet.GetProposer(), val)
+	//end
+}
 func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64) {
 	valSet.validatorMu.RLock()
 	defer valSet.validatorMu.RUnlock()

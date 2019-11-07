@@ -149,16 +149,18 @@ func (c *core) handleCheckedMsg(msg *message, src poDC.Validator) error {
 	// Qmanager로부터 메시지를 받으면 블럭헤더의 ExtraDATA의 내용을 채운다.
 	// 상원, 하원, 운영위 후보군, 코디 등.
 	case msgReceivedFromQman:
-		return testBacklog(c.handleExtraData(msg, src))
+		return testBacklog(c.handleExtraData(msg, src))  //handleExtraData 여기서 Extradata를 블럭헤더에 넣어서처리
 
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
+
+	/*
 	case msgPrepare:
 		return testBacklog(c.handlePrepare(msg, src))
 
 	case msgCommit:
 		return testBacklog(c.handleCommit(msg, src))
-
+    */
 		// message handler - begin
 	case msgD_select: //yichoi
 		return testBacklog(c.handlePrepare(msg, src))
