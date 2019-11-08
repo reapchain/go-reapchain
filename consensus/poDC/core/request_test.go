@@ -23,7 +23,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
@@ -32,7 +32,7 @@ import (
 func TestCheckRequestMsg(t *testing.T) {
 	c := &core{
 		state: StateAcceptRequest,
-		current: newRoundState(&istanbul.View{
+		current: newRoundState(&poDC.View{
 			Sequence: big.NewInt(1),
 			Round:    big.NewInt(0),
 		}, newTestValidatorSet(4)),
@@ -43,7 +43,7 @@ func TestCheckRequestMsg(t *testing.T) {
 	if err != errInvalidMessage {
 		t.Errorf("error mismatch: have %v, want %v", err, errInvalidMessage)
 	}
-	r := &istanbul.Request{
+	r := &poDC.Request{
 		Proposal: nil,
 	}
 	err = c.checkRequestMsg(r)
@@ -52,7 +52,7 @@ func TestCheckRequestMsg(t *testing.T) {
 	}
 
 	// old request
-	r = &istanbul.Request{
+	r = &poDC.Request{
 		Proposal: makeBlock(0),
 	}
 	err = c.checkRequestMsg(r)
@@ -61,7 +61,7 @@ func TestCheckRequestMsg(t *testing.T) {
 	}
 
 	// future request
-	r = &istanbul.Request{
+	r = &poDC.Request{
 		Proposal: makeBlock(2),
 	}
 	err = c.checkRequestMsg(r)
@@ -70,7 +70,7 @@ func TestCheckRequestMsg(t *testing.T) {
 	}
 
 	// current request
-	r = &istanbul.Request{
+	r = &poDC.Request{
 		Proposal: makeBlock(1),
 	}
 	err = c.checkRequestMsg(r)
@@ -87,14 +87,14 @@ func TestStoreRequestMsg(t *testing.T) {
 		logger:  log.New("backend", "test", "id", 0),
 		backend: backend,
 		state:   StateAcceptRequest,
-		current: newRoundState(&istanbul.View{
+		current: newRoundState(&poDC.View{
 			Sequence: big.NewInt(0),
 			Round:    big.NewInt(0),
 		}, newTestValidatorSet(4)),
 		pendingRequests:   prque.New(),
 		pendingRequestsMu: new(sync.Mutex),
 	}
-	requests := []istanbul.Request{
+	requests := []poDC.Request{
 		{
 			Proposal: makeBlock(1),
 		},
@@ -124,7 +124,7 @@ func TestStoreRequestMsg(t *testing.T) {
 	timeout := time.NewTimer(timeoutDura)
 	select {
 	case ev := <-c.events.Chan():
-		e, ok := ev.Data.(istanbul.RequestEvent)
+		e, ok := ev.Data.(poDC.RequestEvent)
 		if !ok {
 			t.Errorf("unexpected event comes: %v", reflect.TypeOf(ev.Data))
 		}
