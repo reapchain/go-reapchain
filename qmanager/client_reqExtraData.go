@@ -19,8 +19,7 @@ import (
     "os"
     "io/ioutil"
     "github.com/ethereum/go-ethereum/common"
-
-
+ 
 )
 
  
@@ -54,17 +53,9 @@ func GenerateRsaKeyPair() (*rsa.PrivateKey, *rsa.PublicKey) {
     privkey, _ := rsa.GenerateKey(rand.Reader, 4096)
     return privkey, &privkey.PublicKey
 }
+
  
-// func ExportRsaPrivateKeyAsPemStr(privkey *rsa.PrivateKey) string {
-//     privkey_bytes := x509.MarshalPKCS1PrivateKey(privkey)
-//     privkey_pem := pem.EncodeToMemory(
-//             &pem.Block{
-//                     Type:  "RSA PRIVATE KEY",
-//                     Bytes: privkey_bytes,
-//             },
-//     )
-//     return string(privkey_pem)
-// }
+
 
 func ParseRsaPrivateKeyFromPemStr(privPEM string) (*rsa.PrivateKey, error) {
     block, _ := pem.Decode([]byte(privPEM))
@@ -79,21 +70,7 @@ func ParseRsaPrivateKeyFromPemStr(privPEM string) (*rsa.PrivateKey, error) {
 
     return priv, nil
 }
-
-// func ExportRsaPublicKeyAsPemStr(pubkey *rsa.PublicKey) (string, error) {
-//     pubkey_bytes, err := x509.MarshalPKIXPublicKey(pubkey)
-//     if err != nil {
-//             return "", err
-//     }
-//     pubkey_pem := pem.EncodeToMemory(
-//             &pem.Block{
-//                     Type:  "RSA PUBLIC KEY",
-//                     Bytes: pubkey_bytes,
-//             },
-//     )
-
-//     return string(pubkey_pem), nil
-// }
+ 
 
 func ParseRsaPublicKeyFromPemStr(pubPEM string) (*rsa.PublicKey, error) {
     block, _ := pem.Decode([]byte(pubPEM))
@@ -124,7 +101,7 @@ func EncryptWithPublicKey(msg []byte, pub *rsa.PublicKey) []byte {
 	return ciphertext
 }
 
-func VerifyWithPublicKey(msg []byte, sig []byte, pub *rsa.PublicKey) error {
+func VerifyWithPublicKey(  sig []byte, pub *rsa.PublicKey) error {
         // hash := sha512.New()
         digest := sha512.Sum512(secret)
         return rsa.VerifyPKCS1v15( pub, crypto.SHA512, digest[:], sig)
@@ -137,6 +114,12 @@ type RequestEnroll struct
         NodeData NodeData
         Signature []byte
 }
+
+type ExtraDataResponse struct
+{
+        ValidatorSet Validatorsset
+        Signature []byte
+}
 type Args struct {
 	// enc_message []byte
         Message []byte
@@ -144,7 +127,6 @@ type Args struct {
  }
 
 func main() {
-	message := []byte("test")
 	// fmt.Println(message)
 
         public_file_reader, err := ioutil.ReadFile("public_key.pem")
@@ -158,47 +140,32 @@ func main() {
                 fmt.Println(err)
                 os.Exit(1)
         }
-    // Export the keys to pem string
-    // priv_pem := ExportRsaPrivateKeyAsPemStr(priv)
-    // pub_pem, _ := ExportRsaPublicKeyAsPemStr(pub)
-
-    // Import the keys from pem string
-    // priv_parsed, _ := ParseRsaPrivateKeyFromPemStr(priv_pem)
-    // pub_parsed, _ := ParseRsaPublicKeyFromPemStr(pub_pem)
-
-    // // Export the newly imported keys
-    // priv_parsed_pem := ExportRsaPrivateKeyAsPemStr(priv_parsed)
-    // pub_parsed_pem, _ := ExportRsaPublicKeyAsPemStr(pub_parsed)
-
-    // fmt.Println(priv_parsed_pem)
-	// fmt.Println(pub_parsed_pem)
+     
 	
-	encoded_message := EncryptWithPublicKey(secret, pub)
-	fmt.Println(encoded_message)
-	// s := string(encoded_message )
-	// fmt.Println(s) // ABC€
-
-	// t := []byte(s )
-	// fmt.Println(t) // ABC€
+	signature := EncryptWithPublicKey(secret, pub)
+	// fmt.Println(encoded_message)
+	 
 
 	client, err := net.Dial("tcp", "127.0.0.1:1234")
 	if err != nil {
 		log.Fatal("dialing:", err)
-	}
-	// Synchronous call
-	args := &Args{message , encoded_message}
-	// args := &Args{encoded_message}
-	var reply Args
+        }
+        args := &Args{secret , signature}
+
+	var reply ExtraDataResponse
 	c := jsonrpc.NewClient(client)
-	err = c.Call("Enrollment.Enroll", args, &reply)
+	err = c.Call("ExtraData.Create", args, &reply)
 	if err != nil {
 		log.Fatal("arith error:", err)
 	}
-        fmt.Printf("Results: ")
-        fmt.Println(&reply.Message)
-        
-        Message := &reply.Message
+         
         Signature := &reply.Signature
+        Vals := &reply.ValidatorSet
         fmt.Println(Signature)
-        fmt.Println(VerifyWithPublicKey(*Message, *Signature, pub))
+        fmt.Println(VerifyWithPublicKey( *Signature, pub))
+        VerificationCheck := VerifyWithPublicKey(*Signature, pub)
+        if  VerificationCheck == nil {
+                
+                fmt.Println(Vals)
+        }
 }
