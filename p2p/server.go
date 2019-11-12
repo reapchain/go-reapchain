@@ -58,7 +58,9 @@ var errServerStopped = errors.New("server stopped")
 // Config holds Server options.
 type Config struct {
 	// This field must be set to a valid secp256k1 private key.
-	PrivateKey *ecdsa.PrivateKey `toml:"-"`
+	PrivateKey *ecdsa.PrivateKey `toml:"-"`   // private key 저장하는 변수 서버쪽
+	PublicKey   *ecdsa.PublicKey  //yichoi added for  sending public key to store Qmanager
+	                              // 개인키 생성후 공개키를 임시로 저장하는 변수
 
 	// MaxPeers is the maximum number of peers that can be
 	// connected. It must be greater than zero.
@@ -96,6 +98,12 @@ type Config struct {
 	// Static nodes are used as pre-configured connections which are always
 	// maintained and re-connected on disconnects.
 	StaticNodes []*discover.Node
+
+	// Qmanager nodes are used as pre-configured connections which are always
+	// maintained and re-connected on disconnects.
+	QmanagerNodes []*discover.Node	//yichoi
+
+
 
 	// Trusted nodes are used as pre-configured connections which are always
 	// allowed to connect, even above the peer limit.
@@ -429,7 +437,7 @@ func (srv *Server) startListening() error {
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
-	go srv.listenLoop()
+	go srv.listenLoop()  // 루프를 여기서 돈다.
 	// Map the TCP listening port if NAT is configured.
 	if !laddr.IP.IsLoopback() && srv.NAT != nil {
 		srv.loopWG.Add(1)
@@ -691,7 +699,7 @@ func (srv *Server) setupConn(fd net.Conn, flags connFlag, dialDest *discover.Nod
 		c.close(err)
 		return
 	}
-	clog := log.New("id", c.id, "addr", c.fd.RemoteAddr(), "conn", c.flags)
+	clog := log.New("id", c.id, "addr", c.fd.RemoteAddr(), "conn", c.flags)  // 원격 주소 리턴,
 	// For dialed connections, check that the remote public key matches.
 	if dialDest != nil && c.id != dialDest.ID {
 		c.close(DiscUnexpectedIdentity)

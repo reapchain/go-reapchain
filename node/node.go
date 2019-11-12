@@ -154,11 +154,28 @@ func (n *Node) Start() error {
 	// Initialize the p2p server. This creates the node key and
 	// discovery databases.
 	n.serverConfig = n.config.P2P
-	n.serverConfig.PrivateKey = n.config.NodeKey()
+	n.serverConfig.PrivateKey = n.config.NodeKey()  //최초 노드 키 생성 부분, PriVateKey 가져옴. yichoi
+//	n.serverConfig.PublicKey = n.config.NodeKey().PublicKey   //?
+	// Public key print 할 것, 제대로 생성되었는지.
+
+	//var p ecdsa.PublicKey
+
+    /* p2p/server.go   */
+
 	n.serverConfig.Name = n.config.NodeName()
 	if n.serverConfig.StaticNodes == nil {
 		n.serverConfig.StaticNodes = n.config.StaticNodes()
 	}
+	//Qmanager : yichoi - begin : json file에서 qmanager node 3개 enode 주소를 읽어온다.
+	//Qmanager 1, 2, 3를 파일로 부터 읽어온다.
+	if n.serverConfig.QmanagerNodes == nil {
+		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
+	}
+    //end
+
+
+
+
 	if n.serverConfig.TrustedNodes == nil {
 		n.serverConfig.TrustedNodes = n.config.TrusterNodes()
 	}
@@ -167,6 +184,9 @@ func (n *Node) Start() error {
 	}
 	running := &p2p.Server{Config: n.serverConfig}
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)
+
+	// Qmanager에 public key를 보내려면, 그래도 서버가 가동된 이후에 보내면,, 여기가 가장 먼저 보내는 포인트,, p2p 서버 가동 직후임.
+
 
 	// Otherwise copy and specialize the P2P configuration
 	services := make(map[reflect.Type]Service)
@@ -230,8 +250,12 @@ func (n *Node) Start() error {
 	n.server = running
 	n.stop = make(chan struct{})
 
+	// 2번째,, 포인트,, send public key to Qmanger
+
 	return nil
 }
+
+
 
 func (n *Node) openDataDir() error {
 	if n.config.DataDir == "" {
@@ -270,6 +294,12 @@ func (n *Node) startRPC(services map[reflect.Type]Service) error {
 		n.stopInProc()
 		return err
 	}
+	//yichoi - begin
+	if err := n.startQmanagerRegister(apis); err != nil {
+		//
+		return err
+	}
+	// end
 	if err := n.startHTTP(n.httpEndpoint, apis, n.config.HTTPModules, n.config.HTTPCors); err != nil {
 		n.stopIPC()
 		n.stopInProc()
@@ -315,7 +345,7 @@ func (n *Node) startIPC(apis []rpc.API) error {
 		return nil
 	}
 	// Register all the APIs exposed by the services
-	handler := rpc.NewServer()
+	handler := rpc.NewServer()  // 핸들러 등록
 	for _, api := range apis {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
@@ -356,6 +386,72 @@ func (n *Node) startIPC(apis []rpc.API) error {
 
 	return nil
 }
+// start send public key to  Qmanger
+// startIPC initializes and starts the IPC RPC endpoint.
+// 테스트시 1차로는 이 방법으로 먼저,, 등록, ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host
+
+func (n *Node) startQmanagerRegister(apis []rpc.API) error {
+	/* ipc로 할지, 일반 tcp할지. 고민해서,, 아래 내용 바꿀것,,, */
+
+	// Short circuit if the IPC endpoint isn't being exposed
+	if n.ipcEndpoint == "" {
+		return nil
+	}
+	// Register all the APIs exposed by the services
+	handler := rpc.NewServer()
+	for _, api := range apis {
+		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
+			return err
+		}
+		log.Debug(fmt.Sprintf("public key  registered to Qmanager %T under '%s'", api.Service, api.Namespace))
+	}
+	// All APIs registered, start the IPC listener
+	var (
+		listener net.Listener
+		err      error
+	)
+	if listener, err = rpc.CreateIPCListener(n.ipcEndpoint); err != nil {
+		return err
+	}
+	go func() {
+		log.Info(fmt.Sprintf("IPC endpoint opened: %s", n.ipcEndpoint))
+
+		for {
+			conn, err := listener.Accept()
+			if err != nil {
+				// Terminate if the listener was closed
+				n.lock.RLock()
+				closed := n.ipcListener == nil
+				n.lock.RUnlock()
+				if closed {
+					return
+				}
+				// Not closed, just some error; report and continue
+				log.Error(fmt.Sprintf("IPC accept failed: %v", err))
+				continue
+			}
+			go handler.ServeCodec(rpc.NewJSONCodec(conn), rpc.OptionMethodInvocation|rpc.OptionSubscriptions)
+		}
+	}()
+	// All listeners booted successfully
+	n.ipcListener = listener
+	n.ipcHandler = handler
+
+	return nil
+}
+/* 서버 등록하고, 키보내고,, 기다리고, 응답 받으면, 성공메시지를 "Qmanager에 성공적으로 public key를 등록" 했다는 메시지를
+   합의 쪽에 알려준다.
+   서버 올리고, 스톱하고, 기다리는 것을,, 기존 것을 쓰돼,
+   코드는 최소화 한다. Qmanger 등록 때문에,, 서버 하나 더 띄우면,, 부하 걸린다.
+
+ */
+
+
+
+
+
+
+
 
 // stopIPC terminates the IPC RPC endpoint.
 func (n *Node) stopIPC() {

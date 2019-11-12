@@ -39,6 +39,8 @@ var (
 	datadirPrivateKey      = "nodekey"            // Path within the datadir to the node's private key
 	datadirDefaultKeyStore = "keystore"           // Path within the datadir to the keystore
 	datadirStaticNodes     = "static-nodes.json"  // Path within the datadir to the static node list
+	datadirQmanagerNodes   = "qmanager-nodes.json" // Path within the datadir to the qmananger node list - yichoi
+	                                               // Qmanager is Primary, Sencondary, Reserved ( 1, 2, 3 )
 	datadirTrustedNodes    = "trusted-nodes.json" // Path within the datadir to the trusted node list
 	datadirNodeDatabase    = "nodes"              // Path within the datadir to store the node infos
 )
@@ -315,6 +317,12 @@ func (c *Config) NodeKey() *ecdsa.PrivateKey {
 func (c *Config) StaticNodes() []*discover.Node {
 	return c.parsePersistentNodes(c.resolvePath(datadirStaticNodes))
 }
+//yichoi - begin
+// QmanagerNodes returns a list of node enode URLs configured as Qmanager nodes.
+func (c *Config) QmanagerNodes() []*discover.Node {
+	return c.parsePersistentNodes(c.resolvePath(datadirQmanagerNodes))
+}
+// end
 
 // TrusterNodes returns a list of node enode URLs configured as trusted nodes.
 func (c *Config) TrusterNodes() []*discover.Node {
