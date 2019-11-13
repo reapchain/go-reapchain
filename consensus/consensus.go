@@ -118,3 +118,18 @@ type Istanbul interface {
 	// Stop the engine
 	Stop() error
 }
+type PoDC interface {
+	Engine
+
+	// Handle a message from peer
+	HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error
+
+	// Receive new chain head block
+	NewChainHead(block *types.Block)
+
+	// Start the engine
+	Start(chain ChainReader, inserter func(block *types.Block) error) error
+
+	// Stop the engine
+	Stop() error
+}

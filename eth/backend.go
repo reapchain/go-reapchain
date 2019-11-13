@@ -101,24 +101,25 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	if !config.SyncMode.IsValid() {
 		return nil, fmt.Errorf("invalid sync mode %d", config.SyncMode)
 	}
-
+	// 체인 디비를 만들고
 	chainDb, err := CreateDB(ctx, config, "chaindata")
 	if err != nil {
 		return nil, err
 	}
 	stopDbUpgrade := upgradeSequentialKeys(chainDb)
+	// 제네시스 블록을 세팅합니다.
 	chainConfig, genesisHash, genesisErr := core.SetupGenesisBlock(chainDb, config.Genesis)
 	if _, ok := genesisErr.(*params.ConfigCompatError); genesisErr != nil && !ok {
 		return nil, genesisErr
 	}
 	log.Info("Initialised chain configuration", "config", chainConfig)
-
+	// 이더리움 객체 생성.
 	eth := &Ethereum{
 		chainDb:        chainDb,
 		chainConfig:    chainConfig,
 		eventMux:       ctx.EventMux,
 		accountManager: ctx.AccountManager,
-		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb),
+		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb),  //jump for consensus
 		shutdownChan:   make(chan bool),
 		stopDbUpgrade:  stopDbUpgrade,
 		networkId:      config.NetworkId,
@@ -144,7 +145,9 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		core.WriteBlockChainVersion(chainDb, core.BlockChainVersion)
 	}
 
-	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}
+	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}  //vm의 옵션값을 설정함
+
+	// 새로운 블록체인을 만들고
 	eth.blockchain, err = core.NewBlockChain(chainDb, eth.chainConfig, eth.engine, eth.eventMux, vmConfig)
 	if err != nil {
 		return nil, err
@@ -221,14 +224,22 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 		return clique.New(chainConfig.Clique, db)
 	}
 	// If Istanbul is requested, set it up
+	/*
 	if chainConfig.Istanbul != nil {
 		if chainConfig.Istanbul.Epoch != 0 {
 			config.Istanbul.Epoch = chainConfig.Istanbul.Epoch
 		}
 		config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
 		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)
+	} */
+	//합의 엔진 처음 생성시 PoDC면.. 처리
+	if chainConfig.PoDC != nil {
+		if chainConfig.PoDC.Epoch != 0 {
+			config.PoDC.Epoch = chainConfig.PoDC.Epoch
+		}
+		config.PoDC.ProposerPolicy = poDC.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
+		return poDCBackend.New(&config.PoDC, ctx.EventMux, ctx.NodeKey(), db)
 	}
-
 	// Otherwise assume proof-of-work
 	switch {
 	case config.PowFake:

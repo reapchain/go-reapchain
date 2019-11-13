@@ -140,7 +140,7 @@ func main() {
 	// fmt.Println(encoded_message)
 	 
 
-	client, err := net.Dial("tcp", "127.0.0.1:1234")
+	client, err := net.Dial("tcp", "192.168.0.100:1234")
 	if err != nil {
 		log.Fatal("dialing:", err)
 	}

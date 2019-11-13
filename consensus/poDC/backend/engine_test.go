@@ -19,7 +19,8 @@ package backend
 import (
 	"bytes"
 	"crypto/ecdsa"
-	"github.com/ethereum/go-ethereum/consensus/poDC"
+	"os"
+
 	"math/big"
 	"reflect"
 	"testing"
@@ -28,7 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -46,7 +47,7 @@ func newBlockChain(n int) (*core.BlockChain, *simpleBackend) {
 	genesis, nodeKeys := getGenesisAndKeys(n)
 	eventMux := new(event.TypeMux)
 	memDB, _ := ethdb.NewMemDatabase()
-	config := istanbul.DefaultConfig
+	config := poDC.DefaultConfig
 	// Use the first key as private key
 	backend := New(config, eventMux, nodeKeys[0], memDB)
 	genesis.MustCommit(memDB)
@@ -100,7 +101,7 @@ func getGenesisAndKeys(n int) (*core.Genesis, []*ecdsa.PrivateKey) {
 	genesis.Config.Ethash = nil
 	genesis.Difficulty = defaultDifficulty
 	genesis.Nonce = emptyNonce.Uint64()
-	genesis.Mixhash = types.IstanbulDigest
+	genesis.Mixhash = types.PoDCDigest
 
 	appendValidators(genesis, addrs)
 	return genesis, nodeKeys
@@ -108,12 +109,12 @@ func getGenesisAndKeys(n int) (*core.Genesis, []*ecdsa.PrivateKey) {
 
 func appendValidators(genesis *core.Genesis, addrs []common.Address) {
 
-	if len(genesis.ExtraData) < types.IstanbulExtraVanity {
-		genesis.ExtraData = append(genesis.ExtraData, bytes.Repeat([]byte{0x00}, types.IstanbulExtraVanity)...)
+	if len(genesis.ExtraData) < types.PoDCExtraVanity {
+		genesis.ExtraData = append(genesis.ExtraData, bytes.Repeat([]byte{0x00}, types.PoDCExtraVanity)...)
 	}
-	genesis.ExtraData = genesis.ExtraData[:types.IstanbulExtraVanity]
+	genesis.ExtraData = genesis.ExtraData[:types.PoDCExtraVanity]
 
-	ist := &types.IstanbulExtra{
+	ist := &types.PoDCExtra{
 		Validators:    addrs,
 		Seal:          []byte{},
 		CommittedSeal: [][]byte{},
@@ -126,7 +127,7 @@ func appendValidators(genesis *core.Genesis, addrs []common.Address) {
 	genesis.ExtraData = append(genesis.ExtraData, istPayload...)
 }
 
-func makeHeader(parent *types.Block, config *istanbul.Config) *types.Header {
+func makeHeader(parent *types.Block, config *poDC.Config) *types.Header {
 	header := &types.Header{
 		ParentHash: parent.Hash(),
 		Number:     parent.Number().Add(parent.Number(), common.Big1),
@@ -485,7 +486,7 @@ func TestPrepareExtra(t *testing.T) {
 	validators[2] = common.BytesToAddress(hexutil.MustDecode("0x6beaaed781d2d2ab6350f5c4566a2c6eaac407a6"))
 	validators[3] = common.BytesToAddress(hexutil.MustDecode("0x8be76812f765c24641ec63dc2852b378aba2b440"))
 
-	vanity := make([]byte, types.IstanbulExtraVanity)
+	vanity := make([]byte, types.PoDCExtraVanity)
 	expectedResult := append(vanity, hexutil.MustDecode("0xf858f8549444add0ec310f115a0e603b2d7db9f067778eaf8a94294fc7e8f22b3bcdcf955dd7ff3ba2ed833f8212946beaaed781d2d2ab6350f5c4566a2c6eaac407a6948be76812f765c24641ec63dc2852b378aba2b44080c0")...)
 
 	h := &types.Header{
@@ -510,10 +511,10 @@ func TestPrepareExtra(t *testing.T) {
 }
 
 func TestWriteSeal(t *testing.T) {
-	vanity := bytes.Repeat([]byte{0x00}, types.IstanbulExtraVanity)
+	vanity := bytes.Repeat([]byte{0x00}, types.PoDCExtraVanity)
 	istRawData := hexutil.MustDecode("0xf858f8549444add0ec310f115a0e603b2d7db9f067778eaf8a94294fc7e8f22b3bcdcf955dd7ff3ba2ed833f8212946beaaed781d2d2ab6350f5c4566a2c6eaac407a6948be76812f765c24641ec63dc2852b378aba2b44080c0")
-	expectedSeal := append([]byte{1, 2, 3}, bytes.Repeat([]byte{0x00}, types.IstanbulExtraSeal-3)...)
-	expectedIstExtra := &types.IstanbulExtra{
+	expectedSeal := append([]byte{1, 2, 3}, bytes.Repeat([]byte{0x00}, types.PoDCExtraSeal-3)...)
+	expectedIstExtra := &types.PoDCExtra{
 		Validators: []common.Address{
 			common.BytesToAddress(hexutil.MustDecode("0x44add0ec310f115a0e603b2d7db9f067778eaf8a")),
 			common.BytesToAddress(hexutil.MustDecode("0x294fc7e8f22b3bcdcf955dd7ff3ba2ed833f8212")),
@@ -536,7 +537,7 @@ func TestWriteSeal(t *testing.T) {
 	}
 
 	// verify istanbul extra-data
-	istExtra, err := types.ExtractIstanbulExtra(h)
+	istExtra, err := types.ExtractPoDCExtra(h)
 	if err != nil {
 		t.Errorf("error mismatch: have %v, want nil", err)
 	}
@@ -553,10 +554,10 @@ func TestWriteSeal(t *testing.T) {
 }
 
 func TestWriteCommittedSeals(t *testing.T) {
-	vanity := bytes.Repeat([]byte{0x00}, types.IstanbulExtraVanity)
+	vanity := bytes.Repeat([]byte{0x00}, types.PoDCExtraVanity)
 	istRawData := hexutil.MustDecode("0xf858f8549444add0ec310f115a0e603b2d7db9f067778eaf8a94294fc7e8f22b3bcdcf955dd7ff3ba2ed833f8212946beaaed781d2d2ab6350f5c4566a2c6eaac407a6948be76812f765c24641ec63dc2852b378aba2b44080c0")
-	expectedCommittedSeal := append([]byte{1, 2, 3}, bytes.Repeat([]byte{0x00}, types.IstanbulExtraSeal-3)...)
-	expectedIstExtra := &types.IstanbulExtra{
+	expectedCommittedSeal := append([]byte{1, 2, 3}, bytes.Repeat([]byte{0x00}, types.PoDCExtraSeal-3)...)
+	expectedIstExtra := &types.PoDCExtra{
 		Validators: []common.Address{
 			common.BytesToAddress(hexutil.MustDecode("0x44add0ec310f115a0e603b2d7db9f067778eaf8a")),
 			common.BytesToAddress(hexutil.MustDecode("0x294fc7e8f22b3bcdcf955dd7ff3ba2ed833f8212")),
@@ -579,7 +580,7 @@ func TestWriteCommittedSeals(t *testing.T) {
 	}
 
 	// verify istanbul extra-data
-	istExtra, err := types.ExtractIstanbulExtra(h)
+	istExtra, err := types.ExtractPoDCExtra(h)
 	if err != nil {
 		t.Errorf("error mismatch: have %v, want nil", err)
 	}
@@ -593,4 +594,9 @@ func TestWriteCommittedSeals(t *testing.T) {
 	if err != errInvalidCommittedSeals {
 		t.Errorf("error mismatch: have %v, want %v", err, errInvalidCommittedSeals)
 	}
+}
+
+func TestMain(t *testing.T) {
+	// call flag.Parse() here if TestMain uses flags
+	os.Exit(t.Run())
 }

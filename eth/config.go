@@ -113,7 +113,9 @@ type Config struct {
 	EnablePreimageRecording bool
 
 	// Istanbul options
-	Istanbul istanbul.Config
+//	Istanbul istanbul.Config
+
+	PoDC poDC.Config  //podc added
 
 	// Miscellaneous options
 	DocRoot   string `toml:"-"`
