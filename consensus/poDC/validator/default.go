@@ -26,7 +26,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 )
+//hint: iota is a predeclared identifier representing the untyped integer ordinal number of the current const specification
+// in a (usually parenthesized) const declaration. It is zero-indexed.
 
+//const iota = 0 // Untyped int.
 const (
 	Senator         uint64 = iota // 상원
 	Parliamentarian               // 하원
@@ -103,11 +106,13 @@ type defaultSet struct {
 
 func newDefaultSet(addrs []common.Address, selector poDC.ProposalSelector) *defaultSet {
 	valSet := &defaultSet{}
-
+/*
+Validator들은 초기 디폴트 셋을 설정할 필요가 없음. 매번,, Qmanager를 통해서, 받고, 코디에게 위임함.
+따라서, 그냥 빈값으로 남겨둠.
 	// init validators
 	valSet.validators = make([]poDC.Validator, len(addrs))
 	for i, addr := range addrs {
-		valSet.validators[i] = New(addr)
+		valSet.validators[i] = New(addr,   ,   )
 		// 추후 Validators 를 로그로 찍어볼것
 	}
 	// sort validator
@@ -125,7 +130,7 @@ func newDefaultSet(addrs []common.Address, selector poDC.ProposalSelector) *defa
 
 	//get candidates  of steering committe
 	//  valSet.GetConfirmedCommittee() = .......determin and select steering committee
-
+*/
 	return valSet
 }
 
@@ -166,6 +171,7 @@ func (valSet *defaultSet) GetProposer() poDC.Validator {
 // Check that " I'm coordinator or not " , self check.
 // 코디네이트는 핸들어에서 브로드캐스트 메시지를 받으면,
 //
+/* 코어 쪽이나, 메시지 처리 쪽으로 이동해야할 듯,
 func (valSet *defaultSet) SelfCheckCoordi() poDC.Validator {
 	return valSet.coordinator //"
 }
@@ -182,15 +188,21 @@ func (valSet *defaultSet) RecvCoordinator(lastProposer common.Address, round uin
 
 //
 // Check that "I'm a candidate of steering committee from Qmanager"
+/*
+func (valSet *ValidatorElement) SelfCheckCandidate() poDC.Validator {
+	if( valSet.tag == Candidate ){
+		// -> state transition to receive racing msg from coordi
+		// -> go to non-blocking handler
 
-func (valSet *defaultSet) SelfCheckCandidate() poDC.Validator {
+	}
 	return valSet.candidate //
 }
-
+*/
 //
 
 //yichoi Get Confirmed Committee
-func (valSet *defaultSet) GetConfirmedCommittee() poDC.Validator {
+/*
+func (valSet *ValidatorElement) GetConfirmedCommittee() poDC.Validator {
 	return valSet.proposer
 }
 
@@ -199,13 +211,15 @@ func (valSet *defaultSet) IsProposer(address common.Address) bool {
 	return reflect.DeepEqual(valSet.GetProposer(), val)
 }
 // yichoi
-func (valSet *defaultSet) IsRequestQman(address common.Address) bool {
+func (valSet *ValidatorElement) IsRequestQman(address common.Address) bool {
 	//To do modify
 	//begin
 	_, val := valSet.GetByAddress(address)
 	return reflect.DeepEqual(valSet.GetProposer(), val)
 	//end
 }
+*/
+
 func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64) {
 	valSet.validatorMu.RLock()
 	defer valSet.validatorMu.RUnlock()
@@ -264,7 +278,7 @@ func qrfProposer(valSet poDC.ValidatorSet, proposer common.Address, round uint64
 	*/
    return nil //temp
 }
-
+/* temperaly marked for building by yichoi
 func (valSet *defaultSet) AddValidator(address common.Address) bool {
 	valSet.validatorMu.Lock()
 	defer valSet.validatorMu.Unlock()
@@ -303,5 +317,5 @@ func (valSet *defaultSet) Copy() poDC.ValidatorSet {
 	}
 	return newDefaultSet(addresses, valSet.selector)
 }
-
+*/
 func (valSet *defaultSet) F() int { return int(math.Ceil(float64(valSet.Size())/3)) - 1 }

@@ -17,13 +17,11 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/node"
+	//"github.com/ethereum/go-ethereum/p2p/
 	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/swarm/api"
 	"time"
-
 )
 const ( 
 	Senator         uint64 = iota // 상원 
@@ -56,8 +54,8 @@ func makemsg( enode , payload   )
 // end
 func( c *core) getQman_enode() []*discover.Node {
 
-	var d node.Config
-	d.p2p.Qmanagernodes = node.QmanagerNodes( )
+	var d node.p2p.c.qmanager
+	d.p2p.Qmanagernodes = node.d.QmanagerNodes( )
 
 }
 /* 최초 Qmanager 에게 ExtraDATA를 요청하는 단계 */
@@ -77,6 +75,8 @@ func (c *core) sendRequestExtraDataToQman(request *poDC.Request) {
 		}
 		// load Qmanager enode address from static node
 
+		config := &p2p.Config{ Name: "unit-test", DataDir: dir, P2P: p2p.Config{PrivateKey: key}
+		config.QmanagerNodes.
 
 
         // make request massage,

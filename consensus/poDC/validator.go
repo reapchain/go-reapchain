@@ -18,6 +18,7 @@ package poDC
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/consensus/poDC/validator"
 	"strings"
 )
 
@@ -37,7 +38,7 @@ type Validator interface {
 
 // ----------------------------------------------------------------------------
 
-type Validators []Validator // go 배열 표현
+type Validators []validator.ValidatorElement // go 배열 표현
 
 /* 설명 : Validators = [ address, String, Tag ] [ ... ] [ ... ] ......... */
 /*  Validator node

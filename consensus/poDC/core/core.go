@@ -249,7 +249,7 @@ func (c *core) startNewRound(newView *poDC.View, roundChange bool) {
 
 
 
-	/if c.current == nil {
+	if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
 	} else {
 		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())
