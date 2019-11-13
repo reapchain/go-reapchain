@@ -68,6 +68,7 @@ type Config struct {
 	// in memory.
 	DataDir string
 
+
 	// Configuration of peer-to-peer networking.
 	P2P p2p.Config
 

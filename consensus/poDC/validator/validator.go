@@ -21,9 +21,11 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/poDC"
 )
 
-func New(addr common.Address) poDC.Validator {
+func New(addr common.Address, t int, q int) poDC.Validator {
 	return &defaultValidator{
 		address: addr,
+		tag: t,
+		qrnd: q
 	}
 }
 

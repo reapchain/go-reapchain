@@ -27,7 +27,11 @@ type Backend interface {
 	Address() common.Address
 
 	// Validators returns the validator set
-	Validators(proposal Proposal) ValidatorSet  // 상원, 하원,
+	Validators(proposal Proposal) ValidatorSet  // old istanbul method, I'll remove it in the future after debuging
+
+	// Validators returns the validator set
+	EmptyValidators(proposal Proposal) string   // PoDC 상원, 하원,
+
 
 	// EventMux returns the event mux in backend
 	EventMux() *event.TypeMux
@@ -55,3 +59,5 @@ type Backend interface {
 	// the given validator
 	CheckSignature(data []byte, addr common.Address, sig []byte) error
 }
+
+//EmptyValidators(proposal Proposal) bool

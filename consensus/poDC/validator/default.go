@@ -92,6 +92,8 @@ type defaultSet struct {
 	coordinator    poDC.Validator //
 
 	proposer    poDC.Validator // = front node for podc
+	frontnode   poDC.Validator  // frontnode for testing, in order to use in the future.
+	                            // temporarily
 	validatorMu sync.RWMutex
 
 	selector poDC.ProposalSelector
@@ -169,13 +171,14 @@ func (valSet *defaultSet) SelfCheckCoordi() poDC.Validator {
 }
 
 //yichoi coordinator infomation is received from Qmanger server
+/*
 func (valSet *defaultSet) RecvCoordinator(lastProposer common.Address, round uint64) { //?
 	valSet.validatorMu.RLock()
 	defer valSet.validatorMu.RUnlock()
 	// Quantum manager로부터 Coordinator 정보를 가져온다.
 
 	valSet.coordinator = valSet.selector(valSet, lastProposer, round) //Front node 선택 계산.
-}
+} */
 
 //
 // Check that "I'm a candidate of steering committee from Qmanager"
@@ -259,7 +262,7 @@ func qrfProposer(valSet poDC.ValidatorSet, proposer common.Address, round uint64
 		로부터 데이타 수신해서,
 		Extra data를 수신한다.
 	*/
-
+   return nil //temp
 }
 
 func (valSet *defaultSet) AddValidator(address common.Address) bool {

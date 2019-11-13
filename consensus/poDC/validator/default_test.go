@@ -22,7 +22,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/poDC"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -40,7 +40,7 @@ func TestValidatorSet(t *testing.T) {
 }
 
 func testNewValidatorSet(t *testing.T) {
-	var validators []istanbul.Validator
+	var validators []poDC.Validator
 	const ValCnt = 100
 
 	// Create 100 validators with random addresses
@@ -54,7 +54,7 @@ func testNewValidatorSet(t *testing.T) {
 	}
 
 	// Create ValidatorSet
-	valSet := NewSet(ExtractValidators(b), istanbul.RoundRobin)
+	valSet := NewSet(ExtractValidators(b), poDC.RoundRobin)
 	if valSet == nil {
 		t.Errorf("the validator byte array cannot be parsed")
 		t.FailNow()
@@ -128,14 +128,14 @@ func testNormalValSet(t *testing.T) {
 }
 
 func testEmptyValSet(t *testing.T) {
-	valSet := NewSet(ExtractValidators([]byte{}), istanbul.RoundRobin)
+	valSet := NewSet(ExtractValidators([]byte{}), poDC.RoundRobin)
 	if valSet == nil {
 		t.Errorf("validator set should not be nil")
 	}
 }
 
 func testAddAndRemoveValidator(t *testing.T) {
-	valSet := NewSet(ExtractValidators([]byte{}), istanbul.RoundRobin)
+	valSet := NewSet(ExtractValidators([]byte{}), poDC.RoundRobin)
 	if !valSet.AddValidator(common.StringToAddress(string(2))) {
 		t.Error("the validator should be added")
 	}

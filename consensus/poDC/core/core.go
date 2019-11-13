@@ -249,7 +249,7 @@ func (c *core) startNewRound(newView *poDC.View, roundChange bool) {
 
 
 
-	/* if c.current == nil {
+	/if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
 	} else {
 		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())
@@ -257,26 +257,26 @@ func (c *core) startNewRound(newView *poDC.View, roundChange bool) {
 
 
 
-	c.valSet = c.backend.Validators(c.lastProposal) */
+	c.valSet = c.backend.Validators(c.lastProposal)
 
 
 
 	// Clear invalid round change messages
-/* 	c.roundChangeSet = newRoundChangeSet(c.valSet)
+    c.roundChangeSet = newRoundChangeSet(c.valSet)
 	// New snapshot for new round
 	c.current = newRoundState(newView, c.valSet)
 	// Calculate new proposer
 	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64())
 
- */
+
 	c.waitingForRoundChange = false
 	c.waitingForStateChange = true   //
 
 
-	c.setState(StateAcceptRequest)
-	/* if roundChange && c.isProposer() {
+	c.setState(StateAcceptRequest)  //-> StateRequestQman 으로 할지 나중에 고민.
+	if roundChange && c.isProposer() {
 		c.backend.NextRound()
-	} */
+	}
 	if roundChange  {
 		c.backend.NextRound()
 	}

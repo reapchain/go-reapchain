@@ -25,7 +25,24 @@ import (
 	"time"
 
 )
-func makemsg(    )
+const ( 
+	Senator         uint64 = iota // 상원 
+	Parliamentarian               // 하원 
+	Candidate                     // 하원, 운영위 후보군 
+	General                       // 일반 노드, 상원, 하원도 아닌. 
+	QManager                      // Q-Manager 
+
+) 
+// ExtraData from Validators Set from Qman // Validater List from Qmanager   
+type ValidatorElement struct { 
+	address common.Address 
+	tag     uint64   //From Qman, ex) senator, parliamentarian, etc..  
+	qrnd    uint64   //reservered for Quantum random number   
+}
+
+  type ValidatorsBuffer []ValidatorElement  //Validator Element 의 구조체 배열,, 
+
+func makemsg( enode , payload   )
 {
 
 

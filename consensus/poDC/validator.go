@@ -17,9 +17,8 @@
 package poDC
 
 import (
-	"strings"
-
 	"github.com/ethereum/go-ethereum/common"
+	"strings"
 )
 
 // 모든 Validator 로 선언하고, 여기서 각 Label/ tag 붙여서 관리한다.
@@ -75,6 +74,8 @@ type ValidatorSet interface {
 	// 코디 후보군 선정 ?
 	RecvCordinator(lastProposer common.Address, round uint64) //yichoi
 
+	Empty() string
+
 	// Return the validator size
 	Size() int
 	// Return the validator array
@@ -107,3 +108,10 @@ type ValidatorSet interface {
 // ----------------------------------------------------------------------------
 
 type ProposalSelector func(ValidatorSet, common.Address, uint64) Validator
+
+/* func EmptyValSet() {
+	valSet := NewSet(ExtractValidators([]byte{}), poDC.RoundRobin)
+	if valSet == nil {
+		Errorf("validator set should not be nil")
+	}
+} */

@@ -33,7 +33,18 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	// Initialize last proposer
 	c.lastProposer = lastProposer  // 여기서 lastProposer는 최신을 의미
 	c.lastProposal = lastProposal  //합의할 블럭을 제시하는데, 시리얼화된 블럭을 데이터로 가져옴.
-	c.valSet = c.backend.Validators(c.lastProposal)
+
+	// 기존
+	// c.valSet = c.backend.Validators(c.lastProposal)  //최초 Validators를 가져오지 않고, 매번 세로 구성한다. 따라서 ,,이거 수정해야함.
+
+	// 신규
+	//매번 c.valSet를 비워둔다.
+
+	//var validators []poDC.Validator
+	//validators = nil
+	//c.valSet = c.backend.EmptyValidators(c.lastProposal)
+	c.valSet = nil   // ?
+
 
 	// Start a new round from last sequence + 1
 	// a New Round of the State Machine of PoDC : yichoi
