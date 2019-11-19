@@ -56,6 +56,7 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"strconv"
 
 	"github.com/ethereum/go-ethereum/internal/build"
 )
@@ -163,7 +164,37 @@ func main() {
 		log.Fatal("unknown command ", os.Args[1])
 	}
 }
-
+func compareVerLessthan(a, b string) (ret int ){ // if a < b
+	as := strings.Split(a, ".")
+	bs := strings.Split(b, ".")
+	//var ret int
+	loopMax := len(bs)
+	if len(as) > len(bs) {
+		loopMax = len(as)
+	}
+	for i := 0; i < loopMax; i++ {
+		var x, y string
+		if len(as) > i {
+			x = as[i]
+		}
+		if len(bs) > i {
+			y = bs[i]
+		}
+		xi, _ := strconv.Atoi(x)
+		yi, _ := strconv.Atoi(y)
+		if xi > yi {
+			ret = -1   //각 점을 기준으로 자리수를 비교하여, 각 숫자가 a > b , -1 return
+		} else if xi < yi {
+			ret = 1    //         a < b , 1 return
+		}
+		if ret != 0 {
+			break
+		}
+	}
+	//if (ret == 1) {return true}
+	//if (ret == -1) {return false}
+	return ret
+}
 // Compiling
 
 func doInstall(cmdline []string) {
@@ -175,12 +206,14 @@ func doInstall(cmdline []string) {
 
 	// Check Go version. People regularly open issues about compilation
 	// failure with outdated Go. This should save them the trouble.
-	/* if runtime.Version() < "go1.7.0" && !strings.HasPrefix(runtime.Version(), "devel") {
+	VerA := strings.Trim(runtime.Version(),"go")
+	VerB := "1.7"
+	if ( compareVerLessthan( VerA, VerB) == 1 ) && !strings.HasPrefix(runtime.Version(), "devel") {
 		log.Println("You have Go version", runtime.Version())
 		log.Println("go-ethereum requires at least Go version 1.7 and cannot")
 		log.Println("be compiled with an earlier version. Please upgrade your Go installation.")
 		os.Exit(1)
-	} */
+	}
 	// Compile packages given as arguments, or everything if there are no arguments.
 	packages := []string{"./..."}
 	if flag.NArg() > 0 {
