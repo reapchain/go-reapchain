@@ -100,6 +100,7 @@ var (
 		utils.TestnetFlag,
 		utils.RinkebyFlag,
 		utils.OttomanFlag,
+		utils.ReapChainFlag, // ReapChain
 		utils.VMEnableDebugFlag,
 		utils.NetworkIdFlag,
 		utils.RPCCORSDomainFlag,
