@@ -59,7 +59,11 @@ var OttomanBootnodes = []string{
 	"enode://3a1c96fe1fe9da5d4ea3b1a65bfecb4571101b519595cab6deb2eb029209353cdbc91c8d3751d0c6c00e5440657b678508e99bd9e934d4a0c1ad553fc1cb9155@13.76.140.250:30303",  //SG
 	"enode://aebe74e4ab7db8074d1cb9634dab3fd8c5745f8cc4868da2007ff754721085b189ffaf44b8041219de90b55df3ac515bbd0e1df7fde8d7684df0ecfb12534a73@52.187.45.126:30303",  //SG
 }
-
+//yichoi begin
+var ReapChainBootnodes = []string{
+	"enode://e81bd88b5c3a9a7eebb454eb3fab0988d2134ef2fa3066b5b40f8719a44cce52c032b1dc698e28571cf4df95fc6ea386d6eb10ab6c26e91e315334e11175563e@192.168.0.100:30301",
+}
+//end
 // DiscoveryV5Bootnodes are the enode URLs of the P2P bootstrap nodes for the
 // experimental RLPx v5 topic-discovery network.
 var DiscoveryV5Bootnodes = []string{

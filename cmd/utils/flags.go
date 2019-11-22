@@ -140,6 +140,12 @@ var (
 		Name:  "ottoman",
 		Usage: "Ottoman network: pre-configured istanbul bft test network",
 	}
+	//yichoi begin
+	ReapChainFlag = cli.BoolFlag{
+		Name:  "reapchain",
+		Usage: "ReapChain network: pre-configured podc bft test network",
+	}
+	//end
 	DevModeFlag = cli.BoolFlag{
 		Name:  "dev",
 		Usage: "Developer mode: pre-configured private network with several debugging flags",
@@ -500,6 +506,9 @@ func MakeDataDir(ctx *cli.Context) string {
 		if ctx.GlobalBool(OttomanFlag.Name) {
 			return filepath.Join(path, "ottoman")
 		}
+		if ctx.GlobalBool(ReapChainFlag.Name) {
+			return filepath.Join(path, "reapchain")
+		}
 		return path
 	}
 	Fatalf("Cannot determine default data directory, please set manually (--datadir)")
@@ -556,6 +565,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 		urls = params.RinkebyBootnodes
 	case ctx.GlobalBool(OttomanFlag.Name):
 		urls = params.OttomanBootnodes
+	case ctx.GlobalBool(ReapChainFlag.Name):
+		urls = params.ReapChainBootnodes
 	}
 
 	cfg.BootstrapNodes = make([]*discover.Node, 0, len(urls))
