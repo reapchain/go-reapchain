@@ -100,6 +100,7 @@ var (
 	_, lan10, _  = net.ParseCIDR("10.0.0.0/8")
 	_, lan176, _ = net.ParseCIDR("172.16.0.0/12")
 	_, lan192, _ = net.ParseCIDR("192.168.0.0/16")
+	_, lan254, _ = net.ParseCIDR("192.168.0.0/24")
 )
 
 // TODO: improve this. We currently assume that (on most networks)
@@ -117,8 +118,10 @@ func potentialGateways() (gws []net.IP) {
 		for _, addr := range ifaddrs {
 			switch x := addr.(type) {
 			case *net.IPNet:
-				if lan10.Contains(x.IP) || lan176.Contains(x.IP) || lan192.Contains(x.IP) {
+				if lan10.Contains(x.IP) || lan176.Contains(x.IP) || lan192.Contains(x.IP)|| lan254.Contains(x.IP){
+					fmt.Printf("Mask= %v, x.Mask\n")
 					ip := x.IP.Mask(x.Mask).To4()
+					fmt.Printf("ip= %v, ip\n")
 					if ip != nil {
 						ip[3] = ip[3] | 0x01
 						gws = append(gws, ip)

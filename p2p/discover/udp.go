@@ -213,10 +213,12 @@ type reply struct {
 // ListenUDP returns a new table that listens for UDP packets on laddr.
 func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Table, error) {
 	addr, err := net.ResolveUDPAddr("udp", laddr)
+	log.Info(fmt.Sprintf("ResolveUDPAddr result: %v, %v, %v ", addr.IP , addr.Port, addr.Zone  ))
 	if err != nil {
 		return nil, err
 	}
 	conn, err := net.ListenUDP("udp", addr)
+	log.Info("net.ListenUDP up: addr ", "self",laddr,  addr)
 	if err != nil {
 		return nil, err
 	}
@@ -241,11 +243,16 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 	if natm != nil {
 		if !realaddr.IP.IsLoopback() {
 			go nat.Map(natm, udp.closing, "udp", realaddr.Port, realaddr.Port, "ethereum discovery")
+		} else {
+			log.Info("newUDP loopback : ")
 		}
 		// TODO: react to external IP changes over time.
-		if ext, err := natm.ExternalIP(); err == nil {
-			realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}
+		// disable public ip by yichoi for temp in order to test private network : 192.168.0.x inside of  reapchain office
+		/* if ext, err := natm.ExternalIP(); err == nil {
+			// disabled : realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}
 		}
+		*/
+
 	}
 	// TODO: separate TCP port
 	udp.ourEndpoint = makeEndpoint(realaddr, uint16(realaddr.Port))

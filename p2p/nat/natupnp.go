@@ -96,6 +96,8 @@ func (n *upnp) DeleteMapping(protocol string, extport, intport int) error {
 }
 
 func (n *upnp) String() string {
+	//log.Info("==========UPnP String() runned ! ============")
+	//fmt.Errorf("==========UPnP String() runned ! ============: n= %v, n=service%v", n, n.service)
 	return "UPNP " + n.service
 }
 

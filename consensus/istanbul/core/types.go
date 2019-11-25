@@ -73,6 +73,7 @@ const (
 	msgPrepare
 	msgCommit
 	msgRoundChange
+	msgRequestQman
 	msgAll
 )
 
