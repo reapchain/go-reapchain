@@ -22,6 +22,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math/big"
+	"net"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -409,6 +410,12 @@ var (
 		Usage: "Network listening port",
 		Value: 30303,
 	}
+	ListenLocalIPFlag = cli.StringFlag{
+		Name:  "localIP",
+		Usage: "Network listening localIP",
+		Value: "",
+	}
+
 	BootnodesFlag = cli.StringFlag{
 		Name:  "bootnodes",
 		Usage: "Comma separated enode URLs for P2P discovery bootstrap (set v4+v5 instead for light servers)",
@@ -454,6 +461,10 @@ var (
 		Name:  "shh",
 		Usage: "Enable Whisper",
 	}
+	PrivateNetEnabledFlag = cli.BoolFlag{
+		Name:  "private",
+		Usage: "Enable private network",
+	}
 
 	// ATM the url is left to the user and deployment to
 	JSpathFlag = cli.StringFlag{
@@ -487,6 +498,22 @@ var (
 	}
 	IstanbulBlockPauseTimeFlag = cli.Uint64Flag{
 		Name:  "istanbul.blockpausetime",
+		Usage: "Pause time when zero tx in previous block, values should be larger than istanbul.blockperiod",
+		Value: eth.DefaultConfig.Istanbul.BlockPauseTime,
+	}
+	// PoDC settings
+	PoDCRequestTimeoutFlag = cli.Uint64Flag{
+		Name:  "podc.requesttimeout",
+		Usage: "Timeout for each Istanbul round in milliseconds",
+		Value: eth.DefaultConfig.Istanbul.RequestTimeout,
+	}
+	PoDCBlockPeriodFlag = cli.Uint64Flag{
+		Name:  "podc.blockperiod",
+		Usage: "Default minimum difference between two consecutive block's timestamps in seconds",
+		Value: eth.DefaultConfig.Istanbul.BlockPeriod,
+	}
+	PoDCBlockPauseTimeFlag = cli.Uint64Flag{
+		Name:  "podc.blockpausetime",
 		Usage: "Pause time when zero tx in previous block, values should be larger than istanbul.blockperiod",
 		Value: eth.DefaultConfig.Istanbul.BlockPauseTime,
 	}
@@ -614,8 +641,28 @@ func setBootstrapNodesV5(ctx *cli.Context, cfg *p2p.Config) {
 // line flags.
 func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 	if ctx.GlobalIsSet(ListenPortFlag.Name) {
-		cfg.ListenAddr = fmt.Sprintf(":%d", ctx.GlobalInt(ListenPortFlag.Name))
+		cfg.ListenAddr = fmt.Sprintf(":%d\n", ctx.GlobalInt(ListenPortFlag.Name))
 	}
+	if ctx.GlobalIsSet(ListenLocalIPFlag.Name ){  //yichoi for private net for reapchain office
+		cfg.ListenLocalAddr = GetLocalIP()
+		fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
+	}
+}
+// GetLocalIP returns the non loopback local IP of the host
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
 }
 
 // setDiscoveryV5Address creates a UDP listening address string from set command
@@ -823,7 +870,7 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 
 // SetNodeConfig applies node-related command line flags to the config.
 func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
-	SetP2PConfig(ctx, &cfg.P2P)
+	SetP2PConfig(ctx, &cfg.P2P)  //jump by yichoi
 	setIPC(ctx, cfg)
 	setHTTP(ctx, cfg)
 	setWS(ctx, cfg)
@@ -840,7 +887,10 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "rinkeby")
 	case ctx.GlobalBool(OttomanFlag.Name):
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "ottoman")
+	case ctx.GlobalBool(ReapChainFlag.Name):
+		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "reapchain")
 	}
+
 
 	if ctx.GlobalIsSet(KeyStoreDirFlag.Name) {
 		cfg.KeyStoreDir = ctx.GlobalString(KeyStoreDirFlag.Name)
@@ -1027,7 +1077,7 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 		})
 	} else {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-			fullNode, err := eth.New(ctx, cfg)
+			fullNode, err := eth.New(ctx, cfg)  //jump
 			if fullNode != nil && cfg.LightServ > 0 {
 				ls, _ := les.NewLesServer(fullNode, cfg)
 				fullNode.AddLesServer(ls)

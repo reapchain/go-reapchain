@@ -73,6 +73,7 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.TestnetFlag,
 			utils.RinkebyFlag,
 			utils.OttomanFlag,
+			utils.ReapChainFlag,
 			utils.DevModeFlag,
 			utils.SyncModeFlag,
 			utils.EthStatsURLFlag,
@@ -146,6 +147,7 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.BootnodesV4Flag,
 			utils.BootnodesV5Flag,
 			utils.ListenPortFlag,
+			utils.ListenLocalIPFlag,  //yichoi
 			utils.MaxPeersFlag,
 			utils.MaxPendingPeersFlag,
 			utils.NATFlag,
@@ -207,7 +209,19 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.IstanbulRequestTimeoutFlag,
 			utils.IstanbulBlockPeriodFlag,
 			utils.IstanbulBlockPauseTimeFlag,
+
 		},
+	},
+	{
+		Name: "REAPCHAIN",
+		Flags: []cli.Flag{
+			utils.IstanbulRequestTimeoutFlag,
+			utils.IstanbulBlockPeriodFlag,
+			utils.IstanbulBlockPauseTimeFlag,
+			utils.ListenLocalIPFlag,
+
+		},
+
 	},
 }
 

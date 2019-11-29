@@ -1,0 +1,16 @@
+=============== Nov 29, 2019 (KST) ===============
+10:51:57.969823 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:51:57.971013 db@open opening
+10:51:57.972298 version@stat F·[] S·0B[] Sc·[]
+10:51:57.995862 db@janitor F·2 G·0
+10:51:57.996816 db@open done T·25.762748ms
+=============== Nov 29, 2019 (KST) ===============
+10:51:58.489268 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:51:58.489544 version@stat F·[] S·0B[] Sc·[]
+10:51:58.489572 db@open opening
+10:51:58.489670 journal@recovery F·1
+10:51:58.490731 journal@recovery recovering @1
+10:51:58.503044 memdb@flush created L0@2 N·19 S·1KiB "5 \xdb..5^j,v8":"ѺO..\x927z,v6"
+10:51:58.505780 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+10:51:58.507159 db@janitor F·3 G·0
+10:51:58.507204 db@open done T·17.611322ms

@@ -122,6 +122,7 @@ type Config struct {
 	// ListenAddr field will be updated with the actual address when
 	// the server is started.
 	ListenAddr string
+	ListenLocalAddr string //local ip for reapchain
 
 	// If set to a non-nil value, the given NAT port mapper
 	// is used to make the listening port available to the
@@ -348,7 +349,7 @@ func (srv *Server) Start() (err error) {
 		return errors.New("server already running")
 	}
 	srv.running = true
-	log.Info("Starting P2P networking")
+	log.Info("Starting P2P networking") //yichoi
 
 	// static fields
 	if srv.PrivateKey == nil {
@@ -368,7 +369,15 @@ func (srv *Server) Start() (err error) {
 	srv.removestatic = make(chan *discover.Node)
 	srv.peerOp = make(chan peerOpFunc)
 	srv.peerOpDone = make(chan struct{})
+	//yichoi begin for private ip set
+	if srv.Config.ListenLocalAddr == "" {  //run error
 
+		srv.ListenAddr = srv.GetLocalIP() //yichoi
+		fmt.Printf("ListenAddr= %s\n", srv.ListenAddr )
+		srv.ListenLocalAddr = srv.GetLocalIP() //yichoi
+		fmt.Printf("ListenLocalAddr= %s\n", srv.ListenLocalAddr )
+	}
+    //end
 	// node table
 	if !srv.NoDiscovery {
 		ntab, err := discover.ListenUDP(srv.PrivateKey, srv.ListenAddr, srv.NAT, srv.NodeDatabase, srv.NetRestrict)
@@ -421,7 +430,10 @@ func (srv *Server) Start() (err error) {
 
 func (srv *Server) startListening() error {
 	// Launch the TCP listener.
+	//set local ip:192.168.0.x in reapchain office private network
+
 	listener, err := net.Listen("tcp", srv.ListenAddr)
+	log.Info("listener addr : %v ", listener)
 	if err != nil {
 		return err
 	}
@@ -429,6 +441,8 @@ func (srv *Server) startListening() error {
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
+	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s,", srv.ListenAddr, srv.listener )
+	fmt.Printf("srv.GetLocalIP=%s", srv.GetLocalIP() )
 	go srv.listenLoop()
 	// Map the TCP listening port if NAT is configured.
 	if !laddr.IP.IsLoopback() && srv.NAT != nil {
@@ -502,7 +516,7 @@ running:
 		case <-srv.quit:
 			// The server was stopped. Run the cleanup logic.
 			break running
-		case n := <-srv.addstatic:
+		case n := <-srv.addstatic:   //static node 추가 채널
 			// This channel is used by AddPeer to add to the
 			// ephemeral static peer list. Add it to the dialer,
 			// it will keep the node connected.
@@ -611,11 +625,32 @@ type tempError interface {
 	Temporary() bool
 }
 
+// GetLocalIP returns the non loopback local IP of the host
+func (srv *Server)GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
+}
+
 // listenLoop runs in its own goroutine and accepts
 // inbound connections.
 func (srv *Server) listenLoop() {
+
 	defer srv.loopWG.Done()
 	log.Info("RLPx listener up", "self", srv.makeSelf(srv.listener, srv.ntab))
+	// RLPx Listener는 실행되면, 호스트의 IP를 0.0.0.0 로 셋팅하고, 기다린다. 원격지로부터 접속을
+	// 그래서 외부의 연결 허용을 위해서 공유기의 외부 공인IP를 가져와서,, 셋팅된다.
+
 
 	// This channel acts as a semaphore limiting
 	// active inbound connections that are lingering pre-handshake.

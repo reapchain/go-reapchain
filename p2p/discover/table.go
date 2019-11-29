@@ -372,7 +372,7 @@ func (tab *Table) doRefresh(done chan struct{}) {
 	// sha3 preimage that falls into a chosen bucket.
 	// We perform a lookup with a random target instead.
 	var target NodeID
-	rand.Read(target[:])
+	rand.Read(target[:])  //meaning of [:] , yichoi
 	result := tab.lookup(target, false)
 	if len(result) > 0 {
 		return
@@ -504,7 +504,7 @@ func (tab *Table) bond(pinged bool, id NodeID, addr *net.UDPAddr, tcpPort uint16
 	return node, result
 }
 
-func (tab *Table) pingpong(w *bondproc, pinged bool, id NodeID, addr *net.UDPAddr, tcpPort uint16) {
+func (tab *Table) pingpong(w *bondproc, pinged bool, id NodeID, addr *net.UDPAddr, tcpPort uint16) { //yichoi reviewed
 	// Request a bonding slot to limit network usage
 	<-tab.bondslots
 	defer func() { tab.bondslots <- struct{}{} }()

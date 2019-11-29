@@ -213,7 +213,7 @@ type reply struct {
 // ListenUDP returns a new table that listens for UDP packets on laddr.
 func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Table, error) {
 	addr, err := net.ResolveUDPAddr("udp", laddr)
-	log.Info(fmt.Sprintf("ResolveUDPAddr result: %v, %v, %v ", addr.IP , addr.Port, addr.Zone  ))
+//	log.Info(fmt.Sprintf("ResolveUDPAddr result: %v, %v, %v ", addr.IP , addr.Port, addr.Zone  ))
 	if err != nil {
 		return nil, err
 	}
@@ -240,6 +240,7 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 		addpending:  make(chan *pending),
 	}
 	realaddr := c.LocalAddr().(*net.UDPAddr)
+	fmt.Printf("realaddr = %s", realaddr )
 	if natm != nil {
 		if !realaddr.IP.IsLoopback() {
 			go nat.Map(natm, udp.closing, "udp", realaddr.Port, realaddr.Port, "ethereum discovery")
@@ -248,10 +249,11 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 		}
 		// TODO: react to external IP changes over time.
 		// disable public ip by yichoi for temp in order to test private network : 192.168.0.x inside of  reapchain office
-		/* if ext, err := natm.ExternalIP(); err == nil {
-			// disabled : realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}
+		if ext, err := natm.ExternalIP(); err == nil {
+			// disabled :
+			realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}
 		}
-		*/
+
 
 	}
 	// TODO: separate TCP port
@@ -293,6 +295,7 @@ func (t *udp) waitping(from NodeID) error {
 // findnode sends a findnode request to the given node and waits until
 // the node has sent up to k neighbors.
 func (t *udp) findnode(toid NodeID, toaddr *net.UDPAddr, target NodeID) ([]*Node, error) {
+	fmt.Printf("toid ( NodeID type, array ) = %s, toaddr =%s, target= %s\n", toid, toaddr.IP.String(), target  )
 	nodes := make([]*Node, 0, bucketSize)
 	nreceived := 0
 	errc := t.pending(toid, neighborsPacket, func(r interface{}) bool {
@@ -551,7 +554,7 @@ func decodePacket(buf []byte) (packet, NodeID, []byte, error) {
 	case pongPacket:
 		req = new(pong)
 	case findnodePacket:
-		req = new(findnode)
+		req = new(findnode)  //yichoi
 	case neighborsPacket:
 		req = new(neighbors)
 	default:

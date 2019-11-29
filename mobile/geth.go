@@ -72,6 +72,10 @@ type NodeConfig struct {
 
 	// WhisperEnabled specifies whether the node should run the Whisper protocol.
 	WhisperEnabled bool
+	// A private network Enabled specifies whether the node should get a local ip ( 192.168.0.x ) for reapchian
+	PrivateNetEnabled bool
+
+
 }
 
 // defaultNodeConfig contains the default node configuration values to use if all
@@ -119,6 +123,7 @@ func NewNode(datadir string, config *NodeConfig) (stack *Node, _ error) {
 			DiscoveryV5Addr:  ":0",
 			BootstrapNodesV5: config.BootstrapNodes.nodes,
 			ListenAddr:       ":0",
+			ListenLocalAddr:  ":0", //yichoi
 			NAT:              nat.Any(),
 			MaxPeers:         config.MaxPeers,
 		},

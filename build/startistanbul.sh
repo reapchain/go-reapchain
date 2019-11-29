@@ -36,7 +36,7 @@ mkdir -p node2/data/geth
 mkdir -p node3/data/geth
 mkdir -p node4/data/geth
 
-./bin/geth --datadir node1/data account new
+./bin/geth --datadir node1/data account new --password passwd.txt
 ##
 #Your new account is locked with a password. Please give a password. Do not forget this password.
 #Passphrase:
@@ -44,21 +44,21 @@ mkdir -p node4/data/geth
 #Address: {48417549913e78f04a18376ab51325d19d9c3739}
 ##
 
-./bin/geth --datadir node2/data account new
-./bin/geth --datadir node3/data account new
-./bin/geth --datadir node4/data account new
+./bin/geth --datadir node2/data account new --password passwd.txt
+./bin/geth --datadir node3/data account new --password passwd.txt
+./bin/geth --datadir node4/data account new --password passwd.txt
 
 echo -e "To add accounts to the initial block, edit the genesis.json file in the lead node’s working directory and
 update the alloc field with the account(s) that were generated at previous step"
 
-cp node1/genesis.json node2
-cp node1/genesis.json node3
-cp node1/genesis.json node4
+cp istanbul-tool-output/genesis.json node2
+cp istanbul-tool-output//genesis.json node3
+cp istanbul-tool-output//genesis.json node4
 
-cp node1/static-nodes.json node1/data/
-cp node1/static-nodes.json node2/data/
-cp node1/static-nodes.json node3/data/
-cp node1/static-nodes.json node4/data/
+cp istanbul-tool-output//static-nodes.json node1/data/
+cp istanbul-tool-output//static-nodes.json node2/data/
+cp istanbul-tool-output//static-nodes.json node3/data/
+cp istanbul-tool-output//static-nodes.json node4/data/
 
 cp node1/0/nodekey node1/data/geth
 cp node1/1/nodekey node2/data/geth
@@ -68,7 +68,19 @@ cp node1/3/nodekey node4/data/geth
 pwd
 
 cd node1
-../bin/geth --datadir data init genesis.json
+
+
+~/go/src/github.com/ethereum/go-ethereum/build/node1> ../bin/geth init ../bin/genesis.json --datadir=.
+
+./bin/geth --datadir=./node1 --port 5000 --rpcport 6000 –-ipcdisable --mine --minerthreads 1 --syncmode "full"
+
+합의엔진 테스트환경 설정
+
+RUN 3 개,, 디버그 1개
+
+./bin/geth --networkid 1 --nodiscover --datadir=./node1 --rpcaddr 0.0.0.0 --rpc --rpcport 8545 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin" --miner.threads 1 console 2>> test_data/geth.log
+// forground service 를 띄우면서 console 접속함
+
 
 cd ..
 cd node2
@@ -87,21 +99,23 @@ cd node4
 
 pwd
 
+./bin/geth --networkid 1 --nodiscover --maxpeers 0 --datadir=./node1 --mine --minerthreads 1 --rpc --rpcaddr "0.0.0.0" --rpcport 8545 --rpccorsdomain "*" --rpcapi "admin, db, eth, debug, miner, net, shh, txpool, personal, web3" --unlock 0 --verbosity 6 console 2>> ./node1/geth.log
+
 cd node1
 nohup ../bin/geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22000 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30300 2>>node.log &
-../bin/geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22000 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30300
+../bin/geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 1 --rpc --rpcaddr 0.0.0.0 --rpcport 22000 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul  --port 30300
 
 cd ../node1
-nohup geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22001 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30301 2>>node.log &
+nohup ../bin/geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22001 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30301 2>>node.log &
 
 cd ../node2
-nohup geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22002 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30302 2>>node.log &
+nohup ../bin/geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22002 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30302 2>>node.log &
 
 cd ../node3
-nohup geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22003 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30303 2>>node.log &
+nohup ../bin/geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22003 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30303 2>>node.log &
 
 cd ../node4
-nohup geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22004 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30304 2>>node.log &
+nohup ../bin/geth --datadir data --nodiscover --istanbul.blockperiod 5 --syncmode full --mine --minerthreads 1 --verbosity 5 --networkid 2019 --rpc --rpcaddr 0.0.0.0 --rpcport 22004 --rpcapi admin,db,eth,debug,miner,net,shh,txpool,personal,web3,istanbul --emitcheckpoints --port 30304 2>>node.log &
 
 #See if the any geth nodes are running.
 ps | grep geth

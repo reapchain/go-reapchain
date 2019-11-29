@@ -59,8 +59,9 @@ func Fatalf(format string, args ...interface{}) {
 }
 
 func StartNode(stack *node.Node) {
+
 	if err := stack.Start(); err != nil {
-		Fatalf("Error starting protocol stack: %v", err)
+		Fatalf("Error starting protocol stack: %v", err)  //not port no when run private : geth --localIP 1
 	}
 	go func() {
 		sigc := make(chan os.Signal, 1)

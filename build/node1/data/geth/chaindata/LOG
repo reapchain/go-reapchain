@@ -1,16 +1,26 @@
-=============== Nov 25, 2019 (KST) ===============
-11:54:08.412560 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-11:54:08.413226 db@open opening
-11:54:08.414980 version@stat F·[] S·0B[] Sc·[]
-11:54:08.438783 db@janitor F·2 G·0
-11:54:08.440337 db@open done T·27.07813ms
-=============== Nov 25, 2019 (KST) ===============
-16:05:10.608087 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
-16:05:10.609803 version@stat F·[] S·0B[] Sc·[]
-16:05:10.610014 db@open opening
-16:05:10.610643 journal@recovery F·1
-16:05:10.615919 journal@recovery recovering @1
-16:05:10.629467 memdb@flush created L0@2 N·19 S·1KiB "Hh\x87../\x10\x80,v13":"\xf6\xfd\x94..JZ\x92,v8"
-16:05:10.632189 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
-16:05:10.633766 db@janitor F·3 G·0
-16:05:10.634001 db@open done T·23.78885ms
+=============== Nov 29, 2019 (KST) ===============
+10:51:57.444474 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:51:57.445524 db@open opening
+10:51:57.446537 version@stat F·[] S·0B[] Sc·[]
+10:51:57.478233 db@janitor F·2 G·0
+10:51:57.479396 db@open done T·33.808897ms
+=============== Nov 29, 2019 (KST) ===============
+10:51:58.125071 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:51:58.125609 version@stat F·[] S·0B[] Sc·[]
+10:51:58.125672 db@open opening
+10:51:58.125841 journal@recovery F·1
+10:51:58.127483 journal@recovery recovering @1
+10:51:58.139520 memdb@flush created L0@2 N·19 S·1KiB "5 \xdb..5^j,v8":"ѺO..\x927z,v6"
+10:51:58.145933 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+10:51:58.149477 db@janitor F·3 G·0
+10:51:58.149618 db@open done T·23.910782ms
+=============== Nov 29, 2019 (KST) ===============
+10:51:58.311699 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+10:51:58.312279 version@stat F·[1] S·1KiB[1KiB] Sc·[0.25]
+10:51:58.312361 db@open opening
+10:51:58.312596 journal@recovery F·1
+10:51:58.314201 journal@recovery recovering @3
+10:51:58.326246 memdb@flush created L0@5 N·10 S·639B "Blo..ion,v28":"set..ion,v27"
+10:51:58.329323 version@stat F·[2] S·1KiB[1KiB] Sc·[0.50]
+10:51:58.331314 db@janitor F·4 G·0
+10:51:58.331378 db@open done T·18.959694ms

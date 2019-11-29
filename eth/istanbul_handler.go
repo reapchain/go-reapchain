@@ -174,11 +174,13 @@ func (pm *istanbulProtocolManager) newHead(event core.ChainHeadEvent) {
 // findPeer retrieves a peer by given address
 func (pm *istanbulProtocolManager) findPeer(addr common.Address) *peer {
 	for _, p := range pm.peers.Peers() {
+
 		pubKey, err := p.ID().Pubkey()
 		if err != nil {
 			continue
 		}
 		if crypto.PubkeyToAddress(*pubKey) == addr {
+			fmt.Sprintf("%x", addr)
 			return p
 		}
 	}

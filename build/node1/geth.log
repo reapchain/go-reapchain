@@ -1,0 +1,37 @@
+DEBUG[11-29|10:51:58] Reloaded keystore contents               accounts=1
+DEBUG[11-29|10:51:58] Reloaded keystore contents               accounts=1
+INFO [11-29|10:51:58] Starting peer-to-peer node               instance=Geth/v1.6.6-unstable-2b1aa6f0/darwin-amd64/go1.13.1
+INFO [11-29|10:51:58] Allocated cache and file handles         database=/Users/yongilchoi/go/src/github.com/ethereum/go-ethereum/build/node1/data/geth/chaindata cache=128 handles=1024
+WARN [11-29|10:51:58] Upgrading chain database to use sequential keys 
+INFO [11-29|10:51:58] Initialised chain configuration          config="{ChainID: 2017 Homestead: 1 DAO: <nil> DAOSupport: false EIP150: 2 EIP155: 3 EIP158: 3 Metropolis: <nil> Engine: istanbul}"
+INFO [11-29|10:51:58] Database conversion successful 
+WARN [11-29|10:51:58] Upgrading db log bloom bins 
+INFO [11-29|10:51:58] Bloom-bin upgrade completed              elapsed=830.055µs
+INFO [11-29|10:51:58] Initialising Ethereum protocol           versions="[63 62]" network=2017
+INFO [11-29|10:51:58] Loaded most recent local header          number=0 hash=780045…cb1ab0 td=1
+INFO [11-29|10:51:58] Loaded most recent local full block      number=0 hash=780045…cb1ab0 td=1
+INFO [11-29|10:51:58] Loaded most recent local fast block      number=0 hash=780045…cb1ab0 td=1
+DEBUG[11-29|10:51:58] Recalculated downloader QoS values       rtt=20s confidence=1.000 ttl=1m0s
+TRACE[11-29|10:51:58] Stored genesis voting snapshot to disk 
+INFO [11-29|10:51:58] Starting P2P networking 
+INFO [11-29|10:51:58] listener addr : %v                       LOG15_ERROR= LOG15_ERROR="Normalized odd number of arguments by adding nil"
+Fatal: Error starting protocol stack: listen tcp: lookup tcp/5001
+: nodename nor servname provided, or not known
+DEBUG[11-29|10:51:58] Reloaded keystore contents               accounts=1
+DEBUG[11-29|10:51:58] Reloaded keystore contents               accounts=1
+INFO [11-29|10:51:58] Starting peer-to-peer node               instance=Geth/v1.6.6-unstable-2b1aa6f0/darwin-amd64/go1.13.1
+INFO [11-29|10:51:58] Allocated cache and file handles         database=/Users/yongilchoi/go/src/github.com/ethereum/go-ethereum/build/node4/data/geth/chaindata cache=128 handles=1024
+WARN [11-29|10:51:58] Upgrading chain database to use sequential keys 
+INFO [11-29|10:51:58] Database conversion successful 
+INFO [11-29|10:51:58] Initialised chain configuration          config="{ChainID: 2017 Homestead: 1 DAO: <nil> DAOSupport: false EIP150: 2 EIP155: 3 EIP158: 3 Metropolis: <nil> Engine: istanbul}"
+WARN [11-29|10:51:58] Upgrading db log bloom bins 
+INFO [11-29|10:51:58] Bloom-bin upgrade completed              elapsed=135.624µs
+INFO [11-29|10:51:58] Initialising Ethereum protocol           versions="[63 62]" network=2017
+INFO [11-29|10:51:58] Loaded most recent local header          number=0 hash=780045…cb1ab0 td=1
+INFO [11-29|10:51:58] Loaded most recent local full block      number=0 hash=780045…cb1ab0 td=1
+INFO [11-29|10:51:58] Loaded most recent local fast block      number=0 hash=780045…cb1ab0 td=1
+DEBUG[11-29|10:51:58] Recalculated downloader QoS values       rtt=20s confidence=1.000 ttl=1m0s
+TRACE[11-29|10:51:58] Stored genesis voting snapshot to disk 
+INFO [11-29|10:51:58] Starting P2P networking 
+Fatal: Error starting protocol stack: lookup udp/5003
+: nodename nor servname provided, or not known
