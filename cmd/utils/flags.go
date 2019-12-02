@@ -645,6 +645,9 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 	}
 	if ctx.GlobalIsSet(ListenLocalIPFlag.Name ){  //yichoi for private net for reapchain office
 		cfg.ListenLocalAddr = GetLocalIP()
+		cfg.ListenAddr = GetLocalIP()
+
+
 		fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
 	}
 }
@@ -663,6 +666,10 @@ func GetLocalIP() string {
 		}
 	}
 	return ""
+}
+func GetLocalPort() (port string) {
+
+	return port
 }
 
 // setDiscoveryV5Address creates a UDP listening address string from set command
@@ -870,6 +877,14 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 
 // SetNodeConfig applies node-related command line flags to the config.
 func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
+
+	if ctx.GlobalIsSet(ListenLocalIPFlag.Name){
+		cfg.P2P.ListenAddr = ctx.GlobalString(ListenLocalIPFlag.Name)
+        log.Info("SetNodeConfig: ListenAddr: ",cfg.P2P.ListenAddr )
+
+
+	}
+
 	SetP2PConfig(ctx, &cfg.P2P)  //jump by yichoi
 	setIPC(ctx, cfg)
 	setHTTP(ctx, cfg)

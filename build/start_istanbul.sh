@@ -103,7 +103,11 @@ cd ~/go/src/github.com/ethereum/go-ethereum/build
 
 # 콘솔 없이 실행하기
 ./bin/geth --networkid 2017 --port 5002 --nodiscover --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
---rpcaddr 0.0.0.0 --rpc --rpcport 8545 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
+--rpcaddr 0.0.0.0 --rpc --rpcport 8546 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
+--unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2
+
+./bin/geth --networkid 2017 --port 5003 --nodiscover --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
+--rpcaddr 0.0.0.0 --rpc --rpcport 8547 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
 --unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2
 
 # reqular nodes:

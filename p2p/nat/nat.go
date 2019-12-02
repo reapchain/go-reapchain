@@ -43,7 +43,7 @@ type Interface interface {
 
 	// This method should return the external (Internet-facing)
 	// address of the gateway device.
-	ExternalIP() (net.IP, error)
+	ExternalIP() (net.IP, error)  //외부 공인 IP를 가져옴
 
 	// Should return name of the method. This is used for logging.
 	String() string
@@ -80,7 +80,7 @@ func Parse(spec string) (Interface, error) {
 		if ip == nil {
 			return nil, errors.New("missing IP address")
 		}
-		return ExtIP(ip), nil
+		return ExtIP(ip), nil  //중요
 	case "upnp":
 		return UPnP(), nil
 	case "pmp", "natpmp", "nat-pmp":

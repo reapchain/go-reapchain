@@ -121,6 +121,7 @@ type Config struct {
 	// If the port is zero, the operating system will pick a port. The
 	// ListenAddr field will be updated with the actual address when
 	// the server is started.
+	ListenIP   string
 	ListenAddr string
 	ListenLocalAddr string //local ip for reapchain
 
@@ -405,7 +406,7 @@ func (srv *Server) Start() (err error) {
 	if srv.NoDiscovery {
 		dynPeers = 0
 	}
-	dialer := newDialState(srv.StaticNodes, srv.BootstrapNodes, srv.ntab, dynPeers, srv.NetRestrict)
+	dialer := newDialState(srv.StaticNodes, srv.BootstrapNodes, srv.ntab, dynPeers, srv.NetRestrict)  //bootnode dial
 
 	// handshake
 	srv.ourHandshake = &protoHandshake{Version: baseProtocolVersion, Name: srv.Name, ID: discover.PubkeyID(&srv.PrivateKey.PublicKey)}
@@ -414,7 +415,7 @@ func (srv *Server) Start() (err error) {
 	}
 	// listen/dial
 	if srv.ListenAddr != "" {
-		if err := srv.startListening(); err != nil {
+		if err := srv.startListening(); err != nil { //
 			return err
 		}
 	}
@@ -432,12 +433,13 @@ func (srv *Server) startListening() error {
 	// Launch the TCP listener.
 	//set local ip:192.168.0.x in reapchain office private network
 
-	listener, err := net.Listen("tcp", srv.ListenAddr)
-	log.Info("listener addr : %v ", listener)
+	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
+	log.Info("listener addr", srv.Config.ListenAddr, listener)
 	if err != nil {
 		return err
 	}
-	laddr := listener.Addr().(*net.TCPAddr)
+	laddr := listener.Addr().(*net.TCPAddr)  //192.168.0.2:5003 this type ㄱㅏ져와야함.
+	log.Info("laddr :", laddr )  //error , important
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
