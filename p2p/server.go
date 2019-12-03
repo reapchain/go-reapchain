@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"strings"
 	"sync"
 	"time"
 
@@ -371,11 +372,17 @@ func (srv *Server) Start() (err error) {
 	srv.peerOp = make(chan peerOpFunc)
 	srv.peerOpDone = make(chan struct{})
 	//yichoi begin for private ip set
-	if srv.Config.ListenLocalAddr == "" {  //run error
+	//VerA := strings.Trim(runtime.Version(),"go")
+	//VerB := "1.7"
+	//if ( compareVerLessthan( VerA, VerB) == 1 ) && !strings.HasPrefix(runtime.Version(), "devel")
 
-		srv.ListenAddr = srv.GetLocalIP() //yichoi
+	if srv.Config.ListenLocalAddr == "" || strings.HasPrefix( srv.Config.ListenAddr , ":") {  //run error
+
+	    srv.ListenAddr = strings.Trim(srv.ListenAddr, "\n")
+		srv.ListenAddr = fmt.Sprintf(srv.GetLocalIP() + srv.ListenAddr ) //yichoi
 		fmt.Printf("ListenAddr= %s\n", srv.ListenAddr )
-		srv.ListenLocalAddr = srv.GetLocalIP() //yichoi
+		srv.ListenLocalAddr = srv.ListenAddr
+		//srv.ListenLocalAddr = fmt.Sprintf(srv.GetLocalIP() + srv.ListenLocalAddr  )//yichoi
 		fmt.Printf("ListenLocalAddr= %s\n", srv.ListenLocalAddr )
 	}
     //end
@@ -416,7 +423,7 @@ func (srv *Server) Start() (err error) {
 	// listen/dial
 	if srv.ListenAddr != "" {
 		if err := srv.startListening(); err != nil { //
-			return err
+			return err  //에러 ..
 		}
 	}
 	if srv.NoDial && srv.ListenAddr == "" {
@@ -432,19 +439,19 @@ func (srv *Server) Start() (err error) {
 func (srv *Server) startListening() error {
 	// Launch the TCP listener.
 	//set local ip:192.168.0.x in reapchain office private network
-
+	log.Info("startListening() : net.Listen ", srv.ListenAddr )
 	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
-	log.Info("listener addr", srv.Config.ListenAddr, listener)
+	log.Info("listener addr", srv.Config.ListenAddr, "listener=", listener)
 	if err != nil {
-		return err
+		return err   //왜 에러 ?
 	}
 	laddr := listener.Addr().(*net.TCPAddr)  //192.168.0.2:5003 this type ㄱㅏ져와야함.
-	log.Info("laddr :", laddr )  //error , important
+	fmt.Printf("\n laddr : %v\n", laddr )  //error , important
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
-	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s,", srv.ListenAddr, srv.listener )
-	fmt.Printf("srv.GetLocalIP=%s", srv.GetLocalIP() )
+	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
+	fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
 	go srv.listenLoop()
 	// Map the TCP listening port if NAT is configured.
 	if !laddr.IP.IsLoopback() && srv.NAT != nil {

@@ -200,7 +200,7 @@ func (n *Node) Start() error {
 		if errno, ok := err.(syscall.Errno); ok && datadirInUseErrnos[uint(errno)] {
 			return ErrDatadirUsed
 		}
-		return err
+		return err  //error jump
 	}
 	// Start each of the services
 	started := []reflect.Type{}

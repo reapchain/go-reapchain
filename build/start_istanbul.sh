@@ -7,11 +7,11 @@
 
 # 아래 명령은 한번만 수행하고, 그 다음부터는 # mark 해서 실행 안되게 할것.
 
-#../istanbul-tools/build/bin/istanbul setup --num 4 --nodes  --save --verbose > out.txt
+#../istanbul-tools/build/bin/istanbul setup --num 4 --nodes  --save --verbose > out2.txt
 
-rm -rf node1 node2 node3 node4
+rm -rf node1 node2 node3 node4 node5
 
-mkdir node1 node2 node3 node4
+mkdir node1 node2 node3 node4 node5
 
 ls -l node*
 
@@ -39,14 +39,24 @@ mkdir -p node1/data/geth
 mkdir -p node2/data/geth
 mkdir -p node3/data/geth
 mkdir -p node4/data/geth
+mkdir -p node5/data/geth
 
 ifconfig en0
 
 # 새 계정 4개를 각 노드마다 새로 생성한다. - passwd.txt의 암호 파일에서 읽어와서..
 ./bin/geth --datadir node1/data account new --password passwd.txt
+# Address: {9480652c2be98237715e38d0e72367088f84233e}
 ./bin/geth --datadir node2/data account new --password passwd.txt
+# Address: {1d423d94bdea465eb5260b2a61f2c02ab66bd89e}
 ./bin/geth --datadir node3/data account new --password passwd.txt
+#Address: {9cca27c05d5ecc2bf4ba44cdb336ffbf4fd3d0e3}
 ./bin/geth --datadir node4/data account new --password passwd.txt
+#Address: {21d3c0a6c14f934ca420976f1ed2d2e2478b83c6}
+./bin/geth --datadir node5/data account new --password passwd.txt
+#Address: {520d72fcca400284690adff119a93dbaf3f24133}
+
+
+## 총 5개 어카운트를 생성한다.
 
 echo -e "To add accounts to the initial block, edit the genesis.json file in the lead node’s working directory and
 update the alloc field with the account(s) that were generated at previous step"
@@ -57,6 +67,7 @@ cp genesis.json node1
 cp genesis.json node2
 cp genesis.json node3
 cp genesis.json node4
+cp genesis.json node5
 
 cp static-nodes.json node1/data/
 cp static-nodes.json node2/data/
@@ -68,6 +79,7 @@ cp ./0/nodekey node1/data/geth
 cp ./1/nodekey node2/data/geth
 cp ./2/nodekey node3/data/geth
 cp ./3/nodekey node4/data/geth
+cp ./4/nodekey node5/data/geth
 
 pwd
 
@@ -77,7 +89,7 @@ cd ~/go/src/github.com/ethereum/go-ethereum/build
 ./bin/geth --datadir ./node2/data init ./node2/genesis.json
 ./bin/geth --datadir ./node3/data init ./node3/genesis.json
 ./bin/geth --datadir ./node4/data init ./node4/genesis.json
-
+./bin/geth --datadir ./node5/data init ./node5/genesis.json
 # ./bin/geth --datadir=./node1 --port 5000 --rpcport 6000 –-ipcdisable --mine --minerthreads 1 --syncmode "full"
 
 
@@ -97,24 +109,36 @@ cd ~/go/src/github.com/ethereum/go-ethereum/build
 
 # forground service 를 띄우면서 console 접속함
 
-./bin/geth --networkid 2017 --port 5001 --nodiscover --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
---rpcaddr 0.0.0.0 --rpc --rpcport 8545 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
---unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2 console 2>> ./node1/geth.log
+./bin/geth --networkid 2017 --port 30303 --nodiscover --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
+--rpc --rpcport 8545 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug" --debug \
+--unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2
+#console 2>> ./node1/geth.log
 
 # 콘솔 없이 실행하기
-./bin/geth --networkid 2017 --port 5002 --nodiscover --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
---rpcaddr 0.0.0.0 --rpc --rpcport 8546 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
+#osascript
+#tell application "Terminal"
+#do script
+
+./bin/geth --networkid 2017 --port 30304 --nodiscover --datadir ./node2/data --mine --minerthreads 1 --syncmode "full" \
+ --rpc --rpcport 8546 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
+--unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2 --debug
+#end tell
+
+
+./bin/geth --networkid 2017 --port 30305 --nodiscover --datadir ./node3/data --mine --minerthreads 1 --syncmode "full" \
+ --rpc --rpcport 8547 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
 --unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2
 
-./bin/geth --networkid 2017 --port 5003 --nodiscover --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
---rpcaddr 0.0.0.0 --rpc --rpcport 8547 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
+./bin/geth --networkid 2017 --port 30306 --nodiscover --datadir ./node4/data --mine --minerthreads 1 --syncmode "full" \
+--rpc --rpcport 8548 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
 --unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2
 
-# reqular nodes:
-
-./bin/geth --networkid 2017 --datadir "./node4/data" --port 5003 --rpcport 8545 --rpccorsdomain "*" \
---rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
---unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2 console 2>> ./node1/geth.log
+# reqular nodes & Debug node in Go land
+# Go land의 Run-> Edit configuraiton -> Parameter argument에 아래 넣어서,
+# Goland의 디버그를 샐행새켜서 볼것,
+#./bin/geth --networkid 2017 --datadir ./node5/data --port 30307 --rpcport 8549 --rpccorsdomain "*" \
+#--rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug"  \
+#--unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.2 console 2>> ./node5/geth.log
 
 
 
@@ -123,8 +147,8 @@ cd ~/go/src/github.com/ethereum/go-ethereum/build
 
 #See if the any geth nodes are running.
 ps | grep geth
-Kill geth processes
-killall -INT geth
+##Kill geth processes
+##killall -INT geth
 
 # $ chmod +x startistanbul.sh
 # $ ./startistanbul.sh
