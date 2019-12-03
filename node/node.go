@@ -155,6 +155,7 @@ func (n *Node) Start() error {
 	// discovery databases.
 	n.serverConfig = n.config.P2P
 	n.serverConfig.PrivateKey = n.config.NodeKey()
+	n.serverConfig.PublicKey  = n.config.GovernanceKey() // yhheo
 	n.serverConfig.Name = n.config.NodeName()
 	if n.serverConfig.StaticNodes == nil {
 		n.serverConfig.StaticNodes = n.config.StaticNodes()

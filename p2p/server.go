@@ -61,6 +61,11 @@ type Config struct {
 	// This field must be set to a valid secp256k1 private key.
 	PrivateKey *ecdsa.PrivateKey `toml:"-"`
 
+	// yhheo - begin
+	// This field must be set to a public key.
+	PublicKey  []byte
+	// yhheo - end
+
 	// MaxPeers is the maximum number of peers that can be
 	// connected. It must be greater than zero.
 	MaxPeers int
