@@ -44,6 +44,7 @@ type Interface interface {
 	// This method should return the external (Internet-facing)
 	// address of the gateway device.
 	ExternalIP() (net.IP, error)  //외부 공인 IP를 가져옴
+	//LocalIP() (net.IP, error)    // local IP for development, 192.168.0.2
 
 	// Should return name of the method. This is used for logging.
 	String() string
@@ -85,6 +86,13 @@ func Parse(spec string) (Interface, error) {
 		return UPnP(), nil
 	case "pmp", "natpmp", "nat-pmp":
 		return PMP(ip), nil
+
+	case "local":
+		if ip == nil {
+			return nil, errors.New("missing IP address")
+		}
+		return ExtIP(ip), nil  //중요
+
 	default:
 		return nil, fmt.Errorf("unknown mechanism %q", parts[0])
 	}
@@ -135,10 +143,20 @@ func ExtIP(ip net.IP) Interface {
 	}
 	return extIP(ip)
 }
+/*
+func LocIP(ip net.IP) Interface {
+	if ip == nil {
+		panic("IP must not be nil")
+	}
+	return locIP(ip)
+} */
+
 
 type extIP net.IP
+//type locIP net.IP //
 
 func (n extIP) ExternalIP() (net.IP, error) { return net.IP(n), nil }
+//func (n extIP) LocalIP() (net.IP, error) { return net.IP(n), nil }
 func (n extIP) String() string              { return fmt.Sprintf("ExtIP(%v)", net.IP(n)) }
 
 // These do nothing.

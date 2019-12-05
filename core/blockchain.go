@@ -628,7 +628,7 @@ type WriteStatus byte
 
 const (
 	NonStatTy WriteStatus = iota
-	CanonStatTy
+	CanonStatTy  //?
 	SideStatTy
 )
 

@@ -38,17 +38,38 @@ type upnp struct {
 
 type upnpClient interface {
 	GetExternalIPAddress() (string, error)
+	//GetLocalIP() (string, error)
 	AddPortMapping(string, uint16, string, uint16, string, bool, string, uint32) error
 	DeletePortMapping(string, uint16, string) error
 	GetNATRSIPStatus() (sip bool, nat bool, err error)
 }
 
+// GetLocalIP returns the non loopback local IP of the host
+func (n *upnp)GetLocalIP()( string , error) {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return "", nil
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String() , nil
+			}
+		}
+	}
+	return "", nil
+}
+
 func (n *upnp) ExternalIP() (addr net.IP, err error) {
-	ipString, err := n.client.GetExternalIPAddress()
+	ipString, err := n.client.GetExternalIPAddress()  //getting from ipsharing public ip , nat upnp service IGDv2-ip1
+
+	//ipString, err := n.client.GetLocalIP()
 	if err != nil {
 		return nil, err
 	}
-	ip := net.ParseIP(ipString)
+	ip := net.ParseIP(ipString)  //ip data type is ipv4 and ipv6 mapped address, so integrated to 16 byte long format
+	// 0 ~   255.255. 125.131.89.105 : ipv6 used , ipv4 inserted ipv6 long format because of supporting ipv6 integration
 	if ip == nil {
 		return nil, errors.New("bad IP in response")
 	}

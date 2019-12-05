@@ -239,6 +239,9 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 		rpcClient, err := stack.Attach() // 핸들러에 붙인다.
 		if err != nil {
 			utils.Fatalf("Failed to attach to self: %v", err)
+			log.Info("You must start a node at first, and start the second node as miner if you want to avoid this error !")
+			//rpcClient를 로컬에 붙이면 에러남, 자기자신에게 rpc를 접속하면,, 안되게 되어있음. 192.168.0.2로 접속시. 안됨.
+
 		}
 		stateReader := ethclient.NewClient(rpcClient) //RPC  clinet 생성 ,, RPC client를 만들어야, geth가 네트웍 노드에서
 		                                              //RPC 이벤트 들을 받을 수 있다.
@@ -267,6 +270,8 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 		}
 	}()
 	// Start auxiliary services if enabled
+	// miner enable miner thread 1 .. 일때,, 아래 실행..
+	// 최초 노드는 마이너 안하나?
 	if ctx.GlobalBool(utils.MiningEnabledFlag.Name) {
 		var ethereum *eth.Ethereum
 		if err := stack.Service(&ethereum); err != nil {

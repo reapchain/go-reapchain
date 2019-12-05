@@ -122,9 +122,9 @@ type Config struct {
 	// If the port is zero, the operating system will pick a port. The
 	// ListenAddr field will be updated with the actual address when
 	// the server is started.
-	ListenIP   string
+	//ListenIP   string
 	ListenAddr string
-	ListenLocalAddr string //local ip for reapchain
+	//ListenLocalAddr string //local ip for reapchain
 
 	// If set to a non-nil value, the given NAT port mapper
 	// is used to make the listening port available to the
@@ -313,6 +313,10 @@ func (srv *Server) makeSelf(listener net.Listener, ntab discoverTable) *discover
 		if listener == nil {
 			return &discover.Node{IP: net.ParseIP("0.0.0.0"), ID: discover.PubkeyID(&srv.PrivateKey.PublicKey)}
 		}
+		/* else {
+
+			return &discover.Node{IP: net.ParseIP("192.168.0.2"), ID: discover.PubkeyID(&srv.PrivateKey.PublicKey)}
+		} */
 		// Otherwise inject the listener address too
 		addr := listener.Addr().(*net.TCPAddr)
 		return &discover.Node{
@@ -376,14 +380,14 @@ func (srv *Server) Start() (err error) {
 	//VerB := "1.7"
 	//if ( compareVerLessthan( VerA, VerB) == 1 ) && !strings.HasPrefix(runtime.Version(), "devel")
 
-	if srv.Config.ListenLocalAddr == "" || strings.HasPrefix( srv.Config.ListenAddr , ":") {  //run error
+	if strings.HasPrefix( srv.Config.ListenAddr , ":") {  //run error
 
 	    srv.ListenAddr = strings.Trim(srv.ListenAddr, "\n")
 		srv.ListenAddr = fmt.Sprintf(srv.GetLocalIP() + srv.ListenAddr ) //yichoi
 		fmt.Printf("ListenAddr= %s\n", srv.ListenAddr )
-		srv.ListenLocalAddr = srv.ListenAddr
+		//srv.ListenLocalAddr = srv.ListenAddr
 		//srv.ListenLocalAddr = fmt.Sprintf(srv.GetLocalIP() + srv.ListenLocalAddr  )//yichoi
-		fmt.Printf("ListenLocalAddr= %s\n", srv.ListenLocalAddr )
+		//fmt.Printf("ListenLocalAddr= %s\n", srv.ListenLocalAddr )
 	}
     //end
 	// node table
@@ -451,7 +455,7 @@ func (srv *Server) startListening() error {
 	srv.listener = listener
 	srv.loopWG.Add(1)
 	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
-	fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
+	//fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
 	go srv.listenLoop()
 	// Map the TCP listening port if NAT is configured.
 	if !laddr.IP.IsLoopback() && srv.NAT != nil {

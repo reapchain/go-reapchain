@@ -59,10 +59,11 @@ const (
 
 // RPC packet types
 const (
-	pingPacket = iota + 1 // zero is 'reserved'
-	pongPacket
+	pingPacket = iota + 1 // zero is 'reserved'  //1
+	pongPacket        // 2
 	findnodePacket
 	neighborsPacket
+	qmanagerPacket    // 4 - for reapchain
 )
 
 // RPC request structures
@@ -104,6 +105,19 @@ type (
 		Rest []rlp.RawValue `rlp:"tail"`
 	}
 
+	// reply to findnode
+	qmanager struct {
+		Nodes      NodeID  //? whether set NodeID or []rpcNode, select something to martin
+		Expiration uint64
+		// Ignore additional fields (for forward compatibility).
+		Rest []rlp.RawValue `rlp:"tail"`
+	}
+
+
+
+
+
+
 	rpcNode struct {
 		IP  net.IP // len 4 for IPv4 or 16 for IPv6
 		UDP uint16 // for discovery protocol
@@ -117,6 +131,14 @@ type (
 		TCP uint16 // for RLPx protocol
 	}
 )
+
+func (q qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+	panic("implement me")
+}
+
+func (q qmanager) name() string {
+	panic("implement me")
+}
 
 func makeEndpoint(addr *net.UDPAddr, tcpPort uint16) rpcEndpoint {
 	ip := addr.IP.To4()
@@ -218,7 +240,7 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 		return nil, err
 	}
 	conn, err := net.ListenUDP("udp", addr)
-	log.Info("net.ListenUDP up: addr ", "self",laddr,  addr)
+	log.Info("net.ListenUDP up: addr ", "self",laddr)
 	if err != nil {
 		return nil, err
 	}
@@ -239,9 +261,10 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 		gotreply:    make(chan reply),
 		addpending:  make(chan *pending),
 	}
-	realaddr := c.LocalAddr().(*net.UDPAddr)
-	fmt.Printf("realaddr = %s", realaddr )
-	if natm != nil {
+	realaddr := c.LocalAddr().(*net.UDPAddr)  //? local ip or upnp public ip  c는 discover pkg , cast연산자,, ?
+
+	fmt.Printf("======================> realaddr <======================= %s", realaddr )
+	if natm != nil {  //doit=any, none, extip , etc
 		if !realaddr.IP.IsLoopback() {
 			go nat.Map(natm, udp.closing, "udp", realaddr.Port, realaddr.Port, "ethereum discovery")
 		} else {
@@ -251,11 +274,22 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 		// disable public ip by yichoi for temp in order to test private network : 192.168.0.x inside of  reapchain office
 		if ext, err := natm.ExternalIP(); err == nil {
 			// disabled :
-			realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}
+			realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}  //192.168.0.2:30505
 		}
 
 
 	}
+	// if dev option is enabled, do this to set local ip
+	/* if natm == nil && natm.doit == none {
+
+		realaddr = c.LocalAddr().(*net.UDPAddr)
+
+	} */
+
+
+
+
+
 	// TODO: separate TCP port
 	udp.ourEndpoint = makeEndpoint(realaddr, uint16(realaddr.Port))
 	tab, err := newTable(udp, PubkeyID(&priv.PublicKey), realaddr, nodeDBPath)
@@ -295,7 +329,7 @@ func (t *udp) waitping(from NodeID) error {
 // findnode sends a findnode request to the given node and waits until
 // the node has sent up to k neighbors.
 func (t *udp) findnode(toid NodeID, toaddr *net.UDPAddr, target NodeID) ([]*Node, error) {
-	fmt.Printf("toid ( NodeID type, array ) = %s, toaddr =%s, target= %s\n", toid, toaddr.IP.String(), target  )
+	//fmt.Printf("toid NodeID = %s, toaddr =%s, target= %s\n", toid, toaddr.IP.String(), target  )
 	nodes := make([]*Node, 0, bucketSize)
 	nreceived := 0
 	errc := t.pending(toid, neighborsPacket, func(r interface{}) bool {
@@ -557,6 +591,8 @@ func decodePacket(buf []byte) (packet, NodeID, []byte, error) {
 		req = new(findnode)  //yichoi
 	case neighborsPacket:
 		req = new(neighbors)
+	case qmanagerPacket:
+		req = new(qmanager)
 	default:
 		return nil, fromID, hash, fmt.Errorf("unknown type: %d", ptype)
 	}

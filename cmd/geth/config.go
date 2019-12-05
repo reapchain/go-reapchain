@@ -142,7 +142,7 @@ func makeFullNode(ctx *cli.Context) *node.Node {
 	shhEnabled := ctx.GlobalBool(utils.WhisperEnabledFlag.Name)
 	shhAutoEnabled := !ctx.GlobalIsSet(utils.WhisperEnabledFlag.Name) && ctx.GlobalIsSet(utils.DevModeFlag.Name)
 	if shhEnabled || shhAutoEnabled {
-		utils.RegisterShhService(stack)
+		utils.RegisterShhService(stack)  // --dev option  //stack에 넣는 작업
 	}
 
 	// Add the Ethereum Stats daemon if requested.

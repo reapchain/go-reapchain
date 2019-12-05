@@ -352,11 +352,12 @@ func (c *Config) parsePersistentNodes(path string) []*discover.Node {
 	}
 	// Interpret the list as a discovery node array
 	var nodes []*discover.Node
-	for _, url := range nodelist {
+	for _, url := range nodelist {  //static-nodes.json 을 슬라이스로 읽어들임. nodelist
 		if url == "" {
 			continue
 		}
 		node, err := discover.ParseNode(url)
+		log.Info(fmt.Sprintf("Node URL %s: %v\n", url, err))
 		if err != nil {
 			log.Error(fmt.Sprintf("Node URL %s: %v\n", url, err))
 			continue

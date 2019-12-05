@@ -147,6 +147,7 @@ var (
 		Usage: "ReapChain network: pre-configured podc bft test network",
 	}
 	//end
+	//yichoi --dev option
 	DevModeFlag = cli.BoolFlag{
 		Name:  "dev",
 		Usage: "Developer mode: pre-configured private network with several debugging flags",
@@ -410,10 +411,10 @@ var (
 		Usage: "Network listening port",
 		Value: 30303,
 	}
-	ListenLocalIPFlag = cli.StringFlag{
+	ListenLocalIPFlag = cli.StringFlag{  //local ip
 		Name:  "localIP",
-		Usage: "Network listening localIP",
-		Value: "",
+		Usage: "Network listening localIP: ex) geth --localIP true",
+		Value: "1",
 	}
 
 	BootnodesFlag = cli.StringFlag{
@@ -442,7 +443,7 @@ var (
 	NATFlag = cli.StringFlag{
 		Name:  "nat",
 		Usage: "NAT port mapping mechanism (any|none|upnp|pmp|extip:<IP>)",
-		Value: "any",
+		Value: "none",
 	}
 	NoDiscoverFlag = cli.BoolFlag{
 		Name:  "nodiscover",
@@ -644,11 +645,12 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 		cfg.ListenAddr = fmt.Sprintf(":%d\n", ctx.GlobalInt(ListenPortFlag.Name))
 	}
 	if ctx.GlobalIsSet(ListenLocalIPFlag.Name ){  //yichoi for private net for reapchain office
-		cfg.ListenLocalAddr = GetLocalIP()
+	// geth --localIP 1
+		//cfg.ListenLocalAddr = GetLocalIP()
 		cfg.ListenAddr = GetLocalIP()
 
 
-		fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
+		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
 	}
 }
 // GetLocalIP returns the non loopback local IP of the host
@@ -817,6 +819,15 @@ func MakePasswordList(ctx *cli.Context) []string {
 	if path == "" {
 		return nil
 	}
+	//check passwd.txt directory location
+
+	if( !strings.HasPrefix(path, "/") ){
+		log.Warn("full direcotory path of passwd file\n", path )
+		abs, _ :=filepath.Abs(path)
+		log.Warn("full direcotory path of passwd file\n", abs )
+		path=abs
+		//append(path, abs)
+	}
 	text, err := ioutil.ReadFile(path)
 	if err != nil {
 		Fatalf("Failed to read password file: %v", err)
@@ -864,15 +875,20 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 		}
 		cfg.NetRestrict = list
 	}
-
+// dev option for private network
 	if ctx.GlobalBool(DevModeFlag.Name) {
 		// --dev mode can't use p2p networking.
 		cfg.MaxPeers = 0
-		cfg.ListenAddr = ":0"
+		cfg.ListenAddr = ":0"    //local address ipv4 mapped ipv5 address ?
+		if ctx.GlobalString(ListenLocalIPFlag.Name) != "" {  //yichoi for set local ip : 192.168.0.x,, ex) 192.168.0.2
+			cfg.ListenAddr = GetLocalIP()
+		}
+
 		cfg.DiscoveryV5Addr = ":0"
 		cfg.NoDiscovery = true
 		cfg.DiscoveryV5 = false
 	}
+
 }
 
 // SetNodeConfig applies node-related command line flags to the config.
@@ -895,7 +911,8 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	case ctx.GlobalIsSet(DataDirFlag.Name):
 		cfg.DataDir = ctx.GlobalString(DataDirFlag.Name)
 	case ctx.GlobalBool(DevModeFlag.Name):
-		cfg.DataDir = filepath.Join(os.TempDir(), "ethereum_dev_mode")
+		//cfg.DataDir = filepath.Join(os.TempDir(), "ethereum_dev_mode")  //temp 로 설정됨.
+		cfg.DataDir = ctx.GlobalString(DataDirFlag.Name)  //we will use private ip and old datadir option when dev mode option
 	case ctx.GlobalBool(TestnetFlag.Name):
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "testnet")
 	case ctx.GlobalBool(RinkebyFlag.Name):
@@ -999,7 +1016,7 @@ func checkExclusive(ctx *cli.Context, flags ...cli.Flag) {
 // SetEthConfig applies eth-related command line flags to the config.
 func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	// Avoid conflicting network flags
-	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag, OttomanFlag)
+	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag, OttomanFlag)  //dev option
 	checkExclusive(ctx, FastSyncFlag, LightModeFlag, SyncModeFlag)
 
 	ks := stack.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
@@ -1007,7 +1024,7 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	setGPO(ctx, &cfg.GPO)
 	setTxPool(ctx, &cfg.TxPool)
 	setEthash(ctx, cfg)
-	setIstanbul(ctx, cfg)
+	setIstanbul(ctx, cfg) //istanbul initial value setting and check
 	switch {
 	case ctx.GlobalIsSet(SyncModeFlag.Name):
 		cfg.SyncMode = *GlobalTextMarshaler(ctx, SyncModeFlag.Name).(*downloader.SyncMode)
@@ -1070,11 +1087,11 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 		}
 		cfg.Genesis = core.DefaultOttomanGenesisBlock()
 	case ctx.GlobalBool(DevModeFlag.Name):
-		cfg.Genesis = core.DevGenesisBlock()
+		cfg.Genesis = core.DevGenesisBlock()  //? 바꿔야함.
 		if !ctx.GlobalIsSet(GasPriceFlag.Name) {
 			cfg.GasPrice = new(big.Int)
 		}
-		cfg.PowTest = true
+		cfg.PowTest = true //istanbul에서도 PowTest 하나, Dev option 주었을때,
 	}
 
 	// TODO(fjl): move trie cache generations into config

@@ -100,7 +100,7 @@ func (pm *istanbulProtocolManager) Start() {
 	pm.eventSub = pm.eventMux.Subscribe(istanbul.ConsensusDataEvent{}, core.ChainHeadEvent{})
 	go pm.eventLoop()
 	pm.protocolManager.Start()
-	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)
+	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)  //엔진 시작 : 이스탄불
 }
 
 func (pm *istanbulProtocolManager) Stop() {
