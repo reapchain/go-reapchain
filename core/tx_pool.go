@@ -133,7 +133,6 @@ type TxPool struct {
 	locals       *txSet
 	signer       types.Signer
 	mu           sync.RWMutex
-	pubkey       []byte // yhheo
 
 	pending map[common.Address]*txList         // All currently processable transactions
 	queue   map[common.Address]*txList         // Queued but non-processable transactions

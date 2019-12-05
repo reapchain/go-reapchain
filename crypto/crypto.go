@@ -152,27 +152,6 @@ func LoadECDSA(file string) (*ecdsa.PrivateKey, error) {
 	return ToECDSA(key)
 }
 
-// yhheo - begin
-// LoadGKey loads a public key from the given file.
-func LoadGKey(file string) ([]byte, error) {
-	buf := make([]byte, 64)
-	fd, err := os.Open(file)
-	if err != nil {
-		return nil, err
-	}
-	defer fd.Close()
-	if _, err := io.ReadFull(fd, buf); err != nil {
-		return nil, err
-	}
-
-	key, err := hex.DecodeString(string(buf))
-	if err != nil {
-		return nil, err
-	}
-	return key, nil
-}
-// yhheo - end
-
 // SaveECDSA saves a secp256k1 private key to the given file with
 // restrictive permissions. The key data is saved hex-encoded.
 func SaveECDSA(file string, key *ecdsa.PrivateKey) error {

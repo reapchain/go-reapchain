@@ -44,7 +44,6 @@ var (
 	                                               // Qmanager is Primary, Sencondary, Reserved ( 1, 2, 3 )
 	datadirTrustedNodes    = "trusted-nodes.json" // Path within the datadir to the trusted node list
 	datadirNodeDatabase    = "nodes"              // Path within the datadir to store the node infos
-	datadirGovernanceKey   = "governancekey"      // Path within the datadir to the governance's public key - yhheo
 )
 
 // Config represents a small collection of configuration values to fine tune the
@@ -245,7 +244,6 @@ var isOldGethResource = map[string]bool{
 	"nodekey":            true,
 	"static-nodes.json":  true,
 	"trusted-nodes.json": true,
-	"governance.json":    true,
 }
 
 // resolvePath resolves path in the instance directory.
@@ -317,18 +315,12 @@ func (c *Config) NodeKey() *ecdsa.PrivateKey {
 }
 
 // yhheo - begin
-func (c *Config) GovernanceKey() []byte {
-	// Use any specifically configured key.
-	if c.P2P.PublicKey != nil {
-		return c.P2P.PublicKey
-	}
-	keyfile := c.resolvePath(datadirGovernanceKey)
-	if key, err := crypto.LoadGKey(keyfile); err == nil {
-		return key
-	} else {
-		log.Error(fmt.Sprintf("Failed to load public key: %v", err))
-	}
-	return nil
+func (c *Config) GetDataDir(dirname string) string {
+    c.Name = datadirDefaultKeyStore
+    defer func() {
+        c.Name = ""
+    }()
+    return c.resolvePath(dirname)
 }
 // yhheo - end
 
