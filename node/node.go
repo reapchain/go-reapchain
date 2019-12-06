@@ -35,6 +35,8 @@ import (
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/syndtr/goleveldb/leveldb/storage"
+
+	gvn "github.com/ethereum/go-ethereum/governance"    // yhheo
 )
 
 var (
@@ -165,6 +167,8 @@ func (n *Node) Start() error {
 	if n.serverConfig.NodeDatabase == "" {
 		n.serverConfig.NodeDatabase = n.config.NodeDB()
 	}
+	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName())) // yhheo
+
 	running := &p2p.Server{Config: n.serverConfig}
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)
 

@@ -314,6 +314,16 @@ func (c *Config) NodeKey() *ecdsa.PrivateKey {
 	return key
 }
 
+// yhheo - begin
+func (c *Config) GetDataDir(dirname string) string {
+    c.Name = datadirDefaultKeyStore
+    defer func() {
+        c.Name = ""
+    }()
+    return c.resolvePath(dirname)
+}
+// yhheo - end
+
 // StaticNodes returns a list of node enode URLs configured as static nodes.
 func (c *Config) StaticNodes() []*discover.Node {
 	return c.parsePersistentNodes(c.resolvePath(datadirStaticNodes))

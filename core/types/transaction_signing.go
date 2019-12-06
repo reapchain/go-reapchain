@@ -25,6 +25,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
+
+	gvn "github.com/ethereum/go-ethereum/governance"    // yhheo
 )
 
 var (
@@ -90,6 +92,12 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 	if err != nil {
 		return common.Address{}, err
 	}
+
+	// yhheo - begin
+	isGovernance := gvn.CheckPublicKey(pubkey)
+	fmt.Printf("Checking Governance Key : isGovernance = %b\n", isGovernance)
+	// yhheo - end
+
 	var addr common.Address
 	copy(addr[:], crypto.Keccak256(pubkey[1:])[12:])
 	tx.from.Store(sigCache{signer: signer, from: addr})
