@@ -20,3 +20,13 @@
 16:27:26.699686 version@stat F·[1] S·1MiB[1MiB] Sc·[0.25]
 16:27:26.701602 db@janitor F·3 G·0
 16:27:26.701658 db@open done T·31.806437833s
+=============== Dec 4, 2019 (KST) ===============
+15:34:38.122004 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+15:34:38.124598 version@stat F·[1] S·1MiB[1MiB] Sc·[0.25]
+15:34:38.124662 db@open opening
+15:34:38.124814 journal@recovery F·1
+15:34:38.126065 journal@recovery recovering @3
+15:34:38.140386 memdb@flush created L0@5 N·3 S·497B "Blo..ion,v21270":"eth..ˏ\xa3,v21269"
+15:34:38.146663 version@stat F·[2] S·1MiB[1MiB] Sc·[0.50]
+15:34:38.149046 db@janitor F·4 G·0
+15:34:38.149108 db@open done T·24.419125ms

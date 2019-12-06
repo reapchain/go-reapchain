@@ -248,9 +248,11 @@ EOF
     --pidfile "${pid_dir}/${name}.pid"
     --exec "${path}"
   )
-  if ! ip netns exec "${name}" start-stop-daemon ${daemon_args[@]} -- $cmd_args &>> "${log_dir}/${name}.log"; then
+  if ! ip netns exec "${name}" start-stop-daemon ${daemon_args[@]} -- $cmd_args & >> "${log_dir}/${name}.log"; then
     fail "could not start ${name}, check ${log_dir}/${name}.log"
   fi
+  # 251 line error on mac : but linux no problem , error msg: token error '>' , how do I change this error on mac ?
+  # when build or make cluster in linux, I checked no error before
 }
 
 # create_node_network creates a network namespace and connects it to the Linux
