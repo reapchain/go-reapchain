@@ -94,8 +94,8 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 	}
 
 	// yhheo - begin
-	isGovernance := gvn.CheckPublicKey(pubkey)
-	fmt.Printf("Checking Governance Key : isGovernance = %b\n", isGovernance)
+    tx.data.Governance = gvn.CheckPublicKey(pubkey)
+    fmt.Printf("Checking Governance Key : tx.data.Governance = %b\n", tx.data.Governance)
 	// yhheo - end
 
 	var addr common.Address

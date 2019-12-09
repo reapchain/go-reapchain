@@ -69,6 +69,11 @@ type Config struct {
 	// in memory.
 	DataDir string
 
+	// yhheo - begin
+	// Governance, if set, is used as perform the functions of the governance node.
+	Governance bool
+	// yhheo - end
+
 	// Configuration of peer-to-peer networking.
 	P2P p2p.Config
 
