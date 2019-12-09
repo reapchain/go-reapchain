@@ -119,6 +119,7 @@ func (in *Interpreter) Run(snapshot int, contract *Contract, input []byte) (ret 
 		// to be uint256. Practically much less so feasible.
 		pc   = uint64(0) // program counter
 		cost uint64
+		//fee  uint64
 	)
 	contract.Input = input
 
@@ -142,6 +143,8 @@ func (in *Interpreter) Run(snapshot int, contract *Contract, input []byte) (ret 
 	for atomic.LoadInt32(&in.evm.abort) == 0 {
 		// Get the memory location of pc
 		op = contract.GetOp(pc)
+
+		log.Info("Interpreter atomic.LoadInt32", "OP Code", int(op))
 
 		// get the operation from the jump table matching the opcode
 		operation := in.cfg.JumpTable[op]
@@ -182,10 +185,13 @@ func (in *Interpreter) Run(snapshot int, contract *Contract, input []byte) (ret 
 			if err != nil || !contract.UseGas(cost) {
 				return nil, ErrOutOfGas
 			}
+			
 		}
 		if memorySize > 0 {
 			mem.Resize(memorySize)
 		}
+
+		log.Info("Interpreter Run","Cost Value", cost, "Memory Size", memorySize, "OP Code", int(op))
 
 		if in.cfg.Debug {
 			in.cfg.Tracer.CaptureState(in.evm, pc, op, contract.Gas, cost, mem, stack, contract, in.evm.depth, err)
