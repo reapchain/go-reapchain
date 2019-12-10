@@ -20,8 +20,10 @@ import (
 	"bytes"
 	"container/list"
 	"crypto/ecdsa"
+	"encoding/gob"
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/syndtr/goleveldb/leveldb"
 	"net"
 	"time"
@@ -34,6 +36,7 @@ import (
 )
 
 const Version = 4
+const boot_node_port = 31234
 
 // Errors
 var (
@@ -45,6 +48,8 @@ var (
 	errTimeout          = errors.New("RPC timeout")
 	errClockWarp        = errors.New("reply deadline too far in the future")
 	errClosed           = errors.New("socket closed")
+	QManagerStorage *leveldb.DB
+
 )
 
 // Timeouts
@@ -130,6 +135,12 @@ type (
 		IP  net.IP // len 4 for IPv4 or 16 for IPv6
 		UDP uint16 // for discovery protocol
 		TCP uint16 // for RLPx protocol
+	}
+
+	qManagerNodes struct {
+		ID   NodeID
+		pubKey *ecdsa.PublicKey
+		address common.Address
 	}
 )
 
@@ -250,7 +261,11 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 		return nil, err
 	}
 	log.Info("UDP listener up", "self", tab.self)
+	if addr.Port == boot_node_port {
+		QManagerStorage, err = leveldb.OpenFile("level", nil)
+	}
 	return tab, nil
+
 }
 
 func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Table, *udp, error) {
@@ -663,21 +678,63 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			t.send(from, neighborsPacket, &p)
 			p.Nodes = p.Nodes[:0]
 
-			db, _ := leveldb.OpenFile("qmanager_db", nil)
-			batch := new(leveldb.Batch)
+			if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
+				fmt.Println("BOOTNODE SYSTEM")
+				fmt.Println(t.conn.LocalAddr().(*net.UDPAddr).Port)
+				fmt.Println(fromID)
 
+				node_pubKey, _ := fromID.Pubkey()
 
-			batch.Put([]byte(fromID), []byte(fromID + "@" + from))
-			_ = db.Write(batch, nil)
-			defer db.Close()
-			fmt.Println("\n")
-			fmt.Println(fromID)
-			fmt.Println(from)
+				pubBytes := crypto.FromECDSAPub(node_pubKey)
+				qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
+
+				fmt.Println(qManagerNodeAddress)
+
+				hexCommonAddress := qManagerNodeAddress.String()
+				fmt.Println(hexCommonAddress)
+				qNode := qManagerNodes{fromID,node_pubKey, qManagerNodeAddress}
+
+				_, err := FindNode(fromID.String())
+
+				if err != nil {
+					saveError := qNode.Save()
+					if saveError != nil {
+						fmt.Println(err.Error())
+					}
+				}
+			}
 		}
 	}
 	return nil
 }
 
+func FindNode(nodeId string) (node *Node, err error) {
+	var data []byte
+	data, err = QManagerStorage.Get([]byte(nodeId), nil)
+	if err != nil {
+		return
+	}
+	dec := gob.NewDecoder(bytes.NewReader(data))
+
+	dec.Decode(node)
+	return
+}
+
+
+
+func (n *qManagerNodes) Save() (err error) {
+
+	var data bytes.Buffer
+	enc := gob.NewEncoder(&data)
+	enc.Encode(*n)
+
+	err = QManagerStorage.Put([]byte(n.ID.String()), data.Bytes(), nil)
+	if err != nil {
+		return
+	}
+
+	return
+}
 func (req *findnode) name() string { return "FINDNODE/v4" }
 
 func (req *neighbors) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
