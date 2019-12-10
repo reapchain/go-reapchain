@@ -241,6 +241,7 @@ func (tx *Transaction) AsMessage(s Signer) (Message, error) {
 		amount:     tx.data.Amount,
 		data:       tx.data.Payload,
 		checkNonce: true,
+		governance: tx.data.Governance, // yhheo
 	}
 
 	var err error
@@ -446,9 +447,10 @@ type Message struct {
 	amount, price, gasLimit *big.Int
 	data                    []byte
 	checkNonce              bool
+	governance              bool    // yhheo
 }
 
-func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, gasLimit, price *big.Int, data []byte, checkNonce bool) Message {
+func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, gasLimit, price *big.Int, data []byte, checkNonce bool, governance bool) Message {	// yhheo
 	return Message{
 		from:       from,
 		to:         to,
@@ -458,6 +460,7 @@ func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, g
 		gasLimit:   gasLimit,
 		data:       data,
 		checkNonce: checkNonce,
+		governance: governance, // yhheo
 	}
 }
 
@@ -469,3 +472,4 @@ func (m Message) Gas() *big.Int        { return m.gasLimit }
 func (m Message) Nonce() uint64        { return m.nonce }
 func (m Message) Data() []byte         { return m.data }
 func (m Message) CheckNonce() bool     { return m.checkNonce }
+func (m Message) Governance() bool     { return m.governance }  // yhheo

@@ -76,6 +76,8 @@ type Message interface {
 	Nonce() uint64
 	CheckNonce() bool
 	Data() []byte
+
+	Governance() bool   // yhheo
 }
 
 // IntrinsicGas computes the 'intrinsic gas' for a message
@@ -220,6 +222,8 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	}
 	msg := st.msg
 	sender := st.from() // err checked in preCheck
+
+	fmt.Printf("TransitionDb : StateTransition st.msg.Governance() = %b\n", st.msg.Governance())    // yhheo
 
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
