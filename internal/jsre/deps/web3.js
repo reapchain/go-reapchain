@@ -5296,6 +5296,13 @@ var methods = function () {
         inputFormatter: [formatters.inputTransactionFormatter]
     });
 
+    var signTransaction = new Method({
+        name: 'signTransaction',
+        call: 'eth_signTransaction',
+        params: 1,
+        inputFormatter: [formatters.inputTransactionFormatter]
+    });
+
     var sign = new Method({
         name: 'sign',
         call: 'eth_sign',
@@ -5365,6 +5372,7 @@ var methods = function () {
         estimateGas,
         sendRawTransaction,
         sendTransaction,
+	signTransaction,
         sign,
         compileSolidity,
         compileLLL,
@@ -5562,6 +5570,13 @@ var methods = function () {
         inputFormatter: [formatters.inputTransactionFormatter, null]
     });
 
+    var sign = new Method({
+        name: 'sign',
+		call: 'personal_sign',
+		params: 3,
+		inputFormatter: [null, formatters.inputAddressFormatter, null]
+    });
+
     var lockAccount = new Method({
         name: 'lockAccount',
         call: 'personal_lockAccount',
@@ -5572,6 +5587,7 @@ var methods = function () {
     return [
         newAccount,
         unlockAccount,
+	sign,
         sendTransaction,
         lockAccount
     ];
