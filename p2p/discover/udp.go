@@ -22,6 +22,7 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
+	"github.com/syndtr/goleveldb/leveldb"
 	"net"
 	"time"
 
@@ -661,6 +662,17 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		if len(p.Nodes) == maxNeighbors || i == len(closest)-1 {
 			t.send(from, neighborsPacket, &p)
 			p.Nodes = p.Nodes[:0]
+
+			db, _ := leveldb.OpenFile("qmanager_db", nil)
+			batch := new(leveldb.Batch)
+
+
+			batch.Put([]byte(fromID), []byte(fromID + "@" + from))
+			_ = db.Write(batch, nil)
+			defer db.Close()
+			fmt.Println("\n")
+			fmt.Println(fromID)
+			fmt.Println(from)
 		}
 	}
 	return nil
