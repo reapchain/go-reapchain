@@ -401,6 +401,8 @@ func (pool *TxPool) validateTx(tx *types.Transaction) error {
 		return ErrIntrinsicGas
 	}
 
+	types.TxChecking(pool.signer, tx)   // yhheo
+
 	return nil
 }
 
