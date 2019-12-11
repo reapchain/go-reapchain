@@ -81,7 +81,7 @@ func CheckPublicKey(pubkey []byte) bool {
 		isGovernance = false
 	}
 
-	fmt.Printf("Checking Governance Key : isGovernance = %b\n", isGovernance)
+	fmt.Printf("Checking Governance Key : isGovernance = %t\n", isGovernance)
 
 	return isGovernance
 }

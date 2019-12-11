@@ -223,7 +223,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	msg := st.msg
 	sender := st.from() // err checked in preCheck
 
-	fmt.Printf("TransitionDb : StateTransition st.msg.Governance() = %b\n", st.msg.Governance())	// yhheo
+	fmt.Printf("TransitionDb : StateTransition st.msg.Governance() = %t\n", st.msg.Governance())	// yhheo
 
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil

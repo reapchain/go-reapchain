@@ -313,42 +313,107 @@ func (s *PrivateAccountAPI) LockAccount(addr common.Address) bool {
 	return fetchKeystore(s.am).Lock(addr) == nil
 }
 
+// yhheo - begin
+// signTransaction sets defaults and signs the given transaction
+// NOTE: the caller needs to ensure that the nonceLock is held, if applicable,
+// and release it after the transaction has been submitted to the tx pool
+func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArgs, passwd string) (*types.Transaction, error) {
+    // Look up the wallet containing the requested signer
+    account := accounts.Account{Address: args.From}
+    wallet, err := s.am.Find(account)
+    if err != nil {
+        return nil, err
+    }
+    // Set some sanity defaults and terminate on failure
+    if err := args.setDefaults(ctx, s.b); err != nil {
+        return nil, err
+    }
+    // Assemble the transaction and sign with the wallet
+    tx := args.toTransaction()
+
+    return wallet.SignTxWithPassphrase(account, passwd, tx, s.b.ChainConfig().ChainId)
+}
+
 // SendTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
 // able to decrypt the key it fails.
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-	// Look up the wallet containing the requested signer
-	account := accounts.Account{Address: args.From}
-
-	wallet, err := s.am.Find(account)
-	if err != nil {
-		return common.Hash{}, err
-	}
-
-	if args.Nonce == nil {
-		// Hold the addresse's mutex around signing to prevent concurrent assignment of
-		// the same nonce to multiple accounts.
-		s.nonceLock.LockAddr(args.From)
-		defer s.nonceLock.UnlockAddr(args.From)
-	}
-
-	// Set some sanity defaults and terminate on failure
-	if err := args.setDefaults(ctx, s.b); err != nil {
-		return common.Hash{}, err
-	}
-	// Assemble the transaction and sign with the wallet
-	tx := args.toTransaction()
-
-	var chainID *big.Int
-	if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) {
-		chainID = config.ChainId
-	}
-	signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
-	if err != nil {
-		return common.Hash{}, err
-	}
-	return submitTransaction(ctx, s.b, signed)
+    if args.Nonce == nil {
+        // Hold the addresse's mutex around signing to prevent concurrent assignment of
+        // the same nonce to multiple accounts.
+        s.nonceLock.LockAddr(args.From)
+        defer s.nonceLock.UnlockAddr(args.From)
+    }
+    signed, err := s.signTransaction(ctx, &args, passwd)
+    if err != nil {
+        log.Warn("Failed transaction send attempt", "from", args.From, "to", args.To, "value", args.Value.ToInt(), "err", err)
+        return common.Hash{}, err
+    }
+    return submitTransaction(ctx, s.b, signed)
 }
+
+//func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
+//	// Look up the wallet containing the requested signer
+//	account := accounts.Account{Address: args.From}
+//
+//	wallet, err := s.am.Find(account)
+//	if err != nil {
+//		return common.Hash{}, err
+//	}
+//
+//	if args.Nonce == nil {
+//		// Hold the addresse's mutex around signing to prevent concurrent assignment of
+//		// the same nonce to multiple accounts.
+//		s.nonceLock.LockAddr(args.From)
+//		defer s.nonceLock.UnlockAddr(args.From)
+//	}
+//
+//	// Set some sanity defaults and terminate on failure
+//	if err := args.setDefaults(ctx, s.b); err != nil {
+//		return common.Hash{}, err
+//	}
+//	// Assemble the transaction and sign with the wallet
+//	tx := args.toTransaction()
+//
+//	var chainID *big.Int
+//	if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) {
+//		chainID = config.ChainId
+//	}
+//	signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
+//	if err != nil {
+//		return common.Hash{}, err
+//	}
+//	return submitTransaction(ctx, s.b, signed)
+//}
+
+// SignTransaction will create a transaction from the given arguments and
+// tries to sign it with the key associated with args.To. If the given passwd isn't
+// able to decrypt the key it fails. The transaction is returned in RLP-form, not broadcast
+// to other nodes
+func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs, passwd string) (*SignTransactionResult, error) {
+    // No need to obtain the noncelock mutex, since we won't be sending this
+    // tx into the transaction pool, but right back to the user
+    if args.Gas == nil {
+        return nil, fmt.Errorf("gas not specified")
+    }
+    if args.GasPrice == nil {
+        return nil, fmt.Errorf("gasPrice not specified")
+    }
+    if args.Nonce == nil {
+        return nil, fmt.Errorf("nonce not specified")
+    }
+    signed, err := s.signTransaction(ctx, &args, passwd)
+    if err != nil {
+        log.Warn("Failed transaction sign attempt", "from", args.From, "to", args.To, "value", args.Value.ToInt(), "err", err)
+        return nil, err
+    }
+    data, err := rlp.EncodeToBytes(signed)
+    if err != nil {
+        return nil, err
+    }
+    return &SignTransactionResult{data, signed}, nil
+}
+// yhheo - end
 
 // signHash is a helper function that calculates a hash for the given message that can be
 // safely used to calculate a signature from.
