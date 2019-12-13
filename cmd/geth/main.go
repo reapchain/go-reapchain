@@ -112,6 +112,7 @@ var (
 		utils.GpoBlocksFlag,
 		utils.GpoPercentileFlag,
 		utils.ExtraDataFlag,
+		utils.GovernanceFlag, // yhheo - Governance setting
 		configFileFlag,
 		utils.IstanbulRequestTimeoutFlag,
 		utils.IstanbulBlockPeriodFlag,
@@ -120,7 +121,6 @@ var (
 		utils.PoDCRequestTimeoutFlag,
 		utils.PoDCBlockPeriodFlag,
 		utils.PoDCBlockPauseTimeFlag,
-		//
 	}
 
 	rpcFlags = []cli.Flag{

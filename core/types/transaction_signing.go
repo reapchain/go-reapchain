@@ -93,16 +93,23 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 		return common.Address{}, err
 	}
 
-	// yhheo - begin
-	isGovernance := gvn.CheckPublicKey(pubkey)
-	fmt.Printf("Checking Governance Key : isGovernance = %b\n", isGovernance)
-	// yhheo - end
-
 	var addr common.Address
 	copy(addr[:], crypto.Keccak256(pubkey[1:])[12:])
 	tx.from.Store(sigCache{signer: signer, from: addr})
 	return addr, nil
 }
+
+// yhheo - begin
+// TxChecking
+func TxChecking(signer Signer, tx *Transaction) {
+
+    pubkey, err := signer.PublicKey(tx)
+    if err == nil {
+        tx.data.Governance = gvn.CheckPublicKey(pubkey)
+        fmt.Printf("Checking Governance Key : tx.data.Governance = %b\n", tx.data.Governance)
+    }
+}
+// yhheo - end
 
 type Signer interface {
 	// Hash returns the rlp encoded hash for signatures

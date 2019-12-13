@@ -494,6 +494,12 @@ web3._extend({
 			params: 2
 		}),
 		new web3._extend.Method({
+			name: 'signTransaction',
+			call: 'personal_signTransaction',
+			params: 2,
+			inputFormatter: [web3._extend.formatters.inputTransactionFormatter, null]
+		}),
+		new web3._extend.Method({
 			name: 'deriveAccount',
 			call: 'personal_deriveAccount',
 			params: 3

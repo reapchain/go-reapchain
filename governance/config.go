@@ -40,6 +40,8 @@ type GovernanceConfig struct {
 	Name string
 
 	DataDir string
+
+	Governance bool
 }
 
 //var gc = &GovernanceConfig {
@@ -51,24 +53,37 @@ func GetFileName() string {
 	return gc.Name
 }
 
-func LoadKey(DataDir string) {
+func LoadKey(DataDir string, flag bool) {
 
-	gc.DataDir = DataDir
+	if DataDir != "" && flag == true {
+		gc.Governance = flag
+		gc.DataDir = DataDir
 
-	governanceKey(gc)
+		governanceKey(gc)
 
-	log.Info("Initialised governance configuration", "gconfig", gc)
+		log.Info("Initialised governance configuration", "gconfig", gc)
+	}
 }
 
 func CheckPublicKey(pubkey []byte) bool {
 
-	pkHash := common.BytesToHash(pubkey)
-	//fmt.Printf("Public key in Tx : pubkey [%x]\n", pubkey)
-	//fmt.Printf("Public key in Tx : pkHash [%x]\n", pkHash)
+	var isGovernance bool
 
-    governanceKey(gc)
+	if gc.Governance {
+		pkHash := common.BytesToHash(pubkey)
+		fmt.Printf("Public key in Tx : pubkey [%x]\n", pubkey)
+		fmt.Printf("Public key in Tx : pkHash [%x]\n", pkHash)
 
-	return bytes.Equal(gc.PublicKey, []byte(pkHash[:]))
+		governanceKey(gc)
+
+		isGovernance = bytes.Equal(gc.PublicKey, []byte(pkHash[:]))
+	} else {
+		isGovernance = false
+	}
+
+	fmt.Printf("Checking Governance Key : isGovernance = %t\n", isGovernance)
+
+	return isGovernance
 }
 
 func governanceKey(gc *GovernanceConfig) []byte {

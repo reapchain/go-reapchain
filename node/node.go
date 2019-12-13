@@ -167,7 +167,7 @@ func (n *Node) Start() error {
 	if n.serverConfig.NodeDatabase == "" {
 		n.serverConfig.NodeDatabase = n.config.NodeDB()
 	}
-	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName())) // yhheo
+	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
 
 	running := &p2p.Server{Config: n.serverConfig}
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)

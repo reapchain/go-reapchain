@@ -76,6 +76,8 @@ type Message interface {
 	Nonce() uint64
 	CheckNonce() bool
 	Data() []byte
+
+	Governance() bool 	// yhheo
 }
 
 // IntrinsicGas computes the 'intrinsic gas' for a message
@@ -87,10 +89,11 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) *big.Int {
 	if contractCreation && homestead {
 		igas.SetUint64(params.TxGasContractCreation)
 	} else {
-		igas.SetUint64(params.TxGas)
+		//igas.SetUint64(params.TxGas)
+		igas.SetUint64(0) // KBW
 	}
 
-	log.Info("IntrinsicGas","gas1", igas, "data length", len(data))
+	log.Info("IntrinsicGas","gas1", igas, "data length", len(data)) // KBW
 
 	if len(data) > 0 {
 		var nz int64
@@ -162,7 +165,7 @@ func (st *StateTransition) to() vm.AccountRef {
 }
 
 func (st *StateTransition) useGas(amount uint64) error {
-	log.Info("TransitionDb","st.gas", st.gas,"amount", amount)
+	log.Info("TransitionDb","st.gas", st.gas,"amount", amount) // KBW
 
 	if st.gas < amount {
 		return vm.ErrOutOfGas
@@ -220,6 +223,8 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	msg := st.msg
 	sender := st.from() // err checked in preCheck
 
+	fmt.Printf("TransitionDb : StateTransition st.msg.Governance() = %t\n", st.msg.Governance())	// yhheo
+
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
 
@@ -227,7 +232,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	// TODO convert to uint64
 	intrinsicGas := IntrinsicGas(st.data, contractCreation, homestead)
 
-	log.Info("TransitionDb","intrinsicGas", intrinsicGas)
+	log.Info("TransitionDb","intrinsicGas", intrinsicGas) // KBW
 
 	if intrinsicGas.BitLen() > 64 {
 		return nil, nil, nil, vm.ErrOutOfGas
@@ -242,19 +247,19 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 		// not assigned to err, except for insufficient balance
 		// error.
 		vmerr error
-		fee *big.Int
-		org_value *big.Int
+		fee *big.Int // KBW
+		org_value *big.Int // KBW
 	)
 	if contractCreation {
 		ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
 
-		log.Info("TransitionDb","TransitionDb 1", "contractCreation","st.gas", st.gas)
+		log.Info("TransitionDb","TransitionDb 1", "contractCreation","st.gas", st.gas) // KBW
 	} else {
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(sender.Address(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to().Address(), st.data, st.gas, st.value)
 
-		log.Info("TransitionDb","TransitionDb 1", "Increment the nonce","st.gas", st.gas)
+		log.Info("TransitionDb","TransitionDb 1", "Increment the nonce","st.gas", st.gas) // KBW
 	}
 	if vmerr != nil {
 		log.Debug("VM returned with error", "err", vmerr)
@@ -268,16 +273,34 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	requiredGas = new(big.Int).Set(st.gasUsed())
 
 	//fee = 0.01 Reap(10^18) + 0.01 Reap(10^18) * st.gasUsed()
-	var reap_value = new(big.Int)
-	reap_value.SetString("20000000000000000",10)
-	fee = new(big.Int).Add(reap_value, new(big.Int).Mul(st.gasUsed(), reap_value))
-	org_value = new(big.Int).Mul(st.gasUsed(), st.gasPrice)
+	var reap_value = new(big.Int) // KBW
+	reap_value.SetString("20000000000000000",10) // KBW
 
-	log.Info("TransitionDb","Gas Used", st.gasUsed(), "Reap Fee Value", fee, "Ether Value", org_value, "Gas Price", st.gasPrice)
+	var zero_value = new(big.Int) // KBW
+	zero_value.SetString("0",10) // KBW
+
+	log.Info("TransitionDb Compare","zero value", zero_value,"used value", st.gasUsed()) // KBW
+
+	if !contractCreation && st.gasUsed().String() == zero_value.String() {
+		log.Info("TransitionDb","Caculate", "Fee 1") // KBW
+
+		fee = new(big.Int) // KBW
+		fee.SetString("0",10) // KBW
+	} else {
+		log.Info("TransitionDb","Caculate", "Fee 2") // KBW
+
+		fee = new(big.Int).Add(reap_value, new(big.Int).Mul(st.gasUsed(), reap_value)) // KBW
+	}
+
+	log.Info("TransitionDb","Caculate", "Fee Complte") // KBW
+
+	org_value = new(big.Int).Mul(st.gasUsed(), st.gasPrice) // KBW
+
+	log.Info("TransitionDb","Gas Used", st.gasUsed(), "Reap Fee Value", fee, "Ether Value", org_value, "Gas Price", st.gasPrice) // KBW
 
 	st.refundGas()
 	//st.state.AddBalance(st.evm.Coinbase, new(big.Int).Mul(st.gasUsed(), st.gasPrice))
-	st.state.AddBalance(st.evm.Coinbase, fee)
+	st.state.AddBalance(st.evm.Coinbase, fee) // KBW
 	//st.state.SubBalance(st.evm.Coinbase, fee)
 
 	return ret, requiredGas, st.gasUsed(), err
@@ -295,15 +318,15 @@ func (st *StateTransition) refundGas() {
 	refund := math.BigMin(uhalf, st.state.GetRefund())
 	st.gas += refund.Uint64()
 
-	var reap_value = new(big.Int)
-	reap_value.SetString("20000000000000000",10)
-	var fee = new(big.Int).Add(reap_value, new(big.Int).Mul(refund, reap_value))
-	var org_value = new(big.Int).Mul(st.gasUsed(), st.gasPrice)
+	var reap_value = new(big.Int) // KBW
+	reap_value.SetString("20000000000000000",10) // KBW
+	var fee = new(big.Int).Add(reap_value, new(big.Int).Mul(refund, reap_value)) // KBW
+	var org_value = new(big.Int).Mul(st.gasUsed(), st.gasPrice) // KBW
 
-	log.Info("refundGas","Gas Refund", refund, "Fee Value", fee, "Ether Value", org_value, "Gas Price", st.gasPrice)
+	log.Info("refundGas","Gas Refund", refund, "Fee Value", fee, "Ether Value", org_value, "Gas Price", st.gasPrice) // KBW
 
 	//st.state.AddBalance(sender.Address(), refund.Mul(refund, st.gasPrice))
-	st.state.AddBalance(sender.Address(), fee)
+	st.state.AddBalance(sender.Address(), fee) // KBW
 	//st.state.SubBalance(sender.Address(), fee)
 
 	//fee = 0.01 Reap(10^18) + 0.01 Reap(10^18) * cost
