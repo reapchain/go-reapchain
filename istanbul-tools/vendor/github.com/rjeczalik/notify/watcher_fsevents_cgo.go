@@ -6,6 +6,7 @@
 
 package notify
 
+
 /*
 #include <CoreServices/CoreServices.h>
 
@@ -15,14 +16,12 @@ void gosource(void *);
 void gostream(uintptr_t, uintptr_t, size_t, uintptr_t, uintptr_t, uintptr_t);
 
 static FSEventStreamRef EventStreamCreate(FSEventStreamContext * context, uintptr_t info, CFArrayRef paths, FSEventStreamEventId since, CFTimeInterval latency, FSEventStreamCreateFlags flags) {
-	context->info = (void*) info;
-	return FSEventStreamCreate(NULL, (FSEventStreamCallback) gostream, context, paths, since, latency, flags);
+context->info = (void*) info;
+return FSEventStreamCreate(NULL, (FSEventStreamCallback) gostream, context, paths, since, latency, flags);
 }
-
 #cgo LDFLAGS: -framework CoreServices
 */
 import "C"
-
 import (
 	"errors"
 	"os"
@@ -48,9 +47,17 @@ var wg sync.WaitGroup      // used to wait until the runloop starts
 // started and is ready via the wg. It also serves purpose of a dummy source,
 // thanks to it the runloop does not return as it also has at least one source
 // registered.
+/* yichoi bug fix for building :" cannot use nil as type _Ctype_CFAllocatorRef in assignment"
 var source = C.CFRunLoopSourceCreate(nil, 0, &C.CFRunLoopSourceContext{
 	perform: (C.CFRunLoopPerformCallBack)(C.gosource),
+}) */
+
+// added by yichoi - begin
+var source = C.CFRunLoopSourceCreate(C.kCFAllocatorDefault, 0, &C.CFRunLoopSourceContext{
+	perform: (C.CFRunLoopPerformCallBack)(C.gosource),
 })
+// end
+
 
 // Errors returned when FSEvents functions fail.
 var (
@@ -159,8 +166,19 @@ func (s *stream) Start() error {
 		return nil
 	}
 	wg.Wait()
+	/* yichoi bug fix for building :
+
 	p := C.CFStringCreateWithCStringNoCopy(nil, C.CString(s.path), C.kCFStringEncodingUTF8, nil)
+	*/
+	p := C.CFStringCreateWithCStringNoCopy(C.kCFAllocatorDefault, C.CString(s.path), C.kCFStringEncodingUTF8, C.kCFAllocatorDefault)  // added by yichoi
+
+
+	/* yichoi modified for build bug :
 	path := C.CFArrayCreate(nil, (*unsafe.Pointer)(unsafe.Pointer(&p)), 1, nil)
+	*/
+	path := C.CFArrayCreate(C.kCFAllocatorDefault, (*unsafe.Pointer)(unsafe.Pointer(&p)), 1, nil) //added by yichoi for building bug
+
+
 	ctx := C.FSEventStreamContext{}
 	ref := C.EventStreamCreate(&ctx, C.uintptr_t(s.info), path, C.FSEventStreamEventId(atomic.LoadUint64(&since)), latency, flags)
 	if ref == nilstream {
