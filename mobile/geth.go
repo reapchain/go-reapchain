@@ -123,7 +123,7 @@ func NewNode(datadir string, config *NodeConfig) (stack *Node, _ error) {
 			DiscoveryV5Addr:  ":0",
 			BootstrapNodesV5: config.BootstrapNodes.nodes,
 			ListenAddr:       ":0",
-			ListenLocalAddr:  ":0", //yichoi
+		//	ListenLocalAddr:  ":0", //yichoi
 			NAT:              nat.Any(),
 			MaxPeers:         config.MaxPeers,
 		},
