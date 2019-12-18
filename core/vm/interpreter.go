@@ -144,7 +144,7 @@ func (in *Interpreter) Run(snapshot int, contract *Contract, input []byte) (ret 
 		// Get the memory location of pc
 		op = contract.GetOp(pc)
 
-		log.Info("Interpreter atomic.LoadInt32", "OP Code", int(op))
+		//log.Info("Interpreter atomic.LoadInt32", "OP Code", int(op))
 
 		// get the operation from the jump table matching the opcode
 		operation := in.cfg.JumpTable[op]
@@ -191,7 +191,7 @@ func (in *Interpreter) Run(snapshot int, contract *Contract, input []byte) (ret 
 			mem.Resize(memorySize)
 		}
 
-		log.Info("Interpreter Run","Cost Value", cost, "Memory Size", memorySize, "OP Code", int(op))
+		//log.Info("Interpreter Run","Cost Value", cost, "Memory Size", memorySize, "OP Code", int(op))
 
 		if in.cfg.Debug {
 			in.cfg.Tracer.CaptureState(in.evm, pc, op, contract.Gas, cost, mem, stack, contract, in.evm.depth, err)

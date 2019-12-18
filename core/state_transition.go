@@ -89,11 +89,14 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) *big.Int {
 	if contractCreation && homestead {
 		igas.SetUint64(params.TxGasContractCreation)
 	} else {
-		//igas.SetUint64(params.TxGas)
-		igas.SetUint64(0) // KBW
+		if len(data) > 0 { 
+		    igas.SetUint64(params.TxGas) // KBW
+		} else {
+		    igas.SetUint64(0) // KBW
+		}
 	}
 
-	log.Info("IntrinsicGas","gas1", igas, "data length", len(data)) // KBW
+	//log.Info("IntrinsicGas","gas1", igas, "data length", len(data)) // KBW
 
 	if len(data) > 0 {
 		var nz int64
@@ -165,7 +168,7 @@ func (st *StateTransition) to() vm.AccountRef {
 }
 
 func (st *StateTransition) useGas(amount uint64) error {
-	log.Info("TransitionDb","st.gas", st.gas,"amount", amount) // KBW
+	//log.Info("TransitionDb","st.gas", st.gas,"amount", amount) // KBW
 
 	if st.gas < amount {
 		return vm.ErrOutOfGas
@@ -177,11 +180,16 @@ func (st *StateTransition) useGas(amount uint64) error {
 
 func (st *StateTransition) buyGas() error {
 	mgas := st.msg.Gas()
+
+	//log.Info("buyGas","mgas", mgas, "gasPrice", st.gasPrice) // KBW
+
 	if mgas.BitLen() > 64 {
 		return vm.ErrOutOfGas
 	}
 
 	mgval := new(big.Int).Mul(mgas, st.gasPrice)
+
+	//log.Info("buyGas","mgval", mgval) // KBW
 
 	var (
 		state  = st.state
@@ -217,9 +225,13 @@ func (st *StateTransition) preCheck() error {
 // including the required gas for the operation as well as the used gas. It returns an error if it
 // failed. An error indicates a consensus issue.
 func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big.Int, err error) {
+	// KBW	
+	/*	
 	if err = st.preCheck(); err != nil {
 		return
 	}
+	*/
+
 	msg := st.msg
 	sender := st.from() // err checked in preCheck
 
@@ -228,11 +240,26 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
 
+	//log.Info("TransitionDb","contractCreation", contractCreation, "homestead", homestead) // KBW
+
+	// KBW
+	if contractCreation || len(st.data) > 0 {
+		if err = st.preCheck(); err != nil {
+			return
+		}
+	}
+
+	//log.Info("TransitionDb","Send Address", sender) // KBW
+
+	if msg.To() != nil {
+		log.Info("TransitionDb","To Address", msg.To()) // KBW
+	}
+
 	// Pay intrinsic gas
 	// TODO convert to uint64
 	intrinsicGas := IntrinsicGas(st.data, contractCreation, homestead)
 
-	log.Info("TransitionDb","intrinsicGas", intrinsicGas) // KBW
+	//log.Info("TransitionDb","intrinsicGas", intrinsicGas) // KBW
 
 	if intrinsicGas.BitLen() > 64 {
 		return nil, nil, nil, vm.ErrOutOfGas
@@ -253,13 +280,13 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	if contractCreation {
 		ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
 
-		log.Info("TransitionDb","TransitionDb 1", "contractCreation","st.gas", st.gas) // KBW
+		//log.Info("TransitionDb","TransitionDb 1", "contractCreation","st.gas", st.gas) // KBW
 	} else {
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(sender.Address(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to().Address(), st.data, st.gas, st.value)
 
-		log.Info("TransitionDb","TransitionDb 1", "Increment the nonce","st.gas", st.gas) // KBW
+		//log.Info("TransitionDb","TransitionDb 1", "Increment the nonce","st.gas", st.gas) // KBW
 	}
 	if vmerr != nil {
 		log.Debug("VM returned with error", "err", vmerr)
@@ -272,27 +299,30 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	}
 	requiredGas = new(big.Int).Set(st.gasUsed())
 
-	//fee = 0.01 Reap(10^18) + 0.01 Reap(10^18) * st.gasUsed()
-	var reap_value = new(big.Int) // KBW
-	reap_value.SetString("20000000000000000",10) // KBW
+	//fee = 0.02 Reap(10^18) + 0.003 Reap(10^17) * st.gasUsed()
+	var reap_plus_value = new(big.Int) // KBW
+	reap_plus_value.SetString("20000000000000000",10) // KBW
+
+	var reap_opcode_value = new(big.Int) // KBW
+	reap_opcode_value.SetString("3000000000000000",10) // KBW
 
 	var zero_value = new(big.Int) // KBW
 	zero_value.SetString("0",10) // KBW
 
-	log.Info("TransitionDb Compare","zero value", zero_value,"used value", st.gasUsed()) // KBW
+	//log.Info("TransitionDb Compare","zero value", zero_value,"used value", st.gasUsed()) // KBW
 
 	if !contractCreation && st.gasUsed().String() == zero_value.String() {
-		log.Info("TransitionDb","Caculate", "Fee 1") // KBW
+		//log.Info("TransitionDb","Caculate", "Fee 1") // KBW
 
 		fee = new(big.Int) // KBW
 		fee.SetString("0",10) // KBW
 	} else {
-		log.Info("TransitionDb","Caculate", "Fee 2") // KBW
+		//log.Info("TransitionDb","Caculate", "Fee 2") // KBW
 
-		fee = new(big.Int).Add(reap_value, new(big.Int).Mul(st.gasUsed(), reap_value)) // KBW
+		fee = new(big.Int).Add(reap_plus_value, new(big.Int).Mul(st.gasUsed(), reap_opcode_value)) // KBW
 	}
 
-	log.Info("TransitionDb","Caculate", "Fee Complte") // KBW
+	//log.Info("TransitionDb","Caculate", "Fee Complte") // KBW
 
 	org_value = new(big.Int).Mul(st.gasUsed(), st.gasPrice) // KBW
 
@@ -318,9 +348,13 @@ func (st *StateTransition) refundGas() {
 	refund := math.BigMin(uhalf, st.state.GetRefund())
 	st.gas += refund.Uint64()
 
-	var reap_value = new(big.Int) // KBW
-	reap_value.SetString("20000000000000000",10) // KBW
-	var fee = new(big.Int).Add(reap_value, new(big.Int).Mul(refund, reap_value)) // KBW
+	var reap_plus_value = new(big.Int) // KBW
+	reap_plus_value.SetString("20000000000000000",10) // KBW
+
+	var reap_opcode_value = new(big.Int) // KBW
+	reap_opcode_value.SetString("3000000000000000",10) // KBW
+
+	var fee = new(big.Int).Add(reap_plus_value, new(big.Int).Mul(refund, reap_opcode_value)) // KBW
 	var org_value = new(big.Int).Mul(st.gasUsed(), st.gasPrice) // KBW
 
 	log.Info("refundGas","Gas Refund", refund, "Fee Value", fee, "Ether Value", org_value, "Gas Price", st.gasPrice) // KBW
@@ -329,7 +363,7 @@ func (st *StateTransition) refundGas() {
 	st.state.AddBalance(sender.Address(), fee) // KBW
 	//st.state.SubBalance(sender.Address(), fee)
 
-	//fee = 0.01 Reap(10^18) + 0.01 Reap(10^18) * cost
+	//fee = 0.02 Reap(10^18) + 0.003 Reap(10^17) * cost
 
 	// Also return remaining gas to the block gas counter so it is
 	// available for the next transaction.
