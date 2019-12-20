@@ -161,6 +161,10 @@ func (n *Node) Start() error {
 	if n.serverConfig.StaticNodes == nil {
 		n.serverConfig.StaticNodes = n.config.StaticNodes()
 	}
+	if n.serverConfig.QmanagerNodes == nil {
+		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
+		fmt.Printf("Qmanager=%v\n",n.serverConfig.QmanagerNodes )
+	}
 	if n.serverConfig.TrustedNodes == nil {
 		n.serverConfig.TrustedNodes = n.config.TrusterNodes()
 	}
@@ -169,7 +173,10 @@ func (n *Node) Start() error {
 	}
 	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
 
-	running := &p2p.Server{Config: n.serverConfig}
+	//memory 연산자로 Server 구조체에 포인터 연결 시킴
+	//serverConfig p2p.Config
+	running := &p2p.Server{Config: n.serverConfig}  //p2p 서버 시작전에  Qmanager node 설정
+
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)
 
 	// Otherwise copy and specialize the P2P configuration
