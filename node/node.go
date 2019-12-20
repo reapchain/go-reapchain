@@ -174,14 +174,6 @@ func (n *Node) Start() error {
 	//memory 연산자로 Server 구조체에 포인터 연결 시킴
 	//serverConfig p2p.Config
 	running := &p2p.Server{Config: n.serverConfig}  //p2p 서버 시작전에  Qmanager node 설정
-
-<<<<<<< HEAD
-=======
-	//memory 연산자로 Server 구조체에 포인터 연결 시킴
-	//serverConfig p2p.Config
-	running := &p2p.Server{Config: n.serverConfig}  //p2p 서버 시작전에  Qmanager node 설정
-
->>>>>>> f704352a79ad2f215a25b8a66c024ee07c2dd804
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)
 
 	// Otherwise copy and specialize the P2P configuration
