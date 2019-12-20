@@ -53,7 +53,7 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/nat"
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/ethereum/go-ethereum/params"
-	whisper "github.com/ethereum/go-ethereum/whisper/whisperv5"
+	//whisper "github.com/ethereum/go-ethereum/whisper/whisperv5"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -1141,10 +1141,11 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 }
 
 // RegisterShhService configures Whisper and adds it to the given node.
+// Don't use this time for whisper.New(), because to see simply in debuging
 func RegisterShhService(stack *node.Node) {
-	if err := stack.Register(func(*node.ServiceContext) (node.Service, error) { return whisper.New(), nil }); err != nil {
-		Fatalf("Failed to register the Whisper service: %v", err)
-	}
+	//if err := stack.Register(func(*node.ServiceContext) (node.Service, error) { return whisper.New(), nil }); err != nil {
+	//	Fatalf("Failed to register the Whisper service: %v", err)
+	//}
 }
 
 // RegisterEthStatsService configures the Ethereum Stats daemon and adds it to
