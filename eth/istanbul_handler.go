@@ -137,6 +137,9 @@ func (pm *istanbulProtocolManager) eventLoop() {
 		switch ev := obj.Data.(type) {
 		case istanbul.ConsensusDataEvent:
 			pm.sendEvent(ev)
+		/*case istanbul.QmanDataEvent:
+			pm.sendEvent(ev) */
+
 		case core.ChainHeadEvent:
 			pm.newHead(ev)
 		}

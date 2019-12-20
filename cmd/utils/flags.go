@@ -863,7 +863,7 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	setListenAddress(ctx, cfg)
 	setDiscoveryV5Address(ctx, cfg)
 	setBootstrapNodes(ctx, cfg)
-	setBootstrapNodesV5(ctx, cfg)
+//	setBootstrapNodesV5(ctx, cfg)  //discovery 5 임시로 disable 시킴.. 디버깅시 다른 노드를 가져와서 복잡해서,
 
 	if ctx.GlobalIsSet(MaxPeersFlag.Name) {
 		cfg.MaxPeers = ctx.GlobalInt(MaxPeersFlag.Name)

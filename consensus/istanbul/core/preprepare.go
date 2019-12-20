@@ -109,13 +109,13 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 			Signature     []byte
 			CommittedSeal []byte
 		} */
-		c.send(&message{
+		/* c.send(&message{
 			Code: msgRequestQman,
 			Msg: preprepare,
 			Address:  account_addr,
 			//Signature: 1,
 			//CommittedSeal: 1,
-		}, account_addr )
+		}, account_addr )  */
 
 		c.broadcast(&message{
 			Code: msgPreprepare,
