@@ -119,7 +119,7 @@ func NewNode(datadir string, config *NodeConfig) (stack *Node, _ error) {
 		KeyStoreDir: filepath.Join(datadir, "keystore"), // Mobile should never use internal keystores!
 		P2P: p2p.Config{
 			NoDiscovery:      true,
-			DiscoveryV5:      true,
+			DiscoveryV5:      false,  /* disabled by yichoi for simple development tempororaly */
 			DiscoveryV5Addr:  ":0",
 			BootstrapNodesV5: config.BootstrapNodes.nodes,
 			ListenAddr:       ":0",
@@ -135,7 +135,7 @@ func NewNode(datadir string, config *NodeConfig) (stack *Node, _ error) {
 
 	var genesis *core.Genesis
 	if config.EthereumGenesis != "" {
-		// Parse the user supplied genesis spec if not mainnet
+		// Parse the user supplied genesis spec if not mainnet  //genesis.json reading
 		genesis = new(core.Genesis)
 		if err := json.Unmarshal([]byte(config.EthereumGenesis), genesis); err != nil {
 			return nil, fmt.Errorf("invalid genesis spec: %v", err)

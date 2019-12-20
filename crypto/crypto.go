@@ -111,6 +111,7 @@ func FromECDSA(priv *ecdsa.PrivateKey) []byte {
 
 func ToECDSAPub(pub []byte) *ecdsa.PublicKey {
 	if len(pub) == 0 {
+	   fmt.Printf("pub : size( %d ) = %x",  len(pub) , pub )
 		return nil
 	}
 	x, y := elliptic.Unmarshal(S256(), pub)
@@ -180,7 +181,21 @@ func ValidateSignatureValues(v byte, r, s *big.Int, homestead bool) bool {
 
 func PubkeyToAddress(p ecdsa.PublicKey) common.Address {
 	pubBytes := FromECDSAPub(&p)
+	fmt.Printf("pubBytes = %x", pubBytes )
 	return common.BytesToAddress(Keccak256(pubBytes[1:])[12:])
+}
+func PublicKeyBytesToAddress(publicKey []byte) common.Address {
+	fmt.Printf("PublicKeyBytesToAddress: publicKey = %x", publicKey )
+	var buf []byte
+
+	hash := sha3.NewKeccak256()
+	hash.Write(publicKey[0:]) // prefix 04 not remove   [1:]  -> [0:] 바꿈.. 버그 수정.
+	                          // publicKey를 가져올때, 04를 안붙이고, enode address를 64바이트 가져옴.
+	buf = hash.Sum(nil)
+	fmt.Printf("PublicKeyBytesToAddress: buf[12:] = %x", buf[12:] )
+	address := buf[12:]
+
+	return common.HexToAddress(hex.EncodeToString(address))
 }
 
 func zeroBytes(bytes []byte) {

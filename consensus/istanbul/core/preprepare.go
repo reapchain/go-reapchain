@@ -19,7 +19,6 @@ package core
 import (
 	"time"
 
-	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 )
 
@@ -96,11 +95,11 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 			logger.Error("Failed to encode", "view", curView)
 			return
 		}
-		var account_addr common.Address  //ethereum account : 20 byte
+		//var account_addr common.Address  //ethereum account : 20 byte
 		//var payload []byte
 		//payload = ""
 		//qman_enode = "e81bd88b5c3a9a7eebb454eb3fab0988d2134ef2fa3066b5b40f8719a44cce52c032b1dc698e28571cf4df95fc6ea386d6eb10ab6c26e91e315334e11175563e@192.168.0.100:30301"
-		copy(account_addr[:],"2259172c57bde543b819d21805ad6c3d06e89d18")
+	//	copy(account_addr[:],"2259172c57bde543b819d21805ad6c3d06e89d18")
 
 		/*type message struct {
 			Code          uint64

@@ -114,6 +114,7 @@ type Config struct {
 
 	// Istanbul options
 	Istanbul istanbul.Config
+	Qmanager common.Address //added by choi for test
 
 	// Miscellaneous options
 	DocRoot   string `toml:"-"`

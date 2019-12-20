@@ -41,6 +41,7 @@ const (
 	istanbulProtocolLength = 18
 
 	IstanbulMsg = 0x11
+	QmanMsg = 0x12 // added by yichoi for qman data exchange
 )
 
 type istanbulProtocolManager struct {
@@ -94,13 +95,18 @@ func newIstanbulProtocolManager(config *params.ChainConfig, mode downloader.Sync
 
 	return manager, nil
 }
-
-func (pm *istanbulProtocolManager) Start() {
+// 비로소 이스탄불 프로토콜 매니저가 시작되는 부분 중요
+func (pm *istanbulProtocolManager) Start(qman []*discover.Node) {
 	// Subscribe required events
-	pm.eventSub = pm.eventMux.Subscribe(istanbul.ConsensusDataEvent{}, core.ChainHeadEvent{})
-	go pm.eventLoop()
-	pm.protocolManager.Start()
-	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)  //엔진 시작 : 이스탄불
+	pm.eventSub = pm.eventMux.Subscribe(istanbul.ConsensusDataEvent{}, core.ChainHeadEvent{})  //이벤트 구독 등록
+	//Qmanager로부터 오는 이벤트도 등록해야하나?
+	//이스탄불데이터이벤트에 일단은 포함시킨다. Qmanager와 데이터교환을 ConsensusDataEvent에 부분으로 등록한다.
+
+	//Qmanager list에서 하나의 address만 뽑는다.
+
+	go pm.eventLoop()  //고루틴으로 동시성 처리
+	pm.protocolManager.Start(qman)
+	pm.engine.Start(pm.protocolManager.blockchain, qman, pm.commitBlock ,  )  //엔진 시작 : 이스탄불
 }
 
 func (pm *istanbulProtocolManager) Stop() {
@@ -133,13 +139,14 @@ func (pm *istanbulProtocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 
 // event loop for Istanbul
 func (pm *istanbulProtocolManager) eventLoop() {
-	for obj := range pm.eventSub.Chan() {
+	for obj := range pm.eventSub.Chan() {  //채널의 이벤트를 받음.
 		switch ev := obj.Data.(type) {
 		case istanbul.ConsensusDataEvent:
 			pm.sendEvent(ev)
-		/*case istanbul.QmanDataEvent:
-			pm.sendEvent(ev) */
-
+		//yichoi -Qman data event
+		//case istanbul.QmanDataEvent:
+		//	pm.sendEvent(ev)
+        //end
 		case core.ChainHeadEvent:
 			pm.newHead(ev)
 		}

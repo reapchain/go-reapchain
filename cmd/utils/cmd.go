@@ -60,7 +60,7 @@ func Fatalf(format string, args ...interface{}) {
 
 func StartNode(stack *node.Node) {
 
-	if err := stack.Start(); err != nil {
+	if err := stack.Start(); err != nil {  // Qmanager Enode 값을 읽어와서 노드 객체에 연결시킴.
 		// Temp disable :
 		fmt.Printf("Error starting protocol stack: %v", err)  //not port no when run private : geth --localIP 1
 	}

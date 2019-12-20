@@ -206,7 +206,7 @@ func geth(ctx *cli.Context) error {
 	node := makeFullNode(ctx)
 	// port no add
 
-	startNode(ctx, node)
+	startNode(ctx, node)  //바로 갈거
 	node.Wait() // 리턴되기 전까지는 블럭상태,,
 	// Wait blocks the thread until the node is stopped. If the node is not running
 	// at the time of invocation, the method immediately returns.

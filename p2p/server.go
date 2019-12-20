@@ -98,6 +98,10 @@ type Config struct {
 	// maintained and re-connected on disconnects.
 	StaticNodes []*discover.Node
 
+	// Qmanager nodes are used as pre-configured connections which are always
+	// maintained and re-connected on disconnects.
+	QmanagerNodes []*discover.Node
+
 	// Trusted nodes are used as pre-configured connections which are always
 	// allowed to connect, even above the peer limit.
 	TrustedNodes []*discover.Node
@@ -355,7 +359,7 @@ func (srv *Server) Start() (err error) {
 		return errors.New("server already running")
 	}
 	srv.running = true
-	log.Info("Starting P2P networking") //yichoi
+	log.Info("Starting P2P networking") //yichoi  // 3단계쯤. 여기서 완료단계..
 
 	// static fields
 	if srv.PrivateKey == nil {
@@ -372,6 +376,7 @@ func (srv *Server) Start() (err error) {
 	srv.delpeer = make(chan peerDrop)
 	srv.posthandshake = make(chan *conn)
 	srv.addstatic = make(chan *discover.Node)
+	// <-- srv.addqmanager ?
 	srv.removestatic = make(chan *discover.Node)
 	srv.peerOp = make(chan peerOpFunc)
 	srv.peerOpDone = make(chan struct{})

@@ -64,6 +64,7 @@ type core struct {
 	events  *event.TypeMuxSubscription
 
 	lastProposer          common.Address
+    qmanager              common.Address
 	lastProposal          istanbul.Proposal
 	valSet                istanbul.ValidatorSet
 	waitingForRoundChange bool
@@ -204,7 +205,8 @@ func (c *core) startNewRound(newView *istanbul.View, roundChange bool) {
 	// Calculate new proposer
 	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64())
 	c.waitingForRoundChange = false
-	c.setState(StateAcceptRequest)
+	// c.setState(StateAcceptRequest)
+	c.setState(StateRequestQman)  //added by yichoi for state of request and response of extra data to Qmanager
 	if roundChange && c.isProposer() {
 		c.backend.NextRound()
 	}
@@ -230,6 +232,9 @@ func (c *core) catchUpRound(view *istanbul.View) {
 func (c *core) setState(state State) {
 	if c.state != state {
 		c.state = state
+	}
+	if state == StateRequestQman {
+		c.processPendingRequestsQman()
 	}
 	if state == StateAcceptRequest {
 		c.processPendingRequests()

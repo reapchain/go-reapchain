@@ -615,7 +615,10 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 			continue
 		}
 		cfg.BootstrapNodes = append(cfg.BootstrapNodes, node)
+
 	}
+	log.Info("cfg.BootstrapNodes:","BootstarpNodes", cfg.BootstrapNodes )
+	log.Info("urls:","urls=", urls )
 }
 
 // setBootstrapNodesV5 creates a list of bootstrap nodes from the command line
@@ -861,7 +864,7 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	setNodeKey(ctx, cfg)
 	setNAT(ctx, cfg)
 	setListenAddress(ctx, cfg)
-	setDiscoveryV5Address(ctx, cfg)
+	//temp disable by yichoi : setDiscoveryV5Address(ctx, cfg)
 	setBootstrapNodes(ctx, cfg)
 //	setBootstrapNodesV5(ctx, cfg)  //discovery 5 임시로 disable 시킴.. 디버깅시 다른 노드를 가져와서 복잡해서,
 
@@ -915,9 +918,8 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 		cfg.P2P.ListenAddr = ctx.GlobalString(ListenLocalIPFlag.Name)
         log.Info("SetNodeConfig: ListenAddr: ",cfg.P2P.ListenAddr )
 
-
 	}
-
+    //SetQmanConfig(ctx, &cfg.P2P)
 	SetP2PConfig(ctx, &cfg.P2P)  //jump by yichoi
 	setIPC(ctx, cfg)
 	setHTTP(ctx, cfg)
