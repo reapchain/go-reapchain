@@ -67,23 +67,26 @@ func LoadKey(DataDir string, flag bool) {
 
 func CheckPublicKey(pubkey []byte) bool {
 
-	var isGovernance bool
+    var isGovernance bool
 
-	if gc.Governance {
-		pkHash := common.BytesToHash(pubkey)
-		fmt.Printf("Public key in Tx : pubkey [%x]\n", pubkey)
-		fmt.Printf("Public key in Tx : pkHash [%x]\n", pkHash)
+    fmt.Printf("CheckPublicKey : gc.Governance = %t\n", gc.Governance)
 
-		governanceKey(gc)
+    if gc.Governance {
+        pkHash := common.BytesToHash(pubkey)
+        fmt.Printf("CheckPublicKey : Tx.pubkey    [%x]\n", pubkey)
+        fmt.Printf("CheckPublicKey : Tx.pkHash    [%x]\n", pkHash)
+        fmt.Printf("CheckPublicKey : gc.PublicKey [%x]\n", pkHash)
 
-		isGovernance = bytes.Equal(gc.PublicKey, []byte(pkHash[:]))
-	} else {
-		isGovernance = false
-	}
+        governanceKey(gc)
 
-	fmt.Printf("Checking Governance Key : isGovernance = %t\n", isGovernance)
+        isGovernance = bytes.Equal(gc.PublicKey, []byte(pkHash[:]))
+    } else {
+        isGovernance = false
+    }
 
-	return isGovernance
+    fmt.Printf("CheckPublicKey : isGovernance  = %t\n", isGovernance)
+
+    return isGovernance
 }
 
 func governanceKey(gc *GovernanceConfig) []byte {
@@ -94,7 +97,7 @@ func governanceKey(gc *GovernanceConfig) []byte {
     }
 
     if key, err := loadGKey(gc.DataDir); err == nil {
-		gc.PublicKey = key
+        gc.PublicKey = key
         return key
     } else {
         log.Warn(fmt.Sprintf("Failed to load public key: %v", err))

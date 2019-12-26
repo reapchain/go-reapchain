@@ -770,7 +770,10 @@ func setIPC(ctx *cli.Context, cfg *node.Config) {
 func setNodeGovernance(ctx *cli.Context, cfg *node.Config) {
     if ctx.GlobalIsSet(GovernanceFlag.Name) {
         cfg.Governance = true
+    } else {
+        cfg.Governance = false
     }
+    fmt.Println("cfg.Governance = %t", cfg.Governance)
 }
 // yhheo - end
 
