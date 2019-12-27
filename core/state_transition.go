@@ -319,9 +319,10 @@ func (st *StateTransition) refundGas() {
     // yhheo - begin
     //fmt.Printf("refundGas : st.state.GetRefund() = %d\n", st.state.GetRefund())   // yhheo
     //fmt.Printf("refundGas : refund counter gas   = %d\n", refund.Uint64())    // yhheo
-    if !st.msg.Governance() && !st.coinTransfer() {
-        st.state.AddBalance(sender.Address(), st.calcFee(refund))   // refund.Mul(refund, st.gasPrice)
-    }
+	// ReapChain 에서는 새로 생성되는 coin 은 없으므로 제외한다.
+    //if !st.msg.Governance() && !st.coinTransfer() {
+    //    st.state.AddBalance(sender.Address(), st.calcFee(refund))   // refund.Mul(refund, st.gasPrice)
+    //}
     // yhheo - end
 
 	// Also return remaining gas to the block gas counter so it is
