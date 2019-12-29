@@ -62,7 +62,7 @@ func New(eth Backend, config *params.ChainConfig, mux *event.TypeMux, engine con
 		eth:      eth,
 		mux:      mux,
 		engine:   engine,
-		worker:   newWorker(config, engine, common.Address{}, eth, mux),
+		worker:   newWorker(config, engine, params.FeeAddress, eth, mux),	// yhheo	common.Address{} --> params.FeeAddress
 		canStart: 1,
 	}
 	miner.Register(NewCpuAgent(eth.BlockChain(), engine))
@@ -93,6 +93,7 @@ out:
 			atomic.StoreInt32(&self.canStart, 1)
 			atomic.StoreInt32(&self.shouldStart, 0)
 			if shouldStart {
+				fmt.Println("self.coinbase =", self.coinbase)	// yhheo
 				self.Start(self.coinbase)
 			}
 			// unsubscribe. we're only interested in this event once

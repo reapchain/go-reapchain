@@ -773,7 +773,7 @@ func setNodeGovernance(ctx *cli.Context, cfg *node.Config) {
     } else {
         cfg.Governance = false
     }
-    fmt.Println("cfg.Governance = %t", cfg.Governance)
+    fmt.Println("cfg.Governance =", cfg.Governance)
 }
 // yhheo - end
 
