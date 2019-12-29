@@ -91,7 +91,7 @@ func IntrinsicGas(data []byte, contractCreation, homestead bool) *big.Int {
 	} else {
 		igas.SetUint64(params.TxGas)
 	}
-	fmt.Printf("IntrinsicGas : base gas = %d\n", igas)	// yhheo
+	//fmt.Printf("IntrinsicGas : base gas = %d\n", igas)	// yhheo
 
 	if len(data) > 0 {
 		var nz int64
@@ -231,12 +231,12 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	sender := st.from() // err checked in preCheck
 
 	fmt.Printf("TransitionDb : st.evm.Coinbase = %x\n", st.evm.Coinbase)	// yhheo
-	fmt.Printf("TransitionDb : st.gas = %d\n st.gasPrice = %d\n", st.gas, st.gasPrice)	// yhheo
+	//fmt.Printf("TransitionDb : st.gas = %d\n st.gasPrice = %d\n", st.gas, st.gasPrice)	// yhheo
 
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
 
-	fmt.Printf("TransitionDb : homestead = %t\n contractCreation = %t\n", homestead, contractCreation)         // yhheo
+	//fmt.Printf("TransitionDb : homestead = %t\n contractCreation = %t\n", homestead, contractCreation)         // yhheo
 
 	// Pay intrinsic gas
 	// TODO convert to uint64
@@ -248,7 +248,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 		return nil, nil, nil, err
 	}
 
-    fmt.Printf("TransitionDb : intrinsicGas = %d\n", intrinsicGas)        // yhheo
+    //fmt.Printf("TransitionDb : intrinsicGas = %d\n", intrinsicGas)        // yhheo
 
 	var (
 		evm = st.evm
@@ -259,15 +259,13 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
         fee *big.Int    		// yhheo
 	)
 	if contractCreation {
-		fmt.Printf("TransitionDb : evm.Create (st.gas) = %d\n", st.gas)	// yhheo
 		ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
-		fmt.Printf("TransitionDb : evm.Create (st.gas) = %d\n", st.gas)	// yhheo
+		//fmt.Printf("TransitionDb : evm.Create (st.gas) = %d\n", st.gas)	// yhheo
 	} else {
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(sender.Address(), st.state.GetNonce(sender.Address())+1)
-		fmt.Printf("TransitionDb : evm.Call (st.gas) = %d\n", st.gas)	// yhheo
 		ret, st.gas, vmerr = evm.Call(sender, st.to().Address(), st.data, st.gas, st.value)
-		fmt.Printf("TransitionDb : evm.Call (st.gas) = %d\n", st.gas)	// yhheo
+		//fmt.Printf("TransitionDb : evm.Call (st.gas) = %d\n", st.gas)	// yhheo
 	}
 	if vmerr != nil {
 		log.Debug("VM returned with error", "err", vmerr)
@@ -279,7 +277,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 		}
 	}
     // yhheo - begin
-	fmt.Printf("TransitionDb : st.coinTransfer() = %t\n", st.coinTransfer())  // yhheo
+	//fmt.Printf("TransitionDb : st.coinTransfer() = %t\n", st.coinTransfer())  // yhheo
     if st.msg.Governance() || st.coinTransfer() {
 		requiredGas = new(big.Int).SetUint64(0)
 		st.gas = st.initialGas.Uint64()
@@ -293,12 +291,12 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
     // yhheo - begin
 	requiredGas = new(big.Int).Set(st.gasUsed())
 	fee = st.calcFee(st.gasUsed())
-    fmt.Printf("TransitionDb : fee = %d\n", fee)
+    //fmt.Printf("TransitionDb : fee = %d\n", fee)
 
 	st.state.AddBalance(st.evm.Coinbase, fee)   // new(big.Int).Mul(st.gasUsed(), st.gasPrice)
     // yhheo - end
 
-    fmt.Printf("TransitionDb : requiredGas = %d\n st.gasUsed() = %d\n", requiredGas, st.gasUsed())
+    //fmt.Printf("TransitionDb : requiredGas = %d\n st.gasUsed() = %d\n", requiredGas, st.gasUsed())
 	return ret, requiredGas, st.gasUsed(), err
 }
 
@@ -314,18 +312,18 @@ func (st *StateTransition) refundGas() {
 	//} else {
 		remaining = st.calcFee(new(big.Int).SetUint64(st.gas)) // new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
 		st.state.AddBalance(sender.Address(), remaining)
-		fmt.Printf("refundGas : remaining = %d\n st.gas = %d\n", remaining, st.gas)
+		//fmt.Printf("refundGas : remaining = %d\n st.gas = %d\n", remaining, st.gas)
 		// yhheo - end
 
 		// Apply refund counter, capped to half of the used gas.
 		uhalf := remaining.Div(st.gasUsed(), common.Big2)
 		refund := math.BigMin(uhalf, st.state.GetRefund())
 		st.gas += refund.Uint64()
-		fmt.Printf("refundGas : st.state.GetRefund() = %d\n refund gas = %d\n", st.state.GetRefund(), refund.Uint64())	// yhheo
+		//fmt.Printf("refundGas : st.state.GetRefund() = %d\n refund gas = %d\n", st.state.GetRefund(), refund.Uint64())	// yhheo
 
 		// yhheo - begin
 		refundFee := st.calcFee(refund)   // refund.Mul(refund, st.gasPrice)
-		fmt.Printf("refundGas : refundFee = %d\n st.gas = %d\n", refundFee, st.gas)
+		//fmt.Printf("refundGas : refundFee = %d\n st.gas = %d\n", refundFee, st.gas)
 		st.state.AddBalance(sender.Address(), refundFee)
     }
 	// yhheo - end
