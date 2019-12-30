@@ -74,7 +74,6 @@ func (c *core) sendCoordinatorDecide() {
 
 func (c *core) sendRacing(addr common.Address) {
 	log.Info("sending racing", "to", addr)
-	log.Info("from", "my address", c.address)
 	c.send(&message{
 		Code: msgRacing,
 		Msg: []byte("racing testing"),
@@ -97,7 +96,6 @@ func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 		log.Error("JSON Decode Error", "Err", err)
 		return errFailedDecodePrepare
 	}
-	log.Info("JSON Encode", "result", extraData)
 
 	for _, v := range extraData {
 		if v.Address == c.address {
@@ -139,7 +137,7 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 
 func (c *core) handleCandidateDecide(msg *message, src istanbul.Validator) error {
 	if c.state == StatePreprepared {
-		log.Info("send prepare!")
+		log.Info("send commit!")
 		c.sendDCommit()
 	}
 
