@@ -20,6 +20,8 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
+	"time"
+
 	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
@@ -57,6 +59,8 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 
 
 	// Start a new round from last sequence + 1
+	start :=time.Now()
+	log.Info("start time of consensus of core engine start()", start )
 	c.startNewRound(&istanbul.View{
 		Sequence: new(big.Int).Add(lastSequence, common.Big1),
 		Round:    common.Big0,
@@ -103,7 +107,7 @@ func (c *core) handleEvents() {
 			r := &istanbul.Request{
 				Proposal: ev.Proposal,
 			}
-			err := c.handleRequest(r)
+			err := c.handleRequest(r)  //send qman here
 			if err == errFutureMessage {
 				c.storeRequestMsg(r)
 			}
@@ -157,8 +161,19 @@ func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
 	}
 
 	switch msg.Code {
+	/* Qmanager handler for receiving from geth : sending qmanager event */
+	case msgHandleQman:
+		return testBacklog(c.handleQmanager(msg, src))  //Qmanager receiving event hadler
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
+	case msgDSelect:
+		return testBacklog(c.handleDSelect(msg, src))
+	case msgCoordinatorDecide:
+		return testBacklog(c.handleCoordinatorDecide(msg, src))
+	case msgRacing:
+		return testBacklog(c.handleRacing(msg, src))
+	case msgCandidateDecide:
+		return testBacklog(c.handleCandidateDecide(msg, src))
 	case msgPrepare:
 		return testBacklog(c.handlePrepare(msg, src))
 	case msgCommit:

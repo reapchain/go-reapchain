@@ -250,6 +250,7 @@ func (n *Node) openDataDir() error {
 
 	instdir := filepath.Join(n.config.DataDir, n.config.name())  //DataDir = /Users/yongilchoi/Library/Ethereum
 	                                                             //n.config.name = geth
+	log.Info("Current Diretory:","instdir", instdir)
 	if err := os.MkdirAll(instdir, 0700); err != nil {
 		return err
 	}

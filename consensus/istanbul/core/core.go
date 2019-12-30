@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
-	metrics "github.com/ethereum/go-ethereum/metrics"
+	"github.com/ethereum/go-ethereum/metrics"
 	goMetrics "github.com/rcrowley/go-metrics"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
 )
@@ -88,6 +88,9 @@ type core struct {
 	sequenceMeter goMetrics.Meter
 	// the timer to record consensus duration (from accepting a preprepare to final committed stage)
 	consensusTimer goMetrics.Timer
+
+	tag istanbul.Tag
+	count int
 }
 
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
@@ -190,6 +193,7 @@ func (c *core) commit() {
 }
 
 func (c *core) startNewRound(newView *istanbul.View, roundChange bool) {
+	//time stamp
 	var logger log.Logger
 	if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
@@ -280,4 +284,12 @@ func PrepareCommittedSeal(hash common.Hash) []byte {
 	buf.Write(hash.Bytes())
 	buf.Write([]byte{byte(msgCommit)})
 	return buf.Bytes()
+}
+
+func (c *core) Tag() istanbul.Tag {
+	return c.tag
+}
+
+func (c *core) SetTag(t istanbul.Tag) {
+	c.tag = t
 }

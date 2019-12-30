@@ -20,22 +20,9 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/log"
 )
 
-//yichoi - begin
-// QmanagerNodes returns a list of node enode URLs configured as Qmanager nodes.
-//func (c *Config) QmanagerNodes() []*discover.Node {
-//	return c.parsePersistentNodes(c.resolvePath(datadirQmanagerNodes))
-//}
-// end
-/*func( c *core) getQman_enode() []*discover.Node {
-
-	var d node.p2p.c.qmanager
-	d.p2p.Qmanagernodes = node.d.QmanagerNodes( )
-
-} */
-/* 최초 Qmanager 에게 ExtraDATA를 요청하는 단계 */
-/*
 func (c *core) sendRequestExtraDataToQman(request *istanbul.Request) {
 	logger := c.logger.New("state", c.state)
 
@@ -50,37 +37,20 @@ func (c *core) sendRequestExtraDataToQman(request *istanbul.Request) {
 			logger.Error("Failed to encode", "view", curView)
 			return
 		}
-		// load Qmanager enode address from static node
 
-		config := &p2p.Config{ Name: "unit-test", DataDir: dir, P2P: p2p.Config{PrivateKey: key}
-			config.QmanagerNodes.
-
-
-			// make request massage,
-			/* type message struct {
-				Code          uint64
-				Msg           []byte
-				Address       common.Address
-				Signature     []byte
-				CommittedSeal []byte
-			} */
-	/*		var payload = makemsg()
-			var d Config
-			var qman_enode common.Address
-			qman_enode  = getQman_enode( )
-			qman_enode =""
-
+			// Qmanager에게 최초 메시지 보낼때, payload 를 뭘로 줄건지?
 			c.send(&message{
 			Code: msgRequestQman,
-			Msg: payload
-			Address:  qman_enode ,
-		})
+			Msg: preprepare,
+			Address: c.qmanager,
+			}, c.qmanager)
 
 			// proposal block 전파는 핸들러로 옮겨야,, Qmanager에서 수신시,, 처리되게끔.  / pre-prepare 상태
 			// 다음은 d-select 상태로 상태 전이함.
-		}
+
 	}
-	*/
+}
+
 func (c *core) sendPreprepare(request *istanbul.Request) {
 	logger := c.logger.New("state", c.state)
 
@@ -95,26 +65,6 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 			logger.Error("Failed to encode", "view", curView)
 			return
 		}
-		//var account_addr common.Address  //ethereum account : 20 byte
-		//var payload []byte
-		//payload = ""
-		//qman_enode = "e81bd88b5c3a9a7eebb454eb3fab0988d2134ef2fa3066b5b40f8719a44cce52c032b1dc698e28571cf4df95fc6ea386d6eb10ab6c26e91e315334e11175563e@192.168.0.100:30301"
-	//	copy(account_addr[:],"2259172c57bde543b819d21805ad6c3d06e89d18")
-
-		/*type message struct {
-			Code          uint64
-			Msg           []byte
-			Address       common.Address
-			Signature     []byte
-			CommittedSeal []byte
-		} */
-		/* c.send(&message{
-			Code: msgRequestQman,
-			Msg: preprepare,
-			Address:  account_addr,
-			//Signature: 1,
-			//CommittedSeal: 1,
-		}, account_addr )  */
 
 		c.broadcast(&message{
 			Code: msgPreprepare,
@@ -123,6 +73,54 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 
 
 	}
+}
+func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
+	logger := c.logger.New("from", src, "state", c.state)
+// Qmanager receiver에 맞게 수정할 부분 begin
+// 1. Extra data 전송하고,
+// 2. Enrollment 하고, martin
+// Cordi가 "자신기 코디"임을 보내오면,
+// Cordi에게 C-Confirm 를 보내고,
+
+	// Decode preprepare
+	var preprepare *istanbul.Preprepare
+	err := msg.Decode(&preprepare)
+	if err != nil {
+		return errFailedDecodePreprepare
+	}
+
+	// Ensure we have the same view with the preprepare message
+	if err := c.checkMessage(msgPreprepare, preprepare.View); err != nil {
+		return err
+	}
+
+	// Check if the message comes from current proposer
+	if !c.valSet.IsProposer(src.Address()) {
+		logger.Warn("Ignore preprepare messages from non-proposer")
+		return errNotFromProposer
+	}
+
+	if c.valSet.IsProposer(c.Address()) {
+		log.Info("I'm Proposer!!!!!!!")
+	}
+	// Verify the proposal we received
+	if err := c.backend.Verify(preprepare.Proposal); err != nil {
+		logger.Warn("Failed to verify proposal", "err", err)
+		c.sendNextRoundChange()
+		return err
+	}
+
+	if c.state == StateAcceptRequest {
+		c.acceptPreprepare(preprepare)
+		c.setState(StatePreprepared)
+		//c.sendPrepare()
+		c.sendDSelect()  //c.sendExtraData()
+	}
+// 수정할 부분 end
+	return nil
+
+
+
 }
 
 func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
@@ -146,6 +144,9 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 		return errNotFromProposer
 	}
 
+	if c.valSet.IsProposer(c.Address()) {
+		log.Info("I'm Proposer!!!!!!!")
+	}
 	// Verify the proposal we received
 	if err := c.backend.Verify(preprepare.Proposal); err != nil {
 		logger.Warn("Failed to verify proposal", "err", err)
@@ -156,7 +157,8 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 	if c.state == StateAcceptRequest {
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
-		c.sendPrepare()
+		//c.sendPrepare()
+		c.sendDSelect()
 	}
 
 	return nil

@@ -28,6 +28,11 @@ func (c *core) handleRequest(request *istanbul.Request) error {
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
 
+	if c.state ==StateRequestQman {
+		// c.sendPre_prepare()  //send to Qman to get Extradata
+		c.sendRequestExtraDataToQman(request)
+	}
+
 	if c.state == StateAcceptRequest {
 		c.sendPreprepare(request)
 	}
