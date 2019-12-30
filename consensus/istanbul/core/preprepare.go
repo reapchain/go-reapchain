@@ -76,6 +76,7 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 }
 func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
+
 // Qmanager receiver에 맞게 수정할 부분
 // begin
 // 1. Extra data 전송하고,
@@ -104,9 +105,7 @@ func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 	if c.valSet.IsProposer(c.Address()) {
 		log.Info("I'm Proposer!!!!!!!")
 	}
-	if c.valSet.IsProposer(c.Address()) {
-		log.Info("I'm Proposer!!!!!!!")
-	}
+
 	// Verify the proposal we received
 	if err := c.backend.Verify(preprepare.Proposal); err != nil {
 		logger.Warn("Failed to verify proposal", "err", err)
@@ -118,15 +117,15 @@ func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
+
 		if c.valSet.IsProposer(c.Address()) {
 			c.sendDSelect() //c.sendExtraData()
 		}
+
 	}
 // 수정할 부분 end
+
 	return nil
-
-
-
 }
 
 func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
