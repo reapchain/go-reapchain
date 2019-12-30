@@ -233,7 +233,7 @@ func (c *core) catchUpRound(view *istanbul.View) {
 	logger.Trace("Catch up round", "new_round", view.Round, "new_seq", view.Sequence, "new_proposer", c.valSet)
 }
 
-func (c *core) setState(state State) {
+func (c *core) 	setState(state State) {
 	if c.state != state {
 		c.state = state
 	}

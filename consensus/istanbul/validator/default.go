@@ -59,7 +59,6 @@ func (val *defaultValidator) SetQrnd(q uint64) {
 func (val *defaultValidator) Qrnd() uint64 {
 	return val.qrnd
 }
-
 // ----------------------------------------------------------------------------
 
 type defaultSet struct {

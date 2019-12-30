@@ -114,17 +114,12 @@ func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
-
-
 		if c.valSet.IsProposer(c.Address()) {
-			c.sendDSelect() //c.sendExtraData()
+			c.sendDSelect()
 		}
-
 	}
 // 수정할 부분 end
-
 	return nil
-
 }
 
 func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
@@ -162,7 +157,9 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
-		c.sendDSelect()
+		if c.valSet.IsProposer(c.Address()) {
+			c.sendDSelect()
+		}
 	}
 
 	return nil
