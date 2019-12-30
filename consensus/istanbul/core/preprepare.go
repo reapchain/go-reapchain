@@ -20,7 +20,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	"github.com/ethereum/go-ethereum/log"
 )
 
 func (c *core) sendRequestExtraDataToQman(request *istanbul.Request) {
@@ -144,10 +143,6 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 		return errNotFromProposer
 	}
 
-	if c.valSet.IsProposer(c.Address()) {
-		log.Info("I'm Proposer!!!!!!!")
-	}
-
 	// Verify the proposal we received
 	if err := c.backend.Verify(preprepare.Proposal); err != nil {
 		logger.Warn("Failed to verify proposal", "err", err)
@@ -159,7 +154,9 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
-		c.sendDSelect()
+		if c.valSet.IsProposer(c.Address()) {
+			c.sendDSelect()
+		}
 	}
 
 	return nil
