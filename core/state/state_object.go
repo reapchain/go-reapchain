@@ -248,10 +248,9 @@ func (c *stateObject) AddBalance(amount *big.Int) {
 
 		return
 	}
-	fmt.Printf("stateObject - AddBalance : amount = %d\n stateObject.address = %x\n", amount, c.address)	// yhheo
-	fmt.Printf("stateObject - AddBalance : c.Balance = %d\n", c.Balance())	// yhheo
+	//fmt.Printf("stateObject - AddBalance : amount = %d\n stateObject.address = %x\n", amount, c.address)	// yhheo
 	c.SetBalance(new(big.Int).Add(c.Balance(), amount))
-	fmt.Printf("stateObject - AddBalance : c.Balance = %d\n", c.Balance())	// yhheo
+	//fmt.Printf("stateObject - AddBalance : c.Balance = %d\n", c.Balance())	// yhheo
 }
 
 // SubBalance removes amount from c's balance.
