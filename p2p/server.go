@@ -371,6 +371,7 @@ func (srv *Server) Start() (err error) {
 	if srv.Dialer == nil {
 		srv.Dialer = &net.Dialer{Timeout: defaultDialTimeout}
 	}
+	//각종 채널 생성
 	srv.quit = make(chan struct{})
 	srv.addpeer = make(chan *conn)
 	srv.delpeer = make(chan peerDrop)
@@ -396,8 +397,8 @@ func (srv *Server) Start() (err error) {
 	}
     //end
 	// node table
-	if !srv.NoDiscovery {
-		ntab, err := discover.ListenUDP(srv.PrivateKey, srv.ListenAddr, srv.NAT, srv.NodeDatabase, srv.NetRestrict)
+	if !srv.NoDiscovery {  // geth init 시 -nodiscovery option 없으면
+		ntab, err := discover.ListenUDP(srv.PrivateKey, srv.ListenAddr, srv.NAT, srv.NodeDatabase, srv.NetRestrict)  //Now using in development, important!!
 		if err != nil {
 			return err
 		}

@@ -28,6 +28,8 @@ import (
 
 type defaultValidator struct {
 	address common.Address
+	tag istanbul.Tag
+	qrnd uint64
 }
 
 func (val *defaultValidator) Address() common.Address {
@@ -36,6 +38,26 @@ func (val *defaultValidator) Address() common.Address {
 
 func (val *defaultValidator) String() string {
 	return val.Address().String()
+}
+
+func (val *defaultValidator) Tag() istanbul.Tag {
+	return val.tag
+}
+
+func (val *defaultValidator) SetAddress(a common.Address) {
+	val.address = a
+}
+
+func (val *defaultValidator) SetTag(t istanbul.Tag) {
+	val.tag = t
+}
+
+func (val *defaultValidator) SetQrnd(q uint64) {
+	val.qrnd = q
+}
+
+func (val *defaultValidator) Qrnd() uint64 {
+	return val.qrnd
 }
 
 // ----------------------------------------------------------------------------

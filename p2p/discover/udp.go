@@ -251,7 +251,7 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 	if err != nil {
 		return nil, err
 	}
-	conn, err := net.ListenUDP("udp", addr)
+	conn, err := net.ListenUDP("udp", addr)  //socket setup ?
 	log.Info("net.ListenUDP up: addr ", "self",laddr)
 	if err != nil {
 		return nil, err

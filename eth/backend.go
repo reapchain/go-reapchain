@@ -228,6 +228,8 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 		}
 		config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
 		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)  // ?
+		       // consensus.Istanbul 인터페이스 모음으로 리턴하고,
+		       // 이건 다시. consensus.Engine으로 리턴. ?
 	}
 
 	// Otherwise assume proof-of-work

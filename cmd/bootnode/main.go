@@ -305,7 +305,7 @@ func main() {
 		var account common.Address
 		account = PubkeyToAddress(nodeKey.PublicKey)
 		fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
-		if _, err := discover.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {
+		if _, err := discover.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {  //main
 			utils.Fatalf("%v", err)
 		}
 	}
