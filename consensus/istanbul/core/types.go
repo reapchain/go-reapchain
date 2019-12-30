@@ -76,10 +76,15 @@ func (s State) Cmp(y State) int {
 
 const (
 	msgPreprepare uint64 = iota
+	msgDSelect
+	msgCoordinatorDecide
+	msgRacing
+	msgCandidateDecide
 	msgPrepare
 	msgCommit
 	msgRoundChange
 	msgRequestQman
+	msgHandleQman // for Qman, receive event handler from geth ( sending qmanager )
 	msgAll
 )
 
