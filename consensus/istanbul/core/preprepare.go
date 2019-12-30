@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 func (c *core) sendRequestExtraDataToQman(request *istanbul.Request) {
@@ -121,6 +122,54 @@ func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 
 
 }
+func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
+	logger := c.logger.New("from", src, "state", c.state)
+// Qmanager receiver에 맞게 수정할 부분 begin
+// 1. Extra data 전송하고,
+// 2. Enrollment 하고, martin
+// Cordi가 "자신기 코디"임을 보내오면,
+// Cordi에게 C-Confirm 를 보내고,
+
+	// Decode preprepare
+	var preprepare *istanbul.Preprepare
+	err := msg.Decode(&preprepare)
+	if err != nil {
+		return errFailedDecodePreprepare
+	}
+
+	// Ensure we have the same view with the preprepare message
+	if err := c.checkMessage(msgPreprepare, preprepare.View); err != nil {
+		return err
+	}
+
+	// Check if the message comes from current proposer
+	if !c.valSet.IsProposer(src.Address()) {
+		logger.Warn("Ignore preprepare messages from non-proposer")
+		return errNotFromProposer
+	}
+
+	if c.valSet.IsProposer(c.Address()) {
+		log.Info("I'm Proposer!!!!!!!")
+	}
+	// Verify the proposal we received
+	if err := c.backend.Verify(preprepare.Proposal); err != nil {
+		logger.Warn("Failed to verify proposal", "err", err)
+		c.sendNextRoundChange()
+		return err
+	}
+
+	if c.state == StateAcceptRequest {
+		c.acceptPreprepare(preprepare)
+		c.setState(StatePreprepared)
+		//c.sendPrepare()
+		c.sendDSelect()  //c.sendExtraData()
+	}
+// 수정할 부분 end
+	return nil
+
+
+
+}
 
 func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
@@ -143,6 +192,9 @@ func (c *core) handlePreprepare(msg *message, src istanbul.Validator) error {
 		return errNotFromProposer
 	}
 
+	if c.valSet.IsProposer(c.Address()) {
+		log.Info("I'm Proposer!!!!!!!")
+	}
 	// Verify the proposal we received
 	if err := c.backend.Verify(preprepare.Proposal); err != nil {
 		logger.Warn("Failed to verify proposal", "err", err)
