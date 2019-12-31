@@ -23,13 +23,13 @@
 
 rm -rf geth*.log
 
-# rm -rf node1 node2 node3 node4 node5
+rm -rf qman node1 node2 node3 node4 node5 node6
 
 
 
-mkdir qman node2 node3 node4 node5 node6 node7
+mkdir qman node1 node2 node3 node4 node5 node6
 
-ls -l node*
+ls -l qman node*
 
 
 
@@ -73,31 +73,34 @@ cp qmanager-nodes.json node7/data/
 
 
 cp ./0/nodekey qman/data/geth
-cp ./1/nodekey node2/data/geth
-cp ./2/nodekey node3/data/geth
-cp ./3/nodekey node4/data/geth
-cp ./4/nodekey node5/data/geth
-cp ./5/nodekey node6/data/geth
-cp ./6/nodekey node7/data/geth
+cp ./1/nodekey node1/data/geth
+cp ./2/nodekey node2/data/geth
+cp ./3/nodekey node3/data/geth
+cp ./4/nodekey node4/data/geth
+cp ./5/nodekey node5/data/geth
+cp ./6/nodekey node6/data/geth
 
 # 새 계정 4개를 각 노드마다 새로 생성한다. - passwd.txt의 암호 파일에서 읽어와서..
-#./geth --datadir node1/data account new --password passwd.txt
-#./geth --datadir node2/data account new --password passwd.txt
-#./geth --datadir node3/data account new --password passwd.txt
-#./geth --datadir node4/data account new --password passwd.txt
-#./geth --datadir node5/data account new --password passwd.txt
+./geth --datadir qman/data account new --password passwd.txt
+./geth --datadir node1/data account new --password passwd.txt
+./geth --datadir node2/data account new --password passwd.txt
+./geth --datadir node3/data account new --password passwd.txt
+./geth --datadir node4/data account new --password passwd.txt
+./geth --datadir node5/data account new --password passwd.txt
+./geth --datadir node6/data account new --password passwd.txt
+
 
 # 한번 istanbul setup를 실행시키면, 매번 노드키가 바뀜. 따라서,
 # 아래처럼,, 두번째 이 쉘을 실행시 반드시 account new가 아닌 account import ... ./.../../nodekey 형태로 써주어야함.
 
 
-./geth --datadir node1/data account import  --password passwd.txt ./qman/data/geth/nodekey
-./geth --datadir node2/data account import  --password passwd.txt ./node2/data/geth/nodekey
-./geth --datadir node3/data account import  --password passwd.txt ./node3/data/geth/nodekey
-./geth --datadir node4/data account import  --password passwd.txt ./node4/data/geth/nodekey
-./geth --datadir node5/data account import  --password passwd.txt ./node5/data/geth/nodekey
-./geth --datadir node5/data account import  --password passwd.txt ./node6/data/geth/nodekey
-./geth --datadir node5/data account import  --password passwd.txt ./node7/data/geth/nodekey
+#./geth --datadir qman/data account import  --password passwd.txt ./qman/data/geth/nodekey
+#./geth --datadir node2/data account import  --password passwd.txt ./node2/data/geth/nodekey
+#./geth --datadir node3/data account import  --password passwd.txt ./node3/data/geth/nodekey
+#./geth --datadir node4/data account import  --password passwd.txt ./node4/data/geth/nodekey
+#./geth --datadir node5/data account import  --password passwd.txt ./node5/data/geth/nodekey
+#./geth --datadir node6/data account import  --password passwd.txt ./node6/data/geth/nodekey
+#./geth --datadir node7/data account import  --password passwd.txt ./node7/data/geth/nodekey
 
 
 # syntax : geth account import --password <passwordfile> <keyfile>
@@ -112,12 +115,12 @@ update the alloc field with the account(s) that were generated at previous step"
 pwd
 
 ./geth --datadir ./qman/data init ./qman/genesis.json
+./geth --datadir ./node1/data init ./node1/genesis.json
 ./geth --datadir ./node2/data init ./node2/genesis.json
 ./geth --datadir ./node3/data init ./node3/genesis.json
 ./geth --datadir ./node4/data init ./node4/genesis.json
 ./geth --datadir ./node5/data init ./node5/genesis.json
-./geth --datadir ./node6/data init ./node5/genesis.json
-./geth --datadir ./node7/data init ./node5/genesis.json
+./geth --datadir ./node6/data init ./node6/genesis.json
 
 
 #합의엔진 테스트환경 설정
@@ -157,15 +160,18 @@ pwd
 # ======마이너 노드 구동=======
 # Validator 1/5
 # opened udp port check, if opened, succeeded! will displayed
-nc -uz 192.168.0.100 30501-30505
+nc -uz 192.168.0.2 30501-30510
+
+echo "Qman debug node in Goland started"
+./startQman.sh
 
 echo "Node1 started"
-./qman.sh
-
-echo "Node2 started"
-./startnode2.sh
+./startnode1.sh
 
 echo "Node3 started"
+./startnode2.sh
+
+echo "Node4 started"
 ./startnode3.sh
 
 echo "Node4 started"
@@ -176,9 +182,6 @@ echo "Node4 started"
 
 echo "Node4 started"
 ./startnode6.sh
-
-echo "Node4 started"
-./startnode7.sh
 
 # Validator 5/5 or Debug and Monitoring node
 #nohup ./bin/geth  --networkid 2017 --port 30505  --datadir ./node5/data --mine --minerthreads 1 --syncmode "full" \

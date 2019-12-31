@@ -842,9 +842,9 @@ func MakePasswordList(ctx *cli.Context) []string {
 	//check passwd.txt directory location
 
 	if( !strings.HasPrefix(path, "/") ){
-		log.Warn("full direcotory path of passwd file\n", path )
+		//log.Warn("\nfull directory path of", "path", path )
 		abs, _ :=filepath.Abs(path)
-		log.Warn("full direcotory path of passwd file\n", abs )
+		log.Warn("\npasswd path:", "abs", abs )
 		path=abs
 		//append(path, abs)
 	}

@@ -449,9 +449,9 @@ func (srv *Server) Start() (err error) {
 func (srv *Server) startListening() error {
 	// Launch the TCP listener.
 	//set local ip:192.168.0.x in reapchain office private network
-	log.Info("startListening() : net.Listen ", srv.ListenAddr )
+	//log.Info("startListening():","srv.Listen", srv.ListenAddr )
 	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
-	log.Info("listener addr", srv.Config.ListenAddr, "listener=", listener)
+	log.Info("listener", "addr", srv.Config.ListenAddr, "listener=", listener)
 	if err != nil {
 		return err   //왜 에러 ?
 	}
