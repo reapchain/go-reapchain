@@ -83,9 +83,13 @@ const (
 	msgPrepare
 	msgCommit
 	msgRoundChange
+
 	msgRequestQman
 	msgHandleQman // for Qman, receive event handler from geth ( sending qmanager )
 	msgAll
+//New Qmanager Implementation
+	msgExtraDataRequest
+	msgExtraDataSend
 )
 
 type message struct {

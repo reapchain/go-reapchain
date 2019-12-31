@@ -20,7 +20,6 @@ import (
 	"bytes"
 	"container/list"
 	"crypto/ecdsa"
-	"encoding/gob"
 	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
@@ -261,9 +260,7 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 		return nil, err
 	}
 	log.Info("UDP listener up", "self", tab.self)
-	if addr.Port == boot_node_port {
-		QManagerStorage, err = leveldb.OpenFile("level", nil)
-	}
+
 	return tab, nil
 
 }
@@ -709,29 +706,52 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 }
 
 func FindNode(nodeId string) (node *Node, err error) {
-	var data []byte
-	data, err = QManagerStorage.Get([]byte(nodeId), nil)
-	if err != nil {
-		return
-	}
-	dec := gob.NewDecoder(bytes.NewReader(data))
+	QManagerStorage, err = leveldb.OpenFile("level", nil)
 
-	dec.Decode(node)
+	//var data []byte
+	data, err := QManagerStorage.Get([]byte(nodeId), nil)
+	if err != nil {
+		fmt.Println(err)
+	}
+	fmt.Println(data)
+
+	//dec := gob.NewDecoder(bytes.NewReader(data))
+	//
+	//dec.Decode(node)
+
+	defer QManagerStorage.Close()
 	return
 }
 
 
 
-func (n *qManagerNodes) Save() (err error) {
+func (n qManagerNodes) Save() (err error) {
+	QManagerStorage, err = leveldb.OpenFile("level", nil)
+	//var data bytes.Buffer
+	//enc := gob.NewEncoder(&data)
+	//enc.Encode(*n)
 
-	var data bytes.Buffer
-	enc := gob.NewEncoder(&data)
-	enc.Encode(*n)
+	//reqBodyBytes := new(bytes.Buffer)
+	//json.NewEncoder(reqBodyBytes).Encode(n)
+	fmt.Println("JSON BYTES")
+	//fmt.Println(reqBodyBytes.Bytes())
+	address_bytes := []byte(n.address.String())
+	fmt.Println(address_bytes)
 
-	err = QManagerStorage.Put([]byte(n.ID.String()), data.Bytes(), nil)
+	err = QManagerStorage.Put([]byte(n.ID.String()), address_bytes, nil)
 	if err != nil {
 		return
 	}
+	defer QManagerStorage.Close()
+	//iter := QManagerStorage.NewIterator(nil, nil)
+	//for iter.Next() {
+	//	// Remember that the contents of the returned slice should not be modified, and
+	//	// only valid until the next call to Next.
+	//	key := iter.Key()
+	//	value := iter.Value()
+	//	fmt.Println(key, qManagerNodes(value))
+	//
+	//}
 
 	return
 }

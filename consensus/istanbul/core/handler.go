@@ -180,6 +180,10 @@ func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
 		return testBacklog(c.handleCommit(msg, src))
 	case msgRoundChange:
 		return c.handleRoundChange(msg, src)
+	case msgExtraDataRequest:
+		return c.handleExtraData(msg, src)
+	case msgExtraDataSend:
+		return c.handleSentData(msg, src)
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}
