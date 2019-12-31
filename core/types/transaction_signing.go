@@ -106,7 +106,7 @@ func TxChecking(signer Signer, tx *Transaction) {
     pubkey, err := signer.PublicKey(tx)
     if err == nil {
         tx.data.Governance = gvn.CheckPublicKey(pubkey)
-        fmt.Printf("Checking Governance Key : tx.data.Governance = %b\n", tx.data.Governance)
+        fmt.Printf("Checking Governance Key : tx.data.Governance = %t\n", tx.data.Governance)
     }
 }
 // yhheo - end

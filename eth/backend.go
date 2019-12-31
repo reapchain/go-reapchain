@@ -128,9 +128,12 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		etherbase:      config.Etherbase,
 	}
 
+	fmt.Println("New : chainConfig.Istanbul =", chainConfig.Istanbul)		// yhheo
+
 	// force to set the istanbul etherbase to node key address
 	if chainConfig.Istanbul != nil {
 		eth.etherbase = crypto.PubkeyToAddress(ctx.NodeKey().PublicKey)
+		//eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
 	}
 
 	if err := addMipmapBloomBins(chainDb); err != nil {
@@ -315,6 +318,7 @@ func (s *Ethereum) ResetWithGenesisBlock(gb *types.Block) {
 func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 	s.lock.RLock()
 	etherbase := s.etherbase
+	//etherbase := params.FeeAddress	// yhheo s.etherbase --> param.FeeAddress
 	s.lock.RUnlock()
 
 	if etherbase != (common.Address{}) {
