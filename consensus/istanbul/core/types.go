@@ -26,6 +26,13 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/rlp"
 )
+type ValidatorInfo struct {
+	Address common.Address
+	Tag istanbul.Tag
+	Qrnd uint64
+}
+
+type ValidatorInfos []ValidatorInfo
 
 type Engine interface {
 	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal, qmanager []*discover.Node) error  //modified by yichoi for qmanager
@@ -34,6 +41,8 @@ type Engine interface {
 }
 
 type State uint64
+
+
 
 const (
 

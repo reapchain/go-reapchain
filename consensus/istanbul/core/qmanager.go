@@ -17,13 +17,12 @@
 package core
 
 import (
-	"crypto/ecdsa"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
-	"math/rand"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/syndtr/goleveldb/leveldb"
+	"math/rand"
 )
 const NodeIDBits = 512
 
@@ -31,8 +30,8 @@ var (
 
 	QManagerStorage *leveldb.DB
 )
-
-type (
+/*
+type {
 	NodeID [NodeIDBits / 8]byte
 
 	qManagerNodes struct {
@@ -41,15 +40,8 @@ type (
 		address common.Address
 	}
 
- ValidatorInfo struct {
-	 Address common.Address
-	 Tag     istanbul.Tag
-	 Qrnd    uint64
-
-}
-
  ValidatorInfos []ValidatorInfo
-)
+*/
 
 func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 	//logger := c.logger.New("EXTRA DATA")
