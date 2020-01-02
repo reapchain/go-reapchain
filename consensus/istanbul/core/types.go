@@ -26,11 +26,11 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/rlp"
 )
-type ValidatorInfo struct {
-	Address common.Address
-	Tag istanbul.Tag
-	Qrnd uint64
-}
+//type ValidatorInfo struct {
+//	Address common.Address
+//	Tag istanbul.Tag
+//	Qrnd uint64
+//}
 
 type ValidatorInfos []ValidatorInfo
 

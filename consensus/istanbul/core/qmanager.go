@@ -24,7 +24,7 @@ import (
 	"github.com/syndtr/goleveldb/leveldb"
 	"math/rand"
 )
-const NodeIDBits = 512
+//const NodeIDBits = 512
 
 var (
 
@@ -40,7 +40,6 @@ type {
 		address common.Address
 	}
 
- ValidatorInfos []ValidatorInfo
 */
 
 func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
