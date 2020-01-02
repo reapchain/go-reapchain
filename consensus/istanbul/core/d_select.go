@@ -116,6 +116,7 @@ func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 
 	if err := json.Unmarshal(msg.Msg, &extraData); err != nil {
 		log.Error("JSON Decode Error", "Err", err)
+		log.Info("Decode Error")
 		return errFailedDecodePrepare
 	}
 
