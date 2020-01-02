@@ -6,9 +6,16 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/log"
 	"math/rand"
+	"time"
 )
 
 const criteria = 2
+
+var startTime time.Time
+var endTime time.Time
+
+var tstartTime time.Time
+var tendTime time.Time
 
 type ValidatorInfo struct {
 	Address common.Address
@@ -57,7 +64,6 @@ func (c *core) sendDSelect() {
 }
 
 func (c *core) sendCoordinatorDecide() {
-	log.Info("sending coordinator decide")
 	coordinatorData := c.valSet.GetProposer()
 	encodedCoordinatorData, err := Encode(&coordinatorData)
 
@@ -73,7 +79,6 @@ func (c *core) sendCoordinatorDecide() {
 }
 
 func (c *core) sendRacing(addr common.Address) {
-	log.Info("sending racing", "to", addr)
 	c.send(&message{
 		Code: msgRacing,
 		Msg: []byte("racing testing"),
@@ -81,7 +86,6 @@ func (c *core) sendRacing(addr common.Address) {
 }
 
 func (c *core) sendCandidateDecide() {
-	log.Info("sending candidate decide")
 	c.broadcast(&message{
 		Code: msgCandidateDecide,
 		Msg: []byte("Candidate decide testing"),
@@ -89,6 +93,8 @@ func (c *core) sendCandidateDecide() {
 }
 
 func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
+	log.Info("d-select start")
+	tstartTime = time.Now()
 	// Decode d-select message
 	var extraData ValidatorInfos
 
@@ -104,7 +110,8 @@ func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 	}
 
 	if c.tag == istanbul.Coordinator {
-		log.Info("I am Coordinator!!!!")
+		log.Info("I am Coordinator!")
+		startTime = time.Now()
 		c.sendCoordinatorDecide()
 	}
 
@@ -113,7 +120,6 @@ func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 
 func (c *core) handleCoordinatorDecide(msg *message, src istanbul.Validator) error {
 	if c.tag != istanbul.Coordinator {
-		log.Info("handling coordinator decide")
 		c.sendRacing(src.Address())
 	}
 
@@ -126,7 +132,9 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 		log.Info("handling racing", "count", c.count)
 
 		if c.count > criteria {
-			log.Info("send Candidate Decide")
+			endTime = time.Now()
+			elapse := (endTime.UnixNano() - startTime.UnixNano()) / 1000000
+			log.Info("racing complete", "elapse time(ms)", elapse)
 			c.sendCandidateDecide()
 			c.count = 0
 		}
@@ -137,7 +145,9 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 
 func (c *core) handleCandidateDecide(msg *message, src istanbul.Validator) error {
 	if c.state == StatePreprepared {
-		log.Info("send commit!")
+		tendTime = time.Now()
+		telapse := (tendTime.UnixNano() - tstartTime.UnixNano()) / 1000000
+		log.Info("d-select end", "elapse time(ms)", telapse)
 		c.sendDCommit()
 	}
 
