@@ -115,7 +115,7 @@ func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
 		if c.valSet.IsProposer(c.Address()) {
-			c.sendDSelect()
+			c.sendExtraDataRequest()
 		}
 	}
 // 수정할 부분 end

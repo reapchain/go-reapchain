@@ -183,7 +183,7 @@ func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
 	case msgExtraDataRequest:
 		return c.handleExtraData(msg, src)
 	case msgExtraDataSend:
-		return c.handleSentData(msg, src)
+		return testBacklog(c.handleSentExtraData(msg, src))
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}

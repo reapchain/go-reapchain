@@ -32,7 +32,7 @@ import (
 //	Qrnd uint64
 //}
 
-type ValidatorInfos []ValidatorInfo
+// type ValidatorInfos []ValidatorInfo
 
 type Engine interface {
 	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal, qmanager []*discover.Node) error  //modified by yichoi for qmanager

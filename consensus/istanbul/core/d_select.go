@@ -63,6 +63,13 @@ func (c *core) sendDSelect() {
 	})
 }
 
+func (c *core) sendExtraDataRequest() {
+	c.send(&message{
+		Code: msgExtraDataRequest,
+		Msg: []byte("extra data request testing."),
+	}, c.qmanager)
+}
+
 func (c *core) sendCoordinatorDecide() {
 	coordinatorData := c.valSet.GetProposer()
 	encodedCoordinatorData, err := Encode(&coordinatorData)
@@ -90,6 +97,15 @@ func (c *core) sendCandidateDecide() {
 		Code: msgCandidateDecide,
 		Msg: []byte("Candidate decide testing"),
 	})
+}
+
+func (c *core) handleSentExtraData(msg *message, src istanbul.Validator) error {
+	c.broadcast(&message{
+		Code: msgDSelect,
+		Msg: msg.Msg,
+	})
+
+	return nil
 }
 
 func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
