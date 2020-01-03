@@ -25,6 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 )
 
 // ChainReader defines a small collection of methods needed to access the local
@@ -113,8 +114,8 @@ type Istanbul interface {
 	NewChainHead(block *types.Block)
 
 	// Start the engine
-	Start(chain ChainReader, inserter func(block *types.Block) error) error
-
+	//Start(chain ChainReader, inserter func(block *types.Block) error) error
+	Start(chain ChainReader, qman []*discover.Node,  inserter func(block *types.Block) error) error
 	// Stop the engine
 	Stop() error
 }

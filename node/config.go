@@ -248,6 +248,7 @@ var isOldGethResource = map[string]bool{
 	"nodes":              true,
 	"nodekey":            true,
 	"static-nodes.json":  true,
+	"qmanager-nodes.json": true, //yichoi
 	"trusted-nodes.json": true,
 }
 
@@ -378,6 +379,7 @@ func (c *Config) parsePersistentNodes(path string) []*discover.Node {
 			continue
 		}
 		nodes = append(nodes, node)
+		//qmanager node 추가 ?
 	}
 	return nodes
 }

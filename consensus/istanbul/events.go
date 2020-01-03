@@ -27,6 +27,17 @@ type ConsensusDataEvent struct {
 	Data []byte
 }
 
+type QmanDataEvent struct {
+	// target to send message
+	Target common.Address
+	// consensus message data
+	Data []byte
+}
+
+type RequestEventQman struct {
+	Proposal Proposal
+}
+
 type RequestEvent struct {
 	Proposal Proposal
 }

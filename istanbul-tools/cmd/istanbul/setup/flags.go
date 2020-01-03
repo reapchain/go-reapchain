@@ -33,6 +33,10 @@ var (
 		Name:  "nodes",
 		Usage: "Print static nodes template",
 	}
+	qmanagerNodesFlag = cli.BoolFlag{
+		Name:  "nodes",
+		Usage: "Print qmanager nodes template",
+	}
 
 	dockerComposeFlag = cli.BoolFlag{
 		Name:  "docker-compose",

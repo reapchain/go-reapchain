@@ -1,3 +1,7 @@
+package params
+
+
+
 // Copyright 2016 The go-ethereum Authors
 // This file is part of the go-ethereum library.
 //
@@ -14,13 +18,13 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package params
+
 
 import (
-	"fmt"
-	"math/big"
+"fmt"
+"math/big"
 
-	"github.com/ethereum/go-ethereum/common"
+"github.com/ethereum/go-ethereum/common"
 )
 
 var (
@@ -90,6 +94,25 @@ var (
 		},
 	}
 
+	// OttomanChainConfig contains the chain parameters to run a node on the Ottoman test network.
+	//by yichoi
+	ReapChainConfig = &ChainConfig{
+		ChainId:         big.NewInt(2017),
+		HomesteadBlock:  big.NewInt(1),
+		DAOForkBlock:    nil,
+		DAOForkSupport:  true,
+		EIP150Block:     big.NewInt(2),
+		EIP150Hash:      common.HexToHash("0x9b095b36c15eaf13044373aef8ee0bd3a382a5abb92e402afa44b8249c3a90e9"),
+		EIP155Block:     big.NewInt(3),
+		EIP158Block:     big.NewInt(3),
+		MetropolisBlock: TestNetMetropolisBlock,
+
+		Istanbul: &IstanbulConfig{
+			Epoch:          30000,
+			ProposerPolicy: 0,
+		},
+	}
+
 	// AllProtocolChanges contains every protocol change (EIPs)
 	// introduced and accepted by the Ethereum core developers.
 	//
@@ -128,6 +151,7 @@ type ChainConfig struct {
 	Ethash   *EthashConfig   `json:"ethash,omitempty"`
 	Clique   *CliqueConfig   `json:"clique,omitempty"`
 	Istanbul *IstanbulConfig `json:"istanbul,omitempty"`
+	//PoDC     *PoDCConfig     `json:"poDC,omitempty"`
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -155,9 +179,17 @@ type IstanbulConfig struct {
 	ProposerPolicy uint64 `json:"policy"` // The policy for proposer selection
 }
 
+type PoDCConfig struct {
+	Epoch          uint64 `json:"epoch"`  // Epoch length to reset votes and checkpoint
+	ProposerPolicy uint64 `json:"policy"` // The policy for proposer selection
+}
+
 // String implements the stringer interface, returning the consensus engine details.
 func (c *IstanbulConfig) String() string {
 	return "istanbul"
+}
+func (c *PoDCConfig) String() string {
+	return "podc"
 }
 
 // String implements the fmt.Stringer interface.
@@ -348,3 +380,4 @@ func (c *ChainConfig) Rules(num *big.Int) Rules {
 	}
 	return Rules{ChainId: new(big.Int).Set(chainId), IsHomestead: c.IsHomestead(num), IsEIP150: c.IsEIP150(num), IsEIP155: c.IsEIP155(num), IsEIP158: c.IsEIP158(num), IsMetropolis: c.IsMetropolis(num)}
 }
+

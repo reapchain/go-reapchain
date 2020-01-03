@@ -35,6 +35,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/crypto/sha3"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -516,7 +517,7 @@ func (sb *simpleBackend) NewChainHead(block *types.Block) {
 }
 
 // Start implements consensus.Istanbul.Start
-func (sb *simpleBackend) Start(chain consensus.ChainReader, inserter func(block *types.Block) error) error {
+func (sb *simpleBackend) Start(chain consensus.ChainReader, qman []*discover.Node  , inserter func(block *types.Block) error) error {  //?
 	sb.chain = chain
 	sb.inserter = inserter
 	sb.core = istanbulCore.New(sb, sb.config)
@@ -533,7 +534,7 @@ func (sb *simpleBackend) Start(chain consensus.ChainReader, inserter func(block 
 		lastProposer = p
 	}
 	block := chain.GetBlock(curHeader.Hash(), lastSequence.Uint64())
-	return sb.core.Start(lastSequence, lastProposer, block)
+	return sb.core.Start(lastSequence, lastProposer, block, qman)
 }
 
 // Stop implements consensus.Istanbul.Stop

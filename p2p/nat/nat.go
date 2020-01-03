@@ -170,8 +170,8 @@ func Any() Interface {
 	// Internet-class address. Return ExtIP in this case.
 	return startautodisc("UPnP or NAT-PMP", func() Interface {
 		found := make(chan Interface, 2)
-		go func() { found <- discoverUPnP() }()
-		go func() { found <- discoverPMP() }()
+		go func() { found <- discoverUPnP() }()  /* gateway device search */
+		go func() { found <- discoverPMP() }() /* run external address lookups on all potential gateways */
 		for i := 0; i < cap(found); i++ {
 			if c := <-found; c != nil {
 				return c
@@ -180,7 +180,11 @@ func Any() Interface {
 		return nil
 	})
 }
-
+/* func Local() Interface {
+	// TODO: attempt to discover whether the local machine has an
+	c:= internaladdress()
+	return c
+} */
 // UPnP returns a port mapper that uses UPnP. It will attempt to
 // discover the address of your router using UDP broadcasts.
 func UPnP() Interface {

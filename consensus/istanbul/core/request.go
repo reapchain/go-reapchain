@@ -28,6 +28,11 @@ func (c *core) handleRequest(request *istanbul.Request) error {
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
 
+	if c.state ==StateRequestQman {
+		// c.sendPre_prepare()  //send to Qman to get Extradata
+		c.sendRequestExtraDataToQman(request)
+	}
+
 	if c.state == StateAcceptRequest {
 		c.sendPreprepare(request)
 	}
@@ -62,14 +67,15 @@ func (c *core) storeRequestMsg(request *istanbul.Request) {
 
 	c.pendingRequests.Push(request, float32(-request.Proposal.Number().Int64()))
 }
-
+//PendingRequest 는 지연 요청으로, 곧바로 보내지않고, 고루틴을 써서, 지연 처리.. ?
 func (c *core) processPendingRequests() {
 	c.pendingRequestsMu.Lock()
 	defer c.pendingRequestsMu.Unlock()
 
 	for !(c.pendingRequests.Empty()) {
 		m, prio := c.pendingRequests.Pop()
-		r, ok := m.(*istanbul.Request)
+
+		r, ok := m.(*istanbul.Request)  //?
 		if !ok {
 			c.logger.Warn("Malformed request, skip", "msg", m)
 			continue
@@ -87,8 +93,47 @@ func (c *core) processPendingRequests() {
 		}
 		c.logger.Trace("Post pending request", "request", r)
 
-		go c.sendEvent(istanbul.RequestEvent{
+		go c.sendEvent(istanbul.RequestEvent{  // 여기서 보냄. Qmanager로 보내야함.
 			Proposal: r.Proposal,
+		})
+	}
+}
+
+func makemsg() interface{} {
+	return 0x12345
+}
+//PendingRequest 는 지연 요청으로, 곧바로 보내지않고, 고루틴을 써서, 지연 처리.. ?
+func (c *core) processPendingRequestsQman() {
+	c.pendingRequestsMu.Lock()
+	defer c.pendingRequestsMu.Unlock()
+
+	for !(c.pendingRequests.Empty()) {
+		m, prio := c.pendingRequests.Pop()  //stack에서 우선순위 가져온다.
+
+		r, ok := m.(*istanbul.Request )
+		if !ok {
+			c.logger.Warn("Malformed request, skip", "msg", m)
+			continue
+		}
+		// Push back if it's a future message
+		err := c.checkRequestMsg(r)
+		if err != nil {
+			if err == errFutureMessage {
+				c.logger.Trace("Stop processing request", "request", r)
+				c.pendingRequests.Push(m, prio)
+				break
+			}
+			c.logger.Trace("Skip the pending request", "request", r, "err", err)
+			continue
+		}
+		c.logger.Trace("Post pending request", "request", r)
+        //data := makemsg()
+        //var sample_msg []byte = {1234}
+        enode_slice := c.qmanager[:]
+		go c.sendEvent(istanbul.QmanDataEvent{  // 여기서 보냄. Qmanager로 보내야함.
+			Target : c.qmanager, //?
+			Data : enode_slice , //?
+
 		})
 	}
 }
