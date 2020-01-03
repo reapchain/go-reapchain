@@ -35,7 +35,7 @@ import (
 )
 
 const Version = 4
-const boot_node_port = 31234
+const boot_node_port = 30301
 
 // Errors
 var (
