@@ -93,7 +93,6 @@ out:
 			atomic.StoreInt32(&self.canStart, 1)
 			atomic.StoreInt32(&self.shouldStart, 0)
 			if shouldStart {
-				fmt.Println("Miner - update : self.coinbase =", self.coinbase)	// yhheo
 				self.Start(self.coinbase)
 			}
 			// unsubscribe. we're only interested in this event once
@@ -108,7 +107,6 @@ func (self *Miner) Start(coinbase common.Address) {
 	atomic.StoreInt32(&self.shouldStart, 1)
 	self.worker.setEtherbase(coinbase)
 	self.coinbase = coinbase
-	fmt.Printf("Miner - Start : self.coinbase = %x\n", self.coinbase)	// yhheo
 
 	if atomic.LoadInt32(&self.canStart) == 0 {
 		log.Info("Network syncing, will start miner afterwards")

@@ -128,11 +128,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		etherbase:      config.Etherbase,
 	}
 
-	// yhheo - begin
-	// Fee address setting
-	eth.etherbase = params.FeeAddress
 	fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
-	// yhheo - end
 
 	// force to set the istanbul etherbase to node key address
 	if chainConfig.Istanbul != nil {
@@ -321,7 +317,8 @@ func (s *Ethereum) ResetWithGenesisBlock(gb *types.Block) {
 
 func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 	s.lock.RLock()
-	etherbase := params.FeeAddress	// yhheo : s.etherbase --> params.FeeAddress
+	etherbase := s.etherbase
+	//etherbase := params.FeeAddress	// yhheo : s.etherbase --> params.FeeAddress
 	s.lock.RUnlock()
 
 	if etherbase != (common.Address{}) {

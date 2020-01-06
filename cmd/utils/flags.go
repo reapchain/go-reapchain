@@ -818,28 +818,22 @@ func MakeAddress(ks *keystore.KeyStore, account string) (accounts.Account, error
 // setEtherbase retrieves the etherbase either from the directly specified
 // command line flags or from the keystore if CLI indexed.
 func setEtherbase(ctx *cli.Context, ks *keystore.KeyStore, cfg *eth.Config) {
-	// yhheo - begin
-	cfg.Etherbase = params.FeeAddress
-	fmt.Printf("setEtherbase : cfg.Etherbase = %x\n", cfg.Etherbase)
-
-	//if ctx.GlobalIsSet(EtherbaseFlag.Name) {
-	//	account, err := MakeAddress(ks, ctx.GlobalString(EtherbaseFlag.Name))
-	//	if err != nil {
-	//		Fatalf("Option %q: %v", EtherbaseFlag.Name, err)
-	//	}
-	//	cfg.Etherbase = account.Address
-	//	return
-	//}
-	//accounts := ks.Accounts()
-	//if (cfg.Etherbase == common.Address{}) {
-	//	if len(accounts) > 0 {
-	//		cfg.Etherbase = accounts[0].Address
-	//	} else {
-	//		log.Warn("No etherbase set and no accounts found as default")
-	//	}
-	//}
-
-	// yhheo - end
+	if ctx.GlobalIsSet(EtherbaseFlag.Name) {
+		account, err := MakeAddress(ks, ctx.GlobalString(EtherbaseFlag.Name))
+		if err != nil {
+			Fatalf("Option %q: %v", EtherbaseFlag.Name, err)
+		}
+		cfg.Etherbase = account.Address
+		return
+	}
+	accounts := ks.Accounts()
+	if (cfg.Etherbase == common.Address{}) {
+		if len(accounts) > 0 {
+			cfg.Etherbase = accounts[0].Address
+		} else {
+			log.Warn("No etherbase set and no accounts found as default")
+		}
+	}
 }
 
 // MakePasswordList reads password lines from the file specified by the global --password flag.
