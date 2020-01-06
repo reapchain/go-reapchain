@@ -46,6 +46,7 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/p2p"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -74,6 +75,7 @@ type Ethereum struct {
 
 	eventMux       *event.TypeMux
 	engine         consensus.Engine
+	qmanager       []*discover.Node  // Node enode list slice same as array
 	accountManager *accounts.Manager
 
 	ApiBackend *EthApiBackend
@@ -118,7 +120,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		chainConfig:    chainConfig,
 		eventMux:       ctx.EventMux,
 		accountManager: ctx.AccountManager,
-		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb),
+		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb),  //Qmanager account deliver through config vararible
 		shutdownChan:   make(chan bool),
 		stopDbUpgrade:  stopDbUpgrade,
 		networkId:      config.NetworkId,
@@ -182,7 +184,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	}
 
 	eth.miner = miner.New(eth, eth.chainConfig, eth.EventMux(), eth.engine)
-	eth.miner.SetExtra(makeExtraData(config.ExtraData))
+	eth.miner.SetExtra(makeExtraData(config.ExtraData))  //블럭의 Extra data 설정
 
 	eth.ApiBackend = &EthApiBackend{eth, nil}
 	gpoParams := config.GPO
@@ -232,7 +234,9 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig
 			config.Istanbul.Epoch = chainConfig.Istanbul.Epoch
 		}
 		config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
-		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)
+		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)  // ?
+		       // consensus.Istanbul 인터페이스 모음으로 리턴하고,
+		       // 이건 다시. consensus.Engine으로 리턴. ?
 	}
 
 	// Otherwise assume proof-of-work
@@ -398,8 +402,10 @@ func (s *Ethereum) Protocols() []p2p.Protocol {
 // Ethereum protocol implementation.
 func (s *Ethereum) Start(srvr *p2p.Server) error {
 	s.netRPCService = ethapi.NewPublicNetAPI(srvr, s.NetVersion())
+    //srvr.Config.QmanagerNodes 값이 들어있음.
+    s.qmanager = srvr.Config.QmanagerNodes // Qmanager enode 목록을 넘겨줌. 포인터로
 
-	s.protocolManager.Start()
+	s.protocolManager.Start( s.qmanager )  //Ethereum 객체의 protocolManager의 인터페이스함수  -> jump
 	if s.lesServer != nil {
 		s.lesServer.Start(srvr)
 	}

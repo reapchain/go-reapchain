@@ -61,7 +61,7 @@ func errResp(code errCode, format string, v ...interface{}) error {
 
 type ProtocolManager interface {
 	// Start protocol manager
-	Start()
+	Start(qman []*discover.Node)  //modified by yichoi
 
 	// Stop protocol manager
 	Stop()
@@ -238,7 +238,7 @@ func (pm *protocolManager) removePeer(id string) {
 	}
 }
 
-func (pm *protocolManager) Start() {
+func (pm *protocolManager) Start( qman []*discover.Node ) {
 	// broadcast transactions
 	pm.txSub = pm.eventMux.Subscribe(core.TxPreEvent{})
 	go pm.txBroadcastLoop()

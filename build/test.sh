@@ -1,1 +1,0 @@
-./bin/geth --datadir node2/data account new $1  $2

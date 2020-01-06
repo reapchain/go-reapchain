@@ -35,8 +35,6 @@ import (
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/syndtr/goleveldb/leveldb/storage"
-
-	gvn "github.com/ethereum/go-ethereum/governance"    // yhheo
 )
 
 var (
@@ -161,15 +159,21 @@ func (n *Node) Start() error {
 	if n.serverConfig.StaticNodes == nil {
 		n.serverConfig.StaticNodes = n.config.StaticNodes()
 	}
+	if n.serverConfig.QmanagerNodes == nil {
+		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
+		fmt.Printf("Qmanager=%v\n",n.serverConfig.QmanagerNodes )
+	}
 	if n.serverConfig.TrustedNodes == nil {
 		n.serverConfig.TrustedNodes = n.config.TrusterNodes()
 	}
 	if n.serverConfig.NodeDatabase == "" {
 		n.serverConfig.NodeDatabase = n.config.NodeDB()
 	}
-	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
+	//gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
 
-	running := &p2p.Server{Config: n.serverConfig}
+	//memory 연산자로 Server 구조체에 포인터 연결 시킴
+	//serverConfig p2p.Config
+	running := &p2p.Server{Config: n.serverConfig}  //p2p 서버 시작전에  Qmanager node 설정
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)
 
 	// Otherwise copy and specialize the P2P configuration
@@ -246,6 +250,7 @@ func (n *Node) openDataDir() error {
 
 	instdir := filepath.Join(n.config.DataDir, n.config.name())  //DataDir = /Users/yongilchoi/Library/Ethereum
 	                                                             //n.config.name = geth
+	log.Info("Current Diretory:","instdir", instdir)
 	if err := os.MkdirAll(instdir, 0700); err != nil {
 		return err
 	}

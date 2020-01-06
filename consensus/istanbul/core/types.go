@@ -23,25 +23,40 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/rlp"
 )
+//type ValidatorInfo struct {
+//	Address common.Address
+//	Tag istanbul.Tag
+//	Qrnd uint64
+//}
+
+// type ValidatorInfos []ValidatorInfo
 
 type Engine interface {
-	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal) error
+	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal, qmanager []*discover.Node) error  //modified by yichoi for qmanager
+	//func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal, qmanager []*discover.Node) error {
 	Stop() error
 }
 
 type State uint64
 
+
+
 const (
+
 	StateAcceptRequest State = iota
-	StatePreprepared
-	StatePrepared
-	StateCommitted
+	StatePreprepared  // = pre-prepare of podc
+	StatePrepared     // = d-select
+	StateCommitted    // = d-commit
+	StateRequestQman  // request to Qman to get ExtraData
 )
 
 func (s State) String() string {
-	if s == StateAcceptRequest {
+	if s == StateRequestQman {
+		return "Request ExtraData"   //새 라운드가 시작하면, 매번 Qmanager에게 ExtraDATA 요청한다.
+	} else if s == StateAcceptRequest {
 		return "Accept request"
 	} else if s == StatePreprepared {
 		return "Preprepared"
@@ -70,11 +85,20 @@ func (s State) Cmp(y State) int {
 
 const (
 	msgPreprepare uint64 = iota
+	msgDSelect
+	msgCoordinatorDecide
+	msgRacing
+	msgCandidateDecide
 	msgPrepare
 	msgCommit
 	msgRoundChange
+
 	msgRequestQman
+	msgHandleQman // for Qman, receive event handler from geth ( sending qmanager )
 	msgAll
+//New Qmanager Implementation
+	msgExtraDataRequest
+	msgExtraDataSend
 )
 
 type message struct {

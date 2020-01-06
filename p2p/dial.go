@@ -60,6 +60,7 @@ type dialstate struct {
 	lookupBuf     []*discover.Node // current discovery lookup results
 	randomNodes   []*discover.Node // filled from Table
 	static        map[discover.NodeID]*dialTask
+	// <- qmanager ?
 	hist          *dialHistory
 
 	start     time.Time        // time when the dialer was first used
@@ -115,6 +116,7 @@ func newDialState(static []*discover.Node, bootnodes []*discover.Node, ntab disc
 		ntab:        ntab,
 		netrestrict: netrestrict,
 		static:      make(map[discover.NodeID]*dialTask),
+		// <-- qmanager ?
 		dialing:     make(map[discover.NodeID]connFlag),
 		bootnodes:   make([]*discover.Node, len(bootnodes)),
 		randomNodes: make([]*discover.Node, maxdyn/2),
@@ -124,6 +126,10 @@ func newDialState(static []*discover.Node, bootnodes []*discover.Node, ntab disc
 	for _, n := range static {
 		s.addStatic(n)
 	}
+	//qmanager
+
+
+	//
 	return s
 }
 
@@ -175,7 +181,9 @@ func (s *dialstate) newTasks(nRunning int, peers map[discover.NodeID]*Peer, now 
 		err := s.checkDial(t.dest, peers)
 		switch err {
 		case errNotWhitelisted, errSelf:
+			//static nodes 에서 자기 자신을 먼저 지운다.
 			log.Warn("Removing static dial candidate", "id", t.dest.ID, "addr", &net.TCPAddr{IP: t.dest.IP, Port: int(t.dest.TCP)}, "err", err)
+
 			delete(s.static, t.dest.ID)
 		case nil:
 			s.dialing[id] = t.flags

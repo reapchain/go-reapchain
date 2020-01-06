@@ -17,20 +17,50 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/log"
 	"math/big"
+	"time"
 
+	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 )
 
 // Start implements core.Engine.Start
-func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal) error {
+func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal, qmanager []*discover.Node) error {
 	// Initialize last proposer
 	c.lastProposer = lastProposer
+	var err error
+	if( qmanager == nil ) {
+		return err
+	}
+    if (len(qmanager) <= 0)  {
+    	log.Debug("Qmanager node is not exist")
+        return nil
+	}
+	//	a[low:high]
+	/* a := [5]string{"C", "C++", "Java", "Python", "Go"}
+
+	slice1 := a[1:4]
+	slice2 := a[:3]
+	slice3 := a[2:]
+	slice4 := a[:] */
+	// nodekey  : 0d53d73629f75adcecd6fc1eb1c1ecb1e6a20e82a2227c0905b5bc0440be6036
+	// boot.key : 0d53d73629f75adcecd6fc1eb1c1ecb1e6a20e82a2227c0905b5bc0440be6036
+	//Qmanager enode: 5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c
+    QmanEnode := qmanager[0].ID[:]  //여기까지 정상
+
+	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
+	                                                       //Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
 	c.lastProposal = lastProposal
-	c.valSet = c.backend.Validators(c.lastProposal)
+	c.valSet = c.backend.Validators(c.lastProposal)  // Validator array 관리
+
 
 	// Start a new round from last sequence + 1
+	start :=time.Now()
+	log.Info("start time of consensus of core engine start()", start )
 	c.startNewRound(&istanbul.View{
 		Sequence: new(big.Int).Add(lastSequence, common.Big1),
 		Round:    common.Big0,
@@ -77,7 +107,7 @@ func (c *core) handleEvents() {
 			r := &istanbul.Request{
 				Proposal: ev.Proposal,
 			}
-			err := c.handleRequest(r)
+			err := c.handleRequest(r)  //send qman here
 			if err == errFutureMessage {
 				c.storeRequestMsg(r)
 			}
@@ -131,14 +161,29 @@ func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
 	}
 
 	switch msg.Code {
+	/* Qmanager handler for receiving from geth : sending qmanager event */
+	case msgHandleQman:
+		return testBacklog(c.handleQmanager(msg, src))  //Qmanager receiving event hadler
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
+	case msgDSelect:
+		return testBacklog(c.handleDSelect(msg, src))
+	case msgCoordinatorDecide:
+		return testBacklog(c.handleCoordinatorDecide(msg, src))
+	case msgRacing:
+		return testBacklog(c.handleRacing(msg, src))
+	case msgCandidateDecide:
+		return testBacklog(c.handleCandidateDecide(msg, src))
 	case msgPrepare:
 		return testBacklog(c.handlePrepare(msg, src))
 	case msgCommit:
 		return testBacklog(c.handleCommit(msg, src))
 	case msgRoundChange:
 		return c.handleRoundChange(msg, src)
+	case msgRequestQman:
+		return c.handleExtraData(msg, src)
+	case msgExtraDataSend:
+		return testBacklog(c.handleSentExtraData(msg, src))
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}

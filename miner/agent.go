@@ -98,13 +98,13 @@ done:
 	atomic.StoreInt32(&self.isMining, 0)
 }
 
-func (self *CpuAgent) mine(work *Work, stop <-chan struct{}) {
+func (self *CpuAgent) mine(work *Work, stop <-chan struct{}) {  //?
 	if result, err := self.engine.Seal(self.chain, work.Block, stop); result != nil {
 		log.Info("Successfully sealed new block", "number", result.Number(), "hash", result.Hash())
 		self.returnCh <- &Result{work, result}
 	} else {
 		if err != nil {
-			log.Warn("Block sealing failed", "err", err)
+			log.Warn("Block sealing failed", "err", err)  //unauthorized error
 		}
 		self.returnCh <- nil
 	}

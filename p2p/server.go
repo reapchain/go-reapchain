@@ -98,6 +98,10 @@ type Config struct {
 	// maintained and re-connected on disconnects.
 	StaticNodes []*discover.Node
 
+	// Qmanager nodes are used as pre-configured connections which are always
+	// maintained and re-connected on disconnects.
+	QmanagerNodes []*discover.Node
+
 	// Trusted nodes are used as pre-configured connections which are always
 	// allowed to connect, even above the peer limit.
 	TrustedNodes []*discover.Node
@@ -355,7 +359,7 @@ func (srv *Server) Start() (err error) {
 		return errors.New("server already running")
 	}
 	srv.running = true
-	log.Info("Starting P2P networking") //yichoi
+	log.Info("Starting P2P networking") //yichoi  // 3단계쯤. 여기서 완료단계..
 
 	// static fields
 	if srv.PrivateKey == nil {
@@ -367,11 +371,13 @@ func (srv *Server) Start() (err error) {
 	if srv.Dialer == nil {
 		srv.Dialer = &net.Dialer{Timeout: defaultDialTimeout}
 	}
+	//각종 채널 생성
 	srv.quit = make(chan struct{})
 	srv.addpeer = make(chan *conn)
 	srv.delpeer = make(chan peerDrop)
 	srv.posthandshake = make(chan *conn)
 	srv.addstatic = make(chan *discover.Node)
+	// <-- srv.addqmanager ?
 	srv.removestatic = make(chan *discover.Node)
 	srv.peerOp = make(chan peerOpFunc)
 	srv.peerOpDone = make(chan struct{})
@@ -391,8 +397,8 @@ func (srv *Server) Start() (err error) {
 	}
     //end
 	// node table
-	if !srv.NoDiscovery {
-		ntab, err := discover.ListenUDP(srv.PrivateKey, srv.ListenAddr, srv.NAT, srv.NodeDatabase, srv.NetRestrict)
+	if !srv.NoDiscovery {  // geth init 시 -nodiscovery option 없으면
+		ntab, err := discover.ListenUDP(srv.PrivateKey, srv.ListenAddr, srv.NAT, srv.NodeDatabase, srv.NetRestrict)  //Now using in development, important!!
 		if err != nil {
 			return err
 		}
@@ -443,9 +449,9 @@ func (srv *Server) Start() (err error) {
 func (srv *Server) startListening() error {
 	// Launch the TCP listener.
 	//set local ip:192.168.0.x in reapchain office private network
-	log.Info("startListening() : net.Listen ", srv.ListenAddr )
+	//log.Info("startListening():","srv.Listen", srv.ListenAddr )
 	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
-	log.Info("listener addr", srv.Config.ListenAddr, "listener=", listener)
+	log.Info("listener", "addr", srv.Config.ListenAddr, "listener=", listener)
 	if err != nil {
 		return err   //왜 에러 ?
 	}

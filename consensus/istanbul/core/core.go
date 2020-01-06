@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
-	metrics "github.com/ethereum/go-ethereum/metrics"
+	"github.com/ethereum/go-ethereum/metrics"
 	goMetrics "github.com/rcrowley/go-metrics"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
 )
@@ -64,6 +64,7 @@ type core struct {
 	events  *event.TypeMuxSubscription
 
 	lastProposer          common.Address
+    qmanager              common.Address
 	lastProposal          istanbul.Proposal
 	valSet                istanbul.ValidatorSet
 	waitingForRoundChange bool
@@ -87,6 +88,9 @@ type core struct {
 	sequenceMeter goMetrics.Meter
 	// the timer to record consensus duration (from accepting a preprepare to final committed stage)
 	consensusTimer goMetrics.Timer
+
+	tag istanbul.Tag
+	count int
 }
 
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
@@ -189,6 +193,7 @@ func (c *core) commit() {
 }
 
 func (c *core) startNewRound(newView *istanbul.View, roundChange bool) {
+	//time stamp
 	var logger log.Logger
 	if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
@@ -205,6 +210,7 @@ func (c *core) startNewRound(newView *istanbul.View, roundChange bool) {
 	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64())
 	c.waitingForRoundChange = false
 	c.setState(StateAcceptRequest)
+	//c.setState(StateRequestQman)  //added by yichoi for state of request and response of extra data to Qmanager
 	if roundChange && c.isProposer() {
 		c.backend.NextRound()
 	}
@@ -227,9 +233,12 @@ func (c *core) catchUpRound(view *istanbul.View) {
 	logger.Trace("Catch up round", "new_round", view.Round, "new_seq", view.Sequence, "new_proposer", c.valSet)
 }
 
-func (c *core) setState(state State) {
+func (c *core) 	setState(state State) {
 	if c.state != state {
 		c.state = state
+	}
+	if state == StateRequestQman {
+		c.processPendingRequestsQman()
 	}
 	if state == StateAcceptRequest {
 		c.processPendingRequests()
@@ -275,4 +284,12 @@ func PrepareCommittedSeal(hash common.Hash) []byte {
 	buf.Write(hash.Bytes())
 	buf.Write([]byte{byte(msgCommit)})
 	return buf.Bytes()
+}
+
+func (c *core) Tag() istanbul.Tag {
+	return c.tag
+}
+
+func (c *core) SetTag(t istanbul.Tag) {
+	c.tag = t
 }

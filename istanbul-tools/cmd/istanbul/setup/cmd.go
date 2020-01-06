@@ -110,6 +110,7 @@ func gen(ctx *cli.Context) error {
 	}
 
 	staticNodes, _ := json.MarshalIndent(nodes, "", "\t")
+    qmanagerNodes, _ := json.MarshalIndent(nodes, "", "\t")
 	if ctx.Bool(staticNodesFlag.Name) {
 		name := "static-nodes.json"
 		fmt.Println(name)
@@ -117,7 +118,17 @@ func gen(ctx *cli.Context) error {
 		fmt.Print("\n\n\n")
 
 		if ctx.Bool(saveFlag.Name) {
-			ioutil.WriteFile(name, staticNodes, os.ModePerm)
+			ioutil.WriteFile(name, qmanagerNodes, os.ModePerm)
+		}
+	}
+	if ctx.Bool(qmanagerNodesFlag.Name) {
+		name := "qmanager-nodes.json"
+		fmt.Println(name)
+		fmt.Println(string(qmanagerNodes))
+		fmt.Print("\n\n\n")
+
+		if ctx.Bool(saveFlag.Name) {
+			ioutil.WriteFile(name, qmanagerNodes, os.ModePerm)
 		}
 	}
 

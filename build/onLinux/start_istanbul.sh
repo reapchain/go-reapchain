@@ -93,11 +93,11 @@ cp ./2/nodekey node3/data/geth
 cp ./3/nodekey node4/data/geth
 cp ./4/nodekey node5/data/geth
 
-./bin/geth --datadir node1/data account import --password passwd.txt ./node1/data/geth/nodekey
-./bin/geth --datadir node2/data account import --password passwd.txt ./node2/data/geth/nodekey
-./bin/geth --datadir node3/data account import --password passwd.txt ./node3/data/geth/nodekey
-./bin/geth --datadir node4/data account import --password passwd.txt ./node4/data/geth/nodekey
-./bin/geth --datadir node5/data account import --password passwd.txt ./node5/data/geth/nodekey
+./geth --datadir node1/data account import --password passwd.txt ./node1/data/geth/nodekey
+./geth --datadir node2/data account import --password passwd.txt ./node2/data/geth/nodekey
+./geth --datadir node3/data account import --password passwd.txt ./node3/data/geth/nodekey
+./geth --datadir node4/data account import --password passwd.txt ./node4/data/geth/nodekey
+./geth --datadir node5/data account import --password passwd.txt ./node5/data/geth/nodekey
 
 pwd
 
@@ -118,11 +118,11 @@ cd ~/go/src/github.com/ethereum/go-ethereum/build
 #            "balance": "0x446c3b15f9926687d2c40534fdb564000000000000"
 #        }
 
-./bin/geth --datadir ./node1/data init ./node1/genesis.json
-./bin/geth --datadir ./node2/data init ./node2/genesis.json
-./bin/geth --datadir ./node3/data init ./node3/genesis.json
-./bin/geth --datadir ./node4/data init ./node4/genesis.json
-./bin/geth --datadir ./node5/data init ./node5/genesis.json
+./geth --datadir ./node1/data init ./node1/genesis.json
+./geth --datadir ./node2/data init ./node2/genesis.json
+./geth --datadir ./node3/data init ./node3/genesis.json
+./geth --datadir ./node4/data init ./node4/genesis.json
+./geth --datadir ./node5/data init ./node5/genesis.json
 # ./bin/geth --datadir=./node1 --port 5000 --rpcport 6000 –-ipcdisable --mine --minerthreads 1 --syncmode "full"
 
 ifconfig | grep netmask|awk '{print $2}'
@@ -146,21 +146,21 @@ ifconfig | grep netmask|awk '{print $2}'
 
 cd ~/go/src/github.com/ethereum/go-ethereum/build
 
-./bin/geth --networkid 2017 --port 30501  --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
+./geth --networkid 2017 --port 30501  --datadir ./node1/data --mine --minerthreads 1 --syncmode "full" \
 --rpc --rpcport 8545 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug" --ipcdisable --debug \
---unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.100 console 2>> ./node1/geth.log
+--unlock 0 --password passwd.txt --verbosity 6 --nat none console 2>> ./node1/geth.log
 
-./bin/geth --networkid 2017 --port 30502  --datadir ./node2/data --mine --minerthreads 1 --syncmode "full" \
+./geth --networkid 2017 --port 30502  --datadir ./node2/data --mine --minerthreads 1 --syncmode "full" \
 --rpc --rpcport 8546 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug" --ipcdisable --debug \
---unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.100 console 2>> ./node2/geth.log
+--unlock 0 --password passwd.txt --verbosity 6 --nat none console 2>> ./node2/geth.log
 
-./bin/geth --networkid 2017 --port 30503  --datadir ./node3/data --mine --minerthreads 1 --syncmode "full" \
+./geth --networkid 2017 --port 30503  --datadir ./node3/data --mine --minerthreads 1 --syncmode "full" \
 --rpc --rpcport 8547 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug" --ipcdisable --debug \
---unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.100 console 2>> ./node3/geth.log
+--unlock 0 --password passwd.txt --verbosity 6 --nat none console 2>> ./node3/geth.log
 
-./bin/geth --networkid 2017 --port 30504  --datadir ./node4/data --mine --minerthreads 1 --syncmode "full" \
+./geth --networkid 2017 --port 30504  --datadir ./node4/data --mine --minerthreads 1 --syncmode "full" \
 --rpc --rpcport 8548 --rpccorsdomain "*" --rpcapi="db,eth,net,web3,personal,web3,miner,admin,debug" --ipcdisable --debug \
---unlock 0 --password passwd.txt --verbosity 6 --nat extip:192.168.0.100 console 2>> ./node4/geth.log
+--unlock 0 --password passwd.txt --verbosity 6 --nat none console 2>> ./node4/geth.log
 
 
 
