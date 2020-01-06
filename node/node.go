@@ -35,6 +35,8 @@ import (
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/syndtr/goleveldb/leveldb/storage"
+
+	gvn "github.com/ethereum/go-ethereum/governance"	// yhheo
 )
 
 var (
@@ -169,7 +171,7 @@ func (n *Node) Start() error {
 	if n.serverConfig.NodeDatabase == "" {
 		n.serverConfig.NodeDatabase = n.config.NodeDB()
 	}
-	//gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
+	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
 
 	//memory 연산자로 Server 구조체에 포인터 연결 시킴
 	//serverConfig p2p.Config

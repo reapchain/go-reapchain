@@ -82,7 +82,8 @@ func (b *BlockGen) SetExtra(data []byte) {
 // will panic during execution.
 func (b *BlockGen) AdTx(tx *types.Transaction) {
 	if b.gasPool == nil {
-		b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress
+		b.SetCoinbase(common.Address{})
+		//b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress
 		fmt.Println("AddTx : b.header.Coinbase =", b.header.Coinbase)	// yhheo
 	}
 	b.statedb.Prepare(tx.Hash(), common.Hash{}, len(b.txs))
