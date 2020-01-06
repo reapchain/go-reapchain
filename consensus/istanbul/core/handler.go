@@ -177,11 +177,11 @@ func (c *core) handleCheckedMsg(msg *message, src istanbul.Validator) error {
 	case msgPrepare:
 		return testBacklog(c.handlePrepare(msg, src))
 	case msgCommit:
-		return testBacklog(c.handleCommit(msg, src))
+		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
-		return c.handleRoundChange(msg, src)
-	case msgRequestQman:
-		return c.handleExtraData(msg, src)
+		return testBacklog(c.handleRoundChange(msg, src))
+	case msgExtraDataRequest:
+		return testBacklog(c.handleExtraData(msg, src))
 	case msgExtraDataSend:
 		return testBacklog(c.handleSentExtraData(msg, src))
 	default:

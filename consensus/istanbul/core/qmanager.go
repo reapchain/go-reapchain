@@ -44,34 +44,33 @@ type {
 
 func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 	//logger := c.logger.New("EXTRA DATA")
-	log.Trace("EXTRA DATA REQUEST")
+	log.Info("EXTRA DATA REQUEST")
 
 
 	//logger := c.logger.New()
 	//logger.Info("EXTRA DATA REQUEST")
 	//log.Debug("from", src)
-	log.Debug("Requesting Source", "from", src)
+	log.Info("Requesting Source", "from", src)
 
 
 	//QManagerStorage, _ = leveldb.OpenFile("level", nil)
 	db, err := leveldb.OpenFile("level", nil)
 	if err != nil{
-		log.Debug("DB ERROR", "err = ", err)
+		log.Info("DB ERROR", "err = ", err)
 	}
 
 	//QManagerStorage, _ = leveldb.OpenFile("level", nil)
 
 	iter := db.NewIterator(nil, nil)
 	var extra []ValidatorInfo
+	var i = 0
 
 	for iter.Next() {
-
-		var i = 0
 		// Remember that the contents of the returned slice should not be modified, and
 		// only valid until the next call to Next.
 		key := iter.Key()
 		value := iter.Value()
-		log.Debug("KEY & Val", "key:", key, "value: ", value)
+		log.Info("KEY & Val", "key:", key, "value: ", value)
 		//var qNode qManagerNodes
 		//errs := json.Unmarshal(iter.Value(), &qNode)
 		//if errs != nil {
@@ -100,6 +99,8 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 		extra = append(extra, validatorInfo)
 		i++
 	}
+
+	log.Info("ExtraData list", "extradata", extra)
 
 	defer db.Close()
 	extraDataJson, err := json.Marshal(extra)

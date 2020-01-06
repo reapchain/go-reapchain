@@ -40,11 +40,12 @@ func (c *core) sendRequestExtraDataToQman(request *istanbul.Request) {
 
 			// Qmanager에게 최초 메시지 보낼때, payload 를 뭘로 줄건지?
 		if c.valSet.IsProposer(c.Address()) {
-			c.send(&message{
-				Code: msgRequestQman,
+			log.Info("attention.", "QMANAGER:", c.qmanager.String())
+			c.broadcast(&message{
+				Code: msgHandleQman,
 				Msg: preprepare,
 				Address: c.qmanager,
-			}, c.qmanager)
+			})
 		}
 			// proposal block 전파는 핸들러로 옮겨야,, Qmanager에서 수신시,, 처리되게끔.  / pre-prepare 상태
 			// 다음은 d-select 상태로 상태 전이함.
@@ -111,7 +112,7 @@ func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 		return err
 	}
 
-	if c.state == StateAcceptRequest {
+	if c.state == StateRequestQman {
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
