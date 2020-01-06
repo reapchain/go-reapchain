@@ -138,7 +138,7 @@ func newWorker(config *params.ChainConfig, engine consensus.Engine, coinbase com
 		unconfirmed:    newUnconfirmedBlocks(eth.BlockChain(), 5),
 		fullValidation: false,
 	}
-	fmt.Println("newWorker : worker =", worker)	// yhheo
+	fmt.Printf("newWorker : worker.coinbase = %x\n", worker.coinbase)	// yhheo
 	worker.events = worker.mux.Subscribe(core.ChainHeadEvent{}, core.ChainSideEvent{}, core.TxPreEvent{})
 	go worker.update()
 
@@ -152,6 +152,7 @@ func (self *worker) setEtherbase(addr common.Address) {
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	self.coinbase = addr
+	fmt.Printf("worker - setEtherbase : self.coinbase = %x\n", self.coinbase)	// yhheo
 }
 
 func (self *worker) setExtra(extra []byte) {
@@ -249,6 +250,7 @@ func (self *worker) update() {
 				txs := map[common.Address]types.Transactions{acc: {ev.Tx}}
 				txset := types.NewTransactionsByPriceAndNonce(txs)
 
+				fmt.Printf("worker - update : self.coinbase = %x\n", self.coinbase)	// yhheo
 				self.current.commitTransactions(self.mux, txset, self.chain, self.coinbase)
 				self.currentMu.Unlock()
 			}
@@ -410,6 +412,8 @@ func (self *worker) commitNewWork() {
 	// Only set the coinbase if we are mining (avoid spurious block rewards)
 	if atomic.LoadInt32(&self.mining) == 1 {
 		header.Coinbase = self.coinbase
+		fmt.Printf("worker - commitNewWork : self.coinbase   = %x\n", self.coinbase)	// yhheo
+		fmt.Printf("worker - commitNewWork : header.Coinbase = %x\n", header.Coinbase)	// yhheo
 	}
 	if err := self.engine.Prepare(self.chain, header); err != nil {
 		log.Error("Failed to prepare header for mining", "err", err)
