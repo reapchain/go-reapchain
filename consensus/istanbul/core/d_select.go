@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-const criteria = 2
+const criteria = 3
 
 var startTime time.Time
 var endTime time.Time
@@ -27,7 +27,7 @@ type ValidatorInfos []ValidatorInfo
 
 func (c *core) sendDSelect() {
 	logger := c.logger.New("state", c.state)
-	var extra [6]ValidatorInfo
+	var extra [7]ValidatorInfo
 	flag := false
 
 	for i, v := range c.valSet.List() {
