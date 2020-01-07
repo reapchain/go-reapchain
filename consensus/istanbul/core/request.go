@@ -16,7 +16,9 @@
 
 package core
 
-import "github.com/ethereum/go-ethereum/consensus/istanbul"
+import (
+	"github.com/ethereum/go-ethereum/consensus/istanbul"
+)
 
 func (c *core) handleRequest(request *istanbul.Request) error {
 	logger := c.logger.New("state", c.state, "seq", c.current.sequence)

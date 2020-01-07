@@ -109,8 +109,9 @@ func (c *core) handleSentExtraData(msg *message, src istanbul.Validator) error {
 }
 
 func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
-	log.Info("d-select start")
-	tstartTime = time.Now()
+	log.Info("4. Get extra data and start d-select", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+	c.intervalTime = time.Now()
+
 	// Decode d-select message
 	var extraData ValidatorInfos
 
@@ -149,9 +150,6 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 		log.Info("handling racing", "count", c.count)
 
 		if c.count > criteria {
-			endTime = time.Now()
-			elapse := (endTime.UnixNano() - startTime.UnixNano()) / 1000000
-			log.Info("racing complete", "elapse time(ms)", elapse)
 			c.sendCandidateDecide()
 			c.count = 0
 		}
@@ -162,9 +160,8 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 
 func (c *core) handleCandidateDecide(msg *message, src istanbul.Validator) error {
 	if c.state == StatePreprepared {
-		tendTime = time.Now()
-		telapse := (tendTime.UnixNano() - tstartTime.UnixNano()) / 1000000
-		log.Info("d-select end", "elapse time(ms)", telapse)
+		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+		c.intervalTime = time.Now()
 		c.sendDCommit()
 	}
 

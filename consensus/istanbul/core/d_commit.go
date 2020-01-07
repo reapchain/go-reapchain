@@ -17,6 +17,7 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 	"reflect"
 	"time"
@@ -40,8 +41,6 @@ func (c *core) sendDCommit() {
 }
 
 func (c *core) handleDCommit(msg *message, src istanbul.Validator) error {
-	startTime := time.Now()
-	log.Info("d-commit start")
 	// Decode commit message
 	var commit *istanbul.Subject
 	err := msg.Decode(&commit)
@@ -65,9 +64,8 @@ func (c *core) handleDCommit(msg *message, src istanbul.Validator) error {
 	// by committing the proposal without prepare messages.
 	if c.current.Commits.Size() > 2*c.valSet.F() && c.state.Cmp(StateCommitted) < 0 {
 		c.commit()
-		endTime := time.Now()
-		elapsed := (endTime.UnixNano() - startTime.UnixNano()) / 100000
-		log.Info("d-commit end", "elapse time(ms)", elapsed)
+		log.Info("6. D-commit end", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+		log.Info("Total Time", "elapsed", common.PrettyDuration(time.Since(c.startTime)))
 	}
 
 	return nil

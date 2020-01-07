@@ -88,10 +88,13 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 				validatorInfo.Tag = istanbul.Coordinator
 			} else {
 				flag = true
+				validatorInfo.Tag = istanbul.Candidate
 			}
 		} else if i == 1 {
 			if flag {
 				validatorInfo.Tag = istanbul.Coordinator
+			} else {
+				validatorInfo.Tag = istanbul.Candidate
 			}
 		} else {
 			validatorInfo.Tag = istanbul.Candidate
