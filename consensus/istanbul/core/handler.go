@@ -104,6 +104,8 @@ func (c *core) handleEvents() {
 		// A real event arrived, process interesting content
 		switch ev := event.Data.(type) {
 		case istanbul.RequestEvent:
+			c.startTime = time.Now()
+			log.Info("1. Start")
 			r := &istanbul.Request{
 				Proposal: ev.Proposal,
 			}

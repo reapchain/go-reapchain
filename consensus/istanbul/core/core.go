@@ -91,6 +91,8 @@ type core struct {
 
 	tag istanbul.Tag
 	count int
+	startTime time.Time
+	intervalTime time.Time
 }
 
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {

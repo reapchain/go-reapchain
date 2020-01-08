@@ -17,6 +17,7 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
@@ -25,6 +26,8 @@ import (
 
 func (c *core) sendRequestExtraDataToQman(request *istanbul.Request) {
 	logger := c.logger.New("state", c.state)
+	log.Info("2. Interval time between start new round and pre-prepare", "elapsed", common.PrettyDuration(time.Since(c.startTime)))
+	c.intervalTime = time.Now()
 
 	// If I'm the proposer and I have the same sequence with the proposal
 	if c.current.Sequence().Cmp(request.Proposal.Number()) == 0 && c.isProposer() { //?
@@ -40,7 +43,6 @@ func (c *core) sendRequestExtraDataToQman(request *istanbul.Request) {
 
 			// Qmanager에게 최초 메시지 보낼때, payload 를 뭘로 줄건지?
 		if c.valSet.IsProposer(c.Address()) {
-			log.Info("attention.", "QMANAGER:", c.qmanager.String())
 			c.broadcast(&message{
 				Code: msgHandleQman,
 				Msg: preprepare,
@@ -111,6 +113,9 @@ func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
 		c.sendNextRoundChange()
 		return err
 	}
+
+	log.Info("3. Set pre-prepare state", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+	c.intervalTime = time.Now()
 
 	if c.state == StateRequestQman {
 		c.acceptPreprepare(preprepare)
