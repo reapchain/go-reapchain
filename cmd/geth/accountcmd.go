@@ -208,7 +208,8 @@ func accountList(ctx *cli.Context) error {
 func unlockAccount(ctx *cli.Context, ks *keystore.KeyStore, address string, i int, passwords []string) (accounts.Account, string) {
 	account, err := utils.MakeAddress(ks, address)
 	if err != nil {
-		utils.Fatalf("Could not list accounts: %v", err)
+		utils.Fatalf("Could not list accounts: %v", err) //Fatal: Could not list accounts: index 0 higher than number of accounts 0
+        //account new를 안하고, account import만 했을때, 계정이 없어서, 에러남.
 	}
 	for trials := 0; trials < 3; trials++ {
 		prompt := fmt.Sprintf("Unlocking account %s | Attempt %d/%d", address, trials+1, 3)
@@ -290,7 +291,7 @@ func ambiguousAddrRecovery(ks *keystore.KeyStore, err *keystore.AmbiguousAddrErr
 }
 
 // accountCreate creates a new account into the keystore defined by the CLI flags.
-func accountCreate(ctx *cli.Context) error {
+func accountCreate(ctx *cli.Context) error {  //keystore에 계정 만들기..
 	stack, _ := makeConfigNode(ctx)
 	password := getPassPhrase("Your new account is locked with a password. Please give a password. Do not forget this password.", true, 0, utils.MakePasswordList(ctx))
 
@@ -302,6 +303,70 @@ func accountCreate(ctx *cli.Context) error {
 	fmt.Printf("Address: {%x}\n", account.Address)
 	return nil
 }
+
+// accountCreate creates a new account into the keystore defined by the CLI flags.
+// 개발시 쓰는 함수 geth account and import를 하나로 구동시키기위한 함수. 릴리즈 단계에서는 제거 예정.
+/*
+func accountImport(ctx *cli.Context) error {  //keystore에 계정 만들기..
+	keyfile := ctx.Args().First()
+	if len(keyfile) == 0 {
+		utils.Fatalf("keyfile must be given as argument")
+	}
+	key, err := crypto.LoadECDSA(keyfile)
+	if err != nil {
+		utils.Fatalf("Failed to load the private key: %v", err)
+	}
+
+	acct, err := ks.ImportECDSA(key, passphrase)
+	if err != nil {
+		utils.Fatalf("Could not create the account: %v", err)
+	}
+
+	stack, _ := makeConfigNode(ctx)
+	password := getPassPhrase("Your new account is locked with a password. Please give a password. Do not forget this password.", true, 0, utils.MakePasswordList(ctx))
+
+	ks := stack.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
+	account, err := ks.ImportAccount(password)
+	if err != nil {
+		utils.Fatalf("Failed to create account: %v", err)
+	}
+	fmt.Printf("Address: {%x}\n", account.Address)
+	return nil
+}
+// -----------
+func accountImportas(ctx *cli.Context) error {
+	keyfile := ctx.Args().First()  //
+	if len(keyfile) == 0 {
+		utils.Fatalf("keyfile must be given as argument")
+	}
+	key, err := crypto.LoadECDSA(keyfile)
+	if err != nil {
+		utils.Fatalf("Failed to load the private key: %v", err)
+	}
+	stack, _ := makeConfigNode(ctx)
+	passphrase := getPassPhrase("Your new account is locked with a password. Please give a password. Do not forget this password.", true, 0, utils.MakePasswordList(ctx))
+
+	ks := stack.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
+
+	acct, err := ks.ImportECDSA(key, passphrase)
+	if err != nil {
+		utils.Fatalf("Could not create the account: %v", err)
+	}
+	fmt.Printf("Address: {%x}\n", acct.Address)
+
+	//account, err := ks.ImportAccount(key, passphrase)
+	//if err != nil {
+	//	utils.Fatalf("Failed to create account: %v", err)
+	//}
+//	fmt.Printf("Address: {%x}\n", account.Address)
+
+
+
+
+
+	return nil
+}
+*/
 
 // accountUpdate transitions an account from a previous format to the current
 // one, also providing the possibility to change the pass-phrase.
@@ -343,6 +408,8 @@ func importWallet(ctx *cli.Context) error {
 	fmt.Printf("Address: {%x}\n", acct.Address)
 	return nil
 }
+
+// ../bin/geth --datadir node9/data account import  --password passwd.txt ./node9/data/geth/nodekey
 
 func accountImport(ctx *cli.Context) error {
 	keyfile := ctx.Args().First()
