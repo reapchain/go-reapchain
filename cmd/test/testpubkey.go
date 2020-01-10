@@ -54,12 +54,12 @@ func main() {
 	fmt.Printf("Private key            = %x\n", nodeKey )
 	fmt.Printf("PublicKey(NodeID type) = %v\n", discover.PubkeyID(&nodeKey.PublicKey))
 	//Qmanager=[enode://5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c
-	var s string ="5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c"
+	//var s string ="5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c"
 
 	var qmanager [64]byte
     var i int8 =0
 
-    for  i := 1; i < 64 ; i++  {
+    for  i = 1; i < 64 ; i++  {
 		fmt.Printf("%x", qmanager[i] )
 	}
 

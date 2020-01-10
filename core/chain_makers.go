@@ -80,7 +80,7 @@ func (b *BlockGen) SetExtra(data []byte) {
 // further limitations on the content of transactions that can be
 // added. Notably, contract code relying on the BLOCKHASH instruction
 // will panic during execution.
-func (b *BlockGen) AdTx(tx *types.Transaction) {
+func (b *BlockGen) AddTx(tx *types.Transaction) {
 	if b.gasPool == nil {
 		b.SetCoinbase(common.Address{})
 		//b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress
