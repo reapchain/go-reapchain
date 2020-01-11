@@ -82,8 +82,8 @@ func (b *BlockGen) SetExtra(data []byte) {
 // will panic during execution.
 func (b *BlockGen) AddTx(tx *types.Transaction) {
 	if b.gasPool == nil {
-		b.SetCoinbase(common.Address{})
-		//b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress
+		//b.SetCoinbase(common.Address{})
+		b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress
 		fmt.Println("AddTx : b.header.Coinbase =", b.header.Coinbase)	// yhheo
 	}
 	b.statedb.Prepare(tx.Hash(), common.Hash{}, len(b.txs))
@@ -267,7 +267,8 @@ func makeHeaderChain(parent *types.Header, n int, db ethdb.Database, seed int) [
 // makeBlockChain creates a deterministic chain of blocks rooted at parent.
 func makeBlockChain(parent *types.Block, n int, db ethdb.Database, seed int) []*types.Block {
 	blocks, _ := GenerateChain(params.TestChainConfig, parent, db, n, func(i int, b *BlockGen) {
-		b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})
+		//b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})	// yhheo
+		b.SetCoinbase(params.FeeAddress)    // yhheo : common.Address{0: byte(seed), 19: byte(i)} --> params.FeeAddress
 	})
 	return blocks
 }
