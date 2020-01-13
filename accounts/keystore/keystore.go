@@ -417,6 +417,20 @@ func (ks *KeyStore) NewAccount(passphrase string) (accounts.Account, error) {
 	return account, nil
 }
 
+func (ks *KeyStore) ImportAccount(passphrase string, key *Key) (accounts.Account, error) {
+
+	a := accounts.Account{Address: key.Address, URL: accounts.URL{Scheme: KeyStoreScheme, Path: ks.storage.JoinPath(keyFileName(key.Address))}}
+	if err := ks.storage.StoreKey(a.URL.Path, key, passphrase); err != nil {
+		return accounts.Account{}, err
+	}
+	// Add the account to the cache immediately rather
+	// than waiting for file system notifications to pick it up.
+	ks.cache.add(a)
+	ks.refreshWallets()
+	return a, nil
+
+}
+
 // Export exports as a JSON key, encrypted with newPassphrase.
 func (ks *KeyStore) Export(a accounts.Account, passphrase, newPassphrase string) (keyJSON []byte, err error) {
 	_, key, err := ks.getDecryptedKey(a, passphrase)
