@@ -91,6 +91,7 @@ type core struct {
 
 	tag istanbul.Tag
 	count int
+	racingFlag bool
 	startTime time.Time
 	intervalTime time.Time
 }

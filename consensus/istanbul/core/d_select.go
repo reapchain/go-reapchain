@@ -11,12 +11,6 @@ import (
 
 const criteria = 3
 
-var startTime time.Time
-var endTime time.Time
-
-var tstartTime time.Time
-var tendTime time.Time
-
 type ValidatorInfo struct {
 	Address common.Address
 	Tag istanbul.Tag
@@ -110,6 +104,7 @@ func (c *core) handleSentExtraData(msg *message, src istanbul.Validator) error {
 
 func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 	log.Info("4. Get extra data and start d-select", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+	c.racingFlag = false
 	c.intervalTime = time.Now()
 
 	// Decode d-select message
@@ -129,7 +124,6 @@ func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 
 	if c.tag == istanbul.Coordinator {
 		log.Info("I am Coordinator!")
-		startTime = time.Now()
 		c.sendCoordinatorDecide()
 	}
 
@@ -147,9 +141,11 @@ func (c *core) handleCoordinatorDecide(msg *message, src istanbul.Validator) err
 func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 	if c.tag == istanbul.Coordinator {
 		c.count = c.count + 1
-		log.Info("handling racing", "count", c.count)
+		//log.Info("handling racing", "count", c.count)
 
-		if c.count > criteria {
+		if c.count > criteria && !c.racingFlag {
+			//log.Info("racing completed.", "count", c.count)
+			c.racingFlag = true
 			c.sendCandidateDecide()
 			c.count = 0
 		}
