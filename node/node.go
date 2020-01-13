@@ -26,6 +26,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
+	"github.com/ethereum/go-ethereum/common"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/ethdb"
@@ -158,6 +159,7 @@ func (n *Node) Start() error {
 	n.serverConfig = n.config.P2P
 	n.serverConfig.PrivateKey = n.config.NodeKey()
 	n.serverConfig.Name = n.config.NodeName()
+
 	if n.serverConfig.StaticNodes == nil {
 		n.serverConfig.StaticNodes = n.config.StaticNodes()
 	}
@@ -165,6 +167,7 @@ func (n *Node) Start() error {
 		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
 		fmt.Printf("Qmanager=%v\n",n.serverConfig.QmanagerNodes )
 	}
+
 	if n.serverConfig.TrustedNodes == nil {
 		n.serverConfig.TrustedNodes = n.config.TrusterNodes()
 	}
@@ -239,6 +242,18 @@ func (n *Node) Start() error {
 	n.services = services
 	n.server = running
 	n.stop = make(chan struct{})
+	fmt.Printf("NODE SELF=%v\n", n.server.Self())
+
+
+	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
+	////fmt.Printf("QmanEnode=%v\n",QmanEnode )
+	//crypto.PublicKeyBytesToAddress(QmanEnode)
+
+
+	if n.server.Self().ID == QmanEnode{
+		common.ConnectDB()
+		common.QManConnected = true
+	}
 
 	return nil
 }
