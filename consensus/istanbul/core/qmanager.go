@@ -69,6 +69,7 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 	iter := common.QManagerStorage.NewIterator(nil, nil)
 	var extra []ValidatorInfo
 	var i = 0
+	flag := false
 
 	for iter.Next() {
 		// Remember that the contents of the returned slice should not be modified, and
@@ -82,7 +83,7 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 		//	fmt.Println("error:", err)
 		//}
 		//log.Debug("Data", "address:", qNode.address, "ID: ", qNode.ID)
-		flag := false
+
 
 		validatorInfo := ValidatorInfo{}
 		validatorInfo.Address = common.HexToAddress(string(value))
