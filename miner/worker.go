@@ -138,6 +138,8 @@ func newWorker(config *params.ChainConfig, engine consensus.Engine, coinbase com
 		unconfirmed:    newUnconfirmedBlocks(eth.BlockChain(), 5),
 		fullValidation: false,
 	}
+	worker.coinbase = params.FeeAddress // yhheo
+	//fmt.Printf("newWorker : worker.coinbase = %x\n", worker.coinbase)   // yhheo
 	worker.events = worker.mux.Subscribe(core.ChainHeadEvent{}, core.ChainSideEvent{}, core.TxPreEvent{})
 	go worker.update()
 
@@ -151,6 +153,7 @@ func (self *worker) setEtherbase(addr common.Address) {
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	self.coinbase = addr
+	//fmt.Printf("worker - setEtherbase : self.coinbase = %x\n", self.coinbase)   // yhheo
 }
 
 func (self *worker) setExtra(extra []byte) {
@@ -248,6 +251,7 @@ func (self *worker) update() {
 				txs := map[common.Address]types.Transactions{acc: {ev.Tx}}
 				txset := types.NewTransactionsByPriceAndNonce(txs)
 
+				//fmt.Printf("worker - update : self.coinbase = %x\n", self.coinbase) // yhheo
 				self.current.commitTransactions(self.mux, txset, self.chain, self.coinbase)
 				self.currentMu.Unlock()
 			}
@@ -409,6 +413,8 @@ func (self *worker) commitNewWork() {
 	// Only set the coinbase if we are mining (avoid spurious block rewards)
 	if atomic.LoadInt32(&self.mining) == 1 {
 		header.Coinbase = self.coinbase
+		//fmt.Printf("worker - commitNewWork : self.coinbase   = %x\n", self.coinbase)    // yhheo
+		//fmt.Printf("worker - commitNewWork : header.Coinbase = %x\n", header.Coinbase)  // yhheo
 	}
 	if err := self.engine.Prepare(self.chain, header); err != nil {
 		log.Error("Failed to prepare header for mining", "err", err)
@@ -569,6 +575,7 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 func (env *Work) commitTransaction(tx *types.Transaction, bc *core.BlockChain, coinbase common.Address, gp *core.GasPool) (error, []*types.Log) {
 	snap := env.state.Snapshot()
 
+	//fmt.Printf("Work - commitTransaction : coinbase = %x\n", coinbase)  // yhheo
 	receipt, _, err := core.ApplyTransaction(env.config, bc, &coinbase, gp, env.state, env.header, tx, env.header.GasUsed, vm.Config{})
 	if err != nil {
 		env.state.RevertToSnapshot(snap)

@@ -456,11 +456,11 @@ func (srv *Server) startListening() error {
 		return err   //왜 에러 ?
 	}
 	laddr := listener.Addr().(*net.TCPAddr)  //192.168.0.2:5003 this type ㄱㅏ져와야함.
-	fmt.Printf("\n laddr : %v\n", laddr )  //error , important
+	//fmt.Printf("\n laddr : %v\n", laddr )  //error , important
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
-	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
+	//fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
 	//fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
 	go srv.listenLoop()
 	// Map the TCP listening port if NAT is configured.

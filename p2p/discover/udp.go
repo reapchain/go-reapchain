@@ -23,7 +23,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/syndtr/goleveldb/leveldb"
 	"net"
 	"time"
 
@@ -47,7 +46,7 @@ var (
 	errTimeout          = errors.New("RPC timeout")
 	errClockWarp        = errors.New("reply deadline too far in the future")
 	errClosed           = errors.New("socket closed")
-	QManagerStorage *leveldb.DB
+	//QManagerStorage *leveldb.DB
 
 )
 
@@ -691,12 +690,16 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 				fmt.Println(hexCommonAddress)
 				qNode := qManagerNodes{fromID,node_pubKey, qManagerNodeAddress}
 
-				_, err := FindNode(fromID.String())
+				isQmanager := common.IsQmanager()
 
-				if err != nil {
-					saveError := qNode.Save()
-					if saveError != nil {
-						fmt.Println(err.Error())
+					if isQmanager{
+					nodeFound := FindNode(fromID.String())
+
+					if !nodeFound {
+						saveError := qNode.Save()
+						if !saveError {
+							fmt.Println("Save Error")
+						}
 					}
 				}
 			}
@@ -705,28 +708,19 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	return nil
 }
 
-func FindNode(nodeId string) (node *Node, err error) {
-	QManagerStorage, err = leveldb.OpenFile("level", nil)
+func FindNode(nodeId string) (found bool) {
+	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
 	//var data []byte
-	data, err := QManagerStorage.Get([]byte(nodeId), nil)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(data)
+	found_value := common.Find(nodeId)
 
-	//dec := gob.NewDecoder(bytes.NewReader(data))
-	//
-	//dec.Decode(node)
-
-	defer QManagerStorage.Close()
-	return
+	return found_value
 }
 
 
 
-func (n qManagerNodes) Save() (err error) {
-	QManagerStorage, err = leveldb.OpenFile("level", nil)
+func (n qManagerNodes) Save() (saved bool) {
+	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 	//var data bytes.Buffer
 	//enc := gob.NewEncoder(&data)
 	//enc.Encode(*n)
@@ -738,11 +732,11 @@ func (n qManagerNodes) Save() (err error) {
 	address_bytes := []byte(n.address.String())
 	fmt.Println(address_bytes)
 
-	err = QManagerStorage.Put([]byte(n.ID.String()), address_bytes, nil)
-	if err != nil {
-		return
+	saved = common.Save([]byte(n.ID.String()), address_bytes)
+	if !saved {
+		return false
 	}
-	defer QManagerStorage.Close()
+	//defer QManagerStorage.Close()
 	//iter := QManagerStorage.NewIterator(nil, nil)
 	//for iter.Next() {
 	//	// Remember that the contents of the returned slice should not be modified, and
@@ -753,7 +747,7 @@ func (n qManagerNodes) Save() (err error) {
 	//
 	//}
 
-	return
+	return true
 }
 func (req *findnode) name() string { return "FINDNODE/v4" }
 

@@ -565,10 +565,16 @@ func setNodeKey(ctx *cli.Context, cfg *p2p.Config) {
 	case file != "" && hex != "":
 		Fatalf("Options %q and %q are mutually exclusive", NodeKeyFileFlag.Name, NodeKeyHexFlag.Name)
 	case file != "":
-		if key, err = crypto.LoadECDSA(file); err != nil {
+
+		key, err = crypto.LoadECDSA(file)
+
+		log.Info("nodekey:", "nodekey", key)
+
+		if err != nil {
 			Fatalf("Option %q: %v", NodeKeyFileFlag.Name, err)
 		}
 		cfg.PrivateKey = key
+
 	case hex != "":
 		if key, err = crypto.HexToECDSA(hex); err != nil {
 			Fatalf("Option %q: %v", NodeKeyHexFlag.Name, err)
@@ -617,8 +623,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 		cfg.BootstrapNodes = append(cfg.BootstrapNodes, node)
 
 	}
-	log.Info("cfg.BootstrapNodes:","BootstarpNodes", cfg.BootstrapNodes )
-	log.Info("urls:","urls=", urls )
+	log.Info("BootstrapNodes:","BootstrapNodes", cfg.BootstrapNodes )
+
 }
 
 // setBootstrapNodesV5 creates a list of bootstrap nodes from the command line
@@ -818,18 +824,23 @@ func MakeAddress(ks *keystore.KeyStore, account string) (accounts.Account, error
 // setEtherbase retrieves the etherbase either from the directly specified
 // command line flags or from the keystore if CLI indexed.
 func setEtherbase(ctx *cli.Context, ks *keystore.KeyStore, cfg *eth.Config) {
+	//fmt.Printf("setEtherbase : cfg.Etherbase = %x\n", cfg.Etherbase) // yhheo
 	if ctx.GlobalIsSet(EtherbaseFlag.Name) {
-		account, err := MakeAddress(ks, ctx.GlobalString(EtherbaseFlag.Name))
-		if err != nil {
-			Fatalf("Option %q: %v", EtherbaseFlag.Name, err)
-		}
-		cfg.Etherbase = account.Address
+		// yhheo - begin
+		//account, err := MakeAddress(ks, ctx.GlobalString(EtherbaseFlag.Name))
+		//if err != nil {
+		//	Fatalf("Option %q: %v", EtherbaseFlag.Name, err)
+		//}
+		//cfg.Etherbase = account.Address
+		// yhheo - end
+		log.Warn("The etherbase cannot be set")	// yhheo
 		return
 	}
 	accounts := ks.Accounts()
 	if (cfg.Etherbase == common.Address{}) {
 		if len(accounts) > 0 {
-			cfg.Etherbase = accounts[0].Address
+			//cfg.Etherbase = accounts[0].Address	// yhheo
+			log.Warn("The etherbase cannot be set")	// yhheo
 		} else {
 			log.Warn("No etherbase set and no accounts found as default")
 		}

@@ -35,7 +35,7 @@ import (
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
-	"github.com/ethereum/go-ethereum/crypto"
+	//"github.com/ethereum/go-ethereum/crypto"	// yhheo
 	"github.com/ethereum/go-ethereum/eth/downloader"
 	"github.com/ethereum/go-ethereum/eth/filters"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
@@ -128,12 +128,12 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		etherbase:      config.Etherbase,
 	}
 
-	fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
+	//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)	// yhheo
 
 	// force to set the istanbul etherbase to node key address
 	if chainConfig.Istanbul != nil {
-		eth.etherbase = crypto.PubkeyToAddress(ctx.NodeKey().PublicKey)
-		//eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
+		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
+		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
 	}
 
 	if err := addMipmapBloomBins(chainDb); err != nil {
@@ -326,7 +326,7 @@ func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 	}
 	if wallets := s.AccountManager().Wallets(); len(wallets) > 0 {
 		if accounts := wallets[0].Accounts(); len(accounts) > 0 {
-			return accounts[0].Address, nil
+			return params.FeeAddress, nil	// yhheo : accounts[0].Address --> params.FeeAddress,
 		}
 	}
 	return common.Address{}, fmt.Errorf("etherbase address must be explicitly specified")
@@ -339,6 +339,7 @@ func (self *Ethereum) SetEtherbase(etherbase common.Address) {
 		log.Error("Cannot set etherbase in Istanbul consensus")
 		return
 	}
+	//fmt.Printf("Ethereum - SetEtherbase : etherbase = %x\n", etherbase) // yhheo
 	self.etherbase = etherbase
 	self.lock.Unlock()
 

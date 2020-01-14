@@ -43,6 +43,9 @@ type {
 */
 
 func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
+	if common.QManConnected{
+
+
 	//logger := c.logger.New("EXTRA DATA")
 	log.Info("EXTRA DATA REQUEST")
 
@@ -54,14 +57,16 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 
 
 	//QManagerStorage, _ = leveldb.OpenFile("level", nil)
-	db, err := leveldb.OpenFile("level", nil)
-	if err != nil{
-		log.Info("DB ERROR", "err = ", err)
-	}
+	//db, err := leveldb.OpenFile("level", nil)
+	//if err != nil{
+	//	log.Info("DB ERROR", "err = ", err)
+	//}
 
 	//QManagerStorage, _ = leveldb.OpenFile("level", nil)
 
-	iter := db.NewIterator(nil, nil)
+
+
+	iter := common.QManagerStorage.NewIterator(nil, nil)
 	var extra []ValidatorInfo
 	var i = 0
 	flag := false
@@ -106,7 +111,7 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 
 	log.Info("ExtraData list", "extradata", extra)
 
-	defer db.Close()
+	//defer db.Close()
 	extraDataJson, err := json.Marshal(extra)
 	if err != nil {
 		log.Error("Failed to encode JSON", err)
@@ -120,7 +125,7 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 	//fmt.Println("EXTRA DATA HANDLE")
 	//fmt.Println(src)
 
-
+	}
 	return nil
 }
 
