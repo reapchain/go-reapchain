@@ -105,6 +105,7 @@ func (c *core) handleSentExtraData(msg *message, src istanbul.Validator) error {
 func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 	log.Info("4. Get extra data and start d-select", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 	c.racingFlag = false
+	c.count = 0
 	c.intervalTime = time.Now()
 
 	// Decode d-select message
@@ -139,15 +140,18 @@ func (c *core) handleCoordinatorDecide(msg *message, src istanbul.Validator) err
 }
 
 func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
+	c.racingMu.Lock()
+	defer c.racingMu.Unlock()
 	if c.tag == istanbul.Coordinator {
+
 		c.count = c.count + 1
 		//log.Info("handling racing", "count", c.count)
+		//log.Info("handling racing", "flag", c.racingFlag)
 
 		if c.count > criteria && !c.racingFlag {
-			//log.Info("racing completed.", "count", c.count)
+			log.Info("racing completed.", "count", c.count)
 			c.racingFlag = true
 			c.sendCandidateDecide()
-			c.count = 0
 		}
 	}
 
