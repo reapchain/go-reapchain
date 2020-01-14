@@ -47,6 +47,7 @@ func New(backend istanbul.Backend, config *istanbul.Config) Engine {
 		roundMeter:         metrics.NewMeter("consensus/istanbul/core/round"),
 		sequenceMeter:      metrics.NewMeter("consensus/istanbul/core/sequence"),
 		consensusTimer:     metrics.NewTimer("consensus/istanbul/core/consensus"),
+		racingMu:			new(sync.Mutex),
 	}
 	c.validateFn = c.checkValidatorSignature
 	return c
@@ -92,6 +93,7 @@ type core struct {
 	tag istanbul.Tag
 	count int
 	racingFlag bool
+	racingMu *sync.Mutex
 	startTime time.Time
 	intervalTime time.Time
 }
