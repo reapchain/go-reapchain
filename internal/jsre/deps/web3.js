@@ -1768,27 +1768,27 @@ var ETH_UNITS = [
     'Gwei',
     'szabo',
     'finney',
-    'femtoether',
-    'picoether',
-    'nanoether',
-    'microether',
-    'milliether',
+    'femtoreap',
+    'picoreap',
+    'nanoreap',
+    'microreap',
+    'millireap',
     'nano',
     'micro',
     'milli',
-    'ether',
+    'reap',
     'grand',
-    'Mether',
-    'Gether',
-    'Tether',
-    'Pether',
-    'Eether',
-    'Zether',
-    'Yether',
-    'Nether',
-    'Dether',
-    'Vether',
-    'Uether'
+    'Mreap',
+    'Greap',
+    'Treap',
+    'Preap',
+    'Ereap',
+    'Zreap',
+    'Yreap',
+    'Nreap',
+    'Dreap',
+    'Vreap',
+    'Ureap'
 ];
 
 module.exports = {
@@ -1884,33 +1884,33 @@ var sha3 = require('./sha3.js');
 var utf8 = require('utf8');
 
 var unitMap = {
-    'noether':      '0',    
+    'noreap':      '0',
     'wei':          '1',
     'kwei':         '1000',
     'Kwei':         '1000',
     'babbage':      '1000',
-    'femtoether':   '1000',
+    'femtoreap':   '1000',
     'mwei':         '1000000',
     'Mwei':         '1000000',
     'lovelace':     '1000000',
-    'picoether':    '1000000',
+    'picoreap':    '1000000',
     'gwei':         '1000000000',
     'Gwei':         '1000000000',
     'shannon':      '1000000000',
-    'nanoether':    '1000000000',
+    'nanoreap':    '1000000000',
     'nano':         '1000000000',
     'szabo':        '1000000000000',
-    'microether':   '1000000000000',
+    'microreap':   '1000000000000',
     'micro':        '1000000000000',
     'finney':       '1000000000000000',
-    'milliether':    '1000000000000000',
+    'millireap':    '1000000000000000',
     'milli':         '1000000000000000',
-    'ether':        '1000000000000000000',
-    'kether':       '1000000000000000000000',
+    'reap':        '1000000000000000000',
+    'kreap':       '1000000000000000000000',
     'grand':        '1000000000000000000000',
-    'mether':       '1000000000000000000000000',
-    'gether':       '1000000000000000000000000000',
-    'tether':       '1000000000000000000000000000000'
+    'mreap':       '1000000000000000000000000',
+    'greap':       '1000000000000000000000000000',
+    'treap':       '1000000000000000000000000000000'
 };
 
 /**
@@ -2129,7 +2129,7 @@ var toHex = function (val) {
  * @throws error if the unit is not correct:w
  */
 var getValueOfUnit = function (unit) {
-    unit = unit ? unit.toLowerCase() : 'ether';
+    unit = unit ? unit.toLowerCase() : 'reap';
     var unitValue = unitMap[unit];
     if (unitValue === undefined) {
         throw new Error('This unit doesn\'t exists, please use the one of the following units' + JSON.stringify(unitMap, null, 2));
