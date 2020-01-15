@@ -249,10 +249,16 @@ func (n *Node) Start() error {
 	////fmt.Printf("QmanEnode=%v\n",QmanEnode )
 	//crypto.PublicKeyBytesToAddress(QmanEnode)
 
+	common.QManagerNodeIDStr = QmanEnode.String()
 
 	if n.server.Self().ID == QmanEnode{
 		common.ConnectDB()
 		common.QManConnected = true
+
+		//QmanAddress := net.UDPAddr{IP: n.server.Self().IP, Port: int(n.server.Self().UDP)}
+		//p := &QmanAddress
+		//common.QManagerAddress = *p
+
 	}
 
 	return nil

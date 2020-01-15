@@ -116,6 +116,7 @@ func newTestValidatorSet(n int) (istanbul.ValidatorSet, []*ecdsa.PrivateKey) {
 	return vset, keys
 }
 */
+
 type Keys []*ecdsa.PrivateKey
 
 func (slice Keys) Len() int {
@@ -302,6 +303,9 @@ func main() {
 			utils.Fatalf("%v", err)
 		}
 	} else {  //main Listen server init and run discovery
+
+
+		common.BootNodeQManAddr = "85ac3a78898489dfd3e65361385994b524c1a0befbc9d105a79d739992b4f4d48ea6cc40d1f20ca11931d0c6175581d00e614bc405354ef5fec9150363c3aac9"
 		var account common.Address
 		account = PubkeyToAddress(nodeKey.PublicKey)
 		fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
