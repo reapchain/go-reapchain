@@ -1761,6 +1761,7 @@ if (typeof XMLHttpRequest === 'undefined') {
 /// required to define ETH_BIGNUMBER_ROUNDING_MODE
 var BigNumber = require('bignumber.js');
 
+/// ether -> reap by leejaeseong
 var ETH_UNITS = [
     'wei',
     'kwei',
@@ -1883,6 +1884,7 @@ var BigNumber = require('bignumber.js');
 var sha3 = require('./sha3.js');
 var utf8 = require('utf8');
 
+/// ether -> reap by leejaeseong
 var unitMap = {
     'noreap':      '0',
     'wei':          '1',

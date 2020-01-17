@@ -70,7 +70,7 @@ type txdata struct {
 	// This is only used when marshaling to JSON.
 	Hash *common.Hash `json:"hash" rlp:"-"`
 
-	Governance  bool 	// yhheo
+	Governance  bool  `json:"governance" rlp:"-"`// yhheo
 }
 
 type txdataMarshaling struct {
