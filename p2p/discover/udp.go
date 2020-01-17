@@ -68,6 +68,8 @@ const (
 	findnodePacket
 	neighborsPacket
 	qmanagerPacket    // 4 - for reapchain
+	requestQmanPacket
+	receiveQmanPacket
 )
 
 // RPC request structures
@@ -111,16 +113,29 @@ type (
 
 	// reply to findnode
 	qmanager struct {
-		Nodes      NodeID  //? whether set NodeID or []rpcNode, select something to martin
+		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
 		Expiration uint64
 		// Ignore additional fields (for forward compatibility).
-		Rest []rlp.RawValue `rlp:"tail"`
 	}
 
+	requestQman struct {
+		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
+		Expiration uint64
+		// Ignore additional fields (for forward compatibility).
+	}
 
+	receiveQman struct {
+		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
+		Expiration uint64
+		// Ignore additional fields (for forward compatibility).
+	}
 
-
-
+	bootNodePacket struct {
+		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
+		Expiration uint64
+		QManNodeIDStr string
+		// Ignore additional fields (for forward compatibility).
+	}
 
 	rpcNode struct {
 		IP  net.IP // len 4 for IPv4 or 16 for IPv6
@@ -142,13 +157,7 @@ type (
 	}
 )
 
-func (q qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
-	panic("implement me")
-}
 
-func (q qmanager) name() string {
-	panic("implement me")
-}
 
 func makeEndpoint(addr *net.UDPAddr, tcpPort uint16) rpcEndpoint {
 	ip := addr.IP.To4()
@@ -605,6 +614,11 @@ func decodePacket(buf []byte) (packet, NodeID, []byte, error) {
 		req = new(neighbors)
 	case qmanagerPacket:
 		req = new(qmanager)
+	case requestQmanPacket:
+		req = new(requestQman)
+	case receiveQmanPacket:
+		req = new(receiveQman)
+
 	default:
 		return nil, fromID, hash, fmt.Errorf("unknown type: %d", ptype)
 	}
@@ -626,6 +640,8 @@ func (req *ping) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) er
 		// Note: we're ignoring the provided IP address right now
 		go t.bond(true, fromID, from, req.From.TCP)
 	}
+
+
 	return nil
 }
 
@@ -638,6 +654,16 @@ func (req *pong) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) er
 	if !t.handleReply(fromID, pongPacket, req) {
 		return errUnsolicitedReply
 	}
+
+	if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
+		fmt.Println("Pong From:", fromID)
+	}
+
+
+
+
+
+
 	return nil
 }
 
@@ -674,37 +700,62 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			t.send(from, neighborsPacket, &p)
 			p.Nodes = p.Nodes[:0]
 
-			if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
-				fmt.Println("BOOTNODE SYSTEM")
-				fmt.Println(t.conn.LocalAddr().(*net.UDPAddr).Port)
-				fmt.Println(fromID)
 
-				node_pubKey, _ := fromID.Pubkey()
 
-				pubBytes := crypto.FromECDSAPub(node_pubKey)
-				qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
-
-				fmt.Println(qManagerNodeAddress)
-
-				hexCommonAddress := qManagerNodeAddress.String()
-				fmt.Println(hexCommonAddress)
-				qNode := qManagerNodes{fromID,node_pubKey, qManagerNodeAddress}
-
-				isQmanager := common.IsQmanager()
-
-					if isQmanager{
-					nodeFound := FindNode(fromID.String())
-
-					if !nodeFound {
-						saveError := qNode.Save()
-						if !saveError {
-							fmt.Println("Save Error")
-						}
-					}
-				}
-			}
 		}
 	}
+
+	if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
+		//HexToNodeID, _ := HexID(common.QManagerNodeIDStr)
+		//if fromID == HexToNodeID {
+		//	common.QManagerAddress = from
+		//	common.QManReady = true
+		//}
+
+
+		if !common.BootNodeReady{
+			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+			fmt.Println("Bootnode Requesting")
+
+			fmt.Println(from, fromID)
+			t.send(from , requestQmanPacket, &ps)
+		}
+
+
+
+
+	}
+
+	if common.BootNodeReady {
+		ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+		fmt.Println("BOOTNODE SEND DATA")
+		fmt.Println(from, fromID)
+
+		//QmanAddress := common.QManagerAddress
+		//p := &QmanAddress
+
+		t.send(common.QManagerAddress , qmanagerPacket, &ps)
+		//}
+	}
+
+
+
+	//if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
+	//	HexToNodeID, _ := HexID(common.BootNodeQManAddr)
+	//	if fromID == HexToNodeID{
+	//		common.QManagerAddress = from
+	//		common.QManReady = true
+	//	}
+		//
+		//common.BootNodeAddress  = t.conn.LocalAddr().(*net.UDPAddr)
+		//if !common.BootNodeReady {
+		//	bnp := bootNodePacket{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix(),)}
+		//	t.send(common.BootNodeAddress , bootnodePacket, &bnp)
+		//	common.BootNodeReady = true
+		//}
+		//fmt.Println(HexToNodeID)
+		//fmt.Println(common.QManagerNodeIDStr)
+
 	return nil
 }
 
@@ -727,10 +778,10 @@ func (n qManagerNodes) Save() (saved bool) {
 
 	//reqBodyBytes := new(bytes.Buffer)
 	//json.NewEncoder(reqBodyBytes).Encode(n)
-	fmt.Println("JSON BYTES")
+	//fmt.Println("JSON BYTES")
 	//fmt.Println(reqBodyBytes.Bytes())
 	address_bytes := []byte(n.address.String())
-	fmt.Println(address_bytes)
+	//fmt.Println(address_bytes)
 
 	saved = common.Save([]byte(n.ID.String()), address_bytes)
 	if !saved {
@@ -765,4 +816,94 @@ func (req *neighbors) name() string { return "NEIGHBORS/v4" }
 
 func expired(ts uint64) bool {
 	return time.Unix(int64(ts), 0).Before(time.Now())
+}
+
+
+
+func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+	if expired(req.Expiration) {
+		return errExpired
+	}
+	//if !t.handleReply(fromID, neighborsPacket, req) {
+	//	return errUnsolicitedReply
+	//}
+
+	//fmt.Println(fromID)
+	//fmt.Println("BOOTNODE SYSTEM:" + string(t.conn.LocalAddr().(*net.UDPAddr).Port))
+	//fmt.Println()
+
+	node_pubKey, _ := req.Node.Pubkey()
+
+	pubBytes := crypto.FromECDSAPub(node_pubKey)
+	qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
+
+	//fmt.Println(qManagerNodeAddress)
+
+	//hexCommonAddress := qManagerNodeAddress.String()
+	//fmt.Println(hexCommonAddress)
+	qNode := qManagerNodes{req.Node,node_pubKey, qManagerNodeAddress}
+
+
+	nodeFound := FindNode(fromID.String())
+	log.Info("Qmanager New Entry", "ID = ", req.Node)
+
+	if !nodeFound {
+		saveError := qNode.Save()
+		if !saveError {
+			//fmt.Println("Save Error")
+			log.Info("Save ERR", "err = ", saveError)
+		}
+	}
+
+	return nil
+}
+
+func (req qmanager) name() string {
+	return "QMANAGER/v4"
+}
+
+
+
+func (req *requestQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+	if expired(req.Expiration) {
+		return errExpired
+	}
+
+	if common.QManConnected {
+		fmt.Println("Qman Sending Address")
+		ps := receiveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+		fmt.Println(fromID)
+		t.send(from , receiveQmanPacket, &ps)
+
+
+	}
+	return nil
+}
+
+func (req requestQman) name() string {
+	return "QManager Request/v4"
+}
+
+
+func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+	if expired(req.Expiration) {
+		return errExpired
+	}
+
+	if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
+		fmt.Println("Recieved Qman Address")
+		//ps := recieveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+		//fmt.Println(fromID)
+		//t.send(from , recieveQmanPacket, &ps)
+
+		common.QManagerAddress = from
+		common.BootNodeReady = true
+
+
+	}
+	return nil
+}
+
+func (req receiveQman) name() string {
+	return "QManager Receive/v4"
 }
