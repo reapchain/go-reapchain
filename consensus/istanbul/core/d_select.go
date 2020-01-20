@@ -3,13 +3,12 @@ package core
 import (
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/log"
 	"math/rand"
 	"time"
 )
-
-const criteria = 3
 
 type ValidatorInfo struct {
 	Address common.Address
@@ -148,7 +147,7 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 		//log.Info("handling racing", "count", c.count)
 		//log.Info("handling racing", "flag", c.racingFlag)
 
-		if c.count > criteria && !c.racingFlag {
+		if c.count > config.Config.Consensus.Criteria && !c.racingFlag {
 			log.Info("racing completed.", "count", c.count)
 			c.racingFlag = true
 			c.sendCandidateDecide()

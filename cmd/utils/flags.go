@@ -32,6 +32,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/consensus/ethash"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/state"
@@ -594,7 +595,8 @@ func setNodeUserIdent(ctx *cli.Context, cfg *node.Config) {
 // flags, reverting to pre-configured ones if none have been specified.
 func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	// urls := params.MainnetBootnodes //temp disable in developement
-	urls := params.ReapChainBootnodes
+	//urls := params.ReapChainBootnodes
+	urls := config.Config.Bootnodes
 
 	switch {
 	case ctx.GlobalIsSet(BootnodesFlag.Name) || ctx.GlobalIsSet(BootnodesV4Flag.Name):
@@ -610,7 +612,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	case ctx.GlobalBool(OttomanFlag.Name):
 		urls = params.OttomanBootnodes
 	case ctx.GlobalBool(ReapChainFlag.Name):
-		urls = params.ReapChainBootnodes
+		//urls = params.ReapChainBootnodes
+		urls = config.Config.Bootnodes
 	}
 
 	cfg.BootstrapNodes = make([]*discover.Node, 0, len(urls))
@@ -631,7 +634,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 // flags, reverting to pre-configured ones if none have been specified.
 func setBootstrapNodesV5(ctx *cli.Context, cfg *p2p.Config) {
 	// urls := params.DiscoveryV5Bootnodes  //should change in the future, more detail
-	urls := params.ReapChainBootnodes  //private network for reapchain in office, temporary when development.
+	//urls := params.ReapChainBootnodes  //private network for reapchain in office, temporary when development.
+	urls := config.Config.Bootnodes
 	switch {
 	case ctx.GlobalIsSet(BootnodesFlag.Name) || ctx.GlobalIsSet(BootnodesV5Flag.Name):
 		if ctx.GlobalIsSet(BootnodesV5Flag.Name) {
