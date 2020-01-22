@@ -103,6 +103,9 @@ func (e *GenesisMismatchError) Error() string {
 //
 // The returned chain configuration is never nil.
 func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig, common.Hash, error) {
+
+	log.Info("genesis","genesis", genesis )
+
 	if genesis != nil && genesis.Config == nil {
 		return params.AllProtocolChanges, common.Hash{}, errGenesisNoConfig
 	}
@@ -114,7 +117,10 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 			log.Info("Writing default main-net genesis block")
 			genesis = DefaultGenesisBlock()
 		} else {
-			log.Info("Writing custom genesis block")
+			log.Info("Writing custom genesis block")  //istanbul 
+			//display podc instead of istanbul temporarly, all others implementation will be next time fully in the future.
+			//
+			log.Info( "display of genesis.config", "genesis.Config", genesis.Config)
 		}
 		block, err := genesis.Commit(db)
 		return genesis.Config, block.Hash(), err
