@@ -30,3 +30,4 @@ build/_vendor/pkg
 # travis
 profile.tmp
 profile.cov
+/_tests/
