@@ -21,7 +21,6 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/log"
 )
 
@@ -80,7 +79,6 @@ func (c *core) sendPreprepare(request *istanbul.Request) {
 	}
 }
 func (c *core) handleQmanager(msg *message, src istanbul.Validator) error {
-	log.Info("Environment", "config", config.Config)
 	logger := c.logger.New("from", src, "state", c.state)
 // Qmanager receiver에 맞게 수정할 부분 begin
 // 1. Extra data 전송하고,

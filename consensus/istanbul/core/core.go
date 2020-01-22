@@ -245,7 +245,7 @@ func (c *core) 	setState(state State) {
 	//if state == StateRequestQman {
 	//	c.processPendingRequestsQman()
 	//}
-	if state == StateAcceptRequest && state == StateRequestQman {
+	if state == StateAcceptRequest || state == StateRequestQman {
 		c.processPendingRequests()
 	}
 	c.processBacklog()
