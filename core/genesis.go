@@ -117,7 +117,7 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 			log.Info("Writing default main-net genesis block")
 			genesis = DefaultGenesisBlock()
 		} else {
-			log.Info("Writing custom genesis block")  //istanbul 
+			log.Info("Writing custom genesis block")  //istanbul
 			//display podc instead of istanbul temporarly, all others implementation will be next time fully in the future.
 			//
 			log.Info( "display of genesis.config", "genesis.Config", genesis.Config)
