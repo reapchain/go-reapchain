@@ -69,13 +69,13 @@ func CheckPublicKey(pubkey []byte) bool {
 
     var isGovernance bool
 
-    fmt.Println("CheckPublicKey : gc.Governance =", gc.Governance)
+	fmt.Printf("\nfunc CheckPublicKey\n gc.Governance = %t\n", gc.Governance)
 
     if gc.Governance {
         pkHash := common.BytesToHash(pubkey)
-        fmt.Printf("CheckPublicKey : Tx.pubkey    = %x\n", pubkey)
-        fmt.Printf("CheckPublicKey : Tx.pkHash    = %x\n", pkHash)
-        fmt.Printf("CheckPublicKey : gc.PublicKey = %x\n", gc.PublicKey)
+        fmt.Printf(" Tx.pubkey    = %x\n", pubkey)
+        fmt.Printf(" Tx.pkHash    = %x\n", pkHash)
+        fmt.Printf(" gc.PublicKey = %x\n", gc.PublicKey)
 
         governanceKey(gc)
 
@@ -84,7 +84,7 @@ func CheckPublicKey(pubkey []byte) bool {
         isGovernance = false
     }
 
-    fmt.Println("CheckPublicKey : isGovernance =", isGovernance)
+    fmt.Println(" isGovernance =", isGovernance)
 
     return isGovernance
 }

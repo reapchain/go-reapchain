@@ -11,14 +11,18 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+var _ = (*txdataMarshaling)(nil)
+
+// MarshalJSON marshals as JSON.
 func (t txdata) MarshalJSON() ([]byte, error) {
 	type txdata struct {
-		AccountNonce hexutil.Uint64  `json:"nonce"    gencodec:"required"`
-		Price        *hexutil.Big    `json:"gasPrice" gencodec:"required"`
-		GasLimit     *hexutil.Big    `json:"gas"      gencodec:"required"`
-		Recipient    *common.Address `json:"to"       rlp:"nil"`
-		Amount       *hexutil.Big    `json:"value"    gencodec:"required"`
-		Payload      hexutil.Bytes   `json:"input"    gencodec:"required"`
+		AccountNonce hexutil.Uint64  `json:"nonce"      gencodec:"required"`
+		Price        *hexutil.Big    `json:"gasPrice"   gencodec:"required"`
+		GasLimit     *hexutil.Big    `json:"gas"        gencodec:"required"`
+		Recipient    *common.Address `json:"to"         rlp:"nil"`
+		Amount       *hexutil.Big    `json:"value"      gencodec:"required"`
+		Payload      hexutil.Bytes   `json:"input"      gencodec:"required"`
+		Governance   bool            `json:"governance" gencodec:"required"`
 		V            *hexutil.Big    `json:"v" gencodec:"required"`
 		R            *hexutil.Big    `json:"r" gencodec:"required"`
 		S            *hexutil.Big    `json:"s" gencodec:"required"`
@@ -31,6 +35,7 @@ func (t txdata) MarshalJSON() ([]byte, error) {
 	enc.Recipient = t.Recipient
 	enc.Amount = (*hexutil.Big)(t.Amount)
 	enc.Payload = t.Payload
+	enc.Governance = t.Governance
 	enc.V = (*hexutil.Big)(t.V)
 	enc.R = (*hexutil.Big)(t.R)
 	enc.S = (*hexutil.Big)(t.S)
@@ -38,14 +43,16 @@ func (t txdata) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&enc)
 }
 
+// UnmarshalJSON unmarshals from JSON.
 func (t *txdata) UnmarshalJSON(input []byte) error {
 	type txdata struct {
-		AccountNonce *hexutil.Uint64 `json:"nonce"    gencodec:"required"`
-		Price        *hexutil.Big    `json:"gasPrice" gencodec:"required"`
-		GasLimit     *hexutil.Big    `json:"gas"      gencodec:"required"`
-		Recipient    *common.Address `json:"to"       rlp:"nil"`
-		Amount       *hexutil.Big    `json:"value"    gencodec:"required"`
-		Payload      hexutil.Bytes   `json:"input"    gencodec:"required"`
+		AccountNonce *hexutil.Uint64 `json:"nonce"      gencodec:"required"`
+		Price        *hexutil.Big    `json:"gasPrice"   gencodec:"required"`
+		GasLimit     *hexutil.Big    `json:"gas"        gencodec:"required"`
+		Recipient    *common.Address `json:"to"         rlp:"nil"`
+		Amount       *hexutil.Big    `json:"value"      gencodec:"required"`
+		Payload      *hexutil.Bytes  `json:"input"      gencodec:"required"`
+		Governance   *bool           `json:"governance" gencodec:"required"`
 		V            *hexutil.Big    `json:"v" gencodec:"required"`
 		R            *hexutil.Big    `json:"r" gencodec:"required"`
 		S            *hexutil.Big    `json:"s" gencodec:"required"`
@@ -77,7 +84,11 @@ func (t *txdata) UnmarshalJSON(input []byte) error {
 	if dec.Payload == nil {
 		return errors.New("missing required field 'input' for txdata")
 	}
-	t.Payload = dec.Payload
+	t.Payload = *dec.Payload
+	if dec.Governance == nil {
+		return errors.New("missing required field 'governance' for txdata")
+	}
+	t.Governance = *dec.Governance
 	if dec.V == nil {
 		return errors.New("missing required field 'v' for txdata")
 	}

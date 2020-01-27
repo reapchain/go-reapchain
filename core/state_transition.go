@@ -223,20 +223,20 @@ func (st *StateTransition) preCheck() error {
 // including the required gas for the operation as well as the used gas. It returns an error if it
 // failed. An error indicates a consensus issue.
 func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big.Int, err error) {
-	fmt.Println("TransitionDb : st.msg.Governance() =", st.msg.Governance())	// yhheo
+	fmt.Printf("\nfunc (st *StateTransition) TransitionDb\n st.msg.Governance() = %t\n", st.msg.Governance())
 	if err = st.preCheck(); err != nil {
 		return
 	}
 	msg := st.msg
 	sender := st.from() // err checked in preCheck
 
-	fmt.Printf("TransitionDb : st.evm.Coinbase = %x\n", st.evm.Coinbase)	// yhheo
+	fmt.Printf(" st.evm.Coinbase = %x\n", st.evm.Coinbase)  // yhheo
 	//fmt.Printf("TransitionDb : st.gas = %d\n st.gasPrice = %d\n", st.gas, st.gasPrice)	// yhheo
 
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
 	contractCreation := msg.To() == nil
 
-	//fmt.Printf("TransitionDb : homestead = %t\n contractCreation = %t\n", homestead, contractCreation)         // yhheo
+	//fmt.Printf(" homestead = %t\n contractCreation = %t\n", homestead, contractCreation)         // yhheo
 
 	// Pay intrinsic gas
 	// TODO convert to uint64
@@ -248,7 +248,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 		return nil, nil, nil, err
 	}
 
-    //fmt.Printf("TransitionDb : intrinsicGas = %d\n", intrinsicGas)        // yhheo
+	//fmt.Printf(" intrinsicGas = %d\n", intrinsicGas)        // yhheo
 
 	var (
 		evm = st.evm
@@ -259,13 +259,18 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
         fee *big.Int    		// yhheo
 	)
 	if contractCreation {
-		ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
-		//fmt.Printf("TransitionDb : evm.Create (st.gas) = %d\n", st.gas)	// yhheo
+		if st.msg.Governance() {
+			ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
+			//fmt.Printf(" evm.Create (st.gas) = %d\n", st.gas)   // yhheo
+		} else {
+			log.Warn("no contract creation permissions", "sender", sender, "data", st.data)
+			return nil, nil, nil, vm.ErrDeployPermissions
+		}
 	} else {
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(sender.Address(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to().Address(), st.data, st.gas, st.value)
-		//fmt.Printf("TransitionDb : evm.Call (st.gas) = %d\n", st.gas)	// yhheo
+		//fmt.Printf(" evm.Call (st.gas) = %d\n", st.gas) // yhheo
 	}
 	if vmerr != nil {
 		log.Debug("VM returned with error", "err", vmerr)
@@ -279,6 +284,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
     // yhheo - begin
 	//fmt.Printf("TransitionDb : st.coinTransfer() = %t\n", st.coinTransfer())  // yhheo
     if st.msg.Governance() || st.coinTransfer() {
+		//fmt.Printf(" st.msg.Governance() = %t\n
 		requiredGas = new(big.Int).SetUint64(0)
 		st.gas = st.initialGas.Uint64()
 	} else {
@@ -291,12 +297,12 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
     // yhheo - begin
 	requiredGas = new(big.Int).Set(st.gasUsed())
 	fee = st.calcFee(st.gasUsed())
-    //fmt.Printf("TransitionDb : fee = %d\n", fee)
+	//fmt.Printf(" fee = %d\n", fee)
 
 	st.state.AddBalance(st.evm.Coinbase, fee)   // new(big.Int).Mul(st.gasUsed(), st.gasPrice)
     // yhheo - end
 
-    //fmt.Printf("TransitionDb : requiredGas = %d\n st.gasUsed() = %d\n", requiredGas, st.gasUsed())
+	//fmt.Printf(" requiredGas = %d\n st.gasUsed() = %d\n", requiredGas, st.gasUsed())
 	return ret, requiredGas, st.gasUsed(), err
 }
 
@@ -339,24 +345,17 @@ func (st *StateTransition) gasUsed() *big.Int {
 
 // yhheo - begin
 func (st *StateTransition) calcFee(gas *big.Int) *big.Int {
-    var (
-        zeroGas = new(big.Int)
-        zeroFee = new(big.Int)
-        baseFee = new(big.Int)
-        opcdFee = new(big.Int)
-    )
     if st.msg.Governance() {
-        return zeroFee.SetUint64(0)
+        return big.NewInt(0)
     }
     //if gas == zeroGas.SetUint64(0)  {
-    if gas.Cmp(zeroGas.SetUint64(0)) == 0 {
-        return zeroFee.SetUint64(0)
+    if gas.Cmp(big.NewInt(0)) == 0 {
+        return big.NewInt(0)
     }
-    baseFee.SetString("20000000000000000",10)   // 0.02  reap = 10^16 wei
-    opcdFee.SetString( "3000000000000000",10)   // 0.003 reap = 10^15 wei
 
     // reapchain fee = 0.02 Reap(10^16) + ((opcode연산:gas) * 0.003 Reap(10^15))
-    return new(big.Int).Add(baseFee, new(big.Int).Mul(gas, opcdFee))
+	// fmt.Printf("\nfunc (st *StateTransition) calcFee\n big.NewInt(params.Basefee) = %d\n big.NewInt(params.Gasfee) = %d\n", big.NewInt(params.Basefee), big.NewInt(params.Gasfee))	// yhheo
+    return new(big.Int).Add(big.NewInt(params.Basefee), new(big.Int).Mul(gas, big.NewInt(params.Gasfee)))
 }
 
 func (st *StateTransition) coinTransfer() bool {

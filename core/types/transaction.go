@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/ethereum/go-ethereum/params"	// yhheo
 )
 
 //go:generate gencodec -type txdata -field-override txdataMarshaling -out gen_tx_json.go
@@ -55,12 +56,13 @@ type Transaction struct {
 }
 
 type txdata struct {
-	AccountNonce uint64          `json:"nonce"    gencodec:"required"`
-	Price        *big.Int        `json:"gasPrice" gencodec:"required"`
-	GasLimit     *big.Int        `json:"gas"      gencodec:"required"`
-	Recipient    *common.Address `json:"to"       rlp:"nil"` // nil means contract creation
-	Amount       *big.Int        `json:"value"    gencodec:"required"`
-	Payload      []byte          `json:"input"    gencodec:"required"`
+	AccountNonce uint64          `json:"nonce"      gencodec:"required"`
+	Price        *big.Int        `json:"gasPrice"   gencodec:"required"`
+	GasLimit     *big.Int        `json:"gas"        gencodec:"required"`
+	Recipient    *common.Address `json:"to"         rlp:"nil"` // nil means contract creation
+	Amount       *big.Int        `json:"value"      gencodec:"required"`
+	Payload      []byte          `json:"input"      gencodec:"required"`
+	Governance   bool            `json:"governance" gencodec:"required"`	// yhheo
 
 	// Signature values
 	V *big.Int `json:"v" gencodec:"required"`
@@ -69,8 +71,6 @@ type txdata struct {
 
 	// This is only used when marshaling to JSON.
 	Hash *common.Hash `json:"hash" rlp:"-"`
-
-	Governance  bool  `json:"governance" rlp:"-"`// yhheo
 }
 
 type txdataMarshaling struct {
@@ -79,6 +79,7 @@ type txdataMarshaling struct {
 	GasLimit     *hexutil.Big
 	Amount       *hexutil.Big
 	Payload      hexutil.Bytes
+	Governance   bool			// yhheo
 	V            *hexutil.Big
 	R            *hexutil.Big
 	S            *hexutil.Big
@@ -103,6 +104,7 @@ func newTransaction(nonce uint64, to *common.Address, amount, gasLimit, gasPrice
 		Amount:       new(big.Int),
 		GasLimit:     new(big.Int),
 		Price:        new(big.Int),
+		Governance:   false,		// yhheo
 		V:            new(big.Int),
 		R:            new(big.Int),
 		S:            new(big.Int),
@@ -188,6 +190,7 @@ func (tx *Transaction) GasPrice() *big.Int { return new(big.Int).Set(tx.data.Pri
 func (tx *Transaction) Value() *big.Int    { return new(big.Int).Set(tx.data.Amount) }
 func (tx *Transaction) Nonce() uint64      { return tx.data.AccountNonce }
 func (tx *Transaction) CheckNonce() bool   { return true }
+func (tx *Transaction) Governance() bool   { return tx.data.Governance }	// yhheo
 
 // To returns the recipient address of the transaction.
 // It returns nil if the transaction is a contract creation.
@@ -257,7 +260,13 @@ func (tx *Transaction) WithSignature(signer Signer, sig []byte) (*Transaction, e
 
 // Cost returns amount + gasprice * gaslimit.
 func (tx *Transaction) Cost() *big.Int {
-	total := new(big.Int).Mul(tx.data.Price, tx.data.GasLimit)
+	// yhheo - begin
+	if tx.Governance() || len(tx.data.Payload) == 0 {
+		return big.NewInt(0)
+	}
+	// 0.02 Reap(10^16) + (gas * 0.003 Reap(10^15))
+	total := new(big.Int).Add(big.NewInt(params.Basefee), new(big.Int).Mul(tx.data.GasLimit, big.NewInt(params.Gasfee)))	// new(big.Int).Mul(tx.data.Price, tx.data.GasLimit)
+	// yhheo - end
 	total.Add(total, tx.data.Amount)
 	return total
 }
@@ -289,18 +298,19 @@ func (tx *Transaction) String() string {
 	enc, _ := rlp.EncodeToBytes(&tx.data)
 	return fmt.Sprintf(`
 	TX(%x)
-	Contract: %v
-	From:     %s
-	To:       %s
-	Nonce:    %v
-	GasPrice: %#x
-	GasLimit  %#x
-	Value:    %#x
-	Data:     0x%x
-	V:        %#x
-	R:        %#x
-	S:        %#x
-	Hex:      %x
+	Contract:  %v
+	From:      %s
+	To:        %s
+	Nonce:     %v
+	GasPrice:  %#x
+	GasLimit   %#x
+	Value:     %#x
+	Data:      0x%x
+	Governance %t
+	V:         %#x
+	R:         %#x
+	S:         %#x
+	Hex:       %x
 `,
 		tx.Hash(),
 		len(tx.data.Recipient) == 0,
@@ -311,6 +321,7 @@ func (tx *Transaction) String() string {
 		tx.data.GasLimit,
 		tx.data.Amount,
 		tx.data.Payload,
+		tx.data.Governance,
 		tx.data.V,
 		tx.data.R,
 		tx.data.S,
@@ -450,7 +461,7 @@ type Message struct {
 	governance              bool 	// yhheo
 }
 
-func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, gasLimit, price *big.Int, data []byte, checkNonce bool, governance bool) Message {		// yhheo
+func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, gasLimit, price *big.Int, data []byte, checkNonce bool, governance bool) Message {	// yhheo
 	return Message{
 		from:       from,
 		to:         to,

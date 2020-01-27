@@ -1248,6 +1248,8 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 // submitTransaction is a helper function that submits tx to txPool and logs a message.
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
     //fmt.Println("submitTransaction : ctx =", ctx, "\nBackend =", b, "\ntypes.Transaction =",tx)    // yhheo
+	types.TxChecking(types.MakeSigner(b.ChainConfig(), b.CurrentBlock().Number()), tx)		// yhheo
+
 	if err := b.SendTx(ctx, tx); err != nil {
 		return common.Hash{}, err
 	}
@@ -1307,6 +1309,8 @@ func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encod
 	if err := rlp.DecodeBytes(encodedTx, tx); err != nil {
 		return "", err
 	}
+
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), tx)	// yhheo
 
 	if err := s.b.SendTx(ctx, tx); err != nil {
 		return "", err
