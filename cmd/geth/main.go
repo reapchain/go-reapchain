@@ -28,6 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/console"
 	"github.com/ethereum/go-ethereum/eth"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -193,6 +194,7 @@ func init() {
 }
 
 func main() {
+	config.Config.GetConfig(os.Getenv("REAPCHAIN_ENV"))
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

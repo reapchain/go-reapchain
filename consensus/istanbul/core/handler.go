@@ -17,6 +17,7 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
@@ -105,6 +106,7 @@ func (c *core) handleEvents() {
 		switch ev := event.Data.(type) {
 		case istanbul.RequestEvent:
 			c.startTime = time.Now()
+			log.Info("Environment", "config", config.Config)
 			log.Info("1. Start")
 			r := &istanbul.Request{
 				Proposal: ev.Proposal,

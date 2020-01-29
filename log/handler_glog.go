@@ -56,13 +56,6 @@ func NewGlogHandler(h Handler) *GlogHandler {
 		origin: h,
 	}
 }
-func ( h * GlogHandler) Qmanager() {
-/* to be implemeted in the future
-geth에서 Qmanager로 오는 메시지 처리를 위해서, 옵션 qman 주면 qmanger가 동작 하도록 설정할 것
-
- */
-
-}
 
 // pattern contains a filter for the Vmodule option, holding a verbosity level
 // and a file pattern to match.
