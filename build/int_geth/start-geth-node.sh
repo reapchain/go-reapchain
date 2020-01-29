@@ -39,7 +39,7 @@ $BIN_PATH/geth \
 	--rpc \
 	--rpcport $RPC_PORT \
 	--rpccorsdomain "*" \
-	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC" \
+	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,istanbul,PoDC" \
 	--unlock 0 \
 	--password $SETUP_INFO_PATH/passwd.txt \
 	--verbosity 4 \
@@ -64,7 +64,7 @@ $BIN_PATH/geth \
 	--rpcaddr $BOOTNODE_IP \
 	--rpcport $RPC_PORT \
 	--rpccorsdomain "*" \
-	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC" \
+	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,istanbul,PoDC" \
 	--unlock 0 \
 	--password $SETUP_INFO_PATH/passwd.txt \
 	--verbosity 4 \

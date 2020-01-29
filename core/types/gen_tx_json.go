@@ -11,6 +11,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+var _ = (*txdataMarshaling)(nil)
+
+// MarshalJSON marshals as JSON.
 func (t txdata) MarshalJSON() ([]byte, error) {
 	type txdata struct {
 		AccountNonce hexutil.Uint64  `json:"nonce"    gencodec:"required"`
@@ -23,6 +26,7 @@ func (t txdata) MarshalJSON() ([]byte, error) {
 		R            *hexutil.Big    `json:"r" gencodec:"required"`
 		S            *hexutil.Big    `json:"s" gencodec:"required"`
 		Hash         *common.Hash    `json:"hash" rlp:"-"`
+		Governance   bool
 	}
 	var enc txdata
 	enc.AccountNonce = hexutil.Uint64(t.AccountNonce)
@@ -35,9 +39,11 @@ func (t txdata) MarshalJSON() ([]byte, error) {
 	enc.R = (*hexutil.Big)(t.R)
 	enc.S = (*hexutil.Big)(t.S)
 	enc.Hash = t.Hash
+	enc.Governance = t.Governance
 	return json.Marshal(&enc)
 }
 
+// UnmarshalJSON unmarshals from JSON.
 func (t *txdata) UnmarshalJSON(input []byte) error {
 	type txdata struct {
 		AccountNonce *hexutil.Uint64 `json:"nonce"    gencodec:"required"`
@@ -45,11 +51,12 @@ func (t *txdata) UnmarshalJSON(input []byte) error {
 		GasLimit     *hexutil.Big    `json:"gas"      gencodec:"required"`
 		Recipient    *common.Address `json:"to"       rlp:"nil"`
 		Amount       *hexutil.Big    `json:"value"    gencodec:"required"`
-		Payload      hexutil.Bytes   `json:"input"    gencodec:"required"`
+		Payload      *hexutil.Bytes  `json:"input"    gencodec:"required"`
 		V            *hexutil.Big    `json:"v" gencodec:"required"`
 		R            *hexutil.Big    `json:"r" gencodec:"required"`
 		S            *hexutil.Big    `json:"s" gencodec:"required"`
 		Hash         *common.Hash    `json:"hash" rlp:"-"`
+		Governance   *bool
 	}
 	var dec txdata
 	if err := json.Unmarshal(input, &dec); err != nil {
@@ -77,7 +84,7 @@ func (t *txdata) UnmarshalJSON(input []byte) error {
 	if dec.Payload == nil {
 		return errors.New("missing required field 'input' for txdata")
 	}
-	t.Payload = dec.Payload
+	t.Payload = *dec.Payload
 	if dec.V == nil {
 		return errors.New("missing required field 'v' for txdata")
 	}
@@ -92,6 +99,9 @@ func (t *txdata) UnmarshalJSON(input []byte) error {
 	t.S = (*big.Int)(dec.S)
 	if dec.Hash != nil {
 		t.Hash = dec.Hash
+	}
+	if dec.Governance != nil {
+		t.Governance = *dec.Governance
 	}
 	return nil
 }

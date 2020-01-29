@@ -484,12 +484,23 @@ func (sb *simpleBackend) updateBlock(parent *types.Header, block *types.Block) (
 
 // APIs returns the RPC APIs this consensus engine provides.
 func (sb *simpleBackend) APIs(chain consensus.ChainReader) []rpc.API {
+
+	/*
+
 	return []rpc.API{{
 		Namespace: "istanbul",
+		Version:   "1.0",
+		Service:   &API{chain: chain, istanbul: sb},   // istanbul
+		Public:    true,
+	}}
+*/
+	return []rpc.API{{
+		Namespace: "PoDC",  //PoDC와 Web3ext.go Namespace PoDC 여기서 연결 ? 
 		Version:   "1.0",
 		Service:   &API{chain: chain, podc: sb},   /* podc */
 		Public:    true,
 	}}
+
 }
 
 // HandleMsg implements consensus.PoDC.HandleMsg
@@ -591,15 +602,17 @@ func (sb *simpleBackend) snapshot(chain consensus.ChainReader, number uint64, ha
 		}
 		// If we're at block zero, make a snapshot
 		if number == 0 {
+			log.Info("If we're at block zero, make a snapshot", "If we're at block zero, make a snapshot", "blcok zero and make a snapshot in engine.go")
 			genesis := chain.GetHeaderByNumber(0)
 			if err := sb.VerifyHeader(chain, genesis, false); err != nil {
 				return nil, err
 			}
-			istanbulExtra, err := types.ExtractPoDCExtra(genesis)
+			podcExtra, err := types.ExtractPoDCExtra(genesis)
 			if err != nil {
 				return nil, err
 			}
-			snap = newSnapshot(sb.config.Epoch, 0, genesis.Hash(), validator.NewSet(istanbulExtra.Validators, sb.config.ProposerPolicy))
+			// istanbulExtra.Validators 는 20바이트 계정 주소 목록
+			snap = newSnapshot(sb.config.Epoch, 0, genesis.Hash(), validator.NewSet(podcExtra.Validators, sb.config.ProposerPolicy))
 			if err := snap.store(sb.db); err != nil {
 				return nil, err
 			}
@@ -708,13 +721,13 @@ func writeSeal(h *types.Header, seal []byte) error {
 		return errInvalidSignature
 	}
 
-	istanbulExtra, err := types.ExtractPoDCExtra(h)
+	podcExtra, err := types.ExtractPoDCExtra(h)
 	if err != nil {
 		return err
 	}
 
-	istanbulExtra.Seal = seal
-	payload, err := rlp.EncodeToBytes(&istanbulExtra)
+	podcExtra.Seal = seal
+	payload, err := rlp.EncodeToBytes(&podcExtra)
 	if err != nil {
 		return err
 	}
@@ -729,18 +742,18 @@ func writeCommittedSeals(h *types.Header, committedSeals []byte) error {
 		return errInvalidCommittedSeals
 	}
 
-	istanbulExtra, err := types.ExtractPoDCExtra(h)
+	podcExtra, err := types.ExtractPoDCExtra(h)
 	if err != nil {
 		return err
 	}
 
-	istanbulExtra.CommittedSeal = make([][]byte, len(committedSeals)/types.PoDCExtraSeal)
-	for i := 0; i < len(istanbulExtra.CommittedSeal); i++ {
-		istanbulExtra.CommittedSeal[i] = make([]byte, types.PoDCExtraSeal)
-		copy(istanbulExtra.CommittedSeal[i][:], committedSeals[i*types.PoDCExtraSeal:])
+	podcExtra.CommittedSeal = make([][]byte, len(committedSeals)/types.PoDCExtraSeal)
+	for i := 0; i < len(podcExtra.CommittedSeal); i++ {
+		podcExtra.CommittedSeal[i] = make([]byte, types.PoDCExtraSeal)
+		copy(podcExtra.CommittedSeal[i][:], committedSeals[i*types.PoDCExtraSeal:])
 	}
 
-	payload, err := rlp.EncodeToBytes(&istanbulExtra)
+	payload, err := rlp.EncodeToBytes(&podcExtra)
 	if err != nil {
 		return err
 	}

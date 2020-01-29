@@ -1247,7 +1247,7 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 
 // submitTransaction is a helper function that submits tx to txPool and logs a message.
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
-    //fmt.Println("submitTransaction : ctx =", ctx, "\nBackend =", b, "\ntypes.Transaction =",tx)    // yhheo
+    fmt.Println("submitTransaction : ctx =", ctx, "\nBackend =", b, "\ntypes.Transaction =",tx)    // yhheo
 	if err := b.SendTx(ctx, tx); err != nil {
 		return common.Hash{}, err
 	}
@@ -1265,7 +1265,7 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
 func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
-    //fmt.Printf("PublicTransactionPoolAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n", ctx, args.From, args.To)    // yhheo
+    fmt.Printf("PublicTransactionPoolAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n", ctx, args.From, args.To)    // yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
 
@@ -1302,7 +1302,7 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 // SendRawTransaction will add the signed transaction to the transaction pool.
 // The sender is responsible for signing the transaction and using the correct nonce.
 func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encodedTx hexutil.Bytes) (string, error) {
-    //fmt.Println("\nPublicTransactionPoolAPI - SendRawTransaction : ctx =", ctx, "\nencodedTx =", encodedTx)    // yhheo
+    fmt.Println("\nPublicTransactionPoolAPI - SendRawTransaction : ctx =", ctx, "\nencodedTx =", encodedTx)    // yhheo
 	tx := new(types.Transaction)
 	if err := rlp.DecodeBytes(encodedTx, tx); err != nil {
 		return "", err
