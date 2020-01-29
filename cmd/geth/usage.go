@@ -204,7 +204,7 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.WhisperEnabledFlag,
 		},
 	},
-	{
+	/* {
 		Name: "ISTANBUL",
 		Flags: []cli.Flag{
 			utils.IstanbulRequestTimeoutFlag,
@@ -212,8 +212,17 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.IstanbulBlockPauseTimeFlag,
 
 		},
-	},
+	}, */
 	{
+		Name: "PODC",
+		Flags: []cli.Flag{
+			utils.PoDCRequestTimeoutFlag,
+			utils.PoDCBlockPeriodFlag,
+			utils.PoDCBlockPauseTimeFlag,
+
+		},
+	},
+	/* {
 		Name: "REAPCHAIN",
 		Flags: []cli.Flag{
 			utils.IstanbulRequestTimeoutFlag,
@@ -223,7 +232,7 @@ var AppHelpFlagGroups = []flagGroup{
 
 		},
 
-	},
+	}, */
 }
 
 // byCategory sorts an array of flagGroup by Name in the order

@@ -36,3 +36,5 @@ profile.cov
 # reapchain config file
 config/config.json
 config/config.toml
+/_develop_doc/
+/.idea/

@@ -115,9 +115,9 @@ var (
 		utils.ExtraDataFlag,
 		utils.GovernanceFlag, // yhheo - Governance setting
 		configFileFlag,
-		utils.IstanbulRequestTimeoutFlag,
+		/* utils.IstanbulRequestTimeoutFlag,
 		utils.IstanbulBlockPeriodFlag,
-		utils.IstanbulBlockPauseTimeFlag,
+		utils.IstanbulBlockPauseTimeFlag, */
 		//PoDC setting -yichoi
 		utils.PoDCRequestTimeoutFlag,
 		utils.PoDCBlockPeriodFlag,

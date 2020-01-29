@@ -573,14 +573,14 @@ func testDistantAnnouncementDiscarding(t *testing.T, protocol int) {
 	headerFetcher := tester.makeHeaderFetcher(blocks, -gatherSlack)
 	bodyFetcher := tester.makeBodyFetcher(blocks, 0)
 
-	fetching := make(chan struct{}, 2)
-	tester.fetcher.fetchingHook = func(hashes []common.Hash) { fetching <- struct{}{} }
+	fetching := make(chan struct{}, 2)  //채널을 생성하고, 구조체 보이드 포인터 2 바이트(?) 로
+	tester.fetcher.fetchingHook = func(hashes []common.Hash) { fetching <- struct{}{} }  //
 
 	// Ensure that a block with a lower number than the threshold is discarded
 	tester.fetcher.Notify("lower", hashes[low], blocks[hashes[low]].NumberU64(), time.Now().Add(-arriveTimeout), headerFetcher, bodyFetcher)
 	select {
 	case <-time.After(50 * time.Millisecond):
-	case <-fetching:
+	case <-fetching:  // 채널에서 ( 버퍼 있는 ) 값을 전달 받는다.
 		t.Fatalf("fetcher requested stale header")
 	}
 	// Ensure that a block with a higher number than the threshold is discarded

@@ -7,10 +7,10 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/eth/downloader"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 )
 
 func (c Config) MarshalTOML() (interface{}, error) {
@@ -37,7 +37,8 @@ func (c Config) MarshalTOML() (interface{}, error) {
 		TxPool                  core.TxPoolConfig
 		GPO                     gasprice.Config
 		EnablePreimageRecording bool
-		Istanbul                istanbul.Config
+		//Istanbul              istanbul.Config     //yichoi
+		PoDC                    podc.Config     //yichoi
 		DocRoot                 string `toml:"-"`
 		PowFake                 bool   `toml:"-"`
 		PowTest                 bool   `toml:"-"`
@@ -66,7 +67,8 @@ func (c Config) MarshalTOML() (interface{}, error) {
 	enc.TxPool = c.TxPool
 	enc.GPO = c.GPO
 	enc.EnablePreimageRecording = c.EnablePreimageRecording
-	enc.Istanbul = c.Istanbul
+	//enc.Istanbul = c.Istanbul
+	enc.PoDC = c.PoDC  //yichoi added
 	enc.DocRoot = c.DocRoot
 	enc.PowFake = c.PowFake
 	enc.PowTest = c.PowTest
@@ -98,7 +100,8 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 		TxPool                  *core.TxPoolConfig
 		GPO                     *gasprice.Config
 		EnablePreimageRecording *bool
-		Istanbul                *istanbul.Config
+		//Istanbul                *istanbul.Config
+		PoDC                    *podc.Config
 		DocRoot                 *string `toml:"-"`
 		PowFake                 *bool   `toml:"-"`
 		PowTest                 *bool   `toml:"-"`
@@ -174,8 +177,11 @@ func (c *Config) UnmarshalTOML(unmarshal func(interface{}) error) error {
 	if dec.EnablePreimageRecording != nil {
 		c.EnablePreimageRecording = *dec.EnablePreimageRecording
 	}
-	if dec.Istanbul != nil {
+	/* if dec.Istanbul != nil {
 		c.Istanbul = *dec.Istanbul
+	} */
+	if dec.PoDC != nil {
+		c.PoDC = *dec.PoDC
 	}
 	if dec.DocRoot != nil {
 		c.DocRoot = *dec.DocRoot

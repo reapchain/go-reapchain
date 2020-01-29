@@ -11,6 +11,9 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+var _ = (*headerMarshaling)(nil)
+
+// MarshalJSON marshals as JSON.
 func (h Header) MarshalJSON() ([]byte, error) {
 	type Header struct {
 		ParentHash  common.Hash    `json:"parentHash"       gencodec:"required"`
@@ -50,6 +53,7 @@ func (h Header) MarshalJSON() ([]byte, error) {
 	return json.Marshal(&enc)
 }
 
+// UnmarshalJSON unmarshals from JSON.
 func (h *Header) UnmarshalJSON(input []byte) error {
 	type Header struct {
 		ParentHash  *common.Hash    `json:"parentHash"       gencodec:"required"`
@@ -64,7 +68,7 @@ func (h *Header) UnmarshalJSON(input []byte) error {
 		GasLimit    *hexutil.Big    `json:"gasLimit"         gencodec:"required"`
 		GasUsed     *hexutil.Big    `json:"gasUsed"          gencodec:"required"`
 		Time        *hexutil.Big    `json:"timestamp"        gencodec:"required"`
-		Extra       hexutil.Bytes   `json:"extraData"        gencodec:"required"`
+		Extra       *hexutil.Bytes  `json:"extraData"        gencodec:"required"`
 		MixDigest   *common.Hash    `json:"mixHash"          gencodec:"required"`
 		Nonce       *BlockNonce     `json:"nonce"            gencodec:"required"`
 	}
@@ -123,7 +127,7 @@ func (h *Header) UnmarshalJSON(input []byte) error {
 	if dec.Extra == nil {
 		return errors.New("missing required field 'extraData' for Header")
 	}
-	h.Extra = dec.Extra
+	h.Extra = *dec.Extra
 	if dec.MixDigest == nil {
 		return errors.New("missing required field 'mixHash' for Header")
 	}

@@ -88,7 +88,12 @@ var (
 		EIP158Block:     big.NewInt(3),
 		MetropolisBlock: TestNetMetropolisBlock,
 
+		/* original backup by yichoi
 		Istanbul: &IstanbulConfig{
+			Epoch:          30000,
+			ProposerPolicy: 0,
+		}, */
+		PoDC: &PoDCConfig{
 			Epoch:          30000,
 			ProposerPolicy: 0,
 		},
@@ -107,7 +112,11 @@ var (
 		EIP158Block:     big.NewInt(3),
 		MetropolisBlock: TestNetMetropolisBlock,
 
-		Istanbul: &IstanbulConfig{
+		/*Istanbul: &IstanbulConfig{
+			Epoch:          30000,
+			ProposerPolicy: 0,
+		}, */
+		PoDC: &PoDCConfig{
 			Epoch:          30000,
 			ProposerPolicy: 0,
 		},
@@ -121,8 +130,10 @@ var (
 	// means that all fields must be set at all times. This forces
 	// anyone adding flags to the config to also have to set these
 	// fields.
+	//begin - yichoi : added a new field for podc to last
 	AllProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), new(EthashConfig), nil, nil}
 	TestChainConfig    = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), nil, new(EthashConfig), nil, nil}
+	//end
 	TestRules          = TestChainConfig.Rules(new(big.Int))
 )
 
@@ -150,8 +161,13 @@ type ChainConfig struct {
 	// Various consensus engines
 	Ethash   *EthashConfig   `json:"ethash,omitempty"`
 	Clique   *CliqueConfig   `json:"clique,omitempty"`
-	Istanbul *IstanbulConfig `json:"istanbul,omitempty"`
-	//PoDC     *PoDCConfig     `json:"poDC,omitempty"`
+	// Istanbul *IstanbulConfig `json:"istanbul,omitempty"` // unmarked by yichoi
+
+	//PoDC     *PoDCConfig     `json:"PoDC,omitempty"`   //old working branch 대문자. //추후 지울것
+	//PoDC     *IstanbulConfig `json:"podc,omitempty"`     //temp for display from genesis.json
+	PoDC     *PoDCConfig     `json:"podc,omitempty"`   //tomorrow to do 소문자. 나중에 결정
+
+
 }
 
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
@@ -188,7 +204,7 @@ type PoDCConfig struct {
 func (c *IstanbulConfig) String() string {
 	return "istanbul"
 }
-func (c *PoDCConfig) String() string {
+func (c *PoDCConfig) String() string {  //display ?
 	return "podc"
 }
 
@@ -200,8 +216,13 @@ func (c *ChainConfig) String() string {
 		engine = c.Ethash
 	case c.Clique != nil:
 		engine = c.Clique
-	case c.Istanbul != nil:
-		engine = c.Istanbul
+/* 	case c.Istanbul != nil:
+		engine = c.Istanbul */
+
+	case c.PoDC != nil:
+		engine = c.PoDC
+
+
 	default:
 		engine = "unknown"
 	}

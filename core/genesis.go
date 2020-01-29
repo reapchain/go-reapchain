@@ -103,7 +103,9 @@ func (e *GenesisMismatchError) Error() string {
 //
 // The returned chain configuration is never nil.
 func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig, common.Hash, error) {
+
 	log.Info("genesis","genesis", genesis )
+
 	if genesis != nil && genesis.Config == nil {
 		return params.AllProtocolChanges, common.Hash{}, errGenesisNoConfig
 	}
@@ -115,7 +117,10 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 			log.Info("Writing default main-net genesis block")
 			genesis = DefaultGenesisBlock()
 		} else {
-			log.Info("Writing custom genesis block")
+			log.Info("Writing custom genesis block")  //istanbul
+			//display podc instead of istanbul temporarly, all others implementation will be next time fully in the future.
+			//
+			log.Info( "display of genesis.config", "genesis.Config", genesis.Config)
 		}
 		block, err := genesis.Commit(db)
 		return genesis.Config, block.Hash(), err
@@ -292,6 +297,7 @@ func DefaultRinkebyGenesisBlock() *Genesis {
 }
 
 // DefaultOttomanGenesisBlock returns the Ottoman network genesis block.
+
 func DefaultOttomanGenesisBlock() *Genesis {
 	return &Genesis{
 		Config:     params.OttomanChainConfig,
@@ -301,6 +307,19 @@ func DefaultOttomanGenesisBlock() *Genesis {
 		Difficulty: big.NewInt(1),
 		Mixhash:    common.HexToHash("0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365"),
 		Alloc:      decodePrealloc(ottomanAllocData),
+	}
+}
+// DefaultOttomanGenesisBlock returns the Ottoman network genesis block.
+func DefaultReapChainGenesisBlock() *Genesis {
+	log.Info("DefaultReapChainGenesisBlock()", "DefaultReapChainGenesisBlock", "DefaultReapChainGenesisBlock started")  //added by yichoi
+	return &Genesis{
+		Config:     params.ReapChainConfig,
+		Timestamp:  1496993285,
+		ExtraData:  hexutil.MustDecode("0x0000000000000000000000000000000000000000000000000000000000000000f89af85494475cc98b5521ab2a1335683e7567c8048bfe79ed9407d8299de61faed3686ba4c4e6c3b9083d7e2371944fe035ce99af680d89e2c4d73aca01dbfc1bd2fd94dc421209441a754f79c4a4ecd2b49c935aad0312b8410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0"),
+		GasLimit:   4700000,
+		Difficulty: big.NewInt(1),
+		Mixhash:    common.HexToHash("0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365"),
+		Alloc:      decodePrealloc(reapchainAllocData),  // to modify later by yichoi
 	}
 }
 
