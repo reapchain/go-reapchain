@@ -173,6 +173,9 @@ type ChainConfig struct {
 // EthashConfig is the consensus engine configs for proof-of-work based sealing.
 type EthashConfig struct{}
 
+// PoDCConfig is the consensus engine configs for PoDC based sealing.
+// type PoDCConfig struct{} //added by yichoi podc default
+
 // String implements the stringer interface, returning the consensus engine details.
 func (c *EthashConfig) String() string {
 	return "ethash"

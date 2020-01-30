@@ -106,6 +106,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	}
 	// 체인 디비를 만들고
 	chainDb, err := CreateDB(ctx, config, "chaindata")
+	// /Users/yongilchoi/go/src/github.com/ethereum/go-ethereum/build/int_geth/node1/data/go_build_github_com_ethereum_go_ethereum_cmd_geth/chaindata
 	if err != nil {
 		return nil, err
 	}
@@ -144,6 +145,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	} */
 	if  (chainConfig.PoDC != nil) {  //yichoi added for PoDC
 		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
+		log.Info("Now : ", "chainConfig.PoDC", chainConfig.PoDC )
 		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
 	}
 	if err := addMipmapBloomBins(chainDb); err != nil {
@@ -226,6 +228,9 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (ethdb.Data
 	db, err := ctx.OpenDatabase(name, config.DatabaseCache, config.DatabaseHandles)
 	if db, ok := db.(*ethdb.LDBDatabase); ok {
 		db.Meter("eth/db/chaindata/")
+	} else
+	{
+		log.Info("CreateDB(db) interface : ", "db", db ) //yichoi
 	}
 	return db, err
 }

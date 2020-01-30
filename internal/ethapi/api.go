@@ -341,8 +341,18 @@ func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArg
 // SendTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
 // able to decrypt the key it fails.
+/* disable temp by yichoi for debugging sendtx runtime error
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-    //fmt.Printf("PrivateAccountAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n passwd = %s\n", ctx, args.From, args.To, passwd)    // yhheo
+    fmt.Printf("PrivateAccountAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n passwd = %s\n", ctx, args.From, args.To, passwd)    // yhheo
+	//	// Look up the wallet containing the requested signer
+	account := accounts.Account{Address: args.From}
+	//
+	wallet, err := s.am.Find(account)
+	if err != nil {
+			return common.Hash{}, err
+	}
+
+
     if args.Nonce == nil {
         // Hold the addresse's mutex around signing to prevent concurrent assignment of
         // the same nonce to multiple accounts.
@@ -356,40 +366,40 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
     }
     return submitTransaction(ctx, s.b, signed)
 }
+*/
+func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
+	// Look up the wallet containing the requested signer
+	account := accounts.Account{Address: args.From}
+    log.Info("SendTransaction:", "account", account ) //yichoi added
+	wallet, err := s.am.Find(account)
+	if err != nil {
+		return common.Hash{}, err
+	}
 
-//func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-//	// Look up the wallet containing the requested signer
-//	account := accounts.Account{Address: args.From}
-//
-//	wallet, err := s.am.Find(account)
-//	if err != nil {
-//		return common.Hash{}, err
-//	}
-//
-//	if args.Nonce == nil {
-//		// Hold the addresse's mutex around signing to prevent concurrent assignment of
-//		// the same nonce to multiple accounts.
-//		s.nonceLock.LockAddr(args.From)
-//		defer s.nonceLock.UnlockAddr(args.From)
-//	}
-//
-//	// Set some sanity defaults and terminate on failure
-//	if err := args.setDefaults(ctx, s.b); err != nil {
-//		return common.Hash{}, err
-//	}
-//	// Assemble the transaction and sign with the wallet
-//	tx := args.toTransaction()
-//
-//	var chainID *big.Int
-//	if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) {
-//		chainID = config.ChainId
-//	}
-//	signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
-//	if err != nil {
-//		return common.Hash{}, err
-//	}
-//	return submitTransaction(ctx, s.b, signed)
-//}
+	if args.Nonce == nil {
+		// Hold the addresse's mutex around signing to prevent concurrent assignment of
+		// the same nonce to multiple accounts.
+		s.nonceLock.LockAddr(args.From)
+		defer s.nonceLock.UnlockAddr(args.From)
+	}
+
+	// Set some sanity defaults and terminate on failure
+	if err := args.setDefaults(ctx, s.b); err != nil {
+		return common.Hash{}, err
+	}
+	// Assemble the transaction and sign with the wallet
+	tx := args.toTransaction()
+
+	var chainID *big.Int
+	if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) {
+		chainID = config.ChainId
+	}
+	signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
+	if err != nil {
+		return common.Hash{}, err
+	}
+	return submitTransaction(ctx, s.b, signed)
+}
 
 // SignTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
@@ -986,6 +996,7 @@ func NewPublicTransactionPoolAPI(b Backend, nonceLock *AddrLocker) *PublicTransa
 }
 
 func getTransaction(chainDb ethdb.Database, b Backend, txHash common.Hash) (*types.Transaction, bool, error) {
+
 	txData, err := chainDb.Get(txHash.Bytes())
 	isPending := false
 	tx := new(types.Transaction)
@@ -998,6 +1009,10 @@ func getTransaction(chainDb ethdb.Database, b Backend, txHash common.Hash) (*typ
 		// pending transaction?
 		tx = b.GetPoolTransaction(txHash)
 		isPending = true
+		log.Info("getTransaction: ", "isPending", isPending)
+		log.Info("getTransaction: ", "tx", tx)
+
+
 	}
 
 	return tx, isPending, nil
