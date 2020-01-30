@@ -114,10 +114,16 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 	stored := GetCanonicalHash(db, 0)
 	if (stored == common.Hash{}) {
 		if genesis == nil {
+			//disable temp for debugging
 			log.Info("Writing default main-net genesis block")
 			genesis = DefaultGenesisBlock()
+
+			//log.Info("Writing default reapchain-net genesis block")
+			//log.Info( "display of genesis.config(if genesis== nil) ", "genesis.Config", genesis.Config)
+			//DefaultReapChainGenesisBlock() // reapchain
+
 		} else {
-			log.Info("Writing custom genesis block")  //istanbul
+			log.Info("Writing custom genesis block: normal status of podc!")  //istanbul or podc
 			//display podc instead of istanbul temporarly, all others implementation will be next time fully in the future.
 			//
 			log.Info( "display of genesis.config", "genesis.Config", genesis.Config)
