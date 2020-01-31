@@ -230,7 +230,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	msg := st.msg
 	sender := st.from() // err checked in preCheck
 
-	fmt.Printf(" st.evm.Coinbase = %x\n", st.evm.Coinbase)  // yhheo
+	//fmt.Printf(" st.evm.Coinbase = %x\n", st.evm.Coinbase)  // yhheo
 	//fmt.Printf("TransitionDb : st.gas = %d\n st.gasPrice = %d\n", st.gas, st.gasPrice)	// yhheo
 
 	homestead := st.evm.ChainConfig().IsHomestead(st.evm.BlockNumber)
@@ -263,7 +263,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 			ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
 			//fmt.Printf(" evm.Create (st.gas) = %d\n", st.gas)   // yhheo
 		} else {
-			log.Warn("no contract creation permissions", "sender", sender, "data", st.data)
+			log.Debug("no contract creation permissions", "sender", sender)
 			return nil, nil, nil, vm.ErrDeployPermissions
 		}
 	} else {
