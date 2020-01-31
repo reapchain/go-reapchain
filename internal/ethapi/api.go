@@ -1271,7 +1271,7 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
 func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
-    //fmt.Printf("PublicTransactionPoolAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n", ctx, args.From, args.To)    // yhheo
+    fmt.Printf("func (s *PublicTransactionPoolAPI) SendTransaction\n ctx = %v\n args.From = %x\n args.To = %x\n", ctx, args.From, args.To)    // yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
 
