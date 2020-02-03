@@ -96,6 +96,7 @@ type core struct {
 	racingMu *sync.Mutex
 	startTime time.Time
 	intervalTime time.Time
+	criteria float64
 }
 
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {

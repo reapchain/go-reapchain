@@ -3,9 +3,9 @@ package core
 import (
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/log"
+	"math"
 	"math/rand"
 	"time"
 )
@@ -124,6 +124,7 @@ func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 
 	if c.tag == istanbul.Coordinator {
 		log.Info("I am Coordinator!")
+		c.criteria = math.Floor((float64(len(extraData)) - 1) * 0.51)
 		c.sendCoordinatorDecide()
 	}
 
@@ -147,7 +148,7 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 		//log.Info("handling racing", "count", c.count)
 		//log.Info("handling racing", "flag", c.racingFlag)
 
-		if c.count > config.Config.Consensus.Criteria && !c.racingFlag {
+		if c.count > int(c.criteria) && !c.racingFlag {
 			log.Info("racing completed.", "count", c.count)
 			c.racingFlag = true
 			c.sendCandidateDecide()
