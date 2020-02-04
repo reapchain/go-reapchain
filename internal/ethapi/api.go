@@ -678,7 +678,7 @@ type CallArgs struct {
 }
 
 func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber, vmCfg vm.Config) ([]byte, *big.Int, error) {
-    fmt.Printf("\nfunc (s *PublicBlockChainAPI) doCall\n ctx = %v\n CallArgs = %v\n rpc.BlockNumber = %v\n vm.Config = %v\n from = %x\n to = %x\n", ctx, args, blockNr, vmCfg, args.From, args.To)    // yhheo
+    fmt.Printf("\nfunc (s *PublicBlockChainAPI) doCall\n ctx = %v\n from = %x\n to = %x\n gas = %#v\n gasPrice = %#v\n value = %#v\n data = %x\n vm.Cfg.DisableGasMetering = %v\n rpc.BlockNumber = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data, vmCfg.DisableGasMetering, blockNr)    // yhheo
 	defer func(start time.Time) { log.Debug("Executing EVM call finished", "runtime", time.Since(start)) }(time.Now())
 
 	state, header, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
@@ -749,14 +749,14 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 // Call executes the given transaction on the state for the given block number.
 // It doesn't make and changes in the state/blockchain and is useful to execute and retrieve values.
 func (s *PublicBlockChainAPI) Call(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber) (hexutil.Bytes, error) {
-    fmt.Printf("\nfunc (s *PublicBlockChainAPI) Call\n ctx = %v\n CallArgs = %v\n rpc.BlockNumber = %v\n from = %x\n to = %x\n", ctx, args, blockNr, args.From, args.To)    // yhheo
+    fmt.Printf("\nfunc (s *PublicBlockChainAPI) Call\n ctx = %v\n from = %x\n to = %x\n gas = %#v\n gasPrice = %#v\n value = %#v\n data = %x\n rpc.BlockNumber = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data, blockNr)    // yhheo
 	result, _, err := s.doCall(ctx, args, blockNr, vm.Config{DisableGasMetering: true})
 	return (hexutil.Bytes)(result), err
 }
 
 // EstimateGas returns an estimate of the amount of gas needed to execute the given transaction.
 func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*hexutil.Big, error) {
-    fmt.Printf("\nfunc (s *PublicBlockChainAPI) EstimateGas\n ctx = %v\n CallArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+    fmt.Printf("\nfunc (s *PublicBlockChainAPI) EstimateGas\n ctx = %v\n from = %x\n to = %x\n gas = %d\n gasPrice = %d\n value = %d\n data = %x\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data)    // yhheo
 	// Binary search the gas requirement, as it may be higher than the amount used
 	var lo, hi uint64
 	if (*big.Int)(&args.Gas).Sign() != 0 {
