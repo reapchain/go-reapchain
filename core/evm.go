@@ -17,7 +17,6 @@
 package core
 
 import (
-	"fmt"	// yyheo
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -47,7 +46,7 @@ func NewEVMContext(msg Message, header *types.Header, chain ChainContext, author
 	} else {
 		beneficiary = *author
 	}
-	fmt.Printf("NewEVMContext : beneficiary = %x\n", beneficiary)   // yhheo
+	//fmt.Printf("NewEVMContext : beneficiary = %x\n", beneficiary)   // yhheo
 	return vm.Context{
 		CanTransfer: CanTransfer,
 		Transfer:    Transfer,

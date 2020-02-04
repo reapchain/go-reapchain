@@ -38,3 +38,8 @@ profile.cov
 # reapchain config file
 config/config.json
 config/config.toml
+
+# tool
+.idea
+.vscode
+
