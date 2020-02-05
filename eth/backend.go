@@ -106,11 +106,18 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	}
 	// 체인 디비를 만들고
 	chainDb, err := CreateDB(ctx, config, "chaindata")
-	// /Users/yongilchoi/go/src/github.com/ethereum/go-ethereum/build/int_geth/node1/data/go_build_github_com_ethereum_go_ethereum_cmd_geth/chaindata
+	//chainDb = /Users/yongilchoi/go/src/github.com/ethereum/go-ethereum/build/int_geth/node1/data/go_build_github_com_ethereum_go_ethereum_cmd_geth/chaindata
+
 	if err != nil {
 		return nil, err
 	}
 	stopDbUpgrade := upgradeSequentialKeys(chainDb)
+
+	if config.Genesis == nil /*  && chainDb == "node1/data/go_build_github_com_ethereum_go_ethereum_cmd_geth/chaindata" */ {
+		// load config.Genesis , when debugging
+		log.Info("config.Genesis", "config.Genesis", config.Genesis)
+		log.Info("When debugging in goland:", "chainDb", chainDb)
+	}
 
 	// 제네시스 블록을 세팅합니다.
 	chainConfig, genesisHash, genesisErr := core.SetupGenesisBlock(chainDb, config.Genesis)
@@ -119,6 +126,8 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		return nil, genesisErr
 	}
 	log.Info("Initialised chain configuration", "config", chainConfig)
+	//config = .............Metropolis: nil 이면,, param에서 읽어오는게 아니고, Db ( chaindata folder )에서 읽어와서 chainConfig 설정함 , 주의,
+	// 차이가 있음.
 	// 이더리움 객체 생성.
 	eth := &Ethereum{
 		chainDb:        chainDb,
@@ -144,7 +153,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
 	} */
 	if  (chainConfig.PoDC != nil) {  //yichoi added for PoDC
-		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
+		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress  //? 이상함.
 		log.Info("Now : ", "chainConfig.PoDC", chainConfig.PoDC )
 		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
 	}
@@ -232,6 +241,7 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (ethdb.Data
 	{
 		log.Info("CreateDB(db) interface : ", "db", db ) //yichoi
 	}
+	log.Info("CreateDB finished  : ", "db", db ) //yichoi
 	return db, err
 }
 

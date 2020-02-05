@@ -21,6 +21,7 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 /*
@@ -32,6 +33,7 @@ type MemDatabase struct {
 }
 
 func NewMemDatabase() (*MemDatabase, error) {
+	log.Info("NewMemDatabse create",)  //added by yichoi
 	return &MemDatabase{
 		db: make(map[string][]byte),
 	}, nil

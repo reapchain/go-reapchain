@@ -66,7 +66,7 @@ func NewLDBDatabase(file string, cache int, handles int) (*LDBDatabase, error) {
 	if handles < 16 {
 		handles = 16
 	}
-	logger.Info("Allocated cache and file handles", "cache", cache, "handles", handles)
+	logger.Info("Allocated cache and file handles(NewLDBDatabase)", "cache", cache, "handles", handles)
 
 	// Open the db and recover any potential corruptions
 	db, err := leveldb.OpenFile(file, &opt.Options{

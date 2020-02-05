@@ -179,7 +179,8 @@ func (n *Node) Start() error {
 		n.serverConfig.TrustedNodes = n.config.TrusterNodes()
 	}
 	if n.serverConfig.NodeDatabase == "" {
-		n.serverConfig.NodeDatabase = n.config.NodeDB()
+		n.serverConfig.NodeDatabase = n.config.NodeDB()   //discovery node db
+		fmt.Printf("NodeDB=%v\n",n.serverConfig.NodeDatabase )
 	}
 	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
 

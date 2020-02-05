@@ -29,7 +29,7 @@ import (
 
 var (
 	// MainnetChainConfig is the chain parameters to run a node on the main network.
-	MainnetChainConfig = &ChainConfig{
+	/* MainnetChainConfig = &ChainConfig{
 		ChainId:         MainNetChainID,
 		HomesteadBlock:  MainNetHomesteadBlock,
 		DAOForkBlock:    MainNetDAOForkBlock,
@@ -41,6 +41,27 @@ var (
 		MetropolisBlock: MainNetMetropolisBlock,
 
 		Ethash: new(EthashConfig),
+	} */
+
+	MainnetChainConfig = &ChainConfig{
+		ChainId:         big.NewInt(2017),
+		HomesteadBlock:  big.NewInt(1),
+		DAOForkBlock:    nil,
+		DAOForkSupport:  true,
+		EIP150Block:     big.NewInt(2),
+		EIP150Hash:      common.HexToHash("0x9b095b36c15eaf13044373aef8ee0bd3a382a5abb92e402afa44b8249c3a90e9"),
+		EIP155Block:     big.NewInt(3),
+		EIP158Block:     big.NewInt(3),
+		MetropolisBlock: TestNetMetropolisBlock,
+
+		/*Istanbul: &IstanbulConfig{
+			Epoch:          30000,
+			ProposerPolicy: 0,
+		}, */
+		PoDC: &PoDCConfig{
+			Epoch:          30000,
+			ProposerPolicy: 0,
+		},
 	}
 
 	// TestnetChainConfig contains the chain parameters to run a node on the Ropsten test network.
@@ -88,15 +109,15 @@ var (
 		EIP158Block:     big.NewInt(3),
 		MetropolisBlock: TestNetMetropolisBlock,
 
-		/* original backup by yichoi
+		// original backup by yichoi
 		Istanbul: &IstanbulConfig{
 			Epoch:          30000,
 			ProposerPolicy: 0,
-		}, */
-		PoDC: &PoDCConfig{
+		},
+		/* PoDC: &PoDCConfig{
 			Epoch:          30000,
 			ProposerPolicy: 0,
-		},
+		}, */
 	}
 
 	// OttomanChainConfig contains the chain parameters to run a node on the Ottoman test network.
@@ -131,8 +152,15 @@ var (
 	// anyone adding flags to the config to also have to set these
 	// fields.
 	//begin - yichoi : added a new field for podc to last
-	AllProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), new(EthashConfig), nil, nil}
-	TestChainConfig    = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), nil, new(EthashConfig), nil, nil}
+	// AllProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), new(EthashConfig), nil, nil, nil}
+	AllProtocolChanges = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(3), big.NewInt(3), TestNetMetropolisBlock, nil, nil, nil,
+		&PoDCConfig{
+		Epoch:          30000,
+		ProposerPolicy: 0,
+		},
+	}
+
+	TestChainConfig    = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(1), big.NewInt(0), nil, new(EthashConfig), nil, nil, nil}
 	//end
 	TestRules          = TestChainConfig.Rules(new(big.Int))
 )
@@ -161,7 +189,7 @@ type ChainConfig struct {
 	// Various consensus engines
 	Ethash   *EthashConfig   `json:"ethash,omitempty"`
 	Clique   *CliqueConfig   `json:"clique,omitempty"`
-	// Istanbul *IstanbulConfig `json:"istanbul,omitempty"` // unmarked by yichoi
+	Istanbul *IstanbulConfig `json:"istanbul,omitempty"` // unmarked by yichoi
 
 	//PoDC     *PoDCConfig     `json:"PoDC,omitempty"`   //old working branch 대문자. //추후 지울것
 	//PoDC     *IstanbulConfig `json:"podc,omitempty"`     //temp for display from genesis.json

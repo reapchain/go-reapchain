@@ -341,7 +341,7 @@ func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArg
 // SendTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
 // able to decrypt the key it fails.
-/* disable temp by yichoi for debugging sendtx runtime error
+// disable temp by yichoi for debugging sendtx runtime error
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
     fmt.Printf("PrivateAccountAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n passwd = %s\n", ctx, args.From, args.To, passwd)    // yhheo
 	//	// Look up the wallet containing the requested signer
@@ -350,6 +350,7 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
 	wallet, err := s.am.Find(account)
 	if err != nil {
 			return common.Hash{}, err
+			log.Info("wallet", "wallet", wallet ) //added by yichoi
 	}
 
 
@@ -366,7 +367,8 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
     }
     return submitTransaction(ctx, s.b, signed)
 }
-*/
+
+/*
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
@@ -399,7 +401,7 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
 		return common.Hash{}, err
 	}
 	return submitTransaction(ctx, s.b, signed)
-}
+} */
 
 // SignTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
@@ -1261,6 +1263,7 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 }
 
 // submitTransaction is a helper function that submits tx to txPool and logs a message.
+// reviewed by yichoi for debug of sendtx error
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
     fmt.Println("submitTransaction : ctx =", ctx, "\nBackend =", b, "\ntypes.Transaction =",tx)    // yhheo
 	if err := b.SendTx(ctx, tx); err != nil {

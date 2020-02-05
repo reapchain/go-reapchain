@@ -4,5 +4,6 @@
     <mapping directory="$PROJECT_DIR$/../../.." vcs="Git" />
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/build/_workspace/src/github.com/ethereum/go-ethereum" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/istanbul-tools" vcs="Git" />
   </component>
 </project>
