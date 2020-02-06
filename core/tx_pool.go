@@ -41,7 +41,7 @@ var (
 	ErrUnderpriced        = errors.New("transaction underpriced")
 	ErrReplaceUnderpriced = errors.New("replacement transaction underpriced")
 	ErrBalance            = errors.New("insufficient balance")
-	ErrInsufficientFunds  = errors.New("insufficient funds for gas * price + value")
+	ErrInsufficientFunds  = errors.New("insufficient funds for fee")
 	ErrIntrinsicGas       = errors.New("intrinsic gas too low")
 	ErrGasLimit           = errors.New("exceeds block gas limit")
 	ErrNegativeValue      = errors.New("negative value")

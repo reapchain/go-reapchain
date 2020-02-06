@@ -326,6 +326,7 @@ func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArg
     account := accounts.Account{Address: args.From}
     wallet, err := s.am.Find(account)
     if err != nil {
+		fmt.Printf(" s.am.Find : from = %x  err = %s\n", args.From, err);	// yhheo
         return nil, err
     }
     // Set some sanity defaults and terminate on failure
