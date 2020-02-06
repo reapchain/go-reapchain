@@ -40,3 +40,5 @@ config/config.json
 config/config.toml
 /_develop_doc/
 /.idea/
+/istanbul-tools/
+/build/int_geth/
