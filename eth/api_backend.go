@@ -18,6 +18,7 @@ package eth
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/accounts"
@@ -119,6 +120,7 @@ func (b *EthApiBackend) GetEVM(ctx context.Context, msg core.Message, state etha
 }
 
 func (b *EthApiBackend) SendTx(ctx context.Context, signedTx *types.Transaction) error {
+	fmt.Println("\n SendTx: ctx =", ctx,  "signedTx =", signedTx )    // yichoi
 	b.eth.txMu.Lock()
 	defer b.eth.txMu.Unlock()
 

@@ -111,8 +111,8 @@ const (
 	msgCommit
 	msgRoundChange
 
-	msgD_commit          // podc
-	msgD_select          // podc
+	// msgD_commit          // podc
+	// msgD_select          // podc
 	msgRequestQman
 	msgHandleQman // for Qman, receive event handler from geth ( sending qmanager )
 	msgAll

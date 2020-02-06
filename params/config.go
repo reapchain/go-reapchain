@@ -160,7 +160,12 @@ var (
 		},
 	}
 
-	TestChainConfig    = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(1), big.NewInt(0), nil, new(EthashConfig), nil, nil, nil}
+	TestChainConfig    = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(1), big.NewInt(0), nil, new(EthashConfig), nil, nil,
+		&PoDCConfig{
+			Epoch:          30000,
+			ProposerPolicy: 0,
+		},
+	}
 	//end
 	TestRules          = TestChainConfig.Rules(new(big.Int))
 )
@@ -247,9 +252,8 @@ func (c *ChainConfig) String() string {
 		engine = c.Ethash
 	case c.Clique != nil:
 		engine = c.Clique
-/* 	case c.Istanbul != nil:
-		engine = c.Istanbul */
-
+ 	case c.Istanbul != nil:
+		engine = c.Istanbul
 	case c.PoDC != nil:
 		engine = c.PoDC
 

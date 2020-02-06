@@ -677,7 +677,7 @@ type CallArgs struct {
 }
 
 func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber, vmCfg vm.Config) ([]byte, *big.Int, error) {
-    //fmt.Printf("PublicBlockChainAPI - doCall : ctx = %v\n args.From = %x\n args.To = %x\n blockNr = %d\n", ctx, args.From, args.To, blockNr)    // yhheo
+    fmt.Printf("PublicBlockChainAPI - doCall : ctx = %v\n args.From = %x\n args.To = %x\n blockNr = %d\n", ctx, args.From, args.To, blockNr)    // yhheo
 	defer func(start time.Time) { log.Debug("Executing EVM call finished", "runtime", time.Since(start)) }(time.Now())
 
 	state, header, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
@@ -1283,10 +1283,13 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
 func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
-    fmt.Printf("PublicTransactionPoolAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n", ctx, args.From, args.To)    // yhheo
+	fmt.Printf("PublicTransactionPoolAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n, args.Value = %d\n : %v\n", ctx, args.From, args.To, args.Value, args.Value)    // yhheo
+	fmt.Printf("\n")
+	log.Info("value: ", "*args.Value.ToInt()", *args.Value.ToInt() )// yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
-
+    log.Info("account:", "account", account)
+	fmt.Printf( "account = %v\n", account)
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
 		return common.Hash{}, err
@@ -1300,7 +1303,7 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 	}
 
 	// Set some sanity defaults and terminate on failure
-	if err := args.setDefaults(ctx, s.b); err != nil {
+	if err := args.setDefaults(ctx, s.b); err != nil {  // 안쓰는 서브 필드 다 초기화
 		return common.Hash{}, err
 	}
 	// Assemble the transaction and sign with the wallet
