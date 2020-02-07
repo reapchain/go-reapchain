@@ -1,21 +1,24 @@
 package config
 
 import (
+	//"errors"
 	"encoding/json"
 	"io/ioutil"
 	"os"
+	"github.com/ethereum/go-ethereum/log"
+
 )
 
 var Config EnvConfig
 var TotalConfig Configurations
 
 func (c *EnvConfig) GetConfig(env string) {
-	jsonFile, _ := os.Open("config.json")
+	jsonFile, err := os.Open("config.json")
 	defer jsonFile.Close()
 
-	//if err != nil {
-	//	log.Error("Failed to read configurations", "error", err)
-	//}
+	if err != nil {
+		log.Error("Failed to read configurations", "error", err)
+	}
 
 	byteValue, _ := ioutil.ReadAll(jsonFile)
 

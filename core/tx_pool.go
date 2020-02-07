@@ -180,7 +180,7 @@ func NewTxPool(config TxPoolConfig, chainconfig *params.ChainConfig, eventMux *e
 
 	return pool
 }
-
+// sendtx eventloop,, tx pool의 상태 정보를 업데이트 하고, 로그 보여주고
 func (pool *TxPool) eventLoop() {
 	defer pool.wg.Done()
 
@@ -223,7 +223,7 @@ func (pool *TxPool) eventLoop() {
 			pool.mu.RUnlock()
 
 			if pending != prevPending || queued != prevQueued || stales != prevStales {
-				log.Debug("Transaction pool status report", "executable", pending, "queued", queued, "stales", stales)
+				log.Debug("Transaction pool status report: yichoi ", "executable", pending, "queued", queued, "stales", stales)
 				prevPending, prevQueued, prevStales = pending, queued, stales
 			}
 		}
@@ -343,6 +343,7 @@ func (pool *TxPool) Pending() (map[common.Address]types.Transactions, error) {
 	for addr, list := range pool.pending {
 		pending[addr] = list.Flatten()
 	}
+	log.Info("pending(yichoi):", "pending", pending )
 	return pending, nil
 }
 
@@ -356,10 +357,14 @@ func (pool *TxPool) SetLocal(tx *types.Transaction) {
 
 // validateTx checks whether a transaction is valid according
 // to the consensus rules.
+// 합의룰에 맞추어서 하나의 트랜잭션이 타당한지 체크하는 함수
+
+
 func (pool *TxPool) validateTx(tx *types.Transaction) error {
 	local := pool.locals.contains(tx.Hash())
 	// Drop transactions under our own minimal accepted gas price
 	if !local && pool.gasPrice.Cmp(tx.GasPrice()) > 0 {
+		log.Info("Drop transactions under our own minimal accepted gas price by yichoi ", "pool", pool )
 		return ErrUnderpriced
 	}
 
@@ -413,7 +418,7 @@ func (pool *TxPool) add(tx *types.Transaction) (bool, error) {
 	// If the transaction is already known, discard it
 	hash := tx.Hash()
 	if pool.all[hash] != nil {
-		log.Trace("Discarding already known transaction", "hash", hash)
+		log.Trace("Discarding already known transaction", "hash", hash)  //reviewed by yichoi
 		return false, fmt.Errorf("known transaction: %x", hash)
 	}
 	// If the transaction fails basic validation, discard it

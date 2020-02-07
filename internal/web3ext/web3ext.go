@@ -31,6 +31,7 @@ var Modules = map[string]string{
 	"swarmfs":    SWARMFS_JS,
 	"txpool":     TxPool_JS,
 	"istanbul":   Istanbul_JS,
+	"PoDC": PoDC_JS, //added by yichoi
 }
 
 const Chequebook_JS = `
@@ -736,6 +737,54 @@ web3._extend({
 		new web3._extend.Property({
 			name: 'candidates',
 			getter: 'istanbul_candidates'
+		}),
+	]
+});
+`
+
+const PoDC_JS = `
+web3._extend({
+  	property: 'PoDC',
+  	methods:
+  	[
+		new web3._extend.Method({
+			name: 'getSnapshot',
+			call: 'PoDC_getSnapshot',
+			params: 1,
+      		inputFormatter: [null]
+		}),
+		new web3._extend.Method({
+			name: 'getSnapshotAtHash',
+			call: 'PoDC_getSnapshotAtHash',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'getValidators',
+			call: 'PoDC_getValidators',
+			params: 1,
+			inputFormatter: [null]
+		}),
+		new web3._extend.Method({
+			name: 'getValidatorsAtHash',
+			call: 'PoDC_getValidatorsAtHash',
+			params: 1
+		}),
+		new web3._extend.Method({
+			name: 'propose',
+			call: 'PoDC_propose',
+			params: 2
+		}),
+		new web3._extend.Method({
+			name: 'discard',
+			call: 'PoDC_discard',
+			params: 1
+		})
+  	],
+	properties:
+	[
+		new web3._extend.Property({
+			name: 'candidates',
+			getter: 'PoDC_candidates'
 		}),
 	]
 });

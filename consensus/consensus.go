@@ -104,7 +104,7 @@ type PoW interface {
 }
 
 // Istanbul is a consensus engine to avoid byzantine failure
-type Istanbul interface {
+/* type Istanbul interface {
 	Engine
 
 	// Handle a message from peer
@@ -115,6 +115,21 @@ type Istanbul interface {
 
 	// Start the engine
 	//Start(chain ChainReader, inserter func(block *types.Block) error) error
+	Start(chain ChainReader, qman []*discover.Node,  inserter func(block *types.Block) error) error
+	// Stop the engine
+	Stop() error
+} */
+type PoDC interface {
+	Engine
+
+	// Handle a message from peer
+	HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error
+
+	// Receive new chain head block
+	NewChainHead(block *types.Block)
+
+	// Start the engine
+
 	Start(chain ChainReader, qman []*discover.Node,  inserter func(block *types.Block) error) error
 	// Stop the engine
 	Stop() error

@@ -123,8 +123,8 @@ type protocolManager struct {
 // NewProtocolManager returns a new ethereum sub protocol manager. The Ethereum sub protocol manages peers capable
 // with the ethereum network.
 func NewProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, networkId uint64, maxPeers int, mux *event.TypeMux, txpool txPool, engine consensus.Engine, blockchain *core.BlockChain, chaindb ethdb.Database) (ProtocolManager, error) {
-	if e, ok := engine.(consensus.Istanbul); ok {
-		return newIstanbulProtocolManager(config, mode, networkId, maxPeers, mux, txpool, e, blockchain, chaindb)
+	if e, ok := engine.(consensus.PoDC); ok {
+		return newPoDCProtocolManager(config, mode, networkId, maxPeers, mux, txpool, e, blockchain, chaindb)
 	} else {
 		return newProtocolManager(config, mode, networkId, maxPeers, mux, txpool, engine, blockchain, chaindb)
 	}
@@ -204,7 +204,6 @@ func newProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 	heighter := func() uint64 {
 		return blockchain.CurrentBlock().NumberU64()
 	}
-	//yichoi reviewed because of intanbul debugging 2019-10-11
 	inserter := func(blocks types.Blocks) (int, error) {
 		// If fast sync is running, deny importing weird blocks
 		if atomic.LoadUint32(&manager.fastSync) == 1 {
@@ -212,10 +211,10 @@ func newProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 			return 0, nil
 		}
 		atomic.StoreUint32(&manager.acceptTxs, 1) // Mark initial sync done on any fetcher import
-		return blockchain.InsertChain(blocks)  //Full sync로 최초 geth 기동시켜야 체인을 삽입한다.
+		return blockchain.InsertChain(blocks)
 	}
 	manager.fetcher = fetcher.New(blockchain.GetBlockByHash, validator, manager.BroadcastBlock, heighter, inserter, manager.removePeer)
-    // Fetcherㄱㅏ 새 블럭을 삽입한다.
+
 	return manager, nil
 }
 
@@ -282,6 +281,8 @@ func (pm *protocolManager) newPeer(pv int, p *p2p.Peer, rw p2p.MsgReadWriter) *p
 
 // handle is the callback invoked to manage the life cycle of an eth peer. When
 // this function terminates, the peer is disconnected.
+// eth 피어의 라이프 사이클을 관리하기 위한 콜백 함수를 핸들링 한다.
+//출처: https://hamait.tistory.com/971?category=276132 [HAMA 블로그]
 func (pm *protocolManager) handle(p *peer, handleMsg func(*peer, p2p.Msg) error) error {
 	if pm.peers.Len() >= pm.maxPeers {
 		return p2p.DiscTooManyPeers
@@ -289,15 +290,20 @@ func (pm *protocolManager) handle(p *peer, handleMsg func(*peer, p2p.Msg) error)
 	p.Log().Debug("Ethereum peer connected", "name", p.Name())
 
 	// Execute the Ethereum handshake
+
+
 	td, head, genesis := pm.blockchain.Status()
+	// eth 정보(버전넘버,네트웤ID,Difficulties, head,genesis 블록에 관련된 정보)에 대한 핸드쉐이킹을 한다.
 	if err := p.Handshake(pm.networkId, td, head, genesis); err != nil {
 		p.Log().Debug("Ethereum handshake failed", "err", err)
 		return err
 	}
 	if rw, ok := p.rw.(*meteredMsgReadWriter); ok {
+		// p2p 코어(protoRW) 에 자신의 버전을 할당 해 둔다.
 		rw.Init(p.version)
 	}
 	// Register the peer locally
+	// 특정 리모트와 연결된 peer 를 등록 해 둔다.
 	if err := pm.peers.Register(p); err != nil {
 		p.Log().Error("Ethereum peer registration failed", "err", err)
 		return err
@@ -310,6 +316,7 @@ func (pm *protocolManager) handle(p *peer, handleMsg func(*peer, p2p.Msg) error)
 	}
 	// Propagate existing transactions. new transactions appearing
 	// after this will be sent via broadcasts.
+	// 새로 만들어진 peer 객체에 대해 트랜잭션 동기화를 진행한다. (트랜잭션 전파등) // 여기서 트랜잭션에 관련된 데이터 가 만들어지면, 채널을 통해 전송 할 것이며, // 해당 채널에 대한 이벤트가 일어나길 기다리는 고루틴에서는 p2p 로 전송 할 것이다.
 	pm.syncTransactions(p)
 
 	// If we're DAO hard-fork aware, validate any remote peer with regard to the hard-fork
@@ -332,6 +339,7 @@ func (pm *protocolManager) handle(p *peer, handleMsg func(*peer, p2p.Msg) error)
 		}()
 	}
 	// main loop. handle incoming messages.
+	// 들어오는 메세지에 대해서 핸들링 할 메인 루프
 	for {
 		if err := pm.handlePeerMsg(p, handleMsg); err != nil {
 			p.Log().Debug("Ethereum message handling failed", "err", err)
@@ -352,7 +360,8 @@ func (pm *protocolManager) handlePeerMsg(p *peer, handleMsg func(*peer, p2p.Msg)
 		return errResp(ErrMsgTooLarge, "%v > %v", msg.Size, ProtocolMaxMsgSize)
 	}
 	defer msg.Discard()
-	return handleMsg(p, msg)
+
+	return handleMsg(p, msg)  //들어오는 메세지에 대해서 핸들링 할 메인 루프
 }
 
 func (pm *protocolManager) handleMsg(p *peer, msg p2p.Msg) error {
@@ -702,6 +711,10 @@ func (pm *protocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 			p.MarkTransaction(tx.Hash())
 		}
 		pm.txpool.AddBatch(txs)
+
+	case msg.Code == TxMsgFromQman:  //for Qmanager of martin
+         //To do
+
 
 	default:
 		return errResp(ErrInvalidMsgCode, "%v", msg.Code)

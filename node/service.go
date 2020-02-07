@@ -23,6 +23,7 @@ import (
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/ethdb"
 	"github.com/ethereum/go-ethereum/event"
+	"github.com/ethereum/go-ethereum/log" //debug
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -42,6 +43,7 @@ type ServiceContext struct {
 // node is an ephemeral one, a memory database is returned.
 func (ctx *ServiceContext) OpenDatabase(name string, cache int, handles int) (ethdb.Database, error) {
 	if ctx.config.DataDir == "" {
+		log.Info("OpenDatabase", "ctx.config.DataDir", ctx.config.DataDir) //debugging
 		return ethdb.NewMemDatabase()
 	}
 	return ethdb.NewLDBDatabase(ctx.config.resolvePath(name), cache, handles)
@@ -51,6 +53,7 @@ func (ctx *ServiceContext) OpenDatabase(name string, cache int, handles int) (et
 // and if the user actually uses persistent storage. It will return an empty string
 // for emphemeral storage and the user's own input for absolute paths.
 func (ctx *ServiceContext) ResolvePath(path string) string {
+
 	return ctx.config.resolvePath(path)
 }
 

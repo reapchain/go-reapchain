@@ -87,7 +87,7 @@ type ContractTransactor interface {
 	// for setting a reasonable default.
 	EstimateGas(ctx context.Context, call ethereum.CallMsg) (usedGas *big.Int, err error)
 	// SendTransaction injects the transaction into the pending pool for execution.
-	SendTransaction(ctx context.Context, tx *types.Transaction) error
+	SendTransaction(ctx context.Context, tx *types.Transaction) error  //reviewed by yichoi for debugging about sendtx runtime error
 }
 
 // ContractBackend defines the methods needed to work with contracts on a read-write basis.

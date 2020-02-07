@@ -123,7 +123,9 @@ Use "ethereum dump 0" to dump the genesis block.`,
 
 // initGenesis will initialise the given JSON format genesis file and writes it as
 // the zero'd block (i.e. genesis) or will fail hard if it can't succeed.
-func initGenesis(ctx *cli.Context) error {
+// When geth init, initGenesis create 2 database into node direcotry,
+// chaindata for full sync,  lightchaindata for light sync
+func initGenesis(ctx *cli.Context) error {   //$BIN_PATH/geth --datadir $PROJ_PATH/node7/data init  $SETUP_INFO_PATH/genesis.json
 	// Make sure we have a valid genesis JSON
 	genesisPath := ctx.Args().First()
 	if len(genesisPath) == 0 {

@@ -115,9 +115,9 @@ var (
 		utils.ExtraDataFlag,
 		utils.GovernanceFlag, // yhheo - Governance setting
 		configFileFlag,
-		utils.IstanbulRequestTimeoutFlag,
+		/* utils.IstanbulRequestTimeoutFlag,
 		utils.IstanbulBlockPeriodFlag,
-		utils.IstanbulBlockPauseTimeFlag,
+		utils.IstanbulBlockPauseTimeFlag, */
 		//PoDC setting -yichoi
 		utils.PoDCRequestTimeoutFlag,
 		utils.PoDCBlockPeriodFlag,
@@ -205,6 +205,8 @@ func main() {
 // It creates a default node based on the command line arguments and runs it in
 // blocking mode, waiting for it to be shut down.
 func geth(ctx *cli.Context) error {
+	fmt.Println("\n geth: ctx =",  ctx)    // yichoi
+
 	node := makeFullNode(ctx)
 	// port no add
 

@@ -17,6 +17,7 @@
 package eth
 
 import (
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"math/big"
 	"os"
 	"os/user"
@@ -25,7 +26,8 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	//"github.com/ethereum/go-ethereum/consensus/istanbul"
+	// "github.com/ethereum/go-ethereum/consensus/podc" //to do later
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/eth/downloader"
 	"github.com/ethereum/go-ethereum/eth/gasprice"
@@ -51,7 +53,8 @@ var DefaultConfig = Config{
 		Percentile: 50,
 	},
 
-	Istanbul: *istanbul.DefaultConfig,
+	// Istanbul: *istanbul.DefaultConfig,  ; yichoi unmarked
+	PoDC: *podc.DefaultConfig,   //added by yichoi
 }
 
 func init() {
@@ -113,9 +116,12 @@ type Config struct {
 	EnablePreimageRecording bool
 
 	// Istanbul options
-	Istanbul istanbul.Config
+
+	// Istanbul istanbul.Config
+	PoDC podc.Config  //podc added , to do review later
 	Qmanager common.Address //added by choi for test
 
+//	podc  PoDC.Config  for reapchain
 	// Miscellaneous options
 	DocRoot   string `toml:"-"`
 	PowFake   bool   `toml:"-"`

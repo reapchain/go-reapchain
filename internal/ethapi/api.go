@@ -343,6 +343,7 @@ func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArg
 // SendTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
 // able to decrypt the key it fails.
+// disable temp by yichoi for debugging sendtx runtime error
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
     fmt.Printf("\nfunc (s *PrivateAccountAPI) SendTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
     if args.Nonce == nil {
@@ -361,39 +362,40 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
     return submitTransaction(ctx, s.b, signed)
 }
 
-//func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-//	// Look up the wallet containing the requested signer
-//	account := accounts.Account{Address: args.From}
-//
-//	wallet, err := s.am.Find(account)
-//	if err != nil {
-//		return common.Hash{}, err
-//	}
-//
-//	if args.Nonce == nil {
-//		// Hold the addresse's mutex around signing to prevent concurrent assignment of
-//		// the same nonce to multiple accounts.
-//		s.nonceLock.LockAddr(args.From)
-//		defer s.nonceLock.UnlockAddr(args.From)
-//	}
-//
-//	// Set some sanity defaults and terminate on failure
-//	if err := args.setDefaults(ctx, s.b); err != nil {
-//		return common.Hash{}, err
-//	}
-//	// Assemble the transaction and sign with the wallet
-//	tx := args.toTransaction()
-//
-//	var chainID *big.Int
-//	if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) {
-//		chainID = config.ChainId
-//	}
-//	signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
-//	if err != nil {
-//		return common.Hash{}, err
-//	}
-//	return submitTransaction(ctx, s.b, signed)
-//}
+/*
+func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
+	// Look up the wallet containing the requested signer
+	account := accounts.Account{Address: args.From}
+    log.Info("SendTransaction:", "account", account ) //yichoi added
+	wallet, err := s.am.Find(account)
+	if err != nil {
+		return common.Hash{}, err
+	}
+
+	if args.Nonce == nil {
+		// Hold the addresse's mutex around signing to prevent concurrent assignment of
+		// the same nonce to multiple accounts.
+		s.nonceLock.LockAddr(args.From)
+		defer s.nonceLock.UnlockAddr(args.From)
+	}
+
+	// Set some sanity defaults and terminate on failure
+	if err := args.setDefaults(ctx, s.b); err != nil {
+		return common.Hash{}, err
+	}
+	// Assemble the transaction and sign with the wallet
+	tx := args.toTransaction()
+
+	var chainID *big.Int
+	if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) {
+		chainID = config.ChainId
+	}
+	signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
+	if err != nil {
+		return common.Hash{}, err
+	}
+	return submitTransaction(ctx, s.b, signed)
+} */
 
 // SignTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
@@ -417,7 +419,7 @@ func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs
     }
     signed, err := s.signTransaction(ctx, &args, passwd)
     if err != nil {
-        log.Warn("Failed transaction sign attempt", "from", args.From, "err", err)
+        log.Warn("Failed transaction sign attempt", "from", args.From, "to", args.To, "value", args.Value.ToInt(), "err", err)
         return nil, err
     }
     data, err := rlp.EncodeToBytes(signed)
@@ -527,7 +529,7 @@ func (s *PublicBlockChainAPI) BlockNumber() *big.Int {
 // given block number. The rpc.LatestBlockNumber and rpc.PendingBlockNumber meta
 // block numbers are also allowed.
 func (s *PublicBlockChainAPI) GetBalance(ctx context.Context, address common.Address, blockNr rpc.BlockNumber) (*big.Int, error) {
-    //fmt.Printf("\nfunc (s *PublicBlockChainAPI) GetBalance\n ctx = %v\n address = %x\n rpc.BlockNumber = %d\n", ctx, address, blockNr)    // yhheo
+    //fmt.Printf("PublicBlockChainAPI - GetBalance : ctx = %v\n address = %x\n blockNr = %d\n", ctx, address, blockNr)    // yhheo
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
 		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err);	// yhheo
@@ -1018,6 +1020,10 @@ func getTransaction(chainDb ethdb.Database, b Backend, txHash common.Hash) (*typ
 		// pending transaction?
 		tx = b.GetPoolTransaction(txHash)
 		isPending = true
+		log.Info("getTransaction: ", "isPending", isPending)
+		log.Info("getTransaction: ", "tx", tx)
+
+
 	}
 
 	return tx, isPending, nil
@@ -1271,6 +1277,7 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 }
 
 // submitTransaction is a helper function that submits tx to txPool and logs a message.
+// reviewed by yichoi for debug of sendtx error
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
     fmt.Printf("\nfunc submitTransaction\n ctx = %v\n Backend = %v\n tx = %v\n", ctx, b, tx)    // yhheo
 	//types.TxChecking(types.MakeSigner(b.ChainConfig(), b.CurrentBlock().Number()), tx)		// yhheo
@@ -1296,10 +1303,13 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
 func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
-    fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) SendTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+	fmt.Printf("PublicTransactionPoolAPI - SendTransaction : ctx = %v\n args.From = %x\n args.To = %x\n, args.Value = %d\n : %v\n", ctx, args.From, args.To, args.Value, args.Value)    // yhheo
+	fmt.Printf("\n")
+	log.Info("value: ", "*args.Value.ToInt()", *args.Value.ToInt() )// yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
-
+    log.Info("account:", "account", account)
+	fmt.Printf( "account = %v\n", account)
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
 		fmt.Printf(" s.b.AccountManager : err = %s\n", err);	// yhheo

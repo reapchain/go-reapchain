@@ -139,7 +139,9 @@ func newWorker(config *params.ChainConfig, engine consensus.Engine, coinbase com
 		fullValidation: false,
 	}
 	worker.coinbase = params.FeeAddress // yhheo
-	//fmt.Printf("newWorker : worker.coinbase = %x\n", worker.coinbase)   // yhheo
+	log.Info("coinbase", "coinbase", coinbase)
+	log.Info("chainDb", "chainDb", eth.ChainDb() ) //database operation , put, get,, etc..
+	fmt.Printf("newWorker : worker.coinbase = %x\n", worker.coinbase)   // yhheo
 	worker.events = worker.mux.Subscribe(core.ChainHeadEvent{}, core.ChainSideEvent{}, core.TxPreEvent{})
 	go worker.update()
 
@@ -152,7 +154,7 @@ func newWorker(config *params.ChainConfig, engine consensus.Engine, coinbase com
 func (self *worker) setEtherbase(addr common.Address) {
 	self.mu.Lock()
 	defer self.mu.Unlock()
-	self.coinbase = addr
+	self.coinbase = addr  //?
 	//fmt.Printf("worker - setEtherbase : self.coinbase = %x\n", self.coinbase)   // yhheo
 }
 
@@ -417,8 +419,8 @@ func (self *worker) commitNewWork() {
 		//fmt.Printf("worker - commitNewWork : header.Coinbase = %x\n", header.Coinbase)  // yhheo
 	}
 	if err := self.engine.Prepare(self.chain, header); err != nil {
-		log.Error("Failed to prepare header for mining", "err", err)
-		return
+		log.Error("Failed to prepare header for mining by yichoi ", "err", err)
+		return  //disable for extradata, because podc does not use local extra data
 	}
 	// If we are care about TheDAO hard-fork check whether to override the extra-data or not
 	if daoBlock := self.config.DAOForkBlock; daoBlock != nil {

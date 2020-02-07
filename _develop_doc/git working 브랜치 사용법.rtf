@@ -1,0 +1,524 @@
+{\rtf1\ansi\ansicpg949\cocoartf1561\cocoasubrtf600
+{\fonttbl\f0\fnil\fcharset0 Georgia;\f1\fnil\fcharset129 AppleMyungjo;\f2\fnil\fcharset0 Consolas;
+\f3\fnil\fcharset129 AppleSDGothicNeo-Regular;}
+{\colortbl;\red255\green255\blue255;\red14\green14\blue14;\red255\green255\blue255;\red234\green234\blue234;
+\red14\green14\blue14;\red234\green234\blue234;}
+{\*\expandedcolortbl;;\cssrgb\c6667\c6667\c6667;\cssrgb\c100000\c100000\c100000;\cssrgb\c93333\c93333\c93333;
+\cssrgb\c6667\c6667\c6667;\cssrgb\c93333\c93333\c93333;}
+{\*\listtable{\list\listtemplateid1\listhybrid{\listlevel\levelnfc0\levelnfcn0\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{decimal\}.}{\leveltext\leveltemplateid1\'02\'00.;}{\levelnumbers\'01;}\fi-360\li720\lin720 }{\listname ;}\listid1}
+{\list\listtemplateid2\listhybrid{\listlevel\levelnfc23\levelnfcn23\leveljc0\leveljcn0\levelfollow0\levelstartat1\levelspace360\levelindent0{\*\levelmarker \{square\}}{\leveltext\leveltemplateid101\'01\uc0\u9642 ;}{\levelnumbers;}\fi-360\li720\lin720 }{\listname ;}\listid2}}
+{\*\listoverridetable{\listoverride\listid1\listoverridecount0\ls1}{\listoverride\listid2\listoverridecount0\ls2}}
+\paperw11900\paperh16840\margl1440\margr1440\vieww17420\viewh10300\viewkind0
+\deftab720
+\pard\pardeftab720\sl780\partightenfactor0
+
+\f0\fs52 \cf2 \cb3 \expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 5 Steps for Code Changes Only on Git Branch and Merge to Master Once Done\
+\
+\pard\pardeftab720\sl380\sa520\partightenfactor0
+
+\fs32 \cf2 While using git, for most part, you shouldn\'92t be working directly on the master branch.\
+Any development work, or hotfixes, or research work that you do, you\'92ll typically create a new branch, and make changes to your code on that branch.\
+If you are happy with your code changes on your branch, then you\'92ll merge it to the master branch.\
+Or, if you created a branch to quickly test something by making some code change without the intention of keeping your code change, then after your testing, you can simply discard your code changes by deleting the branch that you created for your testing purpose. This way, the code in your master branch is not affected.\
+This tutorial explains the following steps:\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sl380\partightenfactor0
+\ls1\ilvl0\cf2 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	1.	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Create a new dev branch\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	2.	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Do your work on local dev branch\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	3.	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Push dev branch from your local to central git repository\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	4.	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Once your work is done, merge dev branch to master\cb1 \
+\ls1\ilvl0\cb3 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	5.	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Finally, delete the dev branch from both local and central git repository\
+\pard\tx566\pardeftab720\sl380\partightenfactor0
+\cf2 \
+\pard\pardeftab720\sl380\sa520\partightenfactor0
+\cf2 For the impatient, here is the code snippet for the above steps:\
+Git 
+\f1 \'c1\'f6\'c1\'a1\'bf\'a1\'bc\'ad\'b8\'b8
+\f0  
+\f1 \'c4\'da\'b5\'e5\'b8\'a6
+\f0  
+\f1 \'ba\'af\'b0\'e6\'c7\'cf\'b0\'ed
+\f0  
+\f1 \'c7\'d1
+\f0  
+\f1 \'b9\'f8
+\f0  
+\f1 \'b8\'b6\'bd\'ba\'c5\'cd\'b7\'ce
+\f0  
+\f1 \'ba\'b4\'c7\'d5\'c7\'cf\'b1\'e2\'c0\'a7\'c7\'d1
+\f0  5 
+\f1 \'b4\'dc\'b0\'e8
+\f0 \
+\
+git
+\f1 \'c0\'bb
+\f0  
+\f1 \'bb\'e7\'bf\'eb\'c7\'cf\'b4\'c2
+\f0  
+\f1 \'b5\'bf\'be\'c8
+\f0  
+\f1 \'b4\'eb\'ba\'ce\'ba\'d0
+\f0  
+\f1 \'b8\'b6\'bd\'ba\'c5\'cd
+\f0  
+\f1 \'ba\'ea\'b7\'a3\'c4\'a1\'bf\'a1\'bc\'ad
+\f0  
+\f1 \'c1\'f7\'c1\'a2
+\f0  
+\f1 \'c0\'db\'be\'f7\'c7\'d8\'bc\'ad\'b4\'c2
+\f0  
+\f1 \'be\'c8\'b5\'cb\'b4\'cf\'b4\'d9
+\f0 .\
+
+\f1 \'b0\'b3\'b9\'df
+\f0  
+\f1 \'c0\'db\'be\'f7\'c0\'cc\'b3\'aa
+\f0  
+\f1 \'c7\'d6\'c7\'c8\'bd\'ba
+\f0  
+\f1 \'b6\'c7\'b4\'c2
+\f0  
+\f1 \'bf\'ac\'b1\'b8
+\f0  
+\f1 \'c0\'db\'be\'f7\'c0\'bb
+\f0  
+\f1 \'bc\'f6\'c7\'e0\'c7\'cf\'b4\'c2
+\f0  
+\f1 \'b0\'e6\'bf\'ec
+\f0  
+\f1 \'c0\'cf\'b9\'dd\'c0\'fb\'c0\'b8\'b7\'ce
+\f0  
+\f1 \'bb\'f5
+\f0  
+\f1 \'ba\'d0\'b1\'e2\'b8\'a6
+\f0  
+\f1 \'b8\'b8\'b5\'e9\'b0\'ed
+\f0  
+\f1 \'c7\'d8\'b4\'e7
+\f0  
+\f1 \'ba\'d0\'b1\'e2\'c0\'c7
+\f0  
+\f1 \'c4\'da\'b5\'e5\'b8\'a6
+\f0  
+\f1 \'ba\'af\'b0\'e6\'c7\'d5\'b4\'cf\'b4\'d9
+\f0 .\
+
+\f1 \'c1\'f6\'c1\'a1\'c0\'c7
+\f0  
+\f1 \'c4\'da\'b5\'e5
+\f0  
+\f1 \'ba\'af\'b0\'e6\'bf\'a1
+\f0  
+\f1 \'b8\'b8\'c1\'b7\'c7\'cf\'b8\'e9\'c0\'cc\'b8\'a6
+\f0  
+\f1 \'b8\'b6\'bd\'ba\'c5\'cd
+\f0  
+\f1 \'c1\'f6\'c1\'a1\'bf\'a1
+\f0  
+\f1 \'ba\'b4\'c7\'d5\'c7\'d5\'b4\'cf\'b4\'d9
+\f0 .\
+
+\f1 \'b6\'c7\'b4\'c2
+\f0  
+\f1 \'c4\'da\'b5\'e5
+\f0  
+\f1 \'ba\'af\'b0\'e6\'c0\'bb
+\f0  
+\f1 \'c0\'af\'c1\'f6\'c7\'cf\'c1\'f6
+\f0  
+\f1 \'be\'ca\'b0\'ed
+\f0  
+\f1 \'c4\'da\'b5\'e5\'b8\'a6
+\f0  
+\f1 \'ba\'af\'b0\'e6\'c7\'cf\'bf\'a9
+\f0  
+\f1 \'ba\'d0\'b1\'e2\'b8\'a6
+\f0  
+\f1 \'bd\'c5\'bc\'d3\'c7\'cf\'b0\'d4
+\f0  
+\f1 \'c5\'d7\'bd\'ba\'c6\'ae\'c7\'cf\'b1\'e2
+\f0  
+\f1 \'c0\'a7\'c7\'d8
+\f0  
+\f1 \'ba\'d0\'b1\'e2\'b8\'a6
+\f0  
+\f1 \'b8\'b8\'b5\'e7
+\f0  
+\f1 \'b0\'e6\'bf\'ec
+\f0  
+\f1 \'c5\'d7\'bd\'ba\'c6\'ae
+\f0  
+\f1 \'c8\'c4\'bf\'a1
+\f0  
+\f1 \'c5\'d7\'bd\'ba\'c6\'ae
+\f0  
+\f1 \'b8\'f1\'c0\'fb\'c0\'b8\'b7\'ce
+\f0  
+\f1 \'b8\'b8\'b5\'e7
+\f0  
+\f1 \'ba\'d0\'b1\'e2\'b8\'a6
+\f0  
+\f1 \'bb\'e8\'c1\'a6\'c7\'cf\'bf\'a9
+\f0  
+\f1 \'c4\'da\'b5\'e5
+\f0  
+\f1 \'ba\'af\'b0\'e6
+\f0  
+\f1 \'bb\'e7\'c7\'d7\'c0\'bb
+\f0  
+\f1 \'b0\'a3\'b4\'dc\'c8\'f7
+\f0  
+\f1 \'c6\'f3\'b1\'e2
+\f0  
+\f1 \'c7\'d2
+\f0  
+\f1 \'bc\'f6
+\f0  
+\f1 \'c0\'d6\'bd\'c0\'b4\'cf\'b4\'d9
+\f0 . 
+\f1 \'c0\'cc\'b7\'b1
+\f0  
+\f1 \'bd\'c4\'c0\'b8\'b7\'ce
+\f0  
+\f1 \'b8\'b6\'bd\'ba\'c5\'cd
+\f0  
+\f1 \'ba\'ea\'b7\'a3\'c4\'a1\'c0\'c7
+\f0  
+\f1 \'c4\'da\'b5\'e5\'b4\'c2
+\f0  
+\f1 \'bf\'b5\'c7\'e2\'c0\'bb\'b9\'de\'c1\'f6
+\f0  
+\f1 \'be\'ca\'bd\'c0\'b4\'cf\'b4\'d9
+\f0 .\
+
+\f1 \'c0\'cc
+\f0  
+\f1 \'c7\'d0\'bd\'c0\'bc\'ad\'b4\'c2
+\f0  
+\f1 \'b4\'d9\'c0\'bd
+\f0  
+\f1 \'b4\'dc\'b0\'e8\'b8\'a6
+\f0  
+\f1 \'bc\'b3\'b8\'ed\'c7\'d5\'b4\'cf\'b4\'d9
+\f0 .\
+1. 
+\f1 \'bb\'f5\'b7\'ce\'bf\'ee
+\f0  dev 
+\f1 \'ba\'ea\'b7\'a3\'c4\'a1\'b8\'a6
+\f0  
+\f1 \'bb\'fd\'bc\'ba
+\f0 \
+2. 
+\f1 \'b7\'ce\'c4\'c3
+\f0  
+\f1 \'b0\'b3\'b9\'df
+\f0  
+\f1 \'c1\'f6\'c1\'a1\'bf\'a1\'bc\'ad
+\f0  
+\f1 \'c0\'db\'be\'f7\'c7\'cf\'bd\'ca\'bd\'c3\'bf\'c0
+\f0 .\
+3. 
+\f1 \'b7\'ce\'c4\'c3\'bf\'a1\'bc\'ad
+\f0  
+\f1 \'c1\'df\'be\'d3
+\f0  git 
+\f1 \'c0\'fa\'c0\'e5\'bc\'d2\'b7\'ce
+\f0  dev 
+\f1 \'ba\'d0\'b1\'e2\'b8\'a6
+\f0  
+\f1 \'c7\'aa\'bd\'c3\'c7\'cf\'bd\'ca\'bd\'c3\'bf\'c0
+\f0 .\
+4. 
+\f1 \'c0\'db\'be\'f7\'c0\'cc
+\f0  
+\f1 \'bf\'cf\'b7\'e1\'b5\'c7\'b8\'e9
+\f0  
+\f1 \'b0\'b3\'b9\'df\'c0\'da
+\f0  
+\f1 \'ba\'ea\'b7\'a3\'c4\'a1\'b8\'a6
+\f0  
+\f1 \'b8\'b6\'bd\'ba\'c5\'cd\'b7\'ce
+\f0  
+\f1 \'ba\'b4\'c7\'d5\'c7\'cf\'bd\'ca\'bd\'c3\'bf\'c0
+\f0 .\
+5. 
+\f1 \'b8\'b6\'c1\'f6\'b8\'b7\'c0\'b8\'b7\'ce
+\f0  
+\f1 \'b7\'ce\'c4\'c3
+\f0  
+\f1 \'b9\'d7
+\f0  
+\f1 \'c1\'df\'be\'d3
+\f0  
+\f1 \'c0\'da\'bd\'c4
+\f0  
+\f1 \'c0\'fa\'c0\'e5\'bc\'d2\'bf\'a1\'bc\'ad
+\f0  dev 
+\f1 \'ba\'d0\'b1\'e2\'b8\'a6
+\f0  
+\f1 \'bb\'e8\'c1\'a6\'c7\'cf\'bd\'ca\'bd\'c3\'bf\'c0
+\f0 .\
+\
+
+\f1 \'c3\'ca\'c1\'b6
+\f0  
+\f1 \'c7\'d1
+\f0  
+\f1 \'bb\'e7\'bf\'eb\'c0\'da\'b8\'a6
+\f0  
+\f1 \'c0\'a7\'c7\'d8
+\f0  
+\f1 \'c0\'a7
+\f0  
+\f1 \'b4\'dc\'b0\'e8\'bf\'a1
+\f0  
+\f1 \'b4\'eb\'c7\'d1
+\f0  
+\f1 \'c4\'da\'b5\'e5
+\f0  
+\f1 \'bd\'ba
+\f0  
+\f1 \'b4\'cf\'c6\'ea\'c0\'ba
+\f0  
+\f1 \'b4\'d9\'c0\'bd\'b0\'fa
+\f0  
+\f1 \'b0\'b0\'bd\'c0\'b4\'cf\'b4\'d9
+\f0 .\
+\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f2\fs26 \cf2 \cb4 # Clone the git repo:\
+# ssh key
+\f3 \'b0\'a1
+\f2  
+\f3 \'bb\'f3\'c8\'a3
+\f2  
+\f3 git server\'b6\'fb,, no password \'b7\'ce  ssh -T gitserver@192.168.0.100 \'c0\'b8\'b7\'ce \'c6\'d0\'bd\'ba\'bf\'f6\'b5\'e5 \'be\'f8\'c0\'cc. \
+\'c0\'da\'b5\'bf \'b7\'ce\'b1\'d7\'c0\'ce \'b5\'c7\'b0\'d4\'b2\'fb \'bc\'b3\'c1\'a4\'b5\'c8 \'bb\'f3\'c5\'c2\'c0\'d3\'c0\'bb \'c3\'bc\'c5\'a9\'c7\'d8\'be\'df\'c7\'d4. \
+\
+
+\f2 \
+\
+git clone 
+\f3 gitserver@192.168.0.100:/opt/git/go-ethereum.git
+\f2 \
+\
+# Create new working branch, do your work, and commit changes locally\
+\pard\pardeftab720\sl300\partightenfactor0
+\cf5 \cb6 \outl0\strokewidth0 ; 
+\f3 \'bb\'f5\'b7\'ce\'bf\'ee
+\f2  
+\f3 \'b7\'ce\'c4\'c3\'c0\'c7
+\f2  
+\f3 \'ba\'ea\'b7\'a3\'c4\'a1
+\f2  
+\f3 \'c0\'cc\'b8\'a7\'c0\'bb
+\f2  working
+\f3 \'c0\'b8\'b7\'ce
+\f2  
+\f3 \'b8\'b8\'b5\'e9\'b0\'ed
+\f2 ,, 
+\f3 \'c0\'db\'be\'f7\'c7\'cf\'b0\'ed
+\f2 , 
+\f3 \'b7\'ce\'c4\'c3\'b7\'ce
+\f2  
+\f3 \'c4\'bf\'b9\'d4
+\f2 \cf2 \cb4 \outl0\strokewidth0 \strokec2 \
+\pard\pardeftab720\sl300\partightenfactor0
+\cf2 \
+git checkout -b working   ; 
+\f3 \'b7\'ce\'c4\'c3\'bf\'a1
+\f2  working 
+\f3 \'ba\'ea\'b7\'a3\'c4\'a1
+\f2  
+\f3 \'b8\'b8\'b5\'ea
+\f2  \
+\
+
+\f3 \'c6\'c4\'c0\'cf
+\f2  
+\f3 \'bc\'f6\'c1\'a4 \'c0\'db\'be\'f7 \'be\'c6\'b9\'ab\'b0\'c5\'b3\'aa \'c7\'cf\'bd\'c3\'b0\'ed, 
+\f2 \
+\
+git commit -m \'93git
+\f3 \'bf\'c3\'b8\'ae\'b8\'e9\'bc\'ad
+\f2  
+\f3 \'c0\'fc\'c3\'bc
+\f2  
+\f3 \'b0\'f8\'c1\'f6\'c7\'d2
+\f2  
+\f3 \'b3\'bb\'bf\'eb
+\f2  
+\f3 \'b8\'de\'bd\'c3\'c1\'f6
+\f2  
+\f3 \'c0\'db\'bc\'ba
+\f2  
+\f3 \'b9\'ae\'c0\'e5
+\f2  
+\f3 \'bf\'a9\'b1\'e2\'bf\'a1
+\f2  .\'94 
+\f3 \'bc\'f6\'c1\'a4\'c7\'d1\'c6\'c4\'c0\'cf\'b8\'ed   
+\f2 \
+\
+\
+# Push your changes to remote working  branch\
+\
+git push --set-upstream origin working ; 
+\f3 \'ba\'af\'b0\'e6
+\f2  
+\f3 \'bb\'e7\'c7\'d7\'c0\'bb
+\f2  
+\f3 \'bf\'f8\'b0\'dd\'c0\'c7
+\f2  working 
+\f3 \'ba\'ea\'b7\'a3\'c4\'a1\'b7\'ce
+\f2  
+\f3 \'c7\'cf\'b0\'da\'b4\'d9\'b4\'c2
+\f2  
+\f3 \'c0\'cf\'c1\'be\'c0\'c7
+\f2  
+\f3 \'b9\'d9\'c0\'ce\'b5\'f9
+\f2 . \
+\
+\
+\
+=============  
+\f3 \'bf\'a9\'b1\'e2\'b4\'c2
+\f2   
+\f3 \'b3\'bb
+\f2  
+\f3 \'bc\'d2\'bd\'ba
+\f2  
+\f3 \'c4\'da\'b5\'e5\'b0\'a1
+\f2  
+\f3 \'ba\'b4\'c7\'d5\'c7\'d8\'b5\'b5.. \'ba\'f4\'b5\'e5 \'b5\'c9\'b6\'a7 \'c7\'cf\'bc\'bc\'bf\'e4. ============
+\f2 \
+# Merge working  branch to master\
+\
+git checkout master  ; master 
+\f3 \'b7\'ce
+\f2  
+\f3 \'bd\'ba\'c0\'a7\'c4\'a1
+\f2 ( 
+\f3 \'c0\'fc\'c8\'af
+\f2  ) \
+git merge working    ; 
+\f3 working \'ba\'ea\'b7\'a3\'c4\'a1\'b7\'ce \'ba\'b4\'c7\'d4. \
+\
+==============  \'c0\'db\'be\'f7\'c0\'cc \'b3\'a1\'b3\'aa\'b8\'e9,, \'b7\'ce\'c4\'c3, \'b8\'ae\'b9\'ab\'c6\'ae\'c0\'c7 \'c0\'db\'be\'f7 \'ba\'ea\'b7\'a3\'c4\'a1\'b8\'a6 \'c1\'f6\'bf\'ef\'b6\'a7 ============== 
+\f2 \
+\
+# Finally, delete dev branch both locally and remote\
+git branch -d working \
+git branch -d -r origin/working    \
+\
+\
+\
+\
+=============  
+\f3 \'b1\'e2\'c5\'b8,, \'c0\'db\'be\'f7\'bd\'c3 \'bb\'e7\'bf\'eb\'c7\'d2 \'b8\'ed\'b7\'c9\'be\'ee \'b8\'f0\'c0\'bd ==========================\
+\pard\pardeftab720\sl380\sa520\partightenfactor0
+
+\f0\fs32 \cf2 \cb3 By default, the current working branch is master branch.\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f2\fs26 \cf2 \cb4 # git status\
+On branch master\
+Your branch is up-to-date with 'origin/master'.\
+\
+nothing to commit, working tree clean\
+
+\f3 \
+\
+\pard\pardeftab720\sl380\sa520\partightenfactor0
+
+\f0\fs32 \cf2 \cb3 The following commands displays all available branches for this repository (both local and remote).\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f2\fs26 \cf2 \cb4 # git branch -a\
+* master                         <= 
+\f3 \'b7\'ce\'c4\'c3\'c0\'c7
+\f2  
+\f3 \'c7\'f6\'c0\'e7
+\f2  
+\f3 \'ba\'ea\'b7\'a3\'c4\'a1\'b0\'a1
+\f2  master
+\f3 \'b6\'f3\'b4\'c2 \'c0\'c7\'b9\'cc 
+\f2 \
+  remotes/origin/HEAD -> origin/master   <= 
+\f3 \'bf\'f8\'b0\'dd\'c0\'ba
+\f2  origin 
+\f3 \'c0\'c7
+\f2  
+\f3 master\'b0\'a1 HEAD\'c0\'d3.. HEAD\'b4\'c2 Git \'c7\'c7\'b6\'f3\'b9\'cc\'b5\'e5\'bf\'a1\'bc\'ad \'c3\'d6 \'c1\'a4\'c1\'a1 \'c0\'c7\'b9\'cc 
+\f2 \
+  remotes/origin/master\
+
+\f3 \
+\
+
+\f2 # git checkout -b working\
+Switched to a new branch \'91working\'92\
+\pard\pardeftab720\sl380\sa520\partightenfactor0
+
+\f0\fs32 \cf2 \cb3 In the above:\
+\pard\tx220\tx720\pardeftab720\li720\fi-720\sl380\partightenfactor0
+\ls2\ilvl0\cf2 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u9642 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 git checkout command will try to checkout the given branch.\cb1 \
+\ls2\ilvl0\cb3 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u9642 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 In our case, we don\'92t have a branch called \'93working\'94. So, the above command will create a new \'93working\'94 branch.\cb1 \
+\ls2\ilvl0\cb3 \kerning1\expnd0\expndtw0 \outl0\strokewidth0 {\listtext	\uc0\u9642 	}\expnd0\expndtw0\kerning0
+\outl0\strokewidth0 \strokec2 Once the empty 
+\f2\fs26 \cf5 \cb6 \outl0\strokewidth0 working
+\f0\fs32 \cf2 \cb3 \outl0\strokewidth0 \strokec2  branch is created, it will also switch to the 
+\f2\fs26 \cf5 \cb6 \outl0\strokewidth0 working
+\f0\fs32 \cf2 \cb3 \outl0\strokewidth0 \strokec2  branch and make that as our working branch.\
+\pard\tx566\pardeftab720\sl380\partightenfactor0
+\cf2 \cb1 \
+\
+\pard\pardeftab720\sl380\sa520\partightenfactor0
+\cf2 \cb3 Verify that the new branch got created as shown below.\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f2\fs26 \cf2 \cb4 # git branch -a\
+* \cf5 \cb6 \outl0\strokewidth0 working\cf2 \cb4 \outl0\strokewidth0 \strokec2 \
+  master\
+  remotes/origin/HEAD -> origin/master\
+  remotes/origin/master\
+\pard\tx566\pardeftab720\sl380\partightenfactor0
+
+\f0\fs32 \cf2 \cb1 \
+\
+\pard\pardeftab720\sl380\sa520\partightenfactor0
+\cf2 \cb3 The following git status command indicates that we are currently on the new \'93dev\'94 branch.\
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f2\fs26 \cf2 \cb4 # git status\
+On branch working \
+nothing to commit, working tree clean\
+\pard\tx566\pardeftab720\sl380\partightenfactor0
+
+\f0\fs32 \cf2 \cb1 \
+\pard\pardeftab720\sl300\partightenfactor0
+
+\f3\fs26 \cf2 \cb4 \
+\
+\
+\
+\
+\
+
+\f2 \
+\pard\tx566\pardeftab720\sl380\partightenfactor0
+
+\f0\fs32 \cf2 \cb1 \
+\pard\pardeftab720\sl780\partightenfactor0
+
+\fs52 \cf2 \cb3 \
+\
+\
+}
