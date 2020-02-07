@@ -28,8 +28,7 @@ var (
 		msgPreprepare: 1,
 		msgCommit:     2,
 		msgPrepare:    3,
-		msgD_select:   4,  // why red color, 속도 느린 부분 ?
-		msgD_commit:   5,  //     "
+
 	}
 )
 
