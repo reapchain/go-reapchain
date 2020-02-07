@@ -3,16 +3,17 @@ package core
 import (
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/config"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	// "github.com/ethereum/go-ethereum/config"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
+	"math"
 	"math/rand"
 	"time"
 )
 
 type ValidatorInfo struct {
 	Address common.Address
-	Tag istanbul.Tag
+	Tag podc.Tag
 	Qrnd uint64
 }
 
@@ -30,16 +31,16 @@ func (c *core) sendDSelect() {
 
 		if i == 0 {
 			if !c.valSet.IsProposer(v.Address()) {
-				validatorInfo.Tag = istanbul.Coordinator
+				validatorInfo.Tag = podc.Coordinator
 			} else {
 				flag = true
 			}
 		} else if i == 1 {
 			if flag {
-				validatorInfo.Tag = istanbul.Coordinator
+				validatorInfo.Tag = podc.Coordinator
 			}
 		} else {
-			validatorInfo.Tag = istanbul.Candidate
+			validatorInfo.Tag = podc.Candidate
 		}
 
 		extra[i] = validatorInfo
@@ -92,7 +93,7 @@ func (c *core) sendCandidateDecide() {
 	})
 }
 
-func (c *core) handleSentExtraData(msg *message, src istanbul.Validator) error {
+func (c *core) handleSentExtraData(msg *message, src podc.Validator) error {
 	c.broadcast(&message{
 		Code: msgDSelect,
 		Msg: msg.Msg,
@@ -101,7 +102,7 @@ func (c *core) handleSentExtraData(msg *message, src istanbul.Validator) error {
 	return nil
 }
 
-func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
+func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	log.Info("4. Get extra data and start d-select", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 	c.racingFlag = false
 	c.count = 0
@@ -122,32 +123,34 @@ func (c *core) handleDSelect(msg *message, src istanbul.Validator) error {
 		}
 	}
 
-	if c.tag == istanbul.Coordinator {
+	if c.tag == podc.Coordinator {
 		log.Info("I am Coordinator!")
+		c.criteria = math.Floor((float64(len(extraData)) - 1) * 0.51)
 		c.sendCoordinatorDecide()
 	}
 
 	return nil
 }
 
-func (c *core) handleCoordinatorDecide(msg *message, src istanbul.Validator) error {
-	if c.tag != istanbul.Coordinator {
+func (c *core) handleCoordinatorDecide(msg *message, src podc.Validator) error {
+	if c.tag != podc.Coordinator {
 		c.sendRacing(src.Address())
 	}
 
 	return nil
 }
 
-func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
+func (c *core) handleRacing(msg *message, src podc.Validator) error {
 	c.racingMu.Lock()
 	defer c.racingMu.Unlock()
-	if c.tag == istanbul.Coordinator {
+	if c.tag == podc.Coordinator {
 
 		c.count = c.count + 1
 		//log.Info("handling racing", "count", c.count)
 		//log.Info("handling racing", "flag", c.racingFlag)
 
-		if c.count > config.Config.Consensus.Criteria && !c.racingFlag {
+		//if c.count > config.Config.Consensus.Criteria && !c.racingFlag {  //taehun
+		if c.count > int(c.criteria) && !c.racingFlag {  //taehun for auto calcuration creteria
 			log.Info("racing completed.", "count", c.count)
 			c.racingFlag = true
 			c.sendCandidateDecide()
@@ -157,7 +160,7 @@ func (c *core) handleRacing(msg *message, src istanbul.Validator) error {
 	return nil
 }
 
-func (c *core) handleCandidateDecide(msg *message, src istanbul.Validator) error {
+func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error {
 	if c.state == StatePreprepared {
 		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()

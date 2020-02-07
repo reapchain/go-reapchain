@@ -17,7 +17,7 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
 )
 
@@ -35,7 +35,7 @@ var (
 // return errInvalidMessage if the message is invalid
 // return errFutureMessage if the message view is larger than current view
 // return errOldMessage if the message view is smaller than current view
-func (c *core) checkMessage(msgCode uint64, view *istanbul.View) error {
+func (c *core) checkMessage(msgCode uint64, view *podc.View) error {
 	if view == nil || view.Sequence == nil || view.Round == nil {
 		return errInvalidMessage
 	}
@@ -66,7 +66,7 @@ func (c *core) checkMessage(msgCode uint64, view *istanbul.View) error {
 	return nil
 }
 
-func (c *core) storeBacklog(msg *message, src istanbul.Validator) {
+func (c *core) storeBacklog(msg *message, src podc.Validator) {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	if src.Address() == c.Address() {
@@ -85,14 +85,14 @@ func (c *core) storeBacklog(msg *message, src istanbul.Validator) {
 	}
 	switch msg.Code {
 	case msgPreprepare:
-		var p *istanbul.Preprepare
+		var p *podc.Preprepare
 		err := msg.Decode(&p)
 		if err == nil {
 			backlog.Push(msg, toPriority(msg.Code, p.View))
 		}
 		// for istanbul.MsgPrepare and istanbul.MsgCommit cases
 	default:
-		var p *istanbul.Subject
+		var p *podc.Subject
 		err := msg.Decode(&p)
 		if err == nil {
 			backlog.Push(msg, toPriority(msg.Code, p.View))
@@ -119,17 +119,17 @@ func (c *core) processBacklog() {
 		for !(backlog.Empty() || isFuture) {
 			m, prio := backlog.Pop()
 			msg := m.(*message)
-			var view *istanbul.View
+			var view *podc.View
 			switch msg.Code {
 			case msgPreprepare:
-				var m *istanbul.Preprepare
+				var m *podc.Preprepare
 				err := msg.Decode(&m)
 				if err == nil {
 					view = m.View
 				}
 				// for istanbul.MsgPrepare and istanbul.MsgCommit cases
 			default:
-				var sub *istanbul.Subject
+				var sub *podc.Subject
 				err := msg.Decode(&sub)
 				if err == nil {
 					view = sub.View
@@ -161,7 +161,7 @@ func (c *core) processBacklog() {
 	}
 }
 
-func toPriority(msgCode uint64, view *istanbul.View) float32 {
+func toPriority(msgCode uint64, view *podc.View) float32 {
 	// FIXME: round will be reset as 0 while new sequence
 	// 10 * Round limits the range of message code is from 0 to 9
 	// 1000 * Sequence limits the range of round is from 0 to 99

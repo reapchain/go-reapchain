@@ -21,11 +21,11 @@ import (
 	"math/big"
 	"sync"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
-func newRoundState(view *istanbul.View, validatorSet istanbul.ValidatorSet) *roundState {
+func newRoundState(view *podc.View, validatorSet podc.ValidatorSet) *roundState {
 	return &roundState{
 		round:       view.Round,
 		sequence:    view.Sequence,
@@ -49,7 +49,7 @@ type roundState struct {
 	mu *sync.RWMutex
 }
 
-func (s *roundState) Subject() *istanbul.Subject {
+func (s *roundState) Subject() *podc.Subject {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
@@ -57,8 +57,8 @@ func (s *roundState) Subject() *istanbul.Subject {
 		return nil
 	}
 
-	return &istanbul.Subject{
-		View: &istanbul.View{
+	return &podc.Subject{
+		View: &podc.View{
 			Round:    new(big.Int).Set(s.round),
 			Sequence: new(big.Int).Set(s.sequence),
 		},
@@ -66,19 +66,34 @@ func (s *roundState) Subject() *istanbul.Subject {
 	}
 }
 
-func (s *roundState) SetPreprepare(preprepare *istanbul.Preprepare) {
+func (s *roundState) SetPreprepare(preprepare *podc.Preprepare) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	s.Preprepare = preprepare
 }
+/* begin : yichoi added for d-select and d-commit */
+/* func (s *roundState) SetD_select(d_select *podc.Preprepare) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
 
-func (s *roundState) Proposal() istanbul.Proposal {
+	s.D_select = d_select
+}
+
+func (s *roundState) SetD_commit(d_commit *podc.Preprepare) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	s.D_commit = d_commit
+} */
+/* end */
+//왜 락을 걸지 ?
+func (s *roundState) Proposal() podc.Proposal {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	if s.Preprepare != nil {
-		return s.Preprepare.Proposal
+		return s.Preprepare.Proposal  //제안할 블럭을 가져온다... 합의가 끝나면,, 체인에 연결할 블럭을 가져온다.
 	}
 
 	return nil
@@ -119,7 +134,7 @@ func (s *roundState) DecodeRLP(stream *rlp.Stream) error {
 	var ss struct {
 		Round       *big.Int
 		Sequence    *big.Int
-		Preprepare  *istanbul.Preprepare
+		Preprepare  *podc.Preprepare
 		Prepares    *messageSet
 		Commits     *messageSet
 		Checkpoints *messageSet
