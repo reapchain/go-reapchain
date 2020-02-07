@@ -3,8 +3,12 @@ package core
 import (
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
+<<<<<<< HEAD:consensus/podc/core/d_select.go
 	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/consensus/podc"
+=======
+	"github.com/ethereum/go-ethereum/consensus/istanbul"
+>>>>>>> origin/consensus:consensus/istanbul/core/d_select.go
 	"github.com/ethereum/go-ethereum/log"
 	"math"
 	"math/rand"
@@ -149,7 +153,7 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 		//log.Info("handling racing", "count", c.count)
 		//log.Info("handling racing", "flag", c.racingFlag)
 
-		if c.count > config.Config.Consensus.Criteria && !c.racingFlag {
+		if c.count > config.Config.Consensus.Criteria && !c.racingFlag {  //? 
 			log.Info("racing completed.", "count", c.count)
 			c.racingFlag = true
 			c.sendCandidateDecide()

@@ -105,6 +105,7 @@ type core struct {
 	racingMu *sync.Mutex
 	startTime time.Time
 	intervalTime time.Time
+	criteria float64
 }
 // 최종 전송할 메시지를 만듦
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
