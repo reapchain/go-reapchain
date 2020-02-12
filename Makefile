@@ -15,6 +15,10 @@ geth:
 	build/env.sh go run build/ci.go install ./cmd/geth
 	@echo "Done building."
 	@echo "Run \"$(GOBIN)/geth\" to launch geth."
+qman:
+	build/env.sh go run build/ci.go install ./cmd/qman
+#    @echo "Done building."
+#    @echo "Run \"$(GOBIN)/qman\" to launch qmanager."
 
 evm:
 	build/env.sh go run build/ci.go install ./cmd/evm

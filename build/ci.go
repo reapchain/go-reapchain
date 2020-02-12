@@ -73,6 +73,7 @@ var (
 		"COPYING",
 		executablePath("abigen"),
 		executablePath("bootnode"),
+		executablePath("qman"),   //added by yichoi
 		executablePath("evm"),
 		executablePath("geth"),
 		executablePath("puppeth"),
@@ -90,6 +91,10 @@ var (
 		{
 			Name:        "bootnode",
 			Description: "Ethereum bootnode.",
+		},
+		{
+			Name:        "qman",
+			Description: "Ethereum qmanager.",
 		},
 		{
 			Name:        "evm",
