@@ -17,6 +17,7 @@
 package vm
 
 import (
+	"fmt"	// yhheo
 	"math/big"
 	"sync/atomic"
 
@@ -274,8 +275,20 @@ func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *big.I
 	contract.SetCallCode(&contractAddr, crypto.Keccak256Hash(code), code)
 
 	ret, err = run(evm, snapshot, contract, nil)
+
+	// yhheo - begin
+	fmt.Printf("len(ret) = %v\n params.MaxCodeSize = %v\n", len(ret), params.MaxCodeSize)
+	var maxCodeSize int
+	if evm.ChainConfig().MaxCodeSize > 0 {
+		maxCodeSize = int(evm.ChainConfig().MaxCodeSize * 1024)
+	} else {
+		maxCodeSize = params.MaxCodeSize
+	}
+	// yhheo - end
+
 	// check whether the max code size has been exceeded
-	maxCodeSizeExceeded := len(ret) > params.MaxCodeSize
+	//maxCodeSizeExceeded := len(ret) > params.MaxCodeSize
+	maxCodeSizeExceeded := evm.ChainConfig().IsEIP158(evm.BlockNumber) && len(ret) > maxCodeSize	// yhheo
 	// if the contract creation ran successfully and no errors were returned
 	// calculate the gas required to store the code. If the code could not
 	// be stored due to not enough gas set an error and let it be handled
@@ -312,3 +325,5 @@ func (evm *EVM) ChainConfig() *params.ChainConfig { return evm.chainConfig }
 
 // Interpreter returns the EVM interpreter
 func (evm *EVM) Interpreter() *Interpreter { return evm.interpreter }
+
+func (evm *EVM) VmConfig() Config { return evm.vmConfig }	// yhheo

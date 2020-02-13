@@ -573,6 +573,7 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 }
 
 func (env *Work) commitTransaction(tx *types.Transaction, bc *core.BlockChain, coinbase common.Address, gp *core.GasPool) (error, []*types.Log) {
+	fmt.Printf("\nfunc (env *Work) commitTransaction\n tx = %v\n coinbase = %x\n gp = %v\n", tx, coinbase, gp)		// yhheo
 	snap := env.state.Snapshot()
 
 	//fmt.Printf("Work - commitTransaction : coinbase = %x\n", coinbase)  // yhheo

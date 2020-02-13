@@ -49,6 +49,8 @@ type Config struct {
 	// may me left uninitialised and will be set the default
 	// table.
 	JumpTable [256]operation
+	// Estimate gas metering
+	EstimateGasMetering bool	// yhheo
 }
 
 // Interpreter is used to run Ethereum based contracts and will utilise the
@@ -185,7 +187,7 @@ func (in *Interpreter) Run(snapshot int, contract *Contract, input []byte) (ret 
 			if err != nil || !contract.UseGas(cost) {
 				return nil, ErrOutOfGas
 			}
-			
+
 		}
 		if memorySize > 0 {
 			mem.Resize(memorySize)

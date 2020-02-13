@@ -232,6 +232,7 @@ func makeHeader(config *params.ChainConfig, parent *types.Block, state *state.St
 // chain. Depending on the full flag, if creates either a full block chain or a
 // header only chain.
 func newCanonical(n int, full bool) (ethdb.Database, *BlockChain, error) {
+	fmt.Printf("\nfunc newCanonical\n n = %d\n full = %t\n", n, full)	// yhheo
 	// Initialize a fresh chain with only a genesis block
 	gspec := new(Genesis)
 	db, _ := ethdb.NewMemDatabase()

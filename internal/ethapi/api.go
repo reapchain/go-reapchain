@@ -24,6 +24,7 @@ import (
 	"math/big"
 	"strings"
 	"time"
+	"encoding/hex"	// yhheo
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -626,7 +627,7 @@ func (s *PublicBlockChainAPI) GetCode(ctx context.Context, address common.Addres
 	}
 	res, err := state.GetCode(ctx, address)
 	if len(res) == 0 || err != nil { // backwards compatibility
-		fmt.Printf(" state.GetCode : err = %s\n", err);	// yhheo
+		fmt.Printf(" state.GetCode : err = %s\n", err)	// yhheo
 		return "0x", err
 	}
 	return common.ToHex(res), nil
@@ -678,14 +679,14 @@ type CallArgs struct {
 	Data     hexutil.Bytes   `json:"data"`
 }
 
-func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber, vmCfg vm.Config) ([]byte, *big.Int, error) {
+func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber, vmCfg vm.Config) ([]byte, *big.Int, bool, error) {
     fmt.Printf("\nfunc (s *PublicBlockChainAPI) doCall\n ctx = %v\n from = %x\n to = %x\n gas = %#v\n gasPrice = %#v\n value = %#v\n data = %x\n vm.Cfg.DisableGasMetering = %v\n rpc.BlockNumber = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data, vmCfg.DisableGasMetering, blockNr)    // yhheo
 	defer func(start time.Time) { log.Debug("Executing EVM call finished", "runtime", time.Since(start)) }(time.Now())
 
 	state, header, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
 		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err);	// yhheo
-		return nil, common.Big0, err
+		return nil, common.Big0, false, err
 	}
 	// Set sender address or use a default if none specified
 	addr := args.From
@@ -724,7 +725,7 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 	evm, vmError, err := s.b.GetEVM(ctx, msg, state, header, vmCfg)
 	if err != nil {
 		fmt.Printf(" s.b.GetEVM : err = %s\n", err);	// yhheo
-		return nil, common.Big0, err
+		return nil, common.Big0, false, err
 	}
 	// Wait for the context to be done and cancel the evm. Even if the
 	// EVM has finished, cancelling may be done (repeatedly)
@@ -738,20 +739,20 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 	// Setup the gas pool (also for unmetered requests)
 	// and apply the message.
 	gp := new(core.GasPool).AddGas(math.MaxBig256)
-	res, gas, err := core.ApplyMessage(evm, msg, gp)
+	res, gas, failed, err := core.ApplyMessage(evm, msg, gp)
 	if err := vmError(); err != nil {
 		fmt.Printf(" core.ApplyMessage : err = %s\n", err);	// yhheo
-		return nil, common.Big0, err
+		return nil, common.Big0, false, err
 	}
-	fmt.Printf(" gas = %d\n", gas)	// yhheo
-	return res, gas, err
+	fmt.Printf("\ndoCall : gas = %v\n\n", gas)	// yhheo
+	return res, gas, failed, err
 }
 
 // Call executes the given transaction on the state for the given block number.
 // It doesn't make and changes in the state/blockchain and is useful to execute and retrieve values.
 func (s *PublicBlockChainAPI) Call(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber) (hexutil.Bytes, error) {
     fmt.Printf("\nfunc (s *PublicBlockChainAPI) Call\n ctx = %v\n from = %x\n to = %x\n gas = %#v\n gasPrice = %#v\n value = %#v\n data = %x\n rpc.BlockNumber = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data, blockNr)    // yhheo
-	result, _, err := s.doCall(ctx, args, blockNr, vm.Config{DisableGasMetering: true})
+	result, _, _, err := s.doCall(ctx, args, blockNr, vm.Config{DisableGasMetering: true})	// yhheo
 	return (hexutil.Bytes)(result), err
 }
 
@@ -759,9 +760,13 @@ func (s *PublicBlockChainAPI) Call(ctx context.Context, args CallArgs, blockNr r
 func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*hexutil.Big, error) {
     fmt.Printf("\nfunc (s *PublicBlockChainAPI) EstimateGas\n ctx = %v\n from = %x\n to = %x\n gas = %d\n gasPrice = %d\n value = %d\n data = %x\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data)    // yhheo
 	// Binary search the gas requirement, as it may be higher than the amount used
-	var lo, hi uint64
-	if (*big.Int)(&args.Gas).Sign() != 0 {
-		hi = (*big.Int)(&args.Gas).Uint64()
+	var (
+		lo  uint64 = params.TxGas - 1
+		hi  uint64
+		cap uint64
+	)
+	if  (*big.Int)(&args.Gas).Uint64() >= params.TxGas {
+		hi =  (*big.Int)(&args.Gas).Uint64()
 	} else {
 		// Retrieve the current pending block to act as the gas ceiling
 		block, err := s.b.BlockByNumber(ctx, rpc.PendingBlockNumber)
@@ -771,20 +776,33 @@ func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*
 		}
 		hi = block.GasLimit().Uint64()
 	}
+	cap = hi
+
+	// Create a helper to check if a gas allowance results in an executable transaction
+	executable := func(gas uint64) bool {
+		(*big.Int)(&args.Gas).SetUint64(gas)
+
+		_, _, failed, err := s.doCall(ctx, args, rpc.PendingBlockNumber, vm.Config{EstimateGasMetering:true})	// yhheo
+		if err != nil || failed {
+			return false
+		}
+		return true
+	}
+	// Execute the binary search and hone in on an executable gas limit
 	for lo+1 < hi {
 		// Take a guess at the gas, and check transaction validity
 		mid := (hi + lo) / 2
-		(*big.Int)(&args.Gas).SetUint64(mid)
-
-		_, gas, err := s.doCall(ctx, args, rpc.PendingBlockNumber, vm.Config{})
-
-		// If the transaction became invalid or used all the gas (failed), raise the gas limit
-		if err != nil || gas.Cmp((*big.Int)(&args.Gas)) == 0 {
+		if !executable(mid) {
 			lo = mid
-			continue
+		} else {
+			hi = mid
 		}
-		// Otherwise assume the transaction succeeded, lower the gas limit
-		hi = mid
+	}
+	// Reject the transaction as invalid if it still fails at the highest allowance
+	if hi == cap {
+		if !executable(hi) {
+			return (*hexutil.Big)(new(big.Int).SetUint64(0)), fmt.Errorf("gas required exceeds allowance or always failing transaction")
+		}
 	}
 	fmt.Printf("\nEstimateGas = %d\n\n", hi)	// yhheo
 	return (*hexutil.Big)(new(big.Int).SetUint64(hi)), nil
@@ -1339,6 +1357,7 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 // The sender is responsible for signing the transaction and using the correct nonce.
 func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encodedTx hexutil.Bytes) (string, error) {
     fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) SendRawTransaction\n ctx = %v\n encodedTx = %x\n", ctx, encodedTx)    // yhheo
+	fmt.Printf(" Tx = %v\n", hex.EncodeToString(encodedTx))	// yhheo
 	tx := new(types.Transaction)
 	if err := rlp.DecodeBytes(encodedTx, tx); err != nil {
 		fmt.Printf(" rlp.DecodeBytes : err = %s\n", err);	// yhheo

@@ -370,7 +370,9 @@ func (pool *TxPool) validateTx(ctx context.Context, tx *types.Transaction) error
 	// block limit gas.
 	header := pool.chain.GetHeaderByHash(pool.head)
 	if header.GasLimit.Cmp(tx.Gas()) < 0 {
-		return core.ErrGasLimit
+		if tx.Governance() != true { // yhheo
+			return core.ErrGasLimit
+		}
 	}
 
 	// Transactions can't be negative. This may never happen

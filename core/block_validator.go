@@ -136,5 +136,6 @@ func CalcGasLimit(parent *types.Block) *big.Int {
 		gl.Add(parent.GasLimit(), decay)
 		gl.Set(math.BigMin(gl, params.TargetGasLimit))
 	}
+	fmt.Printf("Block Gas Limit : %v\n", gl)	// yhheo
 	return gl
 }
