@@ -17,7 +17,6 @@
 package core
 
 import (
-	"fmt"	// yhheo
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
