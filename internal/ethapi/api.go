@@ -284,7 +284,6 @@ func fetchKeystore(am *accounts.Manager) *keystore.KeyStore {
 // ImportRawKey stores the given hex encoded ECDSA key into the key directory,
 // encrypting it with the passphrase.
 func (s *PrivateAccountAPI) ImportRawKey(privkey string, password string) (common.Address, error) {
-    //fmt.Printf("\nfunc (s *PrivateAccountAPI) ImportRawKey\n privkey = %s\n", privkey)    // yhheo
 	key, err := crypto.HexToECDSA(privkey)
 	if err != nil {
 		return common.Address{}, err
@@ -297,7 +296,6 @@ func (s *PrivateAccountAPI) ImportRawKey(privkey string, password string) (commo
 // the given password for duration seconds. If duration is nil it will use a
 // default of 300 seconds. It returns an indication if the account was unlocked.
 func (s *PrivateAccountAPI) UnlockAccount(addr common.Address, password string, duration *uint64) (bool, error) {
-    //fmt.Printf("\nfunc (s *PrivateAccountAPI) UnlockAccount\n addr = %x\n duration = %v\n", addr, duration)    // yhheo
 	const max = uint64(time.Duration(math.MaxInt64) / time.Second)
 	var d time.Duration
 	if duration == nil {
@@ -313,7 +311,6 @@ func (s *PrivateAccountAPI) UnlockAccount(addr common.Address, password string, 
 
 // LockAccount will lock the account associated with the given address when it's unlocked.
 func (s *PrivateAccountAPI) LockAccount(addr common.Address) bool {
-    //fmt.Printf("\nfunc (s *PrivateAccountAPI) LockAccount\n addr = %x\n", addr)    // yhheo
 	return fetchKeystore(s.am).Lock(addr) == nil
 }
 
@@ -322,17 +319,17 @@ func (s *PrivateAccountAPI) LockAccount(addr common.Address) bool {
 // NOTE: the caller needs to ensure that the nonceLock is held, if applicable,
 // and release it after the transaction has been submitted to the tx pool
 func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArgs, passwd string) (*types.Transaction, error) {
-    fmt.Printf("\func (s *PrivateAccountAPI) signTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+    fmt.Printf("\nfunc (s *PrivateAccountAPI) signTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
     // Look up the wallet containing the requested signer
     account := accounts.Account{Address: args.From}
     wallet, err := s.am.Find(account)
     if err != nil {
-		fmt.Printf(" s.am.Find : from = %x  err = %s\n", args.From, err);	// yhheo
+		fmt.Printf(" s.am.Find : from = %x  err = %s\n", args.From, err)		// yhheo
         return nil, err
     }
     // Set some sanity defaults and terminate on failure
     if err := args.setDefaults(ctx, s.b); err != nil {
-		fmt.Printf(" args.setDefaults : err = %s\n", err);	// yhheo
+		fmt.Printf(" args.setDefaults : err = %s\n", err)					// yhheo
         return nil, err
     }
     // Assemble the transaction and sign with the wallet
@@ -405,15 +402,15 @@ func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs
     // No need to obtain the noncelock mutex, since we won't be sending this
     // tx into the transaction pool, but right back to the user
     if args.Gas == nil {
-		fmt.Printf(" err = gas not specified\n");	// yhheo
+		fmt.Printf(" err = gas not specified\n")				// yhheo
         return nil, fmt.Errorf("gas not specified")
     }
     if args.GasPrice == nil {
-		fmt.Printf(" err = gasPrice not specified\n");	// yhheo
+		fmt.Printf(" err = gasPrice not specified\n")		// yhheo
         return nil, fmt.Errorf("gasPrice not specified")
     }
     if args.Nonce == nil {
-		fmt.Printf(" err = nonce not specified\n");	// yhheo
+		fmt.Printf(" err = nonce not specified\n")			// yhheo
         return nil, fmt.Errorf("nonce not specified")
     }
     signed, err := s.signTransaction(ctx, &args, passwd)
@@ -423,7 +420,7 @@ func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs
     }
     data, err := rlp.EncodeToBytes(signed)
     if err != nil {
-		fmt.Printf(" rlp.EncodeToBytes : err = %s\n", err);	// yhheo
+		fmt.Printf(" rlp.EncodeToBytes : err = %s\n", err)	// yhheo
         return nil, err
     }
     return &SignTransactionResult{data, signed}, nil
@@ -458,13 +455,13 @@ func (s *PrivateAccountAPI) Sign(ctx context.Context, data hexutil.Bytes, addr c
 
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		fmt.Printf(" s.b.AccountManager : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.AccountManager : err = %s\n", err)				// yhheo
 		return nil, err
 	}
 	// Assemble sign the data with the wallet
 	signature, err := wallet.SignHashWithPassphrase(account, passwd, signHash(data))
 	if err != nil {
-		fmt.Printf(" wallet.SignHashWithPassphrase : err = %s\n", err);	// yhheo
+		fmt.Printf(" wallet.SignHashWithPassphrase : err = %s\n", err)	// yhheo
 		return nil, err
 	}
 	signature[64] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
@@ -528,10 +525,9 @@ func (s *PublicBlockChainAPI) BlockNumber() *big.Int {
 // given block number. The rpc.LatestBlockNumber and rpc.PendingBlockNumber meta
 // block numbers are also allowed.
 func (s *PublicBlockChainAPI) GetBalance(ctx context.Context, address common.Address, blockNr rpc.BlockNumber) (*big.Int, error) {
-    //fmt.Printf("\nfunc (s *PublicBlockChainAPI) GetBalance\n ctx = %v\n address = %x\n rpc.BlockNumber = %d\n", ctx, address, blockNr)    // yhheo
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
-		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err)		// yhheo
 		return nil, err
 	}
 
@@ -541,7 +537,7 @@ func (s *PublicBlockChainAPI) GetBalance(ctx context.Context, address common.Add
 // GetBlockByNumber returns the requested block. When blockNr is -1 the chain head is returned. When fullTx is true all
 // transactions in the block are returned in full detail, otherwise only the transaction hash is returned.
 func (s *PublicBlockChainAPI) GetBlockByNumber(ctx context.Context, blockNr rpc.BlockNumber, fullTx bool) (map[string]interface{}, error) {
-    //fmt.Printf("\nfunc (s *PublicBlockChainAPI) GetBlockByNumber\n ctx = %v\n rpc.BlockNumber = %d\n fullTx = %t\n", ctx, blockNr, fullTx)    // yhheo
+    fmt.Printf("\nfunc (s *PublicBlockChainAPI) GetBlockByNumber\n ctx = %v\n rpc.BlockNumber = %d\n fullTx = %t\n", ctx, blockNr, fullTx)    // yhheo
 	block, err := s.b.BlockByNumber(ctx, blockNr)
 	if block != nil {
 		response, err := s.rpcOutputBlock(block, true, fullTx)
@@ -622,12 +618,14 @@ func (s *PublicBlockChainAPI) GetCode(ctx context.Context, address common.Addres
     fmt.Printf("\nfunc (s *PublicBlockChainAPI) GetCode\n ctx = %v\n address = %x\n rpc.BlockNumber = %d\n", ctx, address, blockNr)    // yhheo
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
-		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err)		// yhheo
 		return "", err
 	}
 	res, err := state.GetCode(ctx, address)
 	if len(res) == 0 || err != nil { // backwards compatibility
-		fmt.Printf(" state.GetCode : err = %s\n", err)	// yhheo
+		if err != nil {
+			fmt.Printf(" state.GetCode : err = %s\n", err) 	// yhheo
+		}
 		return "0x", err
 	}
 	return common.ToHex(res), nil
@@ -637,7 +635,7 @@ func (s *PublicBlockChainAPI) GetCode(ctx context.Context, address common.Addres
 // block number. The rpc.LatestBlockNumber and rpc.PendingBlockNumber meta block
 // numbers are also allowed.
 func (s *PublicBlockChainAPI) GetStorageAt(ctx context.Context, address common.Address, key string, blockNr rpc.BlockNumber) (string, error) {
-    //fmt.Printf("\nfunc (s *PublicBlockChainAPI) GetStorageAt\n ctx = %v\n address = %x\n key = %s\n blockNr = %d\n", ctx, address, key, blockNr)    // yhheo
+    fmt.Printf("\nfunc (s *PublicBlockChainAPI) GetStorageAt\n ctx = %v\n address = %x\n key = %s\n blockNr = %d\n", ctx, address, key, blockNr)    // yhheo
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
 		return "0x", err
@@ -685,7 +683,7 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 
 	state, header, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
-		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.StateAndHeaderByNumber : err = %s\n", err)		// yhheo
 		return nil, common.Big0, false, err
 	}
 	// Set sender address or use a default if none specified
@@ -724,7 +722,7 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 	// Get a new instance of the EVM.
 	evm, vmError, err := s.b.GetEVM(ctx, msg, state, header, vmCfg)
 	if err != nil {
-		fmt.Printf(" s.b.GetEVM : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.GetEVM : err = %s\n", err)			// yhheo
 		return nil, common.Big0, false, err
 	}
 	// Wait for the context to be done and cancel the evm. Even if the
@@ -741,10 +739,10 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 	gp := new(core.GasPool).AddGas(math.MaxBig256)
 	res, gas, failed, err := core.ApplyMessage(evm, msg, gp)
 	if err := vmError(); err != nil {
-		fmt.Printf(" core.ApplyMessage : err = %s\n", err);	// yhheo
+		fmt.Printf(" core.ApplyMessage : err = %s\n", err)	// yhheo
 		return nil, common.Big0, false, err
 	}
-	fmt.Printf("\ndoCall : gas = %v\n\n", gas)	// yhheo
+	fmt.Printf("\ndoCall : gas = %v\n\n", gas)				// yhheo
 	return res, gas, failed, err
 }
 
@@ -756,6 +754,7 @@ func (s *PublicBlockChainAPI) Call(ctx context.Context, args CallArgs, blockNr r
 	return (hexutil.Bytes)(result), err
 }
 
+// yhheo - begin
 // EstimateGas returns an estimate of the amount of gas needed to execute the given transaction.
 func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*hexutil.Big, error) {
     fmt.Printf("\nfunc (s *PublicBlockChainAPI) EstimateGas\n ctx = %v\n from = %x\n to = %x\n gas = %d\n gasPrice = %d\n value = %d\n data = %x\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data)    // yhheo
@@ -771,7 +770,7 @@ func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*
 		// Retrieve the current pending block to act as the gas ceiling
 		block, err := s.b.BlockByNumber(ctx, rpc.PendingBlockNumber)
 		if err != nil {
-			fmt.Printf(" s.b.BlockByNumber : err = %s\n", err);	// yhheo
+			fmt.Printf(" s.b.BlockByNumber : err = %s\n", err)	// yhheo
 			return nil, err
 		}
 		hi = block.GasLimit().Uint64()
@@ -804,9 +803,10 @@ func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*
 			return (*hexutil.Big)(new(big.Int).SetUint64(0)), fmt.Errorf("gas required exceeds allowance or always failing transaction")
 		}
 	}
-	fmt.Printf("\nEstimateGas = %d\n\n", hi)	// yhheo
+	fmt.Printf("\nEstimateGas = %d\n\n", hi)		// yhheo
 	return (*hexutil.Big)(new(big.Int).SetUint64(hi)), nil
 }
+// yhheo - end
 
 // ExecutionResult groups all structured logs emitted by the EVM
 // while replaying a transaction in debug mode as well as the amount of
@@ -1231,7 +1231,7 @@ func (s *PublicTransactionPoolAPI) sign(addr common.Address, tx *types.Transacti
 
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		fmt.Printf(" s.b.AccountManager : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.AccountManager : err = %s\n", err)		// yhheo
 		return nil, err
 	}
 	// Request the wallet to sign the transaction
@@ -1262,7 +1262,7 @@ func (args *SendTxArgs) setDefaults(ctx context.Context, b Backend) error {
 	if args.GasPrice == nil {
 		price, err := b.SuggestPrice(ctx)
 		if err != nil {
-			fmt.Printf(" b.SuggestPrice : err = %s\n", err);	// yhheo
+			fmt.Printf(" b.SuggestPrice : err = %s\n", err)		// yhheo
 			return err
 		}
 		args.GasPrice = (*hexutil.Big)(price)
@@ -1273,7 +1273,7 @@ func (args *SendTxArgs) setDefaults(ctx context.Context, b Backend) error {
 	if args.Nonce == nil {
 		nonce, err := b.GetPoolNonce(ctx, args.From)
 		if err != nil {
-			fmt.Printf(" b.GetPoolNonce : err = %s\n", err);	// yhheo
+			fmt.Printf(" b.GetPoolNonce : err = %s\n", err)		// yhheo
 			return err
 		}
 		args.Nonce = (*hexutil.Uint64)(&nonce)
@@ -1291,9 +1291,8 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 // submitTransaction is a helper function that submits tx to txPool and logs a message.
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
     fmt.Printf("\nfunc submitTransaction\n ctx = %v\n Backend = %v\n tx = %v\n", ctx, b, tx)    // yhheo
-	//types.TxChecking(types.MakeSigner(b.ChainConfig(), b.CurrentBlock().Number()), tx)		// yhheo
 	if err := b.SendTx(ctx, tx); err != nil {
-		fmt.Printf(" b.SendTx : err = %s\n", err);	// yhheo
+		fmt.Printf(" b.SendTx : err = %s\n", err)	// yhheo
 		return common.Hash{}, err
 	}
 	if tx.To() == nil {
@@ -1320,7 +1319,7 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		fmt.Printf(" s.b.AccountManager : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.AccountManager : err = %s\n", err)		// yhheo
 		return common.Hash{}, err
 	}
 
@@ -1333,7 +1332,7 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 
 	// Set some sanity defaults and terminate on failure
 	if err := args.setDefaults(ctx, s.b); err != nil {
-		fmt.Printf(" args.setDefaults : err = %s\n", err);	// yhheo
+		fmt.Printf(" args.setDefaults : err = %s\n", err)		// yhheo
 		return common.Hash{}, err
 	}
 	// Assemble the transaction and sign with the wallet
@@ -1345,7 +1344,7 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 	}
 	signed, err := wallet.SignTx(account, tx, chainID)
 	if err != nil {
-		fmt.Printf(" wallet.SignTx : err = %s\n", err);	// yhheo
+		fmt.Printf(" wallet.SignTx : err = %s\n", err)			// yhheo
 		return common.Hash{}, err
 	}
 	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)		// yhheo
@@ -1360,14 +1359,14 @@ func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encod
 	fmt.Printf(" Tx = %v\n", hex.EncodeToString(encodedTx))	// yhheo
 	tx := new(types.Transaction)
 	if err := rlp.DecodeBytes(encodedTx, tx); err != nil {
-		fmt.Printf(" rlp.DecodeBytes : err = %s\n", err);	// yhheo
+		fmt.Printf(" rlp.DecodeBytes : err = %s\n", err)		// yhheo
 		return "", err
 	}
 
 	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), tx)	// yhheo
 
 	if err := s.b.SendTx(ctx, tx); err != nil {
-		fmt.Printf(" s.b.SendTx : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.SendTx : err = %s\n", err)			// yhheo
 		return "", err
 	}
 
@@ -1375,7 +1374,7 @@ func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encod
 	if tx.To() == nil {
 		from, err := types.Sender(signer, tx)
 		if err != nil {
-			fmt.Printf(" types.Sender : err = %s\n", err);	// yhheo
+			fmt.Printf(" types.Sender : err = %s\n", err)	// yhheo
 			return "", err
 		}
 		addr := crypto.CreateAddress(from, tx.Nonce())
@@ -1407,7 +1406,7 @@ func (s *PublicTransactionPoolAPI) Sign(addr common.Address, data hexutil.Bytes)
 
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		fmt.Printf(" s.b.AccountManager : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.b.AccountManager : err = %s\n", err)		// yhheo
 		return nil, err
 	}
 	// Sign the requested hash with the wallet
@@ -1436,17 +1435,17 @@ func (s *PublicTransactionPoolAPI) SignTransaction(ctx context.Context, args Sen
 		defer s.nonceLock.UnlockAddr(args.From)
 	}
 	if err := args.setDefaults(ctx, s.b); err != nil {
-		fmt.Printf(" args.setDefaults : err = %s\n", err);	// yhheo
+		fmt.Printf(" args.setDefaults : err = %s\n", err)	// yhheo
 		return nil, err
 	}
 	tx, err := s.sign(args.From, args.toTransaction())
 	if err != nil {
-		fmt.Printf(" s.sign : err = %s\n", err);	// yhheo
+		fmt.Printf(" s.sign : err = %s\n", err)				// yhheo
 		return nil, err
 	}
 	data, err := rlp.EncodeToBytes(tx)
 	if err != nil {
-		fmt.Printf(" rlp.EncodeToBytes : err = %s\n", err);	// yhheo
+		fmt.Printf(" rlp.EncodeToBytes : err = %s\n", err)	// yhheo
 		return nil, err
 	}
 	return &SignTransactionResult{data, tx}, nil
@@ -1471,7 +1470,6 @@ func (s *PublicTransactionPoolAPI) PendingTransactions() ([]*RPCTransaction, err
 			transactions = append(transactions, newRPCPendingTransaction(tx))
 		}
 	}
-    //fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) PendingTransactions\n transactions = %v\n", transactions)  // yhheo
 	return transactions, nil
 }
 
