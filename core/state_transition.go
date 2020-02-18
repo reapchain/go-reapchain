@@ -131,6 +131,7 @@ func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition 
 // indicates a core error meaning that the message would always fail for that particular
 // state and would never be accepted within a block.
 func ApplyMessage(evm *vm.EVM, msg Message, gp *GasPool) ([]byte, *big.Int, bool, error) {	// yhheo
+	fmt.Printf("\nfunc ApplyMessage\n GasPool = %v\n", gp)	// yhheo
 	st := NewStateTransition(evm, msg, gp)
 
 	ret, _, gasUsed, failed, err := st.TransitionDb()	// yhheo

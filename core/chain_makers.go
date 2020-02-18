@@ -81,6 +81,7 @@ func (b *BlockGen) SetExtra(data []byte) {
 // added. Notably, contract code relying on the BLOCKHASH instruction
 // will panic during execution.
 func (b *BlockGen) AddTx(tx *types.Transaction) {
+	fmt.Printf("\nfunc (b *BlockGen) AddTx\n AccountNonce = %v\n Price = %v\n GasLimit = %v\n Amount = %v\n Governance = %t\n", tx.Nonce(), tx.GasPrice(), tx.Gas(), tx.Value(), tx.Governance())	// yhheo
 	if b.gasPool == nil {
 		//b.SetCoinbase(common.Address{})
 		b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress

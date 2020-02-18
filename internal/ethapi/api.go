@@ -319,7 +319,8 @@ func (s *PrivateAccountAPI) LockAccount(addr common.Address) bool {
 // NOTE: the caller needs to ensure that the nonceLock is held, if applicable,
 // and release it after the transaction has been submitted to the tx pool
 func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArgs, passwd string) (*types.Transaction, error) {
-    fmt.Printf("\nfunc (s *PrivateAccountAPI) signTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+	fmt.Printf("\nfunc (s *PrivateAccountAPI) signTransaction\n ctx = %v\n from = %x\n to = %x\n gas = %v\n gasPrice = %v\n Value = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value)    // yhheo
+
     // Look up the wallet containing the requested signer
     account := accounts.Account{Address: args.From}
     wallet, err := s.am.Find(account)
@@ -342,7 +343,7 @@ func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArg
 // tries to sign it with the key associated with args.To. If the given passwd isn't
 // able to decrypt the key it fails.
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-    fmt.Printf("\nfunc (s *PrivateAccountAPI) SendTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+    fmt.Printf("\nfunc (s *PrivateAccountAPI) SendTransaction\n ctx = %v\n from = %x\n to = %x\n gas = %v\n gasPrice = %v\n Value = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value)    // yhheo
     if args.Nonce == nil {
         // Hold the addresse's mutex around signing to prevent concurrent assignment of
         // the same nonce to multiple accounts.
@@ -398,7 +399,7 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
 // able to decrypt the key it fails. The transaction is returned in RLP-form, not broadcast
 // to other nodes
 func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs, passwd string) (*SignTransactionResult, error) {
-    fmt.Printf("\nfunc (s *PrivateAccountAPI) SignTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+	fmt.Printf("\nfunc (s *PrivateAccountAPI) SignTransaction\n ctx = %v\n from = %x\n to = %x\n gas = %v\n gasPrice = %v\n Value = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value)    // yhheo
     // No need to obtain the noncelock mutex, since we won't be sending this
     // tx into the transaction pool, but right back to the user
     if args.Gas == nil {
@@ -500,7 +501,7 @@ func (s *PrivateAccountAPI) EcRecover(ctx context.Context, data, sig hexutil.Byt
 // SignAndSendTransaction was renamed to SendTransaction. This method is deprecated
 // and will be removed in the future. It primary goal is to give clients time to update.
 func (s *PrivateAccountAPI) SignAndSendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-	fmt.Printf("\nfunc (s *PrivateAccountAPI) SignAndSendTransaction\n ctx = %v\n SendTxArgs = %v\n", ctx, args)	// yhheo
+	fmt.Printf("\nfunc (s *PrivateAccountAPI) SignAndSendTransaction\n ctx = %v\n", ctx)	// yhheo
 	return s.SendTransaction(ctx, args, passwd)
 }
 
@@ -678,7 +679,7 @@ type CallArgs struct {
 }
 
 func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber, vmCfg vm.Config) ([]byte, *big.Int, bool, error) {
-    fmt.Printf("\nfunc (s *PublicBlockChainAPI) doCall\n ctx = %v\n from = %x\n to = %x\n gas = %#v\n gasPrice = %#v\n value = %#v\n data = %x\n vm.Cfg.DisableGasMetering = %v\n rpc.BlockNumber = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, args.Data, vmCfg.DisableGasMetering, blockNr)    // yhheo
+    fmt.Printf("\nfunc (s *PublicBlockChainAPI) doCall\n ctx = %v\n from = %x\n to = %x\n gas = %#v\n gasPrice = %#v\n value = %#v\n vm.Cfg.DisableGasMetering = %v\n rpc.BlockNumber = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value, vmCfg.DisableGasMetering, blockNr)    // yhheo
 	defer func(start time.Time) { log.Debug("Executing EVM call finished", "runtime", time.Since(start)) }(time.Now())
 
 	state, header, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
@@ -1290,7 +1291,8 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 
 // submitTransaction is a helper function that submits tx to txPool and logs a message.
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
-    fmt.Printf("\nfunc submitTransaction\n ctx = %v\n Backend = %v\n tx = %v\n", ctx, b, tx)    // yhheo
+    fmt.Printf("\nfunc submitTransaction\n ctx = %v\n Backend = %v\n AccountNonce = %v\n Price = %v\n GasLimit = %v\n Amount = %v\n Governance = %t\n", ctx, b, tx.Nonce(), tx.GasPrice(), tx.Gas(), tx.Value(), tx.Governance())	// yhheo
+
 	if err := b.SendTx(ctx, tx); err != nil {
 		fmt.Printf(" b.SendTx : err = %s\n", err)	// yhheo
 		return common.Hash{}, err
@@ -1313,7 +1315,8 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
 func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
-    fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) SendTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+	fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) SendTransaction\n ctx = %v\n from = %x\n to = %x\n gas = %v\n gasPrice = %v\n Value = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value)    // yhheo
+
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
 
@@ -1362,6 +1365,8 @@ func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encod
 		fmt.Printf(" rlp.DecodeBytes : err = %s\n", err)		// yhheo
 		return "", err
 	}
+
+	fmt.Printf(" AccountNonce = %v\n Price = %v\n GasLimit = %v\n Recipient = %x\n Amount = %v\n Governance = %t\n", tx.Nonce(), tx.GasPrice(), tx.Gas(), tx.Value(), tx.Governance())	// yhheo
 
 	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), tx)	// yhheo
 
@@ -1427,7 +1432,7 @@ type SignTransactionResult struct {
 // The node needs to have the private key of the account corresponding with
 // the given from address and it needs to be unlocked.
 func (s *PublicTransactionPoolAPI) SignTransaction(ctx context.Context, args SendTxArgs) (*SignTransactionResult, error) {
-    fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) SignTransaction\n ctx = %v\n SendTxArgs = %v\n from = %x\n to = %x\n", ctx, args, args.From, args.To)    // yhheo
+	fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) SignTransaction\n ctx = %v\n from = %x\n to = %x\n gas = %v\n gasPrice = %v\n Value = %v\n", ctx, args.From, args.To, args.Gas, args.GasPrice, args.Value)    // yhheo
 	if args.Nonce == nil {
 		// Hold the addresse's mutex around signing to prevent concurrent assignment of
 		// the same nonce to multiple accounts.
@@ -1476,7 +1481,7 @@ func (s *PublicTransactionPoolAPI) PendingTransactions() ([]*RPCTransaction, err
 // Resend accepts an existing transaction and a new gas price and limit. It will remove
 // the given transaction from the pool and reinsert it with the new gas price and limit.
 func (s *PublicTransactionPoolAPI) Resend(ctx context.Context, sendArgs SendTxArgs, gasPrice, gasLimit *hexutil.Big) (common.Hash, error) {
-    fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) Resend\n ctx = %v\n SendTxArgs = %v\n gasPrice = %d\n gasLimit =%d\n from = %x\n to = %x\n", ctx, sendArgs, gasPrice, gasLimit, sendArgs.From, sendArgs.To)    // yhheo
+    fmt.Printf("\nfunc (s *PublicTransactionPoolAPI) Resend\n ctx = %v\n gasPrice = %d\n gasLimit =%d\n from = %x\n to = %x\n", ctx, gasPrice, gasLimit, sendArgs.From, sendArgs.To)    // yhheo
 	if sendArgs.Nonce == nil {
 		return common.Hash{}, fmt.Errorf("missing transaction nonce in transaction spec")
 	}
