@@ -19,13 +19,13 @@ var (
 	BootNodeQManAddr string
 )
 //
-//type (
-//	QManDBStruct struct {
-//		ID   discover.NodeID
-//		pubKey *ecdsa.PublicKey
-//		address common.Address
-//	}
-//)
+
+type (
+	QManDBStruct struct {
+		ID   string
+		Address string
+	}
+)
 func ConnectDB() {
 
 	var err error
@@ -40,14 +40,25 @@ func IsQmanager() (isQMan bool){
 	return QManConnected
 }
 
-func Find(nodeId string) ( found bool) {
+func Find(nodeId []byte) ( found bool) {
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
 	//var data []byte
 	if QManConnected {
-		_, err := QManagerStorage.Get([]byte(nodeId), nil)
-		log.Info("Node Not Found", "err = ", err)
+		//var nodeIDString string
+		//decode_err := rlp.DecodeBytes(nodeId, &nodeIDString)
+		//
+		//if decode_err != nil{
+		//	log.Info("QManager", "RLP Decode Error = ", decode_err)
+		//	return
+		//}
+		//
+		//log.Info("Decoded ID", "qman = ", nodeIDString)
+
+		_, err := QManagerStorage.Get(nodeId, nil)
 		if err != nil {
+			log.Info("QManager", "DB --", "Node Not Found")
+
 			return false
 		}
 		//fmt.Println(data)
@@ -66,9 +77,9 @@ func Find(nodeId string) ( found bool) {
 }
 
 
-func Save(ID []byte, address []byte) ( saved bool) {
+func Save(ID []byte, NodeDetails []byte) ( saved bool) {
 	if QManConnected {
-		err := QManagerStorage.Put(ID, address, nil)
+		err := QManagerStorage.Put(ID, NodeDetails, nil)
 
 		if err != nil {
 			return false

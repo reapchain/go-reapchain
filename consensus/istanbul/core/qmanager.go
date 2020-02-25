@@ -17,12 +17,17 @@
 package core
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/json"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/consensus/quantum"
 	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/syndtr/goleveldb/leveldb"
-	"math/rand"
+	//"math/rand"
 )
 //const NodeIDBits = 512
 
@@ -83,14 +88,34 @@ func (c *core) handleExtraData(msg *message, src istanbul.Validator) error {
 		//	fmt.Println("error:", err)
 		//}
 		//log.Debug("Data", "address:", qNode.address, "ID: ", qNode.ID)
+		var decodedBytes common.QManDBStruct
+		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
+		if err != nil {
+			fmt.Printf("Error: %v\n", err.Error())
+		} else {
+			fmt.Printf("Decoded value: %#v\n", decodedBytes)
+		}
+
+		decodedAddress := common.HexToAddress(decodedBytes.Address)
+		//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
+
+		quant := quantum.GenerateQrnd()
+		//fmt.Println(quant)
+		num := binary.LittleEndian.Uint64(quant)
+		fmt.Println(num)
 
 
 		validatorInfo := ValidatorInfo{}
-		validatorInfo.Address = common.HexToAddress(string(value))
-		validatorInfo.Qrnd = rand.Uint64()
+		validatorInfo.Address = decodedAddress
+		validatorInfo.Qrnd = num
+
+
+		//validatorInfo := ValidatorInfo{}
+		//validatorInfo.Address = common.HexToAddress(string(value))
+		//validatorInfo.Qrnd = rand.Uint64()
 
 		if i == 0 {
-			if !c.valSet.IsProposer(common.HexToAddress(string(value))) {
+			if !c.valSet.IsProposer(decodedAddress) {
 				validatorInfo.Tag = istanbul.Coordinator
 			} else {
 				flag = true
