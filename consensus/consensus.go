@@ -84,7 +84,7 @@ type Engine interface {
 	// and assembles the final block.
 	// Note: The block header and state database might be updated to reflect any
 	// consensus rules that happen at finalization (e.g. block rewards).
-	Finalize(chain ChainReader, header *types.Header, state *state.StateDB, txs []*types.Transaction,
+	Finalize(chain ChainReader, header *types.Header, state *state.StateDB, txs []*types.Transaction,  //yichoi reviewed
 		uncles []*types.Header, receipts []*types.Receipt) (*types.Block, error)
 
 	// Seal generates a new block for the given input block with the local miner's
@@ -104,7 +104,7 @@ type PoW interface {
 }
 
 // Istanbul is a consensus engine to avoid byzantine failure
-type Istanbul interface {
+/* type Istanbul interface {
 	Engine
 
 	// Handle a message from peer
@@ -115,6 +115,21 @@ type Istanbul interface {
 
 	// Start the engine
 	//Start(chain ChainReader, inserter func(block *types.Block) error) error
+	Start(chain ChainReader, qman []*discover.Node,  inserter func(block *types.Block) error) error
+	// Stop the engine
+	Stop() error
+} */
+type PoDC interface {
+	Engine
+
+	// Handle a message from peer
+	HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error
+
+	// Receive new chain head block
+	NewChainHead(block *types.Block)
+
+	// Start the engine
+
 	Start(chain ChainReader, qman []*discover.Node,  inserter func(block *types.Block) error) error
 	// Stop the engine
 	Stop() error

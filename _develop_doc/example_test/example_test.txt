@@ -1,0 +1,30 @@
+
+package example_test2
+
+import (
+"os"
+"testing"
+)
+
+func TestA(t *testing.T) {
+}
+
+func TestB(t *testing.T) {
+}
+
+func setup() {
+	println("setup")
+}
+
+func teardown() {
+	println("teardown")
+}
+
+func TestMain(m *testing.M) {
+	setup()
+	ret := m.Run()
+	if ret == 0 {
+		teardown()
+	}
+	os.Exit(ret)
+}

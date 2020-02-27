@@ -29,6 +29,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // Client defines typed wrappers for the Ethereum RPC API.
@@ -199,8 +200,10 @@ func (ec *Client) TransactionInBlock(ctx context.Context, blockHash common.Hash,
 // Note that the receipt is not available for pending transactions.
 func (ec *Client) TransactionReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error) {
 	var r *types.Receipt
-	err := ec.c.CallContext(ctx, &r, "eth_getTransactionReceipt", txHash)
+	err := ec.c.CallContext(ctx, &r, "eth_getTransactionReceipt", txHash)  //eth.getTransactionReceipt  by yichoi
 	if err == nil {
+		log.Info("TransactionReceipt by yichoi:", "ec", ec )  //yichoi
+
 		if r == nil {
 			return nil, ethereum.NotFound
 		} else if len(r.PostState) == 0 {
@@ -352,6 +355,8 @@ func (ec *Client) PendingNonceAt(ctx context.Context, account common.Address) (u
 func (ec *Client) PendingTransactionCount(ctx context.Context) (uint, error) {
 	var num hexutil.Uint
 	err := ec.c.CallContext(ctx, &num, "eth_getBlockTransactionCountByNumber", "pending")
+	log.Info("PendingTransactionCount by yichoi", "ec", ec ) //yichoi
+
 	return uint(num), err
 }
 
@@ -417,7 +422,7 @@ func (ec *Client) SendTransaction(ctx context.Context, tx *types.Transaction) er
 	if err != nil {
 		return err
 	}
-	return ec.c.CallContext(ctx, nil, "eth_sendRawTransaction", common.ToHex(data))
+	return ec.c.CallContext(ctx, nil, "eth_sendRawTransaction", common.ToHex(data))  //reviewed by yichoi
 }
 
 func toCallArg(msg ethereum.CallMsg) interface{} {

@@ -66,7 +66,7 @@ func NewLDBDatabase(file string, cache int, handles int) (*LDBDatabase, error) {
 	if handles < 16 {
 		handles = 16
 	}
-	logger.Info("Allocated cache and file handles", "cache", cache, "handles", handles)
+	logger.Info("Allocated cache and file handles(NewLDBDatabase)", "cache", cache, "handles", handles)
 
 	// Open the db and recover any potential corruptions
 	db, err := leveldb.OpenFile(file, &opt.Options{
@@ -170,6 +170,7 @@ func (db *LDBDatabase) LDB() *leveldb.DB {
 }
 
 // Meter configures the database metrics collectors and
+// Level DB 설정갑,,, 등 by yichoi
 func (db *LDBDatabase) Meter(prefix string) {
 	// Short circuit metering if the metrics system is disabled
 	if !metrics.Enabled {

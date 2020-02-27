@@ -20,6 +20,7 @@ package quantum
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"io/ioutil"
 	"os"
 	"time"
@@ -35,7 +36,7 @@ const filePrefix ="/Volumes/PSoC USB/"  //on my MAC
 
 // 백서에 노드ID 주면 양자난수를 리턴하는 것으로 명시되어 있음.
 // 노드ID 상관 없이 양자난수 발생기 만들어야 여기서
-func GenerateQrnd() []byte  {
+func GenerateQrnd(nodeid  *discover.NodeID) []byte  {
 	var ioldIndex byte
 	var Qrnddata []byte
 

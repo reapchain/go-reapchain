@@ -19,7 +19,6 @@ package params
 import (
 	"math"
 	"math/big"
-
 	"github.com/ethereum/go-ethereum/common"
 )
 
@@ -44,4 +43,6 @@ var (
 
 	TestNetChainID = big.NewInt(3) // Test net default chain ID
 	MainNetChainID = big.NewInt(1) // main net default chain ID
+
+	//FeeAddress = common.HexToAddress("0xd6b080c02f40441232e5c97632dd5fbcc38bb5d1")	// yhheo  //fixed coinbase address by yichoi
 )

@@ -255,6 +255,7 @@ var isOldGethResource = map[string]bool{
 // resolvePath resolves path in the instance directory.
 func (c *Config) resolvePath(path string) string {
 	if filepath.IsAbs(path) {
+		log.Info("resolvePath(Current Directory): ", "path", path) //added by yichoi for debugging
 		return path
 	}
 	if c.DataDir == "" {
@@ -266,9 +267,11 @@ func (c *Config) resolvePath(path string) string {
 		oldpath := ""
 		if c.Name == "geth" {
 			oldpath = filepath.Join(c.DataDir, path)
+			log.Info("resolvePath:", "oldpath", oldpath)
 		}
 		if oldpath != "" && common.FileExist(oldpath) {
 			// TODO: print warning
+			log.Info("resolvePath:", "oldpath", oldpath)
 			return oldpath
 		}
 	}

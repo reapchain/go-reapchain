@@ -20,6 +20,7 @@ package eth
 import (
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"math/big"
 	"runtime"
 	"sync"
@@ -30,8 +31,8 @@ import (
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/clique"
 	"github.com/ethereum/go-ethereum/consensus/ethash"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	istanbulBackend "github.com/ethereum/go-ethereum/consensus/istanbul/backend"
+	//"github.com/ethereum/go-ethereum/consensus/podc"
+	podcBackend "github.com/ethereum/go-ethereum/consensus/podc/backend"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -83,6 +84,8 @@ type Ethereum struct {
 	miner     *miner.Miner
 	gasPrice  *big.Int
 	etherbase common.Address
+	feebase   common.Address //by yichoi added for recovery module when sendtx pending , in order to start miner again
+	                         // web console: miner.start()
 
 	networkId     uint64
 	netRPCService *ethapi.PublicNetAPI
@@ -103,18 +106,31 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	if !config.SyncMode.IsValid() {
 		return nil, fmt.Errorf("invalid sync mode %d", config.SyncMode)
 	}
-
+	// 체인 디비를 만들고
 	chainDb, err := CreateDB(ctx, config, "chaindata")
+	//chainDb = /Users/yongilchoi/go/src/github.com/ethereum/go-ethereum/build/int_geth/node1/data/go_build_github_com_ethereum_go_ethereum_cmd_geth/chaindata
+
 	if err != nil {
 		return nil, err
 	}
 	stopDbUpgrade := upgradeSequentialKeys(chainDb)
-	chainConfig, genesisHash, genesisErr := core.SetupGenesisBlock(chainDb, config.Genesis)  //yichoi genesis.json
+
+	if config.Genesis == nil /*  && chainDb == "node1/data/go_build_github_com_ethereum_go_ethereum_cmd_geth/chaindata" */ {
+		// load config.Genesis , when debugging
+		log.Info("config.Genesis", "config.Genesis", config.Genesis)
+		log.Info("When debugging in goland:", "chainDb", chainDb)
+	}
+
+	// 제네시스 블록을 세팅합니다.
+	chainConfig, genesisHash, genesisErr := core.SetupGenesisBlock(chainDb, config.Genesis)
+
 	if _, ok := genesisErr.(*params.ConfigCompatError); genesisErr != nil && !ok {
 		return nil, genesisErr
 	}
 	log.Info("Initialised chain configuration", "config", chainConfig)
-
+	//config = .............Metropolis: nil 이면,, param에서 읽어오는게 아니고, Db ( chaindata folder )에서 읽어와서 chainConfig 설정함 , 주의,
+	// 차이가 있음.
+	// 이더리움 객체 생성.
 	eth := &Ethereum{
 		chainDb:        chainDb,
 		chainConfig:    chainConfig,
@@ -131,11 +147,15 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)	// yhheo
 
 	// force to set the istanbul etherbase to node key address
-	if chainConfig.Istanbul != nil {
+	/* if (chainConfig.Istanbul != nil) || (chainConfig.PoDC != nil) {  //yichoi added for PoDC
 		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
 		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
+	} */
+	if  (chainConfig.PoDC != nil) {  //yichoi added for PoDC
+		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress  //? 이상함.
+		log.Info("Now : ", "chainConfig.PoDC", chainConfig.PoDC )
+		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
 	}
-
 	if err := addMipmapBloomBins(chainDb); err != nil {
 		return nil, err
 	}
@@ -149,7 +169,9 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		core.WriteBlockChainVersion(chainDb, core.BlockChainVersion)
 	}
 
-	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}
+	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}  //vm의 옵션값을 설정함
+
+	// 새로운 블록체인을 만들고
 	eth.blockchain, err = core.NewBlockChain(chainDb, eth.chainConfig, eth.engine, eth.eventMux, vmConfig)
 	if err != nil {
 		return nil, err
@@ -214,27 +236,47 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (ethdb.Data
 	db, err := ctx.OpenDatabase(name, config.DatabaseCache, config.DatabaseHandles)
 	if db, ok := db.(*ethdb.LDBDatabase); ok {
 		db.Meter("eth/db/chaindata/")
+	} else
+	{
+		log.Info("CreateDB(db) interface : ", "db", db ) //yichoi
 	}
+	log.Info("CreateDB finished  : ", "db", db ) //yichoi
 	return db, err
 }
 
 // CreateConsensusEngine creates the required type of consensus engine instance for an Ethereum service
+//yichoi reviewed 2019-10-7
 func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig *params.ChainConfig, db ethdb.Database) consensus.Engine {
 	// If proof-of-authority is requested, set it up
 	if chainConfig.Clique != nil {
 		return clique.New(chainConfig.Clique, db)
 	}
 	// If Istanbul is requested, set it up
-	if chainConfig.Istanbul != nil {
+/*
+	if (chainConfig.Istanbul != nil) || (chainConfig.PoDC != nil) {
 		if chainConfig.Istanbul.Epoch != 0 {
 			config.Istanbul.Epoch = chainConfig.Istanbul.Epoch
+		} */
+	/*	if chainConfig.PoDC.Epoch != 0 {
+			config.PoDC.Epoch = chainConfig.PoDC.Epoch
 		}
-		config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
-		return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)  // ?
+		//config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
+		config.PoDC.ProposerPolicy = PoDC.ProposerPolicy(chainConfig.PoDC.ProposerPolicy)
+		//return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)  // ?
+		return PoDCBackend.New(&config.PoDC, ctx.EventMux, ctx.NodeKey(), db)  // ?
 		       // consensus.Istanbul 인터페이스 모음으로 리턴하고,
 		       // 이건 다시. consensus.Engine으로 리턴. ?
-	}
 
+	} */
+	//합의 엔진 처음 생성시 PoDC면.. 처리
+	if chainConfig.PoDC != nil {
+		if chainConfig.PoDC.Epoch != 0 {
+			config.PoDC.Epoch = chainConfig.PoDC.Epoch
+		}
+		config.PoDC.ProposerPolicy = podc.ProposerPolicy(chainConfig.PoDC.ProposerPolicy)
+		return podcBackend.New(&config.PoDC, ctx.EventMux, ctx.NodeKey(), db)
+
+	}
 	// Otherwise assume proof-of-work
 	switch {
 	case config.PowFake:
@@ -335,8 +377,8 @@ func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 // set in js console via admin interface or wrapper from cli flags
 func (self *Ethereum) SetEtherbase(etherbase common.Address) {
 	self.lock.Lock()
-	if _, ok := self.engine.(consensus.Istanbul); ok {
-		log.Error("Cannot set etherbase in Istanbul consensus")
+	if _, ok := self.engine.(consensus.PoDC); ok {
+		log.Error("Cannot set etherbase in PoDC consensus")  //eth.sendtx가 안될때 현상... by yichoi
 		return
 	}
 	//fmt.Printf("Ethereum - SetEtherbase : etherbase = %x\n", etherbase) // yhheo
@@ -347,6 +389,7 @@ func (self *Ethereum) SetEtherbase(etherbase common.Address) {
 }
 
 func (s *Ethereum) StartMining(local bool) error {
+	log.Info("StartMining:", "s", s , "bool", local )
 	eb, err := s.Etherbase()
 	if err != nil {
 		log.Error("Cannot start mining without etherbase", "err", err)

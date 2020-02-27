@@ -622,6 +622,8 @@ func WriteBlockChainVersion(db ethdb.Database, vsn int) {
 func WriteChainConfig(db ethdb.Database, hash common.Hash, cfg *params.ChainConfig) error {
 	// short circuit and ignore if nil config. GetChainConfig
 	// will return a default.
+	log.Info("WriteChainConfig: ", "cfg", cfg ) //chain config write to db
+	log.Info("Write db name: ", "db", db ) //chain config write to db
 	if cfg == nil {
 		return nil
 	}
@@ -636,6 +638,7 @@ func WriteChainConfig(db ethdb.Database, hash common.Hash, cfg *params.ChainConf
 
 // GetChainConfig will fetch the network settings based on the given hash.
 func GetChainConfig(db ethdb.Database, hash common.Hash) (*params.ChainConfig, error) {
+	log.Info("GetChainConfig: db", "db", db ) //by yichoi
 	jsonChainConfig, _ := db.Get(append(configPrefix, hash[:]...))
 	if len(jsonChainConfig) == 0 {
 		return nil, ErrChainConfigNotFound

@@ -38,8 +38,7 @@ profile.cov
 # reapchain config file
 config/config.json
 config/config.toml
-
-# tool
-.idea
-.vscode
-
+/_develop_doc/
+/.idea/
+/istanbul-tools/
+/build/int_geth/

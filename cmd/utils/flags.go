@@ -496,36 +496,36 @@ var (
 	}
 
 	// Istanbul settings
-	IstanbulRequestTimeoutFlag = cli.Uint64Flag{
+	/* PoDCRequestTimeoutFlag = cli.Uint64Flag{
 		Name:  "istanbul.requesttimeout",
 		Usage: "Timeout for each Istanbul round in milliseconds",
-		Value: eth.DefaultConfig.Istanbul.RequestTimeout,
+		Value: eth.DefaultConfig.PoDC.RequestTimeout,
 	}
-	IstanbulBlockPeriodFlag = cli.Uint64Flag{
+	PoDCBlockPeriodFlag = cli.Uint64Flag{
 		Name:  "istanbul.blockperiod",
 		Usage: "Default minimum difference between two consecutive block's timestamps in seconds",
-		Value: eth.DefaultConfig.Istanbul.BlockPeriod,
+		Value: eth.DefaultConfig.PoDC.BlockPeriod,
 	}
-	IstanbulBlockPauseTimeFlag = cli.Uint64Flag{
+	PoDCBlockPauseTimeFlag = cli.Uint64Flag{
 		Name:  "istanbul.blockpausetime",
 		Usage: "Pause time when zero tx in previous block, values should be larger than istanbul.blockperiod",
-		Value: eth.DefaultConfig.Istanbul.BlockPauseTime,
-	}
+		Value: eth.DefaultConfig.PoDC.BlockPauseTime,
+	} */
 	// PoDC settings
 	PoDCRequestTimeoutFlag = cli.Uint64Flag{
 		Name:  "podc.requesttimeout",
-		Usage: "Timeout for each Istanbul round in milliseconds",
-		Value: eth.DefaultConfig.Istanbul.RequestTimeout,
+		Usage: "Timeout for each PoDC round in milliseconds",
+		Value: eth.DefaultConfig.PoDC.RequestTimeout,
 	}
 	PoDCBlockPeriodFlag = cli.Uint64Flag{
 		Name:  "podc.blockperiod",
 		Usage: "Default minimum difference between two consecutive block's timestamps in seconds",
-		Value: eth.DefaultConfig.Istanbul.BlockPeriod,
+		Value: eth.DefaultConfig.PoDC.BlockPeriod,
 	}
 	PoDCBlockPauseTimeFlag = cli.Uint64Flag{
 		Name:  "podc.blockpausetime",
-		Usage: "Pause time when zero tx in previous block, values should be larger than istanbul.blockperiod",
-		Value: eth.DefaultConfig.Istanbul.BlockPauseTime,
+		Usage: "Pause time when zero tx in previous block, values should be larger than PoDC.blockperiod",
+		Value: eth.DefaultConfig.PoDC.BlockPauseTime,
 	}
 )
 
@@ -1026,7 +1026,7 @@ func setEthash(ctx *cli.Context, cfg *eth.Config) {
 		cfg.EthashDatasetsOnDisk = ctx.GlobalInt(EthashDatasetsOnDiskFlag.Name)
 	}
 }
-
+/*
 func setIstanbul(ctx *cli.Context, cfg *eth.Config) {
 	if ctx.GlobalIsSet(IstanbulRequestTimeoutFlag.Name) {
 		cfg.Istanbul.RequestTimeout = ctx.GlobalUint64(IstanbulRequestTimeoutFlag.Name)
@@ -1036,6 +1036,17 @@ func setIstanbul(ctx *cli.Context, cfg *eth.Config) {
 	}
 	if ctx.GlobalIsSet(IstanbulBlockPauseTimeFlag.Name) {
 		cfg.Istanbul.BlockPauseTime = ctx.GlobalUint64(IstanbulBlockPauseTimeFlag.Name)
+	}
+} */
+func setPoDC(ctx *cli.Context, cfg *eth.Config) {
+	if ctx.GlobalIsSet(PoDCRequestTimeoutFlag.Name) {
+		cfg.PoDC.RequestTimeout = ctx.GlobalUint64(PoDCRequestTimeoutFlag.Name)
+	}
+	if ctx.GlobalIsSet(PoDCBlockPeriodFlag.Name) {
+		cfg.PoDC.BlockPeriod = ctx.GlobalUint64(PoDCBlockPeriodFlag.Name)
+	}
+	if ctx.GlobalIsSet(PoDCBlockPauseTimeFlag.Name) {
+		cfg.PoDC.BlockPauseTime = ctx.GlobalUint64(PoDCBlockPauseTimeFlag.Name)
 	}
 }
 
@@ -1054,7 +1065,7 @@ func checkExclusive(ctx *cli.Context, flags ...cli.Flag) {
 // SetEthConfig applies eth-related command line flags to the config.
 func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	// Avoid conflicting network flags
-	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag, OttomanFlag)  //dev option
+	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag, OttomanFlag, ReapChainFlag)  //dev option , ReapChainFlag added by yichoi
 	checkExclusive(ctx, FastSyncFlag, LightModeFlag, SyncModeFlag)
 
 	ks := stack.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
@@ -1062,9 +1073,12 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	setGPO(ctx, &cfg.GPO)
 	setTxPool(ctx, &cfg.TxPool)
 	setEthash(ctx, cfg)
-	setIstanbul(ctx, cfg) //istanbul initial value setting and check
+	//setIstanbul(ctx, cfg) //istanbul initial value setting and check
+	// <- insert setPodc()... later , to do
+	setPoDC(ctx, cfg) //istanbul initial value setting and check
 	switch {
 	case ctx.GlobalIsSet(SyncModeFlag.Name):
+		log.Info("SyncModeFlag.Name:", "SyncModeFlag.Name", SyncModeFlag.Name) //check current Synmode
 		cfg.SyncMode = *GlobalTextMarshaler(ctx, SyncModeFlag.Name).(*downloader.SyncMode)
 	case ctx.GlobalBool(FastSyncFlag.Name):
 		cfg.SyncMode = downloader.FastSync
@@ -1119,11 +1133,18 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 			cfg.NetworkId = 4
 		}
 		cfg.Genesis = core.DefaultRinkebyGenesisBlock()
-	case ctx.GlobalBool(OttomanFlag.Name):
+	 case ctx.GlobalBool(OttomanFlag.Name):
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
 			cfg.NetworkId = 5
 		}
 		cfg.Genesis = core.DefaultOttomanGenesisBlock()
+	//begin added by yichoi
+	case ctx.GlobalBool(ReapChainFlag.Name):
+		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
+			cfg.NetworkId = 5
+		}
+		cfg.Genesis = core.DefaultReapChainGenesisBlock()
+	//end
 	case ctx.GlobalBool(DevModeFlag.Name):
 		cfg.Genesis = core.DevGenesisBlock()  //? 바꿔야함.
 		if !ctx.GlobalIsSet(GasPriceFlag.Name) {
@@ -1147,7 +1168,9 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 		})
 	} else {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-			fullNode, err := eth.New(ctx, cfg)  //jump
+
+			fullNode, err := eth.New(ctx, cfg)  //important !!! we make ethereum object in this
+
 			if fullNode != nil && cfg.LightServ > 0 {
 				ls, _ := les.NewLesServer(fullNode, cfg)
 				fullNode.AddLesServer(ls)
@@ -1162,6 +1185,8 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 
 // RegisterShhService configures Whisper and adds it to the given node.
 // Don't use this time for whisper.New(), because to see simply in debuging
+
+// if Whisper module not used, disable RegisterShhService , by yichoi
 func RegisterShhService(stack *node.Node) {
 	//if err := stack.Register(func(*node.ServiceContext) (node.Service, error) { return whisper.New(), nil }); err != nil {
 	//	Fatalf("Failed to register the Whisper service: %v", err)
@@ -1215,8 +1240,10 @@ func MakeGenesis(ctx *cli.Context) *core.Genesis {
 		genesis = core.DefaultTestnetGenesisBlock()
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		genesis = core.DefaultRinkebyGenesisBlock()
-	case ctx.GlobalBool(OttomanFlag.Name):
+	 case ctx.GlobalBool(OttomanFlag.Name):
 		genesis = core.DefaultOttomanGenesisBlock()
+	case ctx.GlobalBool(ReapChainFlag.Name):
+		genesis = core.DefaultReapChainGenesisBlock() //added by yichoi
 	case ctx.GlobalBool(DevModeFlag.Name):
 		genesis = core.DevGenesisBlock()
 	}
