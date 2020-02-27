@@ -30,7 +30,7 @@ NODE_NAME=qman
 
 #echo $PORT_NO $RPC_PORT
 #echo $LOG_PATH/$NODE_NAME 
-$BIN_PATH/geth \
+ $BIN_PATH/geth \
 	--networkid $NETWORK_ID \
 	--port $PORT_NO \
 	--datadir $PROJ_PATH/$NODE_NAME/data \
@@ -39,7 +39,7 @@ $BIN_PATH/geth \
 	--rpc \
 	--rpcport $RPC_PORT \
 	--rpccorsdomain "*" \
-	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,istanbul,PoDC" \
+	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,istanbul" \
 	--unlock 0 \
 	--password $SETUP_INFO_PATH/passwd.txt \
 	--verbosity 4 \
@@ -54,7 +54,7 @@ NODE_NAME=node$1
 #echo $PORT_NO $RPC_PORT
 #echo $LOG_PATH/$NODE_NAME
 
-$BIN_PATH/geth \
+ $BIN_PATH/geth \
 	--networkid $NETWORK_ID \
 	--port $PORT_NO \
 	--datadir $PROJ_PATH/$NODE_NAME/data \
@@ -64,7 +64,7 @@ $BIN_PATH/geth \
 	--rpcaddr $BOOTNODE_IP \
 	--rpcport $RPC_PORT \
 	--rpccorsdomain "*" \
-	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,istanbul,PoDC" \
+	--rpcapi="db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,istanbul" \
 	--unlock 0 \
 	--password $SETUP_INFO_PATH/passwd.txt \
 	--verbosity 4 \

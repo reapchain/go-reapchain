@@ -14,6 +14,7 @@ var TotalConfig Configurations
 
 func (c *EnvConfig) GetConfig(env string) {
 	jsonFile, err := os.Open("config.json")
+	log.Info("path name of config.json =", "jsonFile", jsonFile ) //added by yichoi to check directory path of config.json
 	defer jsonFile.Close()
 
 	if err != nil {
