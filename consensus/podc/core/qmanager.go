@@ -18,12 +18,14 @@ package core
 
 import (
 	"bytes"
-	"encoding/binary"
+	//"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
-//<<<<<<< HEAD:consensus/istanbul/core/qmanager.go
-	"github.com/ethereum/go-ethereum/consensus/quantum"
+	"math/rand"
+
+	//<<<<<<< HEAD:consensus/istanbul/core/qmanager.go
+	//"github.com/ethereum/go-ethereum/consensus/quantum"
 	//"github.com/ethereum/go-ethereum/consensus/istanbul"
 //=======
 	"github.com/ethereum/go-ethereum/consensus/podc"
@@ -100,23 +102,23 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 			fmt.Printf("Decoded value: %#v\n", decodedBytes)
 		}
 
-		decodedAddress := common.HexToAddress(decodedBytes.Address)
+		//decodedAddress := common.HexToAddress(decodedBytes.Address)
 		//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
 
-		quant := quantum.GenerateQrnd()
+		//quant := quantum.GenerateQrnd()
 		//fmt.Println(quant)
-		num := binary.LittleEndian.Uint64(quant)
-		fmt.Println(num)
-
-
-		validatorInfo := ValidatorInfo{}
-		validatorInfo.Address = decodedAddress
-		validatorInfo.Qrnd = num
+		//num := binary.LittleEndian.Uint64(quant)
+		//fmt.Println(num)
 
 
 		//validatorInfo := ValidatorInfo{}
-		//validatorInfo.Address = common.HexToAddress(string(value))
-		//validatorInfo.Qrnd = rand.Uint64()
+		//validatorInfo.Address = decodedAddress
+		//validatorInfo.Qrnd = num
+
+
+		validatorInfo := ValidatorInfo{}
+		validatorInfo.Address = common.HexToAddress(string(value))
+		validatorInfo.Qrnd = rand.Uint64()
 
 		if i == 0 {
 //<<<<<<< HEAD:consensus/istanbul/core/qmanager.go
