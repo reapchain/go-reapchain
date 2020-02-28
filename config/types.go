@@ -19,7 +19,7 @@ type EnvConfig struct {
 
 // detail configurations for consensus part
 type ConsensusConfig struct {
-	Criteria 	int		`json:"criteria"`
+	Criteria 	uint		`json:"criteria"`
 }
 
 // detail configurations for token economy part
