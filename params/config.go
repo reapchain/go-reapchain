@@ -259,8 +259,8 @@ func (c *ChainConfig) String() string {
 		engine = c.Ethash
 	case c.Clique != nil:
 		engine = c.Clique
- 	//case c.Istanbul != nil:
-		//engine = c.Istanbul
+ 	case c.Istanbul != nil:
+		engine = c.Istanbul
 	case c.PoDC != nil:
 		engine = c.PoDC
 
