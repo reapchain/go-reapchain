@@ -18,6 +18,10 @@ package core
 
 import (
 	"bytes"
+	"encoding/binary"
+	"github.com/ethereum/go-ethereum/consensus/quantum"
+	"os"
+
 	//"encoding/binary"
 	"encoding/json"
 	"fmt"
@@ -102,6 +106,25 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 			fmt.Printf("Decoded value: %#v\n", decodedBytes)
 		}
 
+		decodedAddress := common.HexToAddress(decodedBytes.Address)
+		//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
+		var num uint64
+
+		if fileExists("/Volumes/PSoC USB/" + "up.ini") {
+			quant := quantum.GenerateQrnd()
+			//fmt.Println(quant)
+			num = binary.LittleEndian.Uint64(quant)
+			//fmt.Println(quant)
+			//fmt.Println(num)
+			log.Info("Qmanager", "Quantum Number", num)
+
+		} else {
+			num = rand.Uint64()
+			log.Info("Qmanager", "Pusedo Quantum Number", num)
+		}
+
+
+
 		//decodedAddress := common.HexToAddress(decodedBytes.Address)
 		//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
 
@@ -115,19 +138,18 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 		//validatorInfo.Address = decodedAddress
 		//validatorInfo.Qrnd = num
 
-
 		validatorInfo := ValidatorInfo{}
-		validatorInfo.Address = common.HexToAddress(string(value))
-		validatorInfo.Qrnd = rand.Uint64()
+		validatorInfo.Address = decodedAddress
+		validatorInfo.Qrnd = num
+
+		//validatorInfo := ValidatorInfo{}
+		//validatorInfo.Address = common.HexToAddress(string(value))
+		//log.Info("Address Checking..", "Addr", common.HexToAddress(string(value)))
+		//validatorInfo.Qrnd = rand.Uint64()
 
 		if i == 0 {
-//<<<<<<< HEAD:consensus/istanbul/core/qmanager.go
-//			if !c.valSet.IsProposer(decodedAddress) {
-//				validatorInfo.Tag = istanbul.Coordinator
-//=======
 			if !c.valSet.IsProposer(common.HexToAddress(string(value))) {
 				validatorInfo.Tag = podc.Coordinator
-//>>>>>>> 5168e24579fcd6cba6750133d84555192893a19e:consensus/podc/core/qmanager.go
 			} else {
 				flag = true
 				validatorInfo.Tag = podc.Candidate
@@ -183,3 +205,10 @@ func (c *core) handleSentData(msg *message, src podc.Validator) error {
 	return nil
 }
 
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
