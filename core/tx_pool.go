@@ -83,6 +83,8 @@ type TxPoolConfig struct {
 	GlobalQueue  uint64 // Maximum number of non-executable transaction slots for all accounts
 
 	Lifetime time.Duration // Maximum amount of time non-executable transaction are queued
+
+	MaxCodeSize  uint64 // Maximum size allowed of contract code that can be deployed (in KB)	// yhheo
 }
 
 // DefaultTxPoolConfig contains the default configurations for the transaction
@@ -97,6 +99,8 @@ var DefaultTxPoolConfig = TxPoolConfig{
 	GlobalQueue:  1024,
 
 	Lifetime: 3 * time.Hour,
+
+	MaxCodeSize:  24,	// yhheo
 }
 
 // sanitize checks the provided user configurations and changes anything that's
@@ -385,8 +389,10 @@ func (pool *TxPool) validateTx(tx *types.Transaction) error {
 	// Check the transaction doesn't exceed the current
 	// block limit gas.
 	if pool.gasLimit().Cmp(tx.Gas()) < 0 {
-		fmt.Printf(" pool.gasLimit = %d\n tx.Gas = %d\n", pool.gasLimit(), tx.Gas)	// yhheo
-		return ErrGasLimit
+		if tx.Governance() != true {	// yhheo
+			fmt.Printf(" pool.gasLimit = %d\n tx.Gas = %d\n", pool.gasLimit(), tx.Gas) // yhheo
+			return ErrGasLimit
+		}
 	}
 
 	// Transactions can't be negative. This may never happen

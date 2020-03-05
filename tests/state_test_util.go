@@ -213,7 +213,7 @@ func RunState(chainConfig *params.ChainConfig, statedb *state.StateDB, env, tx m
 
 	snapshot := statedb.Snapshot()
 
-	ret, gasUsed, err := core.ApplyMessage(environment, msg, gaspool)
+	ret, gasUsed, _, err := core.ApplyMessage(environment, msg, gaspool)	// yhheo
 	if err != nil {
 		statedb.RevertToSnapshot(snapshot)
 	}

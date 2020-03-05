@@ -2,7 +2,9 @@ package core
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"os"
 
 	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/consensus/podc"
@@ -117,7 +119,11 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		log.Info("Decode Error")
 		return errFailedDecodePrepare
 	}
-
+	log.Info("get extradata display = ", "extraData", extraData)
+	nodename, err := os.Getwd()
+	if err != nil {
+		fmt.Printf("current nodename= %v , err=%v",  nodename, err)
+	}
 	for _, v := range extraData {
 		if v.Address == c.address {
 			c.tag = v.Tag
@@ -127,6 +133,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	if c.tag == podc.Coordinator {
 		log.Info("I am Coordinator!")
 		c.criteria = math.Floor((float64(len(extraData)) - 1) * 0.51)
+		log.Info("c.criteria=", "c.criteria", c.criteria )
 		c.sendCoordinatorDecide()
 	}
 
@@ -147,10 +154,10 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 	if c.tag == podc.Coordinator {
 
 		c.count = c.count + 1
-		//log.Info("handling racing", "count", c.count)
-		//log.Info("handling racing", "flag", c.racingFlag)
-
-		if c.count > config.Config.Consensus.Criteria && !c.racingFlag {  //?
+		log.Info("handling racing", "count", c.count)
+		log.Info("handling racing", "flag", c.racingFlag)
+                                     //Criteria = uint
+		if (c.count > config.Config.Consensus.Criteria) && !c.racingFlag {  //?  uint > uint
 			log.Info("racing completed.", "count", c.count)
 			c.racingFlag = true
 			c.sendCandidateDecide()

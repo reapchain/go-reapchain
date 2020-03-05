@@ -150,10 +150,9 @@ type (
 		TCP uint16 // for RLPx protocol
 	}
 
-	qManagerNodes struct {
-		ID   NodeID
-		pubKey *ecdsa.PublicKey
-		address common.Address
+	QManDBStruct struct {
+		ID   string
+		Address string
 	}
 )
 
@@ -763,14 +762,17 @@ func FindNode(nodeId string) (found bool) {
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
 	//var data []byte
-	found_value := common.Find(nodeId)
+	node_id_encoded,_ := rlp.EncodeToBytes(nodeId)
+	//log.Info("FIND ID", "bootnode = ", nodeId)
+	//log.Info("Encoded ID", "rlp = ", node_id_encoded)
+
+	found_value := common.Find(node_id_encoded)
 
 	return found_value
 }
 
 
-
-func (n qManagerNodes) Save() (saved bool) {
+func (n QManDBStruct) Save() (saved bool) {
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 	//var data bytes.Buffer
 	//enc := gob.NewEncoder(&data)
@@ -780,10 +782,55 @@ func (n qManagerNodes) Save() (saved bool) {
 	//json.NewEncoder(reqBodyBytes).Encode(n)
 	//fmt.Println("JSON BYTES")
 	//fmt.Println(reqBodyBytes.Bytes())
-	address_bytes := []byte(n.address.String())
+	//address_bytes := []byte(n.address.String())
 	//fmt.Println(address_bytes)
 
-	saved = common.Save([]byte(n.ID.String()), address_bytes)
+	encodedID,_ := rlp.EncodeToBytes(n.ID)
+	//node_details_encoded,_ := rlp.EncodeToBytes(n)
+	//var t *QManDBStruct
+	//t = &n
+	//bytess, _ := rlp.EncodeToBytes(t)
+	//fmt.Printf("%v → %X\n", t, bytess)
+
+	var encodedStruct *QManDBStruct // t is nil pointer to MyCoolType
+	initBytes, _ := rlp.EncodeToBytes(encodedStruct)
+	//fmt.Printf("%v → %X\n", encodedStruct, bytess)
+
+	encodedStruct = &QManDBStruct{ID: n.ID, Address: n.Address}
+	initBytes, _ = rlp.EncodeToBytes(encodedStruct)
+	//fmt.Printf("%v → %X\n", encodedStruct, bytess)
+
+
+	//var s QManDBStruct
+	//err := rlp.Decode(bytes, &s)
+	//if err != nil {
+	//	fmt.Printf("Error: %v\n", err)
+	//} else {
+	//	fmt.Printf("Decoded value: %#v\n", s)
+	//}
+	//
+	//var valueDecoded QManDBStruct
+	//value_decode_err := rlp.DecodeBytes(node_details_encoded, &valueDecoded)
+	//if value_decode_err != nil{
+	//	log.Info("Val Decode Error", "value: ", value_decode_err)
+	//}
+
+	//
+	//input, _ := hex.DecodeString("C90A1486666F6F626172")
+	//
+	//type example struct {
+	//	A, B   uint
+	//	String string
+	//}
+
+
+
+
+
+
+	//log.Info("VALUE", "value: ", valueDecoded)
+
+	saved = common.Save(encodedID, initBytes)
 	if !saved {
 		return false
 	}
@@ -833,7 +880,6 @@ func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	//fmt.Println()
 
 	node_pubKey, _ := req.Node.Pubkey()
-
 	pubBytes := crypto.FromECDSAPub(node_pubKey)
 	qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
 
@@ -841,13 +887,12 @@ func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 
 	//hexCommonAddress := qManagerNodeAddress.String()
 	//fmt.Println(hexCommonAddress)
-	qNode := qManagerNodes{req.Node,node_pubKey, qManagerNodeAddress}
+	qNode := QManDBStruct{req.Node.String(), qManagerNodeAddress.String()}
 
-
-	nodeFound := FindNode(fromID.String())
-	log.Info("Qmanager New Entry", "ID = ", req.Node)
+	nodeFound := FindNode(req.Node.String())
 
 	if !nodeFound {
+		log.Info("Qmanager New Entry", "ID = ", req.Node)
 		saveError := qNode.Save()
 		if !saveError {
 			//fmt.Println("Save Error")

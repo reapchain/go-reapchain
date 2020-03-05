@@ -18,18 +18,16 @@ package params
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-
-
 import (
-"fmt"
-"math/big"
-
-"github.com/ethereum/go-ethereum/common"
+	"fmt"
+	"math/big"
+	"errors"
+	"github.com/ethereum/go-ethereum/common"
 )
 
 var (
 	// MainnetChainConfig is the chain parameters to run a node on the main network.
-	/* MainnetChainConfig = &ChainConfig{
+	 MainnetChainConfig = &ChainConfig{
 		ChainId:         MainNetChainID,
 		HomesteadBlock:  MainNetHomesteadBlock,
 		DAOForkBlock:    MainNetDAOForkBlock,
@@ -41,28 +39,28 @@ var (
 		MetropolisBlock: MainNetMetropolisBlock,
 
 		Ethash: new(EthashConfig),
-	} */
-
-	MainnetChainConfig = &ChainConfig{
-		ChainId:         big.NewInt(2017),
-		HomesteadBlock:  big.NewInt(1),
-		DAOForkBlock:    nil,
-		DAOForkSupport:  true,
-		EIP150Block:     big.NewInt(2),
-		EIP150Hash:      common.HexToHash("0x9b095b36c15eaf13044373aef8ee0bd3a382a5abb92e402afa44b8249c3a90e9"),
-		EIP155Block:     big.NewInt(3),
-		EIP158Block:     big.NewInt(3),
-		MetropolisBlock: TestNetMetropolisBlock,
-
-		/*Istanbul: &IstanbulConfig{
-			Epoch:          30000,
-			ProposerPolicy: 0,
-		}, */
-		PoDC: &PoDCConfig{
-			Epoch:          30000,
-			ProposerPolicy: 0,
-		},
 	}
+
+	//MainnetChainConfig = &ChainConfig{
+	//	ChainId:         big.NewInt(2017),
+	//	HomesteadBlock:  big.NewInt(1),
+	//	DAOForkBlock:    nil,
+	//	DAOForkSupport:  true,
+	//	EIP150Block:     big.NewInt(2),
+	//	EIP150Hash:      common.HexToHash("0x9b095b36c15eaf13044373aef8ee0bd3a382a5abb92e402afa44b8249c3a90e9"),
+	//	EIP155Block:     big.NewInt(3),
+	//	EIP158Block:     big.NewInt(3),
+	//	MetropolisBlock: TestNetMetropolisBlock,
+	//
+	//	/*Istanbul: &IstanbulConfig{
+	//		Epoch:          30000,
+	//		ProposerPolicy: 0,
+	//	}, */
+	////	PoDC: &PoDCConfig{
+	////		Epoch:          30000,
+	////		ProposerPolicy: 0,
+	////	},
+	////}
 
 	// TestnetChainConfig contains the chain parameters to run a node on the Ropsten test network.
 	TestnetChainConfig = &ChainConfig{
@@ -151,22 +149,34 @@ var (
 	// means that all fields must be set at all times. This forces
 	// anyone adding flags to the config to also have to set these
 	// fields.
+
+	AllProtocolChanges = &ChainConfig{big.NewInt(2017), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), new(EthashConfig), nil, nil, nil, 32}
+	TestChainConfig    = &ChainConfig{big.NewInt(1), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), nil, new(EthashConfig), nil, nil, nil, 32}
+
 	//begin - yichoi : added a new field for podc to last
 	// AllProtocolChanges = &ChainConfig{big.NewInt(1337), big.NewInt(0), nil, false, big.NewInt(0), common.Hash{}, big.NewInt(0), big.NewInt(0), big.NewInt(0), new(EthashConfig), nil, nil, nil}
-	AllProtocolChanges = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(3), big.NewInt(3), TestNetMetropolisBlock, nil, nil, nil,
-		&PoDCConfig{
-		Epoch:          30000,
-		ProposerPolicy: 0,
-		},
-	}
-
-	TestChainConfig    = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(1), big.NewInt(0), nil, new(EthashConfig), nil, nil,
-		&PoDCConfig{
-			Epoch:          30000,
-			ProposerPolicy: 0,
-		},
-	}
-	//end
+	//AllProtocolChanges = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(3), big.NewInt(3), TestNetMetropolisBlock, nil, nil, nil,
+	//	&PoDCConfig{
+	//	Epoch:          30000,
+	//	ProposerPolicy: 0,
+	//	},
+	//}
+	//
+	//TestChainConfig    = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(1), big.NewInt(0), nil, new(EthashConfig), nil, nil,
+	//	&PoDCConfig{
+	//		Epoch:          30000,
+	//		ProposerPolicy: 0,
+	//	},
+	//}
+	//
+	//AllProtocolChanges = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(3), big.NewInt(3), TestNetMetropolisBlock, nil, nil, nil,
+	//	nil, 32,
+	//}
+	//
+	//TestChainConfig    = &ChainConfig{big.NewInt(2017), big.NewInt(1), nil, true, big.NewInt(2), common.Hash{}, big.NewInt(1), big.NewInt(0), nil, new(EthashConfig), nil, nil,
+	//	nil, 32,
+	//}
+	//
 	TestRules          = TestChainConfig.Rules(new(big.Int))
 )
 
@@ -194,12 +204,9 @@ type ChainConfig struct {
 	// Various consensus engines
 	Ethash   *EthashConfig   `json:"ethash,omitempty"`
 	Clique   *CliqueConfig   `json:"clique,omitempty"`
-	Istanbul *IstanbulConfig `json:"istanbul,omitempty"` // unmarked by yichoi
-
-	//PoDC     *PoDCConfig     `json:"PoDC,omitempty"`   //old working branch 대문자. //추후 지울것
-	//PoDC     *IstanbulConfig `json:"podc,omitempty"`     //temp for display from genesis.json
-	PoDC     *PoDCConfig     `json:"podc,omitempty"`   //tomorrow to do 소문자. 나중에 결정
-
+    Istanbul *IstanbulConfig `json:"istanbul,omitempty"`
+	PoDC     *PoDCConfig     `json:"podc,omitempty"`
+	MaxCodeSize       uint64 `json:"maxCodeSize"`		// yhheo
 
 }
 
@@ -261,7 +268,7 @@ func (c *ChainConfig) String() string {
 	default:
 		engine = "unknown"
 	}
-	return fmt.Sprintf("{ChainID: %v Homestead: %v DAO: %v DAOSupport: %v EIP150: %v EIP155: %v EIP158: %v Metropolis: %v Engine: %v}",
+	return fmt.Sprintf("{ChainID: %v Homestead: %v DAO: %v DAOSupport: %v EIP150: %v EIP155: %v EIP158: %v Metropolis: %v MaxCodeSize: %v Engine: %v}",
 		c.ChainId,
 		c.HomesteadBlock,
 		c.DAOForkBlock,
@@ -270,9 +277,19 @@ func (c *ChainConfig) String() string {
 		c.EIP155Block,
 		c.EIP158Block,
 		c.MetropolisBlock,
+		c.MaxCodeSize,		// yhheo
 		engine,
 	)
 }
+
+// yhheo - begin
+func (c *ChainConfig) IsValid() error {
+	if c.MaxCodeSize < 24 || c.MaxCodeSize > 128 {
+		return errors.New("Genesis max code size must be between 24 and 128")
+	}
+	return nil
+}
+// yhheo - end
 
 // IsHomestead returns whether num is either equal to the homestead block or greater.
 func (c *ChainConfig) IsHomestead(num *big.Int) bool {

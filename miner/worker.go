@@ -235,6 +235,7 @@ func (self *worker) unregister(agent Agent) {
 }
 
 func (self *worker) update() {
+	fmt.Printf("\nfunc (self *worker) update(\n")	// yhheo
 	for event := range self.events.Chan() {
 		// A real event arrived, process interesting content
 		switch ev := event.Data.(type) {
@@ -382,6 +383,7 @@ func (self *worker) makeCurrent(parent *types.Block, header *types.Header) error
 }
 
 func (self *worker) commitNewWork() {
+	fmt.Printf("\nfunc (self *worker) commitNewWork\n")		// yhheo
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	self.uncleMu.Lock()
@@ -575,6 +577,7 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 }
 
 func (env *Work) commitTransaction(tx *types.Transaction, bc *core.BlockChain, coinbase common.Address, gp *core.GasPool) (error, []*types.Log) {
+	fmt.Printf("\nfunc (env *Work) commitTransaction\n coinbase = %x\n gp = %v\n", coinbase, gp)		// yhheo
 	snap := env.state.Snapshot()
 
 	//fmt.Printf("Work - commitTransaction : coinbase = %x\n", coinbase)  // yhheo

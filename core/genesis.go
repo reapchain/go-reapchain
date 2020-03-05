@@ -127,7 +127,22 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 			//
 			log.Info( "display of genesis.config", "genesis.Config", genesis.Config)
 		}
-		block, err := genesis.Commit(db)  // Commit writes the block and state of a genesis specification to the database.
+
+		// yhheo - begin
+		// Set default contract size limit that can be deployed if not set in genesis
+		if genesis.Config.MaxCodeSize == 0 {
+			genesis.Config.MaxCodeSize = DefaultTxPoolConfig.MaxCodeSize
+		}
+		log.Info("genesis","Config.MaxCodeSize", genesis.Config.MaxCodeSize)
+
+		// Check max contract code size
+		err := genesis.Config.IsValid()
+		if err != nil {
+			return genesis.Config, common.Hash{}, err
+		}
+		// yhheo - end
+
+		block, err := genesis.Commit(db)
 		return genesis.Config, block.Hash(), err
 	}
 //============================================================

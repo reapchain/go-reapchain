@@ -100,12 +100,12 @@ type core struct {
 	consensusTimer goMetrics.Timer
 
 	tag podc.Tag
-	count int
+	count uint
 	racingFlag bool
 	racingMu *sync.Mutex
 	startTime time.Time
 	intervalTime time.Time
-	criteria float64
+	criteria float64   //Criteria 	int		`json:"criteria"` type.go에서는  int 로 받았다가, 여기서는 float64
 }
 // 최종 전송할 메시지를 만듦
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
