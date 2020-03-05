@@ -31,9 +31,9 @@ import (
 	//<<<<<<< HEAD:consensus/istanbul/core/qmanager.go
 	//"github.com/ethereum/go-ethereum/consensus/quantum"
 	//"github.com/ethereum/go-ethereum/consensus/istanbul"
-//=======
+	//=======
 	"github.com/ethereum/go-ethereum/consensus/podc"
-//>>>>>>> 5168e24579fcd6cba6750133d84555192893a19e:consensus/podc/core/qmanager.go
+	//>>>>>>> 5168e24579fcd6cba6750133d84555192893a19e:consensus/podc/core/qmanager.go
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/syndtr/goleveldb/leveldb"
@@ -61,127 +61,127 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 	if common.QManConnected{
 
 
-	//logger := c.logger.New("EXTRA DATA")
-	log.Info("EXTRA DATA REQUEST")
+		//logger := c.logger.New("EXTRA DATA")
+		log.Info("EXTRA DATA REQUEST")
 
 
-	//logger := c.logger.New()
-	//logger.Info("EXTRA DATA REQUEST")
-	//log.Debug("from", src)
-	log.Info("Requesting Source", "from", src)
+		//logger := c.logger.New()
+		//logger.Info("EXTRA DATA REQUEST")
+		//log.Debug("from", src)
+		log.Info("Requesting Source", "from", src)
 
 
-	//QManagerStorage, _ = leveldb.OpenFile("level", nil)
-	//db, err := leveldb.OpenFile("level", nil)
-	//if err != nil{
-	//	log.Info("DB ERROR", "err = ", err)
-	//}
-
-	//QManagerStorage, _ = leveldb.OpenFile("level", nil)
-
-
-
-	iter := common.QManagerStorage.NewIterator(nil, nil)
-	var extra []ValidatorInfo
-	var i = 0
-	flag := false
-
-	for iter.Next() {
-		// Remember that the contents of the returned slice should not be modified, and
-		// only valid until the next call to Next.
-		key := iter.Key()
-		value := iter.Value()
-		log.Info("KEY & Val", "key:", key, "value: ", value)
-		//var qNode qManagerNodes
-		//errs := json.Unmarshal(iter.Value(), &qNode)
-		//if errs != nil {
-		//	fmt.Println("error:", err)
+		//QManagerStorage, _ = leveldb.OpenFile("level", nil)
+		//db, err := leveldb.OpenFile("level", nil)
+		//if err != nil{
+		//	log.Info("DB ERROR", "err = ", err)
 		//}
-		//log.Debug("Data", "address:", qNode.address, "ID: ", qNode.ID)
-		var decodedBytes common.QManDBStruct
-		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
-		if err != nil {
-			fmt.Printf("Error: %v\n", err.Error())
-		} else {
-			fmt.Printf("Decoded value: %#v\n", decodedBytes)
-		}
 
-		decodedAddress := common.HexToAddress(decodedBytes.Address)
-		//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
-		var num uint64
+		//QManagerStorage, _ = leveldb.OpenFile("level", nil)
 
-		if fileExists("/Volumes/PSoC USB/" + "up.ini") {
-			quant := quantum.GenerateQrnd()
+
+
+		iter := common.QManagerStorage.NewIterator(nil, nil)
+		var extra []ValidatorInfo
+		var i = 0
+		flag := false
+
+		for iter.Next() {
+			// Remember that the contents of the returned slice should not be modified, and
+			// only valid until the next call to Next.
+			key := iter.Key()
+			value := iter.Value()
+			log.Info("KEY & Val", "key:", key, "value: ", value)
+			//var qNode qManagerNodes
+			//errs := json.Unmarshal(iter.Value(), &qNode)
+			//if errs != nil {
+			//	fmt.Println("error:", err)
+			//}
+			//log.Debug("Data", "address:", qNode.address, "ID: ", qNode.ID)
+			var decodedBytes common.QManDBStruct
+			err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
+			if err != nil {
+				fmt.Printf("Error: %v\n", err.Error())
+			} else {
+				fmt.Printf("Decoded value: %#v\n", decodedBytes)
+			}
+
+			decodedAddress := common.HexToAddress(decodedBytes.Address)
+			//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
+			var num uint64
+
+			if fileExists("/Volumes/PSoC USB/" + "up.ini") {
+				quant := quantum.GenerateQrnd()
+				//fmt.Println(quant)
+				num = binary.LittleEndian.Uint64(quant)
+				//fmt.Println(quant)
+				//fmt.Println(num)
+				log.Info("Qmanager", "Quantum Number", num)
+
+			} else {
+				num = rand.Uint64()
+				log.Info("Qmanager", "Pusedo Quantum Number", num)
+			}
+
+
+
+			//decodedAddress := common.HexToAddress(decodedBytes.Address)
+			//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
+
+			//quant := quantum.GenerateQrnd()
 			//fmt.Println(quant)
-			num = binary.LittleEndian.Uint64(quant)
-			//fmt.Println(quant)
+			//num := binary.LittleEndian.Uint64(quant)
 			//fmt.Println(num)
-			log.Info("Qmanager", "Quantum Number", num)
-
-		} else {
-			num = rand.Uint64()
-			log.Info("Qmanager", "Pusedo Quantum Number", num)
-		}
 
 
+			//validatorInfo := ValidatorInfo{}
+			//validatorInfo.Address = decodedAddress
+			//validatorInfo.Qrnd = num
 
-		//decodedAddress := common.HexToAddress(decodedBytes.Address)
-		//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
+			validatorInfo := ValidatorInfo{}
+			validatorInfo.Address = decodedAddress
+			validatorInfo.Qrnd = num
 
-		//quant := quantum.GenerateQrnd()
-		//fmt.Println(quant)
-		//num := binary.LittleEndian.Uint64(quant)
-		//fmt.Println(num)
+			//validatorInfo := ValidatorInfo{}
+			//validatorInfo.Address = common.HexToAddress(string(value))
+			//log.Info("Address Checking..", "Addr", common.HexToAddress(string(value)))
+			//validatorInfo.Qrnd = rand.Uint64()
 
-
-		//validatorInfo := ValidatorInfo{}
-		//validatorInfo.Address = decodedAddress
-		//validatorInfo.Qrnd = num
-
-		validatorInfo := ValidatorInfo{}
-		validatorInfo.Address = decodedAddress
-		validatorInfo.Qrnd = num
-
-		//validatorInfo := ValidatorInfo{}
-		//validatorInfo.Address = common.HexToAddress(string(value))
-		//log.Info("Address Checking..", "Addr", common.HexToAddress(string(value)))
-		//validatorInfo.Qrnd = rand.Uint64()
-
-		if i == 0 {
-			if !c.valSet.IsProposer(common.HexToAddress(string(value))) {
-				validatorInfo.Tag = podc.Coordinator
-			} else {
-				flag = true
-				validatorInfo.Tag = podc.Candidate
-			}
-		} else if i == 1 {
-			if flag {
-				validatorInfo.Tag = podc.Coordinator
+			if i == 0 {
+				if !c.valSet.IsProposer(common.HexToAddress(string(value))) {
+					validatorInfo.Tag = podc.Coordinator
+				} else {
+					flag = true
+					validatorInfo.Tag = podc.Candidate
+				}
+			} else if i == 1 {
+				if flag {
+					validatorInfo.Tag = podc.Coordinator
+				} else {
+					validatorInfo.Tag = podc.Candidate
+				}
 			} else {
 				validatorInfo.Tag = podc.Candidate
 			}
-		} else {
-			validatorInfo.Tag = podc.Candidate
+			extra = append(extra, validatorInfo)
+			i++
 		}
-		extra = append(extra, validatorInfo)
-		i++
-	}
 
-	log.Info("ExtraData list", "extradata", extra)
+		log.Info("ExtraData list", "extradata", extra)
 
-	//defer db.Close()
-	extraDataJson, err := json.Marshal(extra)
-	if err != nil {
-		log.Error("Failed to encode JSON", err)
-	}
+		//defer db.Close()
+		extraDataJson, err := json.Marshal(extra)
+		if err != nil {
+			log.Error("Failed to encode JSON", err)
+		}
 
-	c.send(&message{
-		Code: msgExtraDataSend,
-		Msg: extraDataJson,
-	}, src.Address())
-	// Decode commit message
-	//fmt.Println("EXTRA DATA HANDLE")
-	//fmt.Println(src)
+		c.send(&message{
+			Code: msgExtraDataSend,
+			Msg: extraDataJson,
+		}, src.Address())
+		// Decode commit message
+		//fmt.Println("EXTRA DATA HANDLE")
+		//fmt.Println(src)
 
 	}
 	return nil
