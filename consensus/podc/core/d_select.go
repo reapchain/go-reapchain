@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"os"
 
-	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
 	"math"
@@ -156,8 +155,7 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 		c.count = c.count + 1
 		log.Info("handling racing", "count", c.count)
 		log.Info("handling racing", "flag", c.racingFlag)
-                                     //Criteria = uint
-		if (c.count > config.Config.Consensus.Criteria) && !c.racingFlag {  //?  uint > uint
+		if c.count > uint(c.criteria) && !c.racingFlag {
 			log.Info("racing completed.", "count", c.count)
 			c.racingFlag = true
 			c.sendCandidateDecide()
