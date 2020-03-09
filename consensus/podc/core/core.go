@@ -175,6 +175,21 @@ func (c *core) broadcast(msg *message) {
 	}
 }
 
+func (c *core) multicast(msg *message, targets []common.Address) {
+	logger := c.logger.New("state", c.state)
+
+	payload, err := c.finalizeMessage(msg)
+	if err != nil {
+		logger.Error("Failed to finalize message", "msg", msg, "err", err)
+		return
+	}
+
+	if err = c.backend.Multicast(payload, targets); err != nil {
+		logger.Error("Failed to multicast message", "msg", msg, "err", err)
+		return
+	}
+}
+
 func (c *core) currentView() *podc.View {
 	return &podc.View{
 		Sequence: new(big.Int).Set(c.current.Sequence()),
@@ -249,7 +264,7 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 	// New snapshot for new round
 	c.current = newRoundState(newView, c.valSet)
 	// Calculate new proposer
-	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64())
+	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64(), c.qmanager)
 	c.waitingForRoundChange = false
 	//c.setState(StateAcceptRequest)
 	c.setState(StateRequestQman)  //added by yichoi for state of request and response of extra data to Qmanager
@@ -339,4 +354,16 @@ func (c *core) Tag() podc.Tag {
 
 func (c *core) SetTag(t podc.Tag) {
 	c.tag = t
+}
+
+func (c *core) GetValidatorListExceptQman() []common.Address {
+	var addrList []common.Address
+
+	for _, val := range c.valSet.List() {
+		if val.Address() != c.qmanager {
+			addrList = append(addrList, val.Address())
+		}
+	}
+
+	return addrList
 }

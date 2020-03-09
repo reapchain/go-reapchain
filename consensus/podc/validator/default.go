@@ -148,10 +148,10 @@ func (valSet *defaultSet) IsProposer(address common.Address) bool {
 	return reflect.DeepEqual(valSet.GetProposer(), val)
 }
 
-func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64) {
+func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64, qman common.Address) {
 	valSet.validatorMu.RLock()
 	defer valSet.validatorMu.RUnlock()
-	valSet.proposer = valSet.selector(valSet, lastProposer, round)
+	valSet.proposer = valSet.selector(valSet, lastProposer, round, qman)
 }
 
 func calcSeed(valSet podc.ValidatorSet, proposer common.Address, round uint64) uint64 {
@@ -166,7 +166,7 @@ func emptyAddress(addr common.Address) bool {
 	return addr == common.Address{}
 }
 
-func roundRobinProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64) podc.Validator {
+func roundRobinProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64, qman common.Address) podc.Validator {
 	if valSet.Size() == 0 {
 		return nil
 	}
@@ -177,10 +177,13 @@ func roundRobinProposer(valSet podc.ValidatorSet, proposer common.Address, round
 		seed = calcSeed(valSet, proposer, round) + 1
 	}
 	pick := seed % uint64(valSet.Size())
+	if valSet.GetByIndex(pick).Address() == qman {
+		return valSet.GetByIndex(pick + 1)
+	}
 	return valSet.GetByIndex(pick)
 }
 
-func stickyProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64) podc.Validator {
+func stickyProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64, qman common.Address) podc.Validator {
 	if valSet.Size() == 0 {
 		return nil
 	}
@@ -194,7 +197,7 @@ func stickyProposer(valSet podc.ValidatorSet, proposer common.Address, round uin
 	return valSet.GetByIndex(pick)
 }
 // begin : Quantum 난수데로 수정할 것,
-func qrfProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64) podc.Validator {
+func qrfProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64, qman common.Address) podc.Validator {
 	if valSet.Size() == 0 {
 		return nil
 	}

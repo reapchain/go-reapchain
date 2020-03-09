@@ -42,6 +42,9 @@ type Backend interface {
 	// Broadcast sends a message to all validators : 전체 노드에 보낼때, 기 정의된 Validator집합에..
 	Broadcast(valSet ValidatorSet, payload []byte) error
 
+	// Multicast sends a message to specific targets
+	Multicast(payload []byte, targets []common.Address) error
+
 	// Commit delivers an approved proposal to backend.
 	// The delivered proposal will be put into blockchain.
 	Commit(proposal Proposal, seals []byte) error

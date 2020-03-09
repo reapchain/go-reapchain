@@ -6,7 +6,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"os"
 
-	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
 	"math"
@@ -76,10 +75,10 @@ func (c *core) sendCoordinatorDecide() {
 		return
 	}
 
-	c.broadcast(&message{
+	c.multicast(&message{
 		Code: msgCoordinatorDecide,
 		Msg: encodedCoordinatorData,
-	})
+	}, c.GetValidatorListExceptQman())
 }
 
 func (c *core) sendRacing(addr common.Address) {
@@ -90,10 +89,10 @@ func (c *core) sendRacing(addr common.Address) {
 }
 
 func (c *core) sendCandidateDecide() {
-	c.broadcast(&message{
+	c.multicast(&message{
 		Code: msgCandidateDecide,
 		Msg: []byte("Candidate decide testing"),
-	})
+	}, c.GetValidatorListExceptQman())
 }
 
 func (c *core) handleSentExtraData(msg *message, src podc.Validator) error {
@@ -119,7 +118,6 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		log.Info("Decode Error")
 		return errFailedDecodePrepare
 	}
-	log.Info("get extradata display = ", "extraData", extraData)
 	nodename, err := os.Getwd()
 	if err != nil {
 		fmt.Printf("current nodename= %v , err=%v",  nodename, err)
@@ -132,7 +130,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 	if c.tag == podc.Coordinator {
 		log.Info("I am Coordinator!")
-		c.criteria = math.Floor((float64(len(extraData)) - 1) * 0.51)
+		c.criteria = math.Ceil((float64(len(extraData)) - 1) * 0.51)
 		log.Info("c.criteria=", "c.criteria", c.criteria )
 		c.sendCoordinatorDecide()
 	}
@@ -154,11 +152,7 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 	if c.tag == podc.Coordinator {
 
 		c.count = c.count + 1
-		log.Info("handling racing", "count", c.count)
-		log.Info("handling racing", "flag", c.racingFlag)
-                                     //Criteria = uint
-		if (c.count > config.Config.Consensus.Criteria) && !c.racingFlag {  //?  uint > uint
-			log.Info("racing completed.", "count", c.count)
+		if c.count > uint(c.criteria) && !c.racingFlag {
 			c.racingFlag = true
 			c.sendCandidateDecide()
 		}

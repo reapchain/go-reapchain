@@ -140,6 +140,20 @@ func (sb *simpleBackend) Broadcast(valSet podc.ValidatorSet, payload []byte) err
 	return nil
 }
 
+func (sb *simpleBackend) Multicast(payload []byte, targets []common.Address) error {
+	for _, addr := range targets {
+		if addr == sb.Address() {
+			msg := podc.MessageEvent{
+				Payload: payload,
+			}
+			go sb.podcEventMux.Post(msg)
+		} else {
+			sb.Send(payload, addr)
+		}
+	}
+	return nil
+}
+
 // Commit implements podc.Backend.Commit
 func (sb *simpleBackend) Commit(proposal podc.Proposal, seals []byte) error {
 	// Check if the proposal is a valid block
