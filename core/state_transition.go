@@ -131,7 +131,7 @@ func NewStateTransition(evm *vm.EVM, msg Message, gp *GasPool) *StateTransition 
 // indicates a core error meaning that the message would always fail for that particular
 // state and would never be accepted within a block.
 func ApplyMessage(evm *vm.EVM, msg Message, gp *GasPool) ([]byte, *big.Int, bool, error) {	// yhheo
-	fmt.Printf("\nfunc ApplyMessage\n GasPool = %v\n", gp)	// yhheo
+	//fmt.Printf("\nfunc ApplyMessage\n GasPool = %v\n", gp)	// yhheo
 	st := NewStateTransition(evm, msg, gp)
 
 	ret, _, gasUsed, failed, err := st.TransitionDb()	// yhheo
@@ -268,7 +268,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	if contractCreation {
 		if isGovernance || estimateGasMetering {		// yhheo
 			ret, _, st.gas, vmerr = evm.Create(sender, st.data, st.gas, st.value)
-			fmt.Printf(" evm.Create (st.gas) = %d\n", st.gas)		// yhheo
+			//fmt.Printf(" evm.Create (st.gas) = %d\n", st.gas)		// yhheo
 		} else {
 			log.Debug("no contract creation permissions", "sender", sender)
 			return nil, nil, nil, false, vm.ErrDeployPermissions	// yhheo
@@ -277,7 +277,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 		// Increment the nonce for the next transaction
 		st.state.SetNonce(sender.Address(), st.state.GetNonce(sender.Address())+1)
 		ret, st.gas, vmerr = evm.Call(sender, st.to().Address(), st.data, st.gas, st.value)
-		fmt.Printf(" evm.Call (st.gas) = %d\n", st.gas) // yhheo
+		//fmt.Printf(" evm.Call (st.gas) = %d\n", st.gas) // yhheo
 	}
 	if vmerr != nil {
 		log.Debug("VM returned with error", "err", vmerr)

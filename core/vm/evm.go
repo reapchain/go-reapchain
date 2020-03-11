@@ -17,7 +17,6 @@
 package vm
 
 import (
-	"fmt"	// yhheo
 	"math/big"
 	"sync/atomic"
 
@@ -277,7 +276,7 @@ func (evm *EVM) Create(caller ContractRef, code []byte, gas uint64, value *big.I
 	ret, err = run(evm, snapshot, contract, nil)
 
 	// yhheo - begin
-	fmt.Printf("len(ret) = %v\n params.MaxCodeSize = %v\n", len(ret), params.MaxCodeSize)
+	//fmt.Printf("len(ret) = %v\n params.MaxCodeSize = %v\n", len(ret), params.MaxCodeSize)
 	var maxCodeSize int
 	if evm.ChainConfig().MaxCodeSize > 0 {
 		maxCodeSize = int(evm.ChainConfig().MaxCodeSize * 1024)

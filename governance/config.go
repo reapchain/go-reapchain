@@ -61,7 +61,7 @@ func LoadKey(DataDir string, flag bool) {
 
 		governanceKey(gc)
 
-		log.Info("Initialised governance configuration", "gconfig", gc)
+		log.Debug("Initialised governance configuration", "gconfig", gc)
 	}
 }
 
@@ -69,13 +69,13 @@ func CheckPublicKey(pubkey []byte) bool {
 
     var isGovernance bool
 
-	fmt.Printf("\nfunc CheckPublicKey\n gc.Governance = %t\n", gc.Governance)
+	//fmt.Printf("\nfunc CheckPublicKey\n gc.Governance = %t\n", gc.Governance)
 
     if gc.Governance {
         pkHash := common.BytesToHash(pubkey)
-        fmt.Printf(" Tx.pubkey    = %x\n", pubkey)
-        fmt.Printf(" Tx.pkHash    = %x\n", pkHash)
-        fmt.Printf(" gc.PublicKey = %x\n", gc.PublicKey)
+        //fmt.Printf(" Tx.pubkey    = %x\n", pubkey)
+        //fmt.Printf(" Tx.pkHash    = %x\n", pkHash)
+        //fmt.Printf(" gc.PublicKey = %x\n", gc.PublicKey)
 
         governanceKey(gc)
 
@@ -84,7 +84,7 @@ func CheckPublicKey(pubkey []byte) bool {
         isGovernance = false
     }
 
-    fmt.Println(" isGovernance =", isGovernance)
+	log.Debug("CheckPublicKey", "isGovernance", isGovernance)
 
     return isGovernance
 }

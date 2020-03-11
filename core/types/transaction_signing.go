@@ -106,10 +106,10 @@ func TxChecking(signer Signer, tx *Transaction) {
     pubkey, err := signer.PublicKey(tx)
     if err == nil {
         tx.data.Governance = gvn.CheckPublicKey(pubkey)
-		fmt.Printf("\nfunc TxChecking\n tx.data.Governance = %t\n", tx.data.Governance)
+		//fmt.Printf("\nfunc TxChecking\n tx.data.Governance = %t\n", tx.data.Governance)
 	} else {
 		tx.data.Governance = false
-		fmt.Printf("\nfunc TxChecking\n tx.data.Governance = %t\n err = %v\n", tx.data.Governance, err)
+		//fmt.Printf("\nfunc TxChecking\n tx.data.Governance = %t\n err = %v\n", tx.data.Governance, err)
     }
 }
 // yhheo - end

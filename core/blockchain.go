@@ -873,7 +873,7 @@ func (bc *BlockChain) WriteBlock(block *types.Block) (status WriteStatus, err er
 // InsertChain will attempt to insert the given chain in to the canonical chain or, otherwise, create a fork. If an error is returned
 // it will return the index number of the failing block as well an error describing what went wrong (for possible errors see core/errors.go).
 func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
-	fmt.Printf("\nfunc (bc *BlockChain) InsertChain\n")	// yhheo
+	//fmt.Printf("\nfunc (bc *BlockChain) InsertChain\n")	// yhheo
 	// Do a sanity check that the provided chain is actually ordered and linked
 	for i := 1; i < len(chain); i++ {
 		if chain[i].NumberU64() != chain[i-1].NumberU64()+1 || chain[i].ParentHash() != chain[i-1].Hash() {

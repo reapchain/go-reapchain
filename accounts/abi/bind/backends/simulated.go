@@ -70,7 +70,7 @@ func NewSimulatedBackend(alloc core.GenesisAlloc) *SimulatedBackend {
 // Commit imports all the pending transactions as a single block and starts a
 // fresh new state.
 func (b *SimulatedBackend) Commit() {
-	fmt.Printf("\nunc (b *SimulatedBackend) Commit\n")	// yhheo
+	fmt.Printf("\nfunc (b *SimulatedBackend) Commit\n")	// yhheo
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
