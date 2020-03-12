@@ -25,6 +25,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/params"
+	"github.com/ethereum/go-ethereum/log"	// yhheo
 )
 
 // BlockValidator is responsible for validating block headers, uncles and
@@ -136,6 +137,6 @@ func CalcGasLimit(parent *types.Block) *big.Int {
 		gl.Add(parent.GasLimit(), decay)
 		gl.Set(math.BigMin(gl, params.TargetGasLimit))
 	}
-	fmt.Printf("Block Gas Limit : %v\n", gl)	// yhheo
+	log.Debug("Block Gas Limit", "gas", gl)	// yhheo
 	return gl
 }

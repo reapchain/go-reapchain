@@ -383,7 +383,6 @@ func (self *worker) makeCurrent(parent *types.Block, header *types.Header) error
 }
 
 func (self *worker) commitNewWork() {
-	//fmt.Printf("\nfunc (self *worker) commitNewWork\n")		// yhheo
 	self.mu.Lock()
 	defer self.mu.Unlock()
 	self.uncleMu.Lock()
@@ -417,8 +416,7 @@ func (self *worker) commitNewWork() {
 	// Only set the coinbase if we are mining (avoid spurious block rewards)
 	if atomic.LoadInt32(&self.mining) == 1 {
 		header.Coinbase = self.coinbase
-		//fmt.Printf("worker - commitNewWork : self.coinbase   = %x\n", self.coinbase)    // yhheo
-		//fmt.Printf("worker - commitNewWork : header.Coinbase = %x\n", header.Coinbase)  // yhheo
+		//fmt.Printf("worker - commitNewWork : header.Coinbase = %x\n self.coinbase = %x\n", header.Coinbase, self.coinbase)  // yhheo
 	}
 	if err := self.engine.Prepare(self.chain, header); err != nil {
 		log.Error("Failed to prepare header for mining by yichoi ", "err", err)
