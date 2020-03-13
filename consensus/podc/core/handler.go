@@ -60,7 +60,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 
 	// Start a new round from last sequence + 1
 	start :=time.Now()
-	log.Info("start time of consensus of core engine start()", start )
+	log.Info("start time of consensus of core engine start()", "start time", start )
 	c.startNewRound(&podc.View{
 		Sequence: new(big.Int).Add(lastSequence, common.Big1),
 		Round:    common.Big0,
