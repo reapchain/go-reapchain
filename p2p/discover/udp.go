@@ -23,6 +23,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/qManager"
 	"net"
 	"time"
 
@@ -150,10 +151,12 @@ type (
 		TCP uint16 // for RLPx protocol
 	}
 
-	QManDBStruct struct {
-		ID   string
-		Address string
-	}
+//QManDBStruct struct {
+	//	ID      NodeID
+	//	PubKey  *ecdsa.PublicKey
+	//	Address  common.Address
+	//	QRND uint64
+	//}
 )
 
 
@@ -699,20 +702,12 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			t.send(from, neighborsPacket, &p)
 			p.Nodes = p.Nodes[:0]
 
-
-
 		}
 	}
 
 	if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
-		//HexToNodeID, _ := HexID(common.QManagerNodeIDStr)
-		//if fromID == HexToNodeID {
-		//	common.QManagerAddress = from
-		//	common.QManReady = true
-		//}
 
-
-		if !common.BootNodeReady{
+		if !qManager.BootNodeReady{
 			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 			fmt.Println("Bootnode Requesting")
 
@@ -720,133 +715,21 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			t.send(from , requestQmanPacket, &ps)
 		}
 
-
-
-
 	}
 
-	if common.BootNodeReady {
+	if qManager.BootNodeReady {
 		ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		fmt.Println("BOOTNODE SEND DATA")
 		fmt.Println(from, fromID)
 
-		//QmanAddress := common.QManagerAddress
-		//p := &QmanAddress
-
-		t.send(common.QManagerAddress , qmanagerPacket, &ps)
-		//}
+		t.send(qManager.QManagerAddress , qmanagerPacket, &ps)
 	}
-
-
-
-	//if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
-	//	HexToNodeID, _ := HexID(common.BootNodeQManAddr)
-	//	if fromID == HexToNodeID{
-	//		common.QManagerAddress = from
-	//		common.QManReady = true
-	//	}
-		//
-		//common.BootNodeAddress  = t.conn.LocalAddr().(*net.UDPAddr)
-		//if !common.BootNodeReady {
-		//	bnp := bootNodePacket{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix(),)}
-		//	t.send(common.BootNodeAddress , bootnodePacket, &bnp)
-		//	common.BootNodeReady = true
-		//}
-		//fmt.Println(HexToNodeID)
-		//fmt.Println(common.QManagerNodeIDStr)
 
 	return nil
 }
 
-func FindNode(nodeId string) (found bool) {
-	//QManagerStorage, err = leveldb.OpenFile("level", nil)
-
-	//var data []byte
-	node_id_encoded,_ := rlp.EncodeToBytes(nodeId)
-	//log.Info("FIND ID", "bootnode = ", nodeId)
-	//log.Info("Encoded ID", "rlp = ", node_id_encoded)
-
-	found_value := common.Find(node_id_encoded)
-
-	return found_value
-}
 
 
-func (n QManDBStruct) Save() (saved bool) {
-	//QManagerStorage, err = leveldb.OpenFile("level", nil)
-	//var data bytes.Buffer
-	//enc := gob.NewEncoder(&data)
-	//enc.Encode(*n)
-
-	//reqBodyBytes := new(bytes.Buffer)
-	//json.NewEncoder(reqBodyBytes).Encode(n)
-	//fmt.Println("JSON BYTES")
-	//fmt.Println(reqBodyBytes.Bytes())
-	//address_bytes := []byte(n.address.String())
-	//fmt.Println(address_bytes)
-
-	encodedID,_ := rlp.EncodeToBytes(n.ID)
-	//node_details_encoded,_ := rlp.EncodeToBytes(n)
-	//var t *QManDBStruct
-	//t = &n
-	//bytess, _ := rlp.EncodeToBytes(t)
-	//fmt.Printf("%v → %X\n", t, bytess)
-
-	var encodedStruct *QManDBStruct // t is nil pointer to MyCoolType
-	initBytes, _ := rlp.EncodeToBytes(encodedStruct)
-	//fmt.Printf("%v → %X\n", encodedStruct, bytess)
-
-	encodedStruct = &QManDBStruct{ID: n.ID, Address: n.Address}
-	initBytes, _ = rlp.EncodeToBytes(encodedStruct)
-	//fmt.Printf("%v → %X\n", encodedStruct, bytess)
-
-
-	//var s QManDBStruct
-	//err := rlp.Decode(bytes, &s)
-	//if err != nil {
-	//	fmt.Printf("Error: %v\n", err)
-	//} else {
-	//	fmt.Printf("Decoded value: %#v\n", s)
-	//}
-	//
-	//var valueDecoded QManDBStruct
-	//value_decode_err := rlp.DecodeBytes(node_details_encoded, &valueDecoded)
-	//if value_decode_err != nil{
-	//	log.Info("Val Decode Error", "value: ", value_decode_err)
-	//}
-
-	//
-	//input, _ := hex.DecodeString("C90A1486666F6F626172")
-	//
-	//type example struct {
-	//	A, B   uint
-	//	String string
-	//}
-
-
-
-
-
-
-	//log.Info("VALUE", "value: ", valueDecoded)
-
-	saved = common.Save(encodedID, initBytes)
-	if !saved {
-		return false
-	}
-	//defer QManagerStorage.Close()
-	//iter := QManagerStorage.NewIterator(nil, nil)
-	//for iter.Next() {
-	//	// Remember that the contents of the returned slice should not be modified, and
-	//	// only valid until the next call to Next.
-	//	key := iter.Key()
-	//	value := iter.Value()
-	//	fmt.Println(key, qManagerNodes(value))
-	//
-	//}
-
-	return true
-}
 func (req *findnode) name() string { return "FINDNODE/v4" }
 
 func (req *neighbors) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
@@ -871,25 +754,14 @@ func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	if expired(req.Expiration) {
 		return errExpired
 	}
-	//if !t.handleReply(fromID, neighborsPacket, req) {
-	//	return errUnsolicitedReply
-	//}
-
-	//fmt.Println(fromID)
-	//fmt.Println("BOOTNODE SYSTEM:" + string(t.conn.LocalAddr().(*net.UDPAddr).Port))
-	//fmt.Println()
-
+	
 	node_pubKey, _ := req.Node.Pubkey()
 	pubBytes := crypto.FromECDSAPub(node_pubKey)
 	qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
+	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	//fmt.Println(qManagerNodeAddress)
-
-	//hexCommonAddress := qManagerNodeAddress.String()
-	//fmt.Println(hexCommonAddress)
-	qNode := QManDBStruct{req.Node.String(), qManagerNodeAddress.String()}
-
-	nodeFound := FindNode(req.Node.String())
+	qNode := qManager.QManDBStruct{req.Node.String(), qManagerNodeAddress.String(), timestamp }
+	nodeFound := qManager.FindNode(req.Node.String())
 
 	if !nodeFound {
 		log.Info("Qmanager New Entry", "ID = ", req.Node)
@@ -914,7 +786,7 @@ func (req *requestQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 		return errExpired
 	}
 
-	if common.QManConnected {
+	if qManager.QManConnected {
 		fmt.Println("Qman Sending Address")
 		ps := receiveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		fmt.Println(fromID)
@@ -941,8 +813,8 @@ func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 		//fmt.Println(fromID)
 		//t.send(from , recieveQmanPacket, &ps)
 
-		common.QManagerAddress = from
-		common.BootNodeReady = true
+		qManager.QManagerAddress = from
+		qManager.BootNodeReady = true
 
 
 	}
