@@ -504,6 +504,11 @@ web3._extend({
 			name: 'deriveAccount',
 			call: 'personal_deriveAccount',
 			params: 3
+		}),
+		new web3._extend.Method({	// yhheo
+			name: 'pubkeyHash',
+			call: 'personal_pubkeyHash',
+			params: 2
 		})
 	],
 	properties:
