@@ -186,6 +186,11 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleExtraData(msg, src))
 	case msgExtraDataSend:
 		return testBacklog(c.handleSentExtraData(msg, src))
+	case msgCoordinatorConfirmRequest:
+		return testBacklog(c.CoordinatorConfirmation(msg, src))
+	case msgCoordinatorConfirmSend:
+		return testBacklog(c.handleCoordinatorConfirm(msg, src))
+
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}

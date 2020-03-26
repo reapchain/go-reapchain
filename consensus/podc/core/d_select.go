@@ -1,6 +1,7 @@
 package core
 
 import (
+	"encoding/binary"
 	"encoding/json"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
@@ -12,6 +13,8 @@ import (
 	"math/rand"
 	"time"
 )
+
+var ExtraDataLength int
 
 type ValidatorInfo struct {
 	Address common.Address
@@ -88,6 +91,7 @@ func (c *core) sendRacing(addr common.Address) {
 	}, addr)
 }
 
+
 func (c *core) sendCandidateDecide() {
 	c.multicast(&message{
 		Code: msgCandidateDecide,
@@ -122,19 +126,44 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	if err != nil {
 		fmt.Printf("current nodename= %v , err=%v",  nodename, err)
 	}
+
+	var QRND uint64
 	for _, v := range extraData {
 		if v.Address == c.address {
 			c.tag = v.Tag
+			QRND = v.Qrnd
 		}
 	}
 
 
 	if c.tag == podc.Coordinator {
+
+		QRNDArray := make([]byte, 8)
+		binary.LittleEndian.PutUint64(QRNDArray, QRND)
+
+		ExtraDataLength = len(extraData)
+
+		c.send(&message{
+			Code: msgCoordinatorConfirmRequest,
+			Msg: QRNDArray,
+		}, c.qmanager)
+
+
+		//log.Info("I am Coordinator!")
+		//c.criteria = math.Ceil((float64(len(extraData)) - 1) * 0.51)
+		//log.Info("c.criteria=", "c.criteria", c.criteria )
+		//c.sendCoordinatorDecide()
+	}
+
+	return nil
+}
+
+func (c *core) handleCoordinatorConfirm(msg *message, src podc.Validator) error {
+
 		log.Info("I am Coordinator!")
-		c.criteria = math.Ceil((float64(len(extraData)) - 1) * 0.51)
+		c.criteria = math.Ceil((float64(ExtraDataLength) - 1) * 0.51)
 		log.Info("c.criteria=", "c.criteria", c.criteria )
 		c.sendCoordinatorDecide()
-	}
 
 	return nil
 }

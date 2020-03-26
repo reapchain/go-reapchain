@@ -18,6 +18,7 @@ package core
 
 import (
 	"bytes"
+	"encoding/binary"
 
 	//"encoding/binary"
 	"github.com/ethereum/go-ethereum/common"
@@ -176,13 +177,30 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 }
 
 func (c *core) CoordinatorConfirmation(msg *message, src podc.Validator) error {
-	//logger := c.logger.New("EXTRA DATA")
-	log.Trace("EXTRA DATA SENT DATA")
-	//logger := c.logger.New()
-	//logger.Info("EXTRA DATA REQUEST")
-	//log.Debug("from", src)
-	log.Debug("Requesting Source", "from", src)
-	log.Debug("ExtraDataMessage", "from", msg)
+	////logger := c.logger.New("EXTRA DATA")
+	//log.Trace("EXTRA DATA SENT DATA")
+	////logger := c.logger.New()
+	////logger.Info("EXTRA DATA REQUEST")
+	////log.Debug("from", src)
+	//log.Debug("Requesting Source", "from", src)
+	//log.Debug("ExtraDataMessage", "from", msg)
+
+	CoordiQRND := binary.LittleEndian.Uint64(msg.Msg)
+
+	if CoordiQRND%uint64(Divisor) == 0 {
+		log.Info("QManager", "Coordinator Confirm Status: ", true)
+
+		c.send(&message{
+			Code: msgCoordinatorConfirmSend,
+			Msg: []byte("Coordinator Confirmed"),
+		}, src.Address())
+
+	} else{
+		log.Info("QManager Error", "Coordinator Confirm Status: ", false)
+	}
+
+
+
 	return nil
 }
 
