@@ -128,6 +128,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		}
 	}
 
+
 	if c.tag == podc.Coordinator {
 		log.Info("I am Coordinator!")
 		c.criteria = math.Ceil((float64(len(extraData)) - 1) * 0.51)

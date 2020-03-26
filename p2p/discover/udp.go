@@ -662,10 +662,6 @@ func (req *pong) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) er
 	}
 
 
-
-
-
-
 	return nil
 }
 
