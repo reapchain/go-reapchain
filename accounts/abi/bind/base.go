@@ -99,6 +99,7 @@ func DeployContract(opts *TransactOpts, abi abi.ABI, bytecode []byte, backend Co
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
 func (c *BoundContract) Call(opts *CallOpts, result interface{}, method string, params ...interface{}) error {
+	fmt.Printf("\nfunc (c *BoundContract) Call\n opts = %v\n result = %v\n method = %v\n params = %v\n", opts, result, method, params)	// yhheo
 	// Don't crash on a lazy user
 	if opts == nil {
 		opts = new(CallOpts)

@@ -499,6 +499,27 @@ func (s *PrivateAccountAPI) EcRecover(ctx context.Context, data, sig hexutil.Byt
 	return recoveredAddr, nil
 }
 
+// yhheo - start
+func (s *PrivateAccountAPI) PubkeyHash(ctx context.Context, data, sig hexutil.Bytes) (common.Hash, error) {
+	if len(sig) != 65 {
+		return common.Hash{}, fmt.Errorf("signature must be 65 bytes long")
+	}
+	if sig[64] != 27 && sig[64] != 28 {
+		return common.Hash{}, fmt.Errorf("invalid Ethereum signature (V is not 27 or 28)")
+	}
+	sig[64] -= 27 // Transform yellow paper V from 27/28 to 0/1
+
+	rpk, err := crypto.Ecrecover(signHash(data), sig)
+	if err != nil {
+		return common.Hash{}, err
+	}
+	pubKey := crypto.ToECDSAPub(rpk)
+	pubBytes := crypto.FromECDSAPub(pubKey)
+	pkHash := common.BytesToHash(pubBytes)
+	return pkHash, nil
+}
+// yhheo - end
+
 // SignAndSendTransaction was renamed to SendTransaction. This method is deprecated
 // and will be removed in the future. It primary goal is to give clients time to update.
 func (s *PrivateAccountAPI) SignAndSendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {

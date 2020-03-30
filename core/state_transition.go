@@ -324,7 +324,7 @@ func (st *StateTransition) refundGas() {
 	isCoinTransfer := st.coinTransfer()
 	var remaining	*big.Int
     if !isGovernance && !isCoinTransfer {
-		remaining = st.calcFee(new(big.Int).SetUint64(st.gas)) // new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
+		remaining = new(big.Int).Mul(new(big.Int).SetUint64(st.gas), big.NewInt(params.Gasfee)) // new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
 		st.state.AddBalance(sender.Address(), remaining)
 		fmt.Printf(" remaining = %d\n st.gas = %d\n", remaining, st.gas)
 		//fmt.Printf("2. from = %x\n GetBalance = %x\n", sender.Address(), st.state.GetBalance(sender.Address()))
