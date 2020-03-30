@@ -26,7 +26,7 @@ import (
 	"strings"
 	"sync"
 	"syscall"
-	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/qManager"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/ethdb"
@@ -257,18 +257,10 @@ func (n *Node) Start() error {
 
 
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
-	////fmt.Printf("QmanEnode=%v\n",QmanEnode )
-	//crypto.PublicKeyBytesToAddress(QmanEnode)
-
-	common.QManagerNodeIDStr = QmanEnode.String()
 
 	if n.server.Self().ID == QmanEnode{
-		common.ConnectDB()
-		common.QManConnected = true
-
-		//QmanAddress := net.UDPAddr{IP: n.server.Self().IP, Port: int(n.server.Self().UDP)}
-		//p := &QmanAddress
-		//common.QManagerAddress = *p
+		qManager.ConnectDB()
+		qManager.QManConnected = true
 
 	}
 

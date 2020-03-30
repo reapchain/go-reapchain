@@ -19,31 +19,27 @@ package core
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/ethereum/go-ethereum/consensus/quantum"
-	"os"
 
 	//"encoding/binary"
-	"encoding/json"
-	"fmt"
 	"github.com/ethereum/go-ethereum/common"
-	"math/rand"
-
-	//<<<<<<< HEAD:consensus/istanbul/core/qmanager.go
 	//"github.com/ethereum/go-ethereum/consensus/quantum"
-	//"github.com/ethereum/go-ethereum/consensus/istanbul"
-	//=======
+	"os"
+	"encoding/json"
+	"github.com/ethereum/go-ethereum/qManager"
+	"math/rand"
 	"github.com/ethereum/go-ethereum/consensus/podc"
-	//>>>>>>> 5168e24579fcd6cba6750133d84555192893a19e:consensus/podc/core/qmanager.go
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/syndtr/goleveldb/leveldb"
-	//"math/rand"
+	"time"
 )
-//const NodeIDBits = 512
 
 var (
 
 	QManagerStorage *leveldb.DB
+	Counter int
+	Divisor int
+
 )
 /*
 type {
@@ -56,115 +52,108 @@ type {
 	}
 
 */
+func generateExtraData() []ValidatorInfo{
 
-func (c *core) handleExtraData(msg *message, src podc.Validator) error {
-	if common.QManConnected{
+	iter := qManager.QManagerStorage.NewIterator(nil, nil)
+	var extra []ValidatorInfo
+	//var i = 0
+	//flag := false
 
+	for iter.Next() {
+		//key := iter.Key()
+		value := iter.Value()
+		//log.Info("KEY & Val", "key:", key, "value: ", value)
 
-		//logger := c.logger.New("EXTRA DATA")
-		log.Info("EXTRA DATA REQUEST")
+		var decodedBytes qManager.QManDBStruct
+		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
+		if err != nil {
+			log.Info("Qmanager", "Decoding Error", err.Error())
 
+		}
 
-		//logger := c.logger.New()
-		//logger.Info("EXTRA DATA REQUEST")
-		//log.Debug("from", src)
-		log.Info("Requesting Source", "from", src)
+		decodedAddress :=  common.HexToAddress(decodedBytes.Address)
+		//log.Info("Qmanager", "Address", decodedAddress)
 
+		var num uint64
 
-		//QManagerStorage, _ = leveldb.OpenFile("level", nil)
-		//db, err := leveldb.OpenFile("level", nil)
-		//if err != nil{
-		//	log.Info("DB ERROR", "err = ", err)
-		//}
-
-		//QManagerStorage, _ = leveldb.OpenFile("level", nil)
-
-
-
-		iter := common.QManagerStorage.NewIterator(nil, nil)
-		var extra []ValidatorInfo
-		var i = 0
-		flag := false
-
-		for iter.Next() {
-			// Remember that the contents of the returned slice should not be modified, and
-			// only valid until the next call to Next.
-			key := iter.Key()
-			value := iter.Value()
-			log.Info("KEY & Val", "key:", key, "value: ", value)
-			//var qNode qManagerNodes
-			//errs := json.Unmarshal(iter.Value(), &qNode)
-			//if errs != nil {
-			//	fmt.Println("error:", err)
-			//}
-			//log.Debug("Data", "address:", qNode.address, "ID: ", qNode.ID)
-			var decodedBytes common.QManDBStruct
-			err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
-			if err != nil {
-				fmt.Printf("Error: %v\n", err.Error())
-			} else {
-				fmt.Printf("Decoded value: %#v\n", decodedBytes)
-			}
-
-			decodedAddress := common.HexToAddress(decodedBytes.Address)
-			//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
-			var num uint64
-
-			if fileExists("/Volumes/PSoC USB/" + "up.ini") {
-				quant := quantum.GenerateQrnd()
-				//fmt.Println(quant)
-				num = binary.LittleEndian.Uint64(quant)
-				//fmt.Println(quant)
-				//fmt.Println(num)
-				log.Info("Qmanager", "Quantum Number", num)
-
-			} else {
-				num = rand.Uint64()
-				log.Info("Qmanager", "Pusedo Quantum Number", num)
-			}
-
-
-
-			//decodedAddress := common.HexToAddress(decodedBytes.Address)
-			//decodedNodeID,_ := discover.HexID(decodedBytes.ID)
-
+		if qManager.QRNDDeviceStat == true{
+			rand.Seed(time.Now().UnixNano())
+			randomIndex := rand.Intn(12280)
+			num = qManager.RandomNumbers[randomIndex]
 			//quant := quantum.GenerateQrnd()
-			//fmt.Println(quant)
-			//num := binary.LittleEndian.Uint64(quant)
-			//fmt.Println(num)
+			////fmt.Println(quant)
+			//num = binary.LittleEndian.Uint64(quant)
+			////fmt.Println(quant)
+			////fmt.Println(num)
+			//log.Info("Qmanager", "Quantum Number", num)
 
+		} else {
+			num = rand.Uint64()
+			//log.Info("Qmanager", "Pusedo Quantum Number", num)
+		}
 
-			//validatorInfo := ValidatorInfo{}
-			//validatorInfo.Address = decodedAddress
-			//validatorInfo.Qrnd = num
+		validatorInfo := ValidatorInfo{}
+		validatorInfo.Address = decodedAddress
+		validatorInfo.Qrnd = num
+		validatorInfo.Tag = podc.Candidate
 
-			validatorInfo := ValidatorInfo{}
-			validatorInfo.Address = decodedAddress
-			validatorInfo.Qrnd = num
+		//if i == 0 {
+		//	if !c.valSet.IsProposer( decodedAddress) {
+		//		validatorInfo.Tag = podc.Coordinator
+		//	} else {
+		//		flag = true
+		//		validatorInfo.Tag = podc.Candidate
+		//	}
+		//} else if i == 1 {
+		//	if flag {
+		//		validatorInfo.Tag = podc.Coordinator
+		//	} else {
+		//		validatorInfo.Tag = podc.Candidate
+		//	}
+		//} else {
+		//	validatorInfo.Tag = podc.Candidate
+		//}
+		extra = append(extra, validatorInfo)
+		//i++
+	}
 
-			//validatorInfo := ValidatorInfo{}
-			//validatorInfo.Address = common.HexToAddress(string(value))
-			//log.Info("Address Checking..", "Addr", common.HexToAddress(string(value)))
-			//validatorInfo.Qrnd = rand.Uint64()
+	return extra
 
-			if i == 0 {
-				if !c.valSet.IsProposer(common.HexToAddress(string(value))) {
-					validatorInfo.Tag = podc.Coordinator
-				} else {
-					flag = true
-					validatorInfo.Tag = podc.Candidate
+}
+func (c *core) handleExtraData(msg *message, src podc.Validator) error {
+	if qManager.QManConnected{
+
+		log.Info("EXTRA DATA REQUEST")
+		//log.Info("Requesting Source", "from", src)
+		Counter = Counter + 1
+		log.Info("Round", "Count: ", Counter)
+
+		var extra []ValidatorInfo
+		for {
+			extra = generateExtraData()
+			completed := false
+			divisor := rand.Intn(50) + 1
+
+			index := 0
+			for index < len(extra) {
+
+				if !c.valSet.IsProposer( extra[index].Address) && c.qmanager != extra[index].Address {
+					randomNumber := extra[index].Qrnd
+					if randomNumber%uint64(divisor) == 0 {
+						//log.Info("COORDINATOR", "Random Divisor", divisor)
+						//log.Info("COORDINATOR", "Random Number", randomNumber)
+						extra[index].Tag = podc.Coordinator
+						log.Info("Qmanager", "Random Coordinator Selected", extra[index].Address.String())
+						index = len(extra)
+						completed = true
+						Divisor = divisor
+					}
 				}
-			} else if i == 1 {
-				if flag {
-					validatorInfo.Tag = podc.Coordinator
-				} else {
-					validatorInfo.Tag = podc.Candidate
-				}
-			} else {
-				validatorInfo.Tag = podc.Candidate
+				index++
 			}
-			extra = append(extra, validatorInfo)
-			i++
+			if completed{
+				break
+			}
 		}
 
 		log.Info("ExtraData list", "extradata", extra)
@@ -187,18 +176,28 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 	return nil
 }
 
-func (c *core) handleSentData(msg *message, src podc.Validator) error {
-	//logger := c.logger.New("EXTRA DATA")
-	log.Trace("EXTRA DATA SENT DATA")
+func (c *core) CoordinatorConfirmation(msg *message, src podc.Validator) error {
+	////logger := c.logger.New("EXTRA DATA")
+	//log.Trace("EXTRA DATA SENT DATA")
+	////logger := c.logger.New()
+	////logger.Info("EXTRA DATA REQUEST")
+	////log.Debug("from", src)
+	//log.Debug("Requesting Source", "from", src)
+	//log.Debug("ExtraDataMessage", "from", msg)
 
+	CoordiQRND := binary.LittleEndian.Uint64(msg.Msg)
 
-	//logger := c.logger.New()
-	//logger.Info("EXTRA DATA REQUEST")
-	//log.Debug("from", src)
-	log.Debug("Requesting Source", "from", src)
-	log.Debug("ExtraDataMessage", "from", msg)
+	if CoordiQRND%uint64(Divisor) == 0 {
+		log.Info("QManager", "Coordinator Confirm Status: ", true)
 
+		c.send(&message{
+			Code: msgCoordinatorConfirmSend,
+			Msg: []byte("Coordinator Confirmed"),
+		}, src.Address())
 
+	} else{
+		log.Info("QManager Error", "Coordinator Confirm Status: ", false)
+	}
 
 
 

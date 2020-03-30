@@ -120,6 +120,9 @@ const (
 	msgExtraDataRequest
 	msgExtraDataSend
 
+	msgCoordinatorConfirmRequest
+	msgCoordinatorConfirmSend
+
 //=======
 /*	msgRequestQman        // send a request to Qmanager in order to get ExtraDATA
 	msgReceivedFromQman   // When receive a message from Qmanager, msg is ExtraData

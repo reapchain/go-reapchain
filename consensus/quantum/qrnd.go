@@ -57,21 +57,22 @@ func GenerateQrnd() []byte  {
 			ioldIndex = buffer[0]
 
 			if len(buffer) > 0 {
-				for j := 1; j <= bufferSize-1; j++ {
-					fmt.Printf("[0x%02x]", buffer[j])
-				}
-				fmt.Println()
+				//for j := 1; j <= bufferSize-1; j++ {
+				//	fmt.Printf("[0x%02x]", buffer[j])
+				//}
+				//fmt.Println()
 
 				writeDnFile(buffer[0])
 
-				Qrnddata = buffer[1:] //?  //slice to slice data exchange
+				Qrnddata = buffer //?  //slice to slice data exchange
 
-				break
+
 			} else {
 				time.Sleep(1 * time.Second)
 			}
 
-			fmt.Println(fmt.Sprintf("INDEX: %d", ioldIndex))
+			//fmt.Println(fmt.Sprintf("INDEX: %d", ioldIndex))
+			break
 		}
 	}
 
