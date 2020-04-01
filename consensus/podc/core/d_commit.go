@@ -28,6 +28,10 @@ func (c *core) sendDCommit() {
 	logger := c.logger.New("state", c.state)
 
 	sub := c.current.Subject()
+	if sub == nil {
+		logger.Error("Failed to get Subject")
+		return
+	}
 	encodedSubject, err := Encode(sub)
 	if err != nil {
 		logger.Error("Failed to encode", "subject", sub)
