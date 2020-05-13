@@ -42,3 +42,4 @@ config/config.toml
 /.idea/
 /istanbul-tools/
 /build/int_geth/
+.DS_Store
