@@ -92,7 +92,7 @@ var (
 	errCancelHeaderProcessing  = errors.New("header processing canceled (requested)")
 	errCancelContentProcessing = errors.New("content processing canceled (requested)")
 	errNoSyncActive            = errors.New("no sync active")
-	errTooOld                  = errors.New("peer doesn't speak recent enough protocol version (need version >= 62)")
+	errTooOld                  = errors.New("peer doesn't speak recent enough protocol version (need version >= 62)")  //error in adding as external validators.
 )
 
 type Downloader struct {
@@ -291,7 +291,7 @@ func (d *Downloader) Synchronise(id string, head common.Hash, td *big.Int, mode 
 	case errBusy:
 
 	case errTimeout, errBadPeer, errStallingPeer,
-		errEmptyHeaderSet, errPeersUnavailable, errTooOld,
+		errEmptyHeaderSet, errPeersUnavailable, errTooOld,  //?
 		errInvalidAncestor, errInvalidChain:
 		log.Warn("Synchronisation failed, dropping peer", "peer", id, "err", err)
 		d.dropPeer(id)
@@ -379,9 +379,19 @@ func (d *Downloader) syncWithPeer(p *peer, hash common.Hash, td *big.Int) (err e
 			d.mux.Post(DoneEvent{})
 		}
 	}()
-	if p.version < 62 {
-		return errTooOld
+
+
+	// Skip protocol version if incompatible with the mode of operation
+	/* if mode == downloader.FastSync && version < eth63 {
+		continue
+	} */
+	log.Info("peer protocol.version =", "peer", p.version ) //yichoi
+	if p.version < 62 {  // protocol version check, if < 62 , then err Too Old version return,
+		log.Info("peer protocol.version =", "peer", p.version ) //yichoi
+		//return errTooOld
+		//continue // added by yichoi temporarly
 	}
+
 
 	log.Debug("Synchronising with the network", "peer", p.id, "eth", p.version, "head", hash, "td", td, "mode", d.mode)
 	defer func(start time.Time) {
