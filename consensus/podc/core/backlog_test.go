@@ -17,7 +17,6 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/consensus/podc"
 	"math/big"
 	"reflect"
 	"sync"
@@ -25,8 +24,8 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+	"github.com/ethereum/go-ethereum/consensus/podc"
+	"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
@@ -35,7 +34,7 @@ import (
 func TestCheckMessage(t *testing.T) {
 	c := &core{
 		state: StateAcceptRequest,
-		current: newRoundState(&istanbul.View{
+		current: newRoundState(&podc.View{
 			Sequence: big.NewInt(1),
 			Round:    big.NewInt(0),
 		}, newTestValidatorSet(4)),
@@ -51,7 +50,7 @@ func TestCheckMessage(t *testing.T) {
 	testCode := []uint64{msgPreprepare, msgPrepare, msgCommit}
 
 	// future sequence
-	v := &istanbul.View{
+	v := &podc.View{
 		Sequence: big.NewInt(2),
 		Round:    big.NewInt(0),
 	}
@@ -66,7 +65,7 @@ func TestCheckMessage(t *testing.T) {
 	}
 
 	// future round
-	v = &istanbul.View{
+	v = &podc.View{
 		Sequence: big.NewInt(1),
 		Round:    big.NewInt(1),
 	}
@@ -81,7 +80,7 @@ func TestCheckMessage(t *testing.T) {
 	}
 
 	// current view but waiting for round change
-	v = &istanbul.View{
+	v = &podc.View{
 		Sequence: big.NewInt(1),
 		Round:    big.NewInt(0),
 	}
@@ -145,16 +144,16 @@ func TestCheckMessage(t *testing.T) {
 func TestStoreBacklog(t *testing.T) {
 	c := &core{
 		logger:     log.New("backend", "test", "id", 0),
-		backlogs:   make(map[istanbul.Validator]*prque.Prque),
+		backlogs:   make(map[podc.Validator]*prque.Prque),
 		backlogsMu: new(sync.Mutex),
 	}
-	v := &istanbul.View{
+	v := &podc.View{
 		Round:    big.NewInt(10),
 		Sequence: big.NewInt(10),
 	}
 	p := validator.New(common.StringToAddress("12345667890"))
 	// push preprepare msg
-	preprepare := &istanbul.Preprepare{
+	preprepare := &podc.Preprepare{
 		View:     v,
 		Proposal: makeBlock(1),
 	}
@@ -170,7 +169,7 @@ func TestStoreBacklog(t *testing.T) {
 	}
 
 	// push prepare msg
-	subject := &istanbul.Subject{
+	subject := &podc.Subject{
 		View:   v,
 		Digest: common.StringToHash("1234567890"),
 	}
@@ -202,12 +201,12 @@ func TestProcessFutureBacklog(t *testing.T) {
 	backend := &testSystemBackend{
 		events: new(event.TypeMux),
 	}
-	c := &core{
+	var c = &core{
 		logger:     log.New("backend", "test", "id", 0),
-		backlogs:   make(map[istanbul.Validator]*prque.Prque),
+		backlogs:   make(map[podc.Validator]*prque.Prque),
 		backlogsMu: new(sync.Mutex),
-		backend:    backend,
-		current: newRoundState(&istanbul.View{
+	//	backend:    backend, //podc.Backend
+		current: newRoundState(&podc.View{
 			Sequence: big.NewInt(1),
 			Round:    big.NewInt(0),
 		}, newTestValidatorSet(4)),
@@ -216,13 +215,13 @@ func TestProcessFutureBacklog(t *testing.T) {
 	c.subscribeEvents()
 	defer c.unsubscribeEvents()
 
-	v := &istanbul.View{
+	v := &podc.View{
 		Round:    big.NewInt(10),
 		Sequence: big.NewInt(10),
 	}
 	p := validator.New(common.StringToAddress("12345667890"))
 	// push a future msg
-	subject := &istanbul.Subject{
+	subject := &podc.Subject{
 		View:   v,
 		Digest: common.StringToHash("1234567890"),
 	}
@@ -245,17 +244,17 @@ func TestProcessFutureBacklog(t *testing.T) {
 }
 
 func TestProcessBacklog(t *testing.T) {
-	v := &istanbul.View{
+	v := &podc.View{
 		Round:    big.NewInt(0),
 		Sequence: big.NewInt(1),
 	}
-	preprepare := &istanbul.Preprepare{
+	preprepare := &podc.Preprepare{
 		View:     v,
 		Proposal: makeBlock(1),
 	}
 	prepreparePayload, _ := Encode(preprepare)
 
-	subject := &istanbul.Subject{
+	subject := &podc.Subject{
 		View:   v,
 		Digest: common.StringToHash("1234567890"),
 	}
@@ -290,7 +289,7 @@ func testProcessBacklog(t *testing.T, msg *message) {
 		logger:     log.New("backend", "test", "id", 0),
 		backlogs:   make(map[podc.Validator]*prque.Prque),
 		backlogsMu: new(sync.Mutex),
-		backend:    backend,
+		//backend:    backend,
 		state:      State(msg.Code),
 		current: newRoundState(&podc.View{
 			Sequence: big.NewInt(1),

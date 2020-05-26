@@ -19,10 +19,10 @@ package core
 import (
 	"sync"
 
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 )
 
-func newTestRoundState(view *istanbul.View, validatorSet istanbul.ValidatorSet) *roundState {
+func newTestRoundState(view *podc.View, validatorSet podc.ValidatorSet) *roundState {
 	return &roundState{
 		round:       view.Round,
 		sequence:    view.Sequence,

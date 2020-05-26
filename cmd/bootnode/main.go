@@ -21,32 +21,15 @@ import (
 	"crypto/ecdsa"
     "flag"
 	"strings"
-	//"crypto/elliptic"
-	//"crypto/rand"
-	//"encoding/hex"
-	//"errors"
 	"fmt"
-	//"io"
-	//"io/ioutil"
-	//"math/big"
 	"os"
 
 	"github.com/ethereum/go-ethereum/common"
-	//"github.com/ethereum/go-ethereum/common/math"
-	//"github.com/ethereum/go-ethereum/crypto/sha3"
-	//"github.com/ethereum/go-ethereum/rlp"
-
 	"github.com/ethereum/go-ethereum/cmd/utils"
-
-	//"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/crypto"
-	//"github.com/ethereum/go-ethereum/log"
-	//"github.com/ethereum/go-ethereum/p2p"
-
 	"github.com/ethereum/go-ethereum/p2p/discv5"
 	"github.com/ethereum/go-ethereum/p2p/nat"
 	"github.com/ethereum/go-ethereum/p2p/netutil"
-
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p/discover"
 )

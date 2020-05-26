@@ -21,15 +21,15 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+	"github.com/ethereum/go-ethereum/consensus/podc"
+	"github.com/ethereum/go-ethereum/consensus/podc/validator"
 )
 
 func TestRoundChangeSet(t *testing.T) {
-	vset := validator.NewSet(generateValidators(4), istanbul.RoundRobin)
+	vset := validator.NewSet(generateValidators(4), podc.RoundRobin)
 	rc := newRoundChangeSet(vset)
 
-	view := &istanbul.View{
+	view := &podc.View{
 		Sequence: big.NewInt(1),
 		Round:    big.NewInt(1),
 	}

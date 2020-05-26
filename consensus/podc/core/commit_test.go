@@ -17,12 +17,12 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"math/big"
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+	"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"github.com/ethereum/go-ethereum/crypto"
 )
 
@@ -31,8 +31,8 @@ func TestHandleCommit(t *testing.T) {
 	F := uint64(1)
 
 	proposal := newTestProposal()
-	expectedSubject := &istanbul.Subject{
-		View: &istanbul.View{
+	expectedSubject := &podc.Subject{
+		View: &podc.View{
 			Round:    big.NewInt(0),
 			Sequence: proposal.Number(),
 		},
@@ -52,7 +52,7 @@ func TestHandleCommit(t *testing.T) {
 					c := backend.engine.(*core)
 					c.valSet = backend.peers
 					c.current = newTestRoundState(
-						&istanbul.View{
+						&podc.View{
 							Round:    big.NewInt(0),
 							Sequence: big.NewInt(1),
 						},
@@ -85,7 +85,7 @@ func TestHandleCommit(t *testing.T) {
 						c.state = StatePreprepared
 					} else {
 						c.current = newTestRoundState(
-							&istanbul.View{
+							&podc.View{
 								Round:    big.NewInt(2),
 								Sequence: big.NewInt(3),
 							},
@@ -114,7 +114,7 @@ func TestHandleCommit(t *testing.T) {
 						c.state = StatePreprepared
 					} else {
 						c.current = newTestRoundState(
-							&istanbul.View{
+							&podc.View{
 								Round:    big.NewInt(0),
 								Sequence: big.NewInt(0),
 							},
@@ -135,7 +135,7 @@ func TestHandleCommit(t *testing.T) {
 					c := backend.engine.(*core)
 					c.valSet = backend.peers
 					c.current = newTestRoundState(
-						&istanbul.View{
+						&podc.View{
 							Round:    big.NewInt(0),
 							Sequence: proposal.Number(),
 						},
@@ -224,84 +224,84 @@ func TestVerifyCommit(t *testing.T) {
 	// for log purpose
 	privateKey, _ := crypto.GenerateKey()
 	peer := validator.New(getPublicKeyAddress(privateKey))
-	valSet := validator.NewSet([]common.Address{peer.Address()}, istanbul.RoundRobin)
+	valSet := validator.NewSet([]common.Address{peer.Address()}, podc.RoundRobin)
 
 	sys := NewTestSystemWithBackend(uint64(1), uint64(0))
 
 	testCases := []struct {
 		expected   error
-		commit     *istanbul.Subject
+		commit     *podc.Subject
 		roundState *roundState
 	}{
 		{
 			// normal case
 			expected: nil,
-			commit: &istanbul.Subject{
-				View:   &istanbul.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
+			commit: &podc.Subject{
+				View:   &podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
 				Digest: newTestProposal().Hash(),
 			},
 			roundState: newTestRoundState(
-				&istanbul.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
+				&podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
 				valSet,
 			),
 		},
 		{
 			// old message
 			expected: errInconsistentSubject,
-			commit: &istanbul.Subject{
-				View:   &istanbul.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
+			commit: &podc.Subject{
+				View:   &podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
 				Digest: newTestProposal().Hash(),
 			},
 			roundState: newTestRoundState(
-				&istanbul.View{Round: big.NewInt(1), Sequence: big.NewInt(1)},
+				&podc.View{Round: big.NewInt(1), Sequence: big.NewInt(1)},
 				valSet,
 			),
 		},
 		{
 			// different digest
 			expected: errInconsistentSubject,
-			commit: &istanbul.Subject{
-				View:   &istanbul.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
+			commit: &podc.Subject{
+				View:   &podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
 				Digest: common.StringToHash("1234567890"),
 			},
 			roundState: newTestRoundState(
-				&istanbul.View{Round: big.NewInt(1), Sequence: big.NewInt(1)},
+				&podc.View{Round: big.NewInt(1), Sequence: big.NewInt(1)},
 				valSet,
 			),
 		},
 		{
 			// malicious package(lack of sequence)
 			expected: errInconsistentSubject,
-			commit: &istanbul.Subject{
-				View:   &istanbul.View{Round: big.NewInt(0), Sequence: nil},
+			commit: &podc.Subject{
+				View:   &podc.View{Round: big.NewInt(0), Sequence: nil},
 				Digest: newTestProposal().Hash(),
 			},
 			roundState: newTestRoundState(
-				&istanbul.View{Round: big.NewInt(1), Sequence: big.NewInt(1)},
+				&podc.View{Round: big.NewInt(1), Sequence: big.NewInt(1)},
 				valSet,
 			),
 		},
 		{
 			// wrong prepare message with same sequence but different round
 			expected: errInconsistentSubject,
-			commit: &istanbul.Subject{
-				View:   &istanbul.View{Round: big.NewInt(1), Sequence: big.NewInt(0)},
+			commit: &podc.Subject{
+				View:   &podc.View{Round: big.NewInt(1), Sequence: big.NewInt(0)},
 				Digest: newTestProposal().Hash(),
 			},
 			roundState: newTestRoundState(
-				&istanbul.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
+				&podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
 				valSet,
 			),
 		},
 		{
 			// wrong prepare message with same round but different sequence
 			expected: errInconsistentSubject,
-			commit: &istanbul.Subject{
-				View:   &istanbul.View{Round: big.NewInt(0), Sequence: big.NewInt(1)},
+			commit: &podc.Subject{
+				View:   &podc.View{Round: big.NewInt(0), Sequence: big.NewInt(1)},
 				Digest: newTestProposal().Hash(),
 			},
 			roundState: newTestRoundState(
-				&istanbul.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
+				&podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
 				valSet,
 			),
 		},

@@ -543,7 +543,6 @@ func (sb *simpleBackend) NewChainHead(block *types.Block) {
 	})
 }
 
-//<<<<<<< HEAD:consensus/istanbul/backend/engine.go
 // Start implements consensus.Istanbul.Start
 func (sb *simpleBackend) Start(chain consensus.ChainReader, qman []*discover.Node  , inserter func(block *types.Block) error) error {  //?
 //=======

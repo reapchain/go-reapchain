@@ -18,6 +18,7 @@ package core
 
 import (
 	"crypto/ecdsa"
+	"github.com/ethereum/go-ethereum/p2p/discover"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -210,9 +211,11 @@ func (t *testSystem) listen() {
 //
 // Given a true for core if you want to initialize core engine.
 func (t *testSystem) Run(core bool) func() {
+
+	var qman []*discover.Node
 	for _, b := range t.backends {
 		if core {
-			b.engine.Start(common.Big0, common.Address{}, nil) // start PoDC core
+			b.engine.Start(common.Big0, common.Address{}, nil, qman) // start PoDC core
 		}
 	}
 

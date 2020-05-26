@@ -23,7 +23,7 @@ import (
 	"testing"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
@@ -332,7 +332,7 @@ func TestVoting(t *testing.T) {
 		// Create the genesis block with the initial set of validators
 		genesis := &core.Genesis{
 			Difficulty: defaultDifficulty,
-			Mixhash:    types.IstanbulDigest,
+			Mixhash:    types.PoDCDigest,
 		}
 		b, _ := genesis.ToBlock()
 		extra, _ := prepareExtra(b.Header(), validators)
@@ -342,7 +342,7 @@ func TestVoting(t *testing.T) {
 		genesis.Commit(db)
 
 		eventMux := new(event.TypeMux)
-		config := istanbul.DefaultConfig
+		config := podc.DefaultConfig
 		if tt.epoch != 0 {
 			config.Epoch = tt.epoch
 		}
@@ -357,7 +357,7 @@ func TestVoting(t *testing.T) {
 				Time:       big.NewInt(int64(j) * int64(config.BlockPauseTime)),
 				Coinbase:   accounts.address(vote.voted),
 				Difficulty: defaultDifficulty,
-				MixDigest:  types.IstanbulDigest,
+				MixDigest:  types.PoDCDigest,
 			}
 			extra, _ := prepareExtra(headers[j], validators)
 			headers[j].Extra = extra

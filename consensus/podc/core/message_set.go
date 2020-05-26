@@ -23,7 +23,6 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
-//	"github.com/ethereum/go-ethereum/consensus/istanbul"
 	"github.com/ethereum/go-ethereum/consensus/podc"  //podc
 )
 

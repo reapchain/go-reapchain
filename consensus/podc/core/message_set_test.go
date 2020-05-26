@@ -17,7 +17,6 @@
 package core
 
 import (
-	"github.com/ethereum/martin/go-ethereum/consensus/istanbul"
 	"math/big"
 	"testing"
 
@@ -31,11 +30,11 @@ func TestMessageSetWithPreprepare(t *testing.T) {
 
 	ms := newMessageSet(valSet)
 
-	view := &istanbul.View{
+	view := &podc.View{
 		Round:    new(big.Int),
 		Sequence: new(big.Int),
 	}
-	pp := &istanbul.Preprepare{
+	pp := &podc.Preprepare{
 		View:     view,
 		Proposal: makeBlock(1),
 	}
@@ -70,12 +69,12 @@ func TestMessageSetWithSubject(t *testing.T) {
 
 	ms := newMessageSet(valSet)
 
-	view := &istanbul.View{
+	view := &podc.View{
 		Round:    new(big.Int),
 		Sequence: new(big.Int),
 	}
 
-	sub := &istanbul.Subject{
+	sub := &podc.Subject{
 		View:   view,
 		Digest: common.StringToHash("1234567890"),
 	}

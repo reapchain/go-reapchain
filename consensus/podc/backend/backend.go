@@ -69,7 +69,7 @@ type simpleBackend struct {
 	privateKey       *ecdsa.PrivateKey
 	address          common.Address
 //	core             istanbulCore.Engine
-	core             podcCore.Engine
+	core             podcCore.Engine  // 요주의
 	logger           log.Logger
 	quitSync         chan struct{}
 	db               ethdb.Database

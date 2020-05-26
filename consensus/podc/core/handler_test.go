@@ -36,8 +36,8 @@ func TestHandleMsg(t *testing.T) {
 	v0 := sys.backends[0]
 	r0 := v0.engine.(*core)
 
-	m, _ := Encode(&istanbul.Subject{
-		View: &istanbul.View{
+	m, _ := Encode(&podc.Subject{
+		View: &podc.View{
 			Sequence: big.NewInt(0),
 			Round:    big.NewInt(0),
 		},
@@ -57,8 +57,8 @@ func TestHandleMsg(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
 	}
 
-	m, _ = Encode(&istanbul.Preprepare{
-		View: &istanbul.View{
+	m, _ = Encode(&podc.Preprepare{
+		View: &podc.View{
 			Sequence: big.NewInt(0),
 			Round:    big.NewInt(0),
 		},
@@ -78,8 +78,8 @@ func TestHandleMsg(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
 	}
 
-	m, _ = Encode(&istanbul.Preprepare{
-		View: &istanbul.View{
+	m, _ = Encode(&podc.Preprepare{
+		View: &podc.View{
 			Sequence: big.NewInt(0),
 			Round:    big.NewInt(0),
 		},
@@ -99,8 +99,8 @@ func TestHandleMsg(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
 	}
 
-	m, _ = Encode(&istanbul.Preprepare{
-		View: &istanbul.View{
+	m, _ = Encode(&podc.Preprepare{
+		View: &podc.View{
 			Sequence: big.NewInt(0),
 			Round:    big.NewInt(0),
 		},

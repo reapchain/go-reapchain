@@ -19,14 +19,14 @@ package backend
 import (
 	"bytes"
 	"crypto/ecdsa"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"sort"
 	"strings"
 	"testing"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/istanbul"
-	"github.com/ethereum/go-ethereum/consensus/istanbul/validator"
+	"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
@@ -80,7 +80,7 @@ func TestCheckValidatorSignature(t *testing.T) {
 			t.Errorf("error mismatch: have %v, want nil", err)
 		}
 		// CheckValidatorSignature should succeed
-		addr, err := istanbul.CheckValidatorSignature(vset, data, sig)
+		addr, err := podc.CheckValidatorSignature(vset, data, sig)
 		if err != nil {
 			t.Errorf("error mismatch: have %v, want nil", err)
 		}
@@ -102,9 +102,9 @@ func TestCheckValidatorSignature(t *testing.T) {
 	}
 
 	// CheckValidatorSignature should return ErrUnauthorizedAddress
-	addr, err := istanbul.CheckValidatorSignature(vset, data, sig)
-	if err != istanbul.ErrUnauthorizedAddress {
-		t.Errorf("error mismatch: have %v, want %v", err, istanbul.ErrUnauthorizedAddress)
+	addr, err := podc.CheckValidatorSignature(vset, data, sig)
+	if err != podc.ErrUnauthorizedAddress {
+		t.Errorf("error mismatch: have %v, want %v", err, podc.ErrUnauthorizedAddress)
 	}
 	emptyAddr := common.Address{}
 	if addr != emptyAddr {
@@ -124,7 +124,7 @@ func TestCommit(t *testing.T) {
 		{
 			// normal case
 			nil,
-			append([]byte{1}, bytes.Repeat([]byte{0x00}, types.IstanbulExtraSeal-1)...),
+			append([]byte{1}, bytes.Repeat([]byte{0x00}, types.PoDCExtraSeal-1)...),
 			func() *types.Block {
 				chain, engine := newBlockChain(1)
 				block := makeBlockWithoutSeal(chain, engine, chain.Genesis())
@@ -189,7 +189,7 @@ func generatePrivateKey() (*ecdsa.PrivateKey, error) {
 	return crypto.HexToECDSA(key)
 }
 
-func newTestValidatorSet(n int) (istanbul.ValidatorSet, []*ecdsa.PrivateKey) {
+func newTestValidatorSet(n int) (podc.ValidatorSet, []*ecdsa.PrivateKey) {
 	// generate validators
 	keys := make(Keys, n)
 	addrs := make([]common.Address, n)
@@ -198,7 +198,7 @@ func newTestValidatorSet(n int) (istanbul.ValidatorSet, []*ecdsa.PrivateKey) {
 		keys[i] = privateKey
 		addrs[i] = crypto.PubkeyToAddress(privateKey.PublicKey)
 	}
-	vset := validator.NewSet(addrs, istanbul.RoundRobin)
+	vset := validator.NewSet(addrs, podc.RoundRobin)
 	sort.Sort(keys) //Keys need to be sorted by its public key address
 	return vset, keys
 }
@@ -217,7 +217,7 @@ func (slice Keys) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
-func newSimpleBackend() (backend *simpleBackend, validatorKeys Keys, validatorSet istanbul.ValidatorSet) {
+func newSimpleBackend() (backend *simpleBackend, validatorKeys Keys, validatorSet podc.ValidatorSet) {
 	key, _ := generatePrivateKey()
 	validatorSet, validatorKeys = newTestValidatorSet(5)
 	backend = &simpleBackend{
