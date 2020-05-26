@@ -82,6 +82,24 @@ func (self *testSystemBackend) Broadcast(valSet podc.ValidatorSet, message []byt
 	}
 	return nil
 }
+//./backlog_test.go:293:3: cannot use backend (type *testSystemBackend) as type podc.Backend in field value:
+//*testSystemBackend does not implement podc.Backend (missing Multicast method)
+//begin - yichoi
+
+// Multicast sends a message to specific targets
+//Multicast(payload []byte, targets []common.Address) error
+
+
+func (self *testSystemBackend) Multicast( payload []byte, targets []common.Address ) error {
+	testLogger.Info("enqueuing a message...", "address", self.Address())
+	self.sentMsgs = append(self.sentMsgs, payload)
+	self.sys.queuedMessage <- podc.MessageEvent{
+		Payload: payload,
+	}
+	return nil
+}
+//end
+
 
 func (self *testSystemBackend) NextRound() error {
 	testLogger.Warn("nothing to happen")
@@ -126,6 +144,7 @@ func (self *testSystemBackend) NewRequest(request podc.Proposal) {
 		Proposal: request,
 	})
 }
+
 
 // ==============================================
 //
