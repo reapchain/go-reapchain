@@ -46,8 +46,10 @@ func TestCheckMessage(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want %v", err, errInvalidMessage)
 	}
 
-	testStates := []State{StateAcceptRequest, StatePreprepared, StatePrepared, StateCommitted}
-	testCode := []uint64{msgPreprepare, msgPrepare, msgCommit}
+	//testStates := []State{StateAcceptRequest, StatePreprepared, StatePrepared, StateCommitted}
+	testStates := []State{StateAcceptRequest, StatePreprepared, StateSelected, StateCommitted}
+	// testCode := []uint64{msgPreprepare, msgPrepare, msgCommit} //removed by yichoi
+	testCode := []uint64{msgPreprepare, msgSelect, msgCommit}  //by yichoi
 
 	// future sequence
 	v := &podc.View{
@@ -122,7 +124,8 @@ func TestCheckMessage(t *testing.T) {
 	}
 
 	// current view, state = StatePrepared
-	c.state = StatePrepared
+	// c.state = StatePrepared
+	c.state = StateSelected //by yichoi
 	for i := 0; i < len(testCode); i++ {
 		err = c.checkMessage(testCode[i], v)
 		if err != nil {
@@ -176,7 +179,7 @@ func TestStoreBacklog(t *testing.T) {
 	subjectPayload, _ := Encode(subject)
 
 	m = &message{
-		Code: msgPrepare,
+		Code: msgSelect,  //msgPrepare -> msgSelect  by yichoi
 		Msg:  subjectPayload,
 	}
 	c.storeBacklog(m, p)
@@ -266,7 +269,7 @@ func TestProcessBacklog(t *testing.T) {
 			Msg:  prepreparePayload,
 		},
 		&message{
-			Code: msgPrepare,
+			Code: msgSelect,    //msgPrepare -> msgSelect by yichoi
 			Msg:  subjectPayload,
 		},
 		&message{

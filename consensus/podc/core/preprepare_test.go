@@ -177,10 +177,14 @@ OUTER:
 			if err != nil {
 				t.Errorf("error mismatch: have %v, want nil", err)
 			}
-
-			if decodedMsg.Code != msgPrepare {
-				t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgPrepare)
+//begin - by yichoi
+			//if decodedMsg.Code != msgPrepare {
+			//	t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgPrepare)
+			//}
+			if decodedMsg.Code != msgSelect {
+				t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgSelect)
 			}
+//end
 			var subject *podc.Subject
 			err = decodedMsg.Decode(&subject)
 			if err != nil {

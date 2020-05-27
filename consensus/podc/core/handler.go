@@ -176,7 +176,8 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleRacing(msg, src))
 	case msgCandidateDecide:
 		return testBacklog(c.handleCandidateDecide(msg, src))
-	case msgPrepare:
+	// case msgPrepare:
+	case msgSelect: //by yichoi
 		return testBacklog(c.handlePrepare(msg, src))
 	case msgCommit:
 		return testBacklog(c.handleDCommit(msg, src))

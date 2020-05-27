@@ -32,7 +32,7 @@ func (c *core) sendPrepare() {
 		return
 	}
 	c.broadcast(&message{  // Proposal Block 전파
-		Code: msgPrepare,
+		Code: msgSelect,  //msgPrepare -> msgSelect by yichoi
 		Msg:  encodedSubject,
 	})
 }
@@ -45,7 +45,7 @@ func (c *core) handlePrepare(msg *message, src podc.Validator) error {
 		return errFailedDecodePrepare
 	}
 
-	if err := c.checkMessage(msgPrepare, prepare.View); err != nil {
+	if err := c.checkMessage(msgSelect, prepare.View); err != nil {  //msgPrepare -> msgSelect
 		return err
 	}
 
@@ -57,8 +57,12 @@ func (c *core) handlePrepare(msg *message, src podc.Validator) error {
 
 	// Change to StatePrepared if we've received enough prepare messages
 	// and we are in earlier state before StatePrepared
-	if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StatePrepared) < 0 {
-		c.setState(StatePrepared)
+	//if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StatePrepared) < 0 {
+	//	c.setState(StatePrepared)
+	//	c.sendCommit()
+	//}
+	if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StateSelected) < 0 {
+		c.setState(StateSelected)
 		c.sendCommit()
 	}
 
