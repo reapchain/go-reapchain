@@ -84,6 +84,7 @@ var (
 		utils.TrieCacheGenFlag,
 		utils.ListenPortFlag,
 		utils.ListenLocalIPFlag, //yichoi
+		utils.ListenSetIPFlag, //yichoi
 		utils.MaxPeersFlag,
 		utils.MaxPendingPeersFlag,
 		utils.EtherbaseFlag,

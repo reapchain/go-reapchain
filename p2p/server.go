@@ -453,7 +453,7 @@ func (srv *Server) startListening() error {
 	//set local ip:192.168.0.x in reapchain office private network
 	//log.Info("startListening():","srv.Listen", srv.ListenAddr )
 	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
-	log.Info("listener", "addr", srv.Config.ListenAddr, "listener=", listener)
+	log.Info("startListening", "addr", srv.Config.ListenAddr, "listener=", listener)
 	if err != nil {
 		return err   //왜 에러 ?
 	}
@@ -463,8 +463,8 @@ func (srv *Server) startListening() error {
 	srv.listener = listener
 	srv.loopWG.Add(1)
 
-	//fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
-	//fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
+	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
+	fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
 
 	go srv.listenLoop()  // 루프를 여기서 돈다.
 

@@ -425,6 +425,11 @@ var (
 		Usage: "Network listening localIP: ex) geth --localIP true",
 		Value: "1",
 	}
+	ListenSetIPFlag = cli.StringFlag{  //local ip
+		Name:  "setip",
+		Usage: "Network listening another Local IP: ex) geth --setip 192.168.0.100",
+		Value: "",
+	}
 
 	BootnodesFlag = cli.StringFlag{
 		Name:  "bootnodes",
@@ -671,6 +676,15 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 		//cfg.ListenLocalAddr = GetLocalIP()
 		cfg.ListenAddr = GetLocalIP()
 
+
+		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
+	}
+	if ctx.GlobalIsSet(ListenSetIPFlag.Name ){  //yichoi for private net for reapchain office
+		// geth --localIP 1
+		//cfg.ListenLocalAddr = GetLocalIP()
+		//cfg.ListenAddr = GetLocalIP()
+		cfg.ListenAddr = ctx.GlobalString(ListenSetIPFlag.Name)
+		log.Info("SetNodeConfig: ListenAddr of another ip: ",cfg.ListenAddr )
 
 		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
 	}
@@ -935,6 +949,11 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	if ctx.GlobalIsSet(ListenLocalIPFlag.Name){
 		cfg.P2P.ListenAddr = ctx.GlobalString(ListenLocalIPFlag.Name)
         log.Info("SetNodeConfig: ListenAddr: ",cfg.P2P.ListenAddr )
+
+	}
+	if ctx.GlobalIsSet(ListenSetIPFlag.Name){
+		cfg.P2P.ListenAddr = ctx.GlobalString(ListenSetIPFlag.Name)
+		log.Info("SetNodeConfig: ListenAddr of another ip: ",cfg.P2P.ListenAddr )
 
 	}
     //SetQmanConfig(ctx, &cfg.P2P)
