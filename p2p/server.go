@@ -453,12 +453,12 @@ func (srv *Server) startListening() error {
 	//set local ip:192.168.0.x in reapchain office private network
 	//log.Info("startListening():","srv.Listen", srv.ListenAddr )
 	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
-	log.Info("startListening", "addr", srv.Config.ListenAddr, "listener=", listener)
+	log.Info("startListening(tcp)", "addr", srv.Config.ListenAddr, "listener(tcp)=", listener)
 	if err != nil {
 		return err   //왜 에러 ?
 	}
 	laddr := listener.Addr().(*net.TCPAddr)  //192.168.0.2:5003 this type ㄱㅏ져와야함.
-	//fmt.Printf("\n laddr : %v\n", laddr )  //error , important
+	fmt.Printf("\n laddr(TCPAddr) : %v\n", laddr )  //error , important
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
