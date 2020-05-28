@@ -194,7 +194,7 @@ OUTER:
 			validator := r0.valSet.GetByIndex(uint64(i))
 			m, _ := Encode(v.engine.(*core).current.Subject())
 			if err := r0.handlePrepare(&message{
-				Code:    msgSelect, // msgPrepare -> msgSelect by yichoi
+				Code:    msgPrepare,
 				Msg:     m,
 				Address: validator.Address(),
 			}, validator); err != nil {
@@ -206,8 +206,7 @@ OUTER:
 		}
 
 		// prepared is normal case
-		//if r0.state != StatePrepared {
-		if r0.state != StateSelected {
+		if r0.state != StatePrepared {
 			// There are not enough prepared messages in core
 			if r0.state != StatePreprepared {
 				t.Errorf("state mismatch: have %v, want %v", r0.state, StatePreprepared)
@@ -217,7 +216,6 @@ OUTER:
 			}
 
 			continue
-
 		}
 
 		// core should have 2F+1 prepare messages

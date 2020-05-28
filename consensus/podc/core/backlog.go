@@ -26,11 +26,9 @@ var (
 	// msgPreprepare > msgCommit > msgPrepare
 	msgPriority = map[uint64]int{
 		msgPreprepare: 1,
-		//msgCommit:     2,
-		//msgPrepare:    3,
-		msgSelect:    2,
-		msgCommit:    3,  //changed msgPreprepare 1. -> msgCommit 2. -> msgSelect 3.
-		                  //  to msgPreprepare 1. -> -> msgSelect 2.  msgCommit 3.  //by yichoi
+		msgCommit:     2,
+		msgPrepare:    3,
+
 	}
 )
 

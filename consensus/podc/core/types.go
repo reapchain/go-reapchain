@@ -50,8 +50,7 @@ const (
 
 	StateAcceptRequest State = iota
 	StatePreprepared  // = pre-prepare of podc
-	// StatePrepared     // = d-select
-	StateSelected     // = d-select , name change to avoid confusing.
+	StatePrepared     // = d-select
 	StateCommitted    // = d-commit
 	StateRequestQman  // request to Qman to get ExtraData
 
@@ -73,12 +72,9 @@ func (s State) String() string {
 		return "Accept request"
 	} else if s == StatePreprepared {
 		return "Preprepared"
-	//} else if s == StatePrepared {
-	//	return "Prepared"
-	//}
-	} else if s == StateSelected {
-	return "Selected"
-	}else if s == StateCommitted {
+	} else if s == StatePrepared {
+		return "Prepared"
+	} else if s == StateCommitted {
 		return "Committed"
 	} else {
 		return "Unknown"
@@ -111,8 +107,7 @@ const (
 	msgCoordinatorDecide
 	msgRacing
 	msgCandidateDecide
-	// msgPrepare
-	msgSelect  //by yichoi to avoiding confusing.
+	msgPrepare
 	msgCommit
 	msgRoundChange
 

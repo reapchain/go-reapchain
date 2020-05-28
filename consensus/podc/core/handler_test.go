@@ -66,7 +66,7 @@ func TestHandleMsg(t *testing.T) {
 	})
 	// with a unmatched payload. msgPrepare should match with *istanbul.Subject in normal case.
 	msg = &message{
-		Code:          msgSelect,  //msgPrepare -> msgSelect by yichoi
+		Code:          msgPrepare,
 		Msg:           m,
 		Address:       v0.Address(),
 		Signature:     []byte{},
