@@ -31,6 +31,8 @@ import (
 // Start implements core.Engine.Start
 func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error {
 	// Initialize last proposer
+	log.Info("lastSequence", "lastSequence", lastSequence)
+
 	c.lastProposer = lastProposer
 	var err error
 	if( qmanager == nil ) {
@@ -62,8 +64,8 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	start :=time.Now()
 	log.Info("start time of consensus of core engine start()", "start time", start )
 	c.startNewRound(&podc.View{
-		Sequence: new(big.Int).Add(lastSequence, common.Big1),
-		Round:    common.Big0,
+		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //seq +1
+		Round:    common.Big0,                                   //round 0
 	}, false)
 
 	// Tests will handle events itself, so we have to make subscribeEvents()
@@ -165,7 +167,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	switch msg.Code {
 	/* Qmanager handler for receiving from geth : sending qmanager event */
 	case msgHandleQman:
-		return testBacklog(c.handleQmanager(msg, src))  //Qmanager receiving event hadler
+		return testBacklog(c.handleQmanager(msg, src))  //Qmanager receiving event hadler  // this geth only proposer.
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
 	case msgDSelect:
@@ -183,7 +185,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))
 	case msgExtraDataRequest:
-		return testBacklog(c.handleExtraData(msg, src))
+		return testBacklog(c.handleExtraData(msg, src))  //Qmanager receiving extradata and received event handlelr
 	case msgExtraDataSend:
 		return testBacklog(c.handleSentExtraData(msg, src))
 	case msgCoordinatorConfirmRequest:

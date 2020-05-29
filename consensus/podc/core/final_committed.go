@@ -42,8 +42,8 @@ func (c *core) handleFinalCommitted(proposal podc.Proposal, proposer common.Addr
 		c.lastProposer = proposer
 		c.lastProposal = proposal
 		c.startNewRound(&podc.View{
-			Sequence: new(big.Int).Add(proposal.Number(), common.Big1),
-			Round:    new(big.Int).Set(common.Big0),
+			Sequence: new(big.Int).Add(proposal.Number(), common.Big1),  // +1 sequence no
+			Round:    new(big.Int).Set(common.Big0),                     // round  set 0
 		}, false)
 	}
 

@@ -112,7 +112,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {
 	// Verify the proposal we received
 	if err := c.backend.Verify(preprepare.Proposal); err != nil {
 		logger.Warn("handleQmanager: Failed to verify proposal", "err", err)  //?
-		c.sendNextRoundChange()
+		c.sendNextRoundChange()  //important : inconsistent mismatch ...
 		return err
 	}
 

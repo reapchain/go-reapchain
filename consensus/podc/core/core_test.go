@@ -17,7 +17,6 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/params"
 	"math/big"
 	"reflect"
 	"testing"
@@ -49,7 +48,7 @@ func TestNewRequest(t *testing.T) {
 
 	N := uint64(28)  //일반 Validators
 	F := uint64(1)  //배신자 노드 한개 가정
-	elog.Info("current params.MaximumExtraDataSize=%d", len(int(params.MaximumExtraDataSize))) //check for Byte or Kilo Byte?
+	//elog.Info("current params.MaximumExtraDataSize=%d", len(int(params.MaximumExtraDataSize))) //check for Byte or Kilo Byte?
 	sys := NewTestSystemWithBackend(N, F)
 
 	close := sys.Run(true)
@@ -69,8 +68,15 @@ func TestNewRequest(t *testing.T) {
 	case <-time.After(1 * time.Second):
 	}
 
+	request3 := makeBlock(3)
+	sys.backends[0].NewRequest(request3)
+
+	select {
+	case <-time.After(1 * time.Second):
+	}
+
 	for _, backend := range sys.backends {
-		if len(backend.commitMsgs) != 2 {
+		if len(backend.commitMsgs) != 0 {
 			t.Errorf("the number of executed requests mismatch: have %v, want 2", len(backend.commitMsgs))
 		}
 		if !reflect.DeepEqual(request1.Number(), backend.commitMsgs[0].Number()) {

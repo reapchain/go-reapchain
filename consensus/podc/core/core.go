@@ -255,7 +255,7 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 	if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
 	} else {
-		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())
+		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())  //1.
 	}
 
 	c.valSet = c.backend.Validators(c.lastProposal)
