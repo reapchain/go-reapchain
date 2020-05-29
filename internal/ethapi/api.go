@@ -319,7 +319,7 @@ func (s *PrivateAccountAPI) LockAccount(addr common.Address) bool {
 // NOTE: the caller needs to ensure that the nonceLock is held, if applicable,
 // and release it after the transaction has been submitted to the tx pool
 func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArgs, passwd string) (*types.Transaction, error) {
-	log.Debug("(s *PrivateAccountAPI) signTransaction", "ctx ", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)	// yhheo
+	//log.Debug("(s *PrivateAccountAPI) signTransaction", "ctx ", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)	// yhheo
 
     // Look up the wallet containing the requested signer
     account := accounts.Account{Address: args.From}
@@ -344,7 +344,7 @@ func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArg
 // able to decrypt the key it fails.
 // disable temp by yichoi for debugging sendtx runtime error
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-	log.Debug("(s *PrivateAccountAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
+	//log.Debug("(s *PrivateAccountAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
     if args.Nonce == nil {
         // Hold the addresse's mutex around signing to prevent concurrent assignment of
         // the same nonce to multiple accounts.
@@ -401,7 +401,7 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
 // able to decrypt the key it fails. The transaction is returned in RLP-form, not broadcast
 // to other nodes
 func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs, passwd string) (*SignTransactionResult, error) {
-	log.Debug("(s *PrivateAccountAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
+	//log.Debug("(s *PrivateAccountAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
     // No need to obtain the noncelock mutex, since we won't be sending this
     // tx into the transaction pool, but right back to the user
     if args.Gas == nil {
@@ -1318,7 +1318,7 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 // reviewed by yichoi for debug of sendtx error
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
 	if err := b.SendTx(ctx, tx); err != nil {
-		log.Debug("b.SendTx", "err", err)	// yhheo
+	//	log.Debug("b.SendTx", "err", err)	// yhheo
 		return common.Hash{}, err
 	}
 	if tx.To() == nil {
@@ -1331,7 +1331,7 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 		}
 		log.Info("Submitted contract creation", "fullhash", tx.Hash().Hex(), "contract", addr.Hex())
 	} else {
-		log.Info("Submitted transaction", "fullhash", tx.Hash().Hex(), "recipient", tx.To())
+		//log.Info("Submitted transaction", "fullhash", tx.Hash().Hex(), "recipient", tx.To())
 	}
 	return tx.Hash(), nil
 }
@@ -1339,10 +1339,10 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
 func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "value", args.Value)    // yhheo
+	//log.Debug("(s *PublicTransactionPoolAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "value", args.Value)    // yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
-    log.Info("account:", "account", account)
+   // log.Info("account:", "account", account)
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
 		log.Debug("s.b.AccountManager", "err", err)		// yhheo
@@ -1451,7 +1451,7 @@ type SignTransactionResult struct {
 // The node needs to have the private key of the account corresponding with
 // the given from address and it needs to be unlocked.
 func (s *PublicTransactionPoolAPI) SignTransaction(ctx context.Context, args SendTxArgs) (*SignTransactionResult, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
+	//log.Debug("(s *PublicTransactionPoolAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
 	if args.Nonce == nil {
 		// Hold the addresse's mutex around signing to prevent concurrent assignment of
 		// the same nonce to multiple accounts.

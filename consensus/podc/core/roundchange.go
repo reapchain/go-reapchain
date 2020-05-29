@@ -31,10 +31,17 @@ func (c *core) sendNextRoundChange() {
 	logger := c.logger.New("state", c.state)
 	cv := c.currentView()
 	//if (c.qmanager == c.Address()) { // i am qmanager then
-	if (reflect.DeepEqual(c.qmanager, c.Address())){
+	if (reflect.DeepEqual(c.qmanager, c.Address())){  //if I'm Qmanager
 	//if( qManager.QManConnected ){
 		log.Info("I'm Qmanager sendNextRoundChange ", "cv")
 		logger.Error("This Inconsistent warning ", "current round", cv.Round)
+
+		//c.catchUpRound(&podc.View{
+		//	// The round number we'd like to transfer to.
+		//	Round:    new(big.Int).Set(cv.Round),
+		//	Sequence: new(big.Int).Set(cv.Sequence),
+		//})
+		c.sendRoundChange(new(big.Int).Set(cv.Round))  // 1 증가시킴
 	} else {
 		c.sendRoundChange(new(big.Int).Add(cv.Round, common.Big1))  // 1 증가시킴
 	}
