@@ -167,7 +167,7 @@ OUTER:
 		for i, v := range test.system.backends {
 			validator := r0.valSet.GetByIndex(uint64(i))
 			m, _ := Encode(v.engine.(*core).current.Subject())
-			if err := r0.handleCommit(&message{
+			if err := r0.handleDCommit(&message{
 				Code:          msgCommit,
 				Msg:           m,
 				Address:       validator.Address(),
@@ -246,7 +246,7 @@ func TestVerifyCommit(t *testing.T) {
 			),
 		},
 		{
-			// old message
+			// old message  1.
 			expected: errInconsistentSubject,
 			commit: &podc.Subject{
 				View:   &podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
@@ -258,7 +258,7 @@ func TestVerifyCommit(t *testing.T) {
 			),
 		},
 		{
-			// different digest
+			// different digest  2.
 			expected: errInconsistentSubject,
 			commit: &podc.Subject{
 				View:   &podc.View{Round: big.NewInt(0), Sequence: big.NewInt(0)},
@@ -270,7 +270,7 @@ func TestVerifyCommit(t *testing.T) {
 			),
 		},
 		{
-			// malicious package(lack of sequence)
+			// malicious package(lack of sequence)  3. got="{View: %!v(PANIC=String method: runtime error: invalid memory address or nil pointer dereference),
 			expected: errInconsistentSubject,
 			commit: &podc.Subject{
 				View:   &podc.View{Round: big.NewInt(0), Sequence: nil},
@@ -305,12 +305,31 @@ func TestVerifyCommit(t *testing.T) {
 				valSet,
 			),
 		},
+//begin - by yichoi
+		{
+			// wrong prepare message with same round but different sequence
+			expected: errInconsistentSubject,
+			commit: &podc.Subject{
+				View:   &podc.View{Round: big.NewInt(1), Sequence: nil }, //got="{View: {Round: 1, Sequence: 1},
+				Digest: newTestProposal().Hash(),
+			},
+			roundState: newTestRoundState(
+				&podc.View{Round: big.NewInt(1), Sequence: big.NewInt(1)},  //expected="{View: {Round: 2, Sequence: 2},
+				valSet,
+			),
+		},
+//end
 	}
 	for i, test := range testCases {
 		c := sys.backends[0].engine.(*core)
 		c.current = test.roundState
 
-		if err := c.verifyCommit(test.commit, peer); err != nil {
+		//if err := c.verifyCommit(test.commit, peer); err != nil {
+		//	if err != test.expected {
+		//		t.Errorf("result %d: error mismatch: have %v, want %v", i, err, test.expected)
+		//	}
+		//}
+		if err := c.verifyDCommit(test.commit, peer); err != nil {
 			if err != test.expected {
 				t.Errorf("result %d: error mismatch: have %v, want %v", i, err, test.expected)
 			}

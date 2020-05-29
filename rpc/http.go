@@ -65,7 +65,7 @@ func (hc *httpConn) Close() error {
 
 // DialHTTP creates a new RPC clients that connection to an RPC server over HTTP.
 func DialHTTP(endpoint string) (*Client, error) {
-	log.Info("DialHTTP:yichoi debug: EOF ..")
+	//log.Info("DialHTTP:yichoi debug: EOF ..")
 	//client := &http.Client{}
 	//data, err := EncodeClientRequest(method, req) //
 	//if err != nil {
@@ -89,7 +89,7 @@ func DialHTTP(endpoint string) (*Client, error) {
 }
 
 func (c *Client) sendHTTP(ctx context.Context, op *requestOp, msg interface{}) error {
-	log.Info("sendHTTP:yichoi debug: EOF ..")
+	//log.Info("sendHTTP:yichoi debug: EOF ..")
 	hc := c.writeConn.(*httpConn)
 	respBody, err := hc.doRequest(ctx, msg)  //client.Do(req) ?
 	if err != nil {
@@ -118,7 +118,7 @@ func (c *Client) sendHTTP(ctx context.Context, op *requestOp, msg interface{}) e
 
 
 func (c *Client) sendBatchHTTP(ctx context.Context, op *requestOp, msgs []*jsonrpcMessage) error {
-	log.Info("sendBatchHTTP:yichoi debug: EOF ..")
+	//log.Info("sendBatchHTTP:yichoi debug: EOF ..")
 	hc := c.writeConn.(*httpConn)
 	respBody, err := hc.doRequest(ctx, msgs)
 	if err != nil {
@@ -136,7 +136,7 @@ func (c *Client) sendBatchHTTP(ctx context.Context, op *requestOp, msgs []*jsonr
 }
 
 func (hc *httpConn) doRequest(ctx context.Context, msg interface{}) (io.ReadCloser, error) {
-	log.Info("doRequest:yichoi debug: EOF ..")
+	//log.Info("doRequest:yichoi debug: EOF ..")
 	body, err := json.Marshal(msg)
 	if err != nil {
 		return nil, err
