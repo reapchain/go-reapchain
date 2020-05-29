@@ -70,7 +70,7 @@ func NewSimulatedBackend(alloc core.GenesisAlloc) *SimulatedBackend {
 // Commit imports all the pending transactions as a single block and starts a
 // fresh new state.
 func (b *SimulatedBackend) Commit() {
-	fmt.Printf("\nfunc (b *SimulatedBackend) Commit\n")	// yhheo
+	//fmt.Printf("\nfunc (b *SimulatedBackend) Commit\n")	// yhheo
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -158,7 +158,7 @@ func (b *SimulatedBackend) PendingCodeAt(ctx context.Context, contract common.Ad
 
 // CallContract executes a contract call.
 func (b *SimulatedBackend) CallContract(ctx context.Context, call ethereum.CallMsg, blockNumber *big.Int) ([]byte, error) {
-	fmt.Printf("\nfunc (b *SimulatedBackend) CallContract\n ctx = %v\n ethereum.CallMsg = %v\n blockNumber = %v\n", ctx, call, blockNumber)
+	//fmt.Printf("\nfunc (b *SimulatedBackend) CallContract\n ctx = %v\n ethereum.CallMsg = %v\n blockNumber = %v\n", ctx, call, blockNumber)
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -175,7 +175,7 @@ func (b *SimulatedBackend) CallContract(ctx context.Context, call ethereum.CallM
 
 // PendingCallContract executes a contract call on the pending state.
 func (b *SimulatedBackend) PendingCallContract(ctx context.Context, call ethereum.CallMsg) ([]byte, error) {
-	fmt.Printf("\nfunc (b *SimulatedBackend) PendingCallContract\n ctx = %v\n ethereum.CallMsg = %v\n", ctx, call)
+	//fmt.Printf("\nfunc (b *SimulatedBackend) PendingCallContract\n ctx = %v\n ethereum.CallMsg = %v\n", ctx, call)
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	defer b.pendingState.RevertToSnapshot(b.pendingState.Snapshot())
@@ -202,7 +202,7 @@ func (b *SimulatedBackend) SuggestGasPrice(ctx context.Context) (*big.Int, error
 // EstimateGas executes the requested code against the currently pending block/state and
 // returns the used amount of gas.
 func (b *SimulatedBackend) EstimateGas(ctx context.Context, call ethereum.CallMsg) (*big.Int, error) {
-	fmt.Printf("\nfunc (b *SimulatedBackend) EstimateGas\n ctx = %v\n ethereum.CallMsg = %v\n", ctx, call)
+	//fmt.Printf("\nfunc (b *SimulatedBackend) EstimateGas\n ctx = %v\n ethereum.CallMsg = %v\n", ctx, call)
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -236,7 +236,7 @@ func (b *SimulatedBackend) EstimateGas(ctx context.Context, call ethereum.CallMs
 // callContract implemens common code between normal and pending contract calls.
 // state is modified during execution, make sure to copy it if necessary.
 func (b *SimulatedBackend) callContract(ctx context.Context, call ethereum.CallMsg, block *types.Block, statedb *state.StateDB) ([]byte, *big.Int, error) {
-	fmt.Printf("\nfunc (b *SimulatedBackend) callContract\n ctx = %v\n ethereum.CallMsg = %v\n types.Block = %v\n state.StateDB = %v\n", ctx, call, block, statedb)
+	//fmt.Printf("\nfunc (b *SimulatedBackend) callContract\n ctx = %v\n ethereum.CallMsg = %v\n types.Block = %v\n state.StateDB = %v\n", ctx, call, block, statedb)
 	// Ensure message is initialized properly.
 	if call.GasPrice == nil {
 		call.GasPrice = big.NewInt(1)
