@@ -17,6 +17,7 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/params"
 	"math/big"
 	"reflect"
 	"testing"
@@ -46,9 +47,9 @@ func newTestProposal() podc.Proposal {
 func TestNewRequest(t *testing.T) {
 	testLogger.SetHandler(elog.StdoutHandler)
 
-	N := uint64(4)  //일반 Validators
+	N := uint64(28)  //일반 Validators
 	F := uint64(1)  //배신자 노드 한개 가정
-
+	elog.Info("current params.MaximumExtraDataSize=%d", len(int(params.MaximumExtraDataSize))) //check for Byte or Kilo Byte?
 	sys := NewTestSystemWithBackend(N, F)
 
 	close := sys.Run(true)

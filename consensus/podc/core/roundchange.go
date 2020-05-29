@@ -17,6 +17,8 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/qManager"
 	"math/big"
 	"sync"
 
@@ -26,8 +28,16 @@ import (
 
 // sendNextRoundChange sends the round change message with current round + 1
 func (c *core) sendNextRoundChange() {
+	logger := c.logger.New("state", c.state)
 	cv := c.currentView()
-	c.sendRoundChange(new(big.Int).Add(cv.Round, common.Big1))
+	//if (c.qmanager == c.Address()) { // i am qmanager then
+	if( qManager.QManConnected ){
+		log.Info("I'm Qmanager sendNextRoundChange ", "cv")
+		logger.Error("This Inconsistent warning ", "current round", cv.Round)
+	} else {
+		c.sendRoundChange(new(big.Int).Add(cv.Round, common.Big1))  // 1 증가시킴
+	}
+
 }
 
 // sendRoundChange sends the round change message with the given round
