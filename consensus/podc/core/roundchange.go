@@ -28,11 +28,11 @@ import (
 
 // sendNextRoundChange sends the round change message with current round + 1
 func (c *core) sendNextRoundChange() {
-	logger := c.logger.New("state", c.state)
+	//logger := c.logger.New("state", c.state)
 	cv := c.currentView()
 	//if (c.qmanager == c.Address()) { // i am qmanager then
 	if (reflect.DeepEqual(c.qmanager, c.Address())){  //if I'm Qmanager
-	log.Info("I'm Qmanager address: ", "c.qmanager", c.qmanager, "Self address", c.Address())
+	//log.Info("I'm Qmanager address: ", "c.qmanager", c.qmanager, "Self address", c.Address())
 	//if( qManager.QManConnected ){
 		log.Info("I'm Qmanager sendNextRoundChange ", "cv.Sequence", cv.Sequence, "cv.Round", cv.Round )
 		//logger.Error("This Inconsistent warning ", "current round", cv.Round)
