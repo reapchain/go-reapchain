@@ -111,27 +111,37 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 
 	// Add the round change message to its message set and return how many
 	// messages we've got with the same round number and sequence number.
-	num, err := c.roundChangeSet.Add(rc.Round, msg)
-	if err != nil {
-		logger.Warn("Failed to add round change message", "from", src, "msg", msg, "err", err)
-		return err
-	}
+	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+		//log.Info("I'm Qmanager address: ", "c.qmanager", c.qmanager, "Self address", c.Address())
+		//if( qManager.QManConnected ){
+		log.Info("I'm Qmanager handleRoundChange ", "cv.Sequence", cv.Sequence, "cv.Round", cv.Round)
 
-	// Once we received f+1 round change messages, those messages form a weak certificate.
-	// If our round number is smaller than the certificate's round number, we would
-	// try to catch up the round number.
-	if c.waitingForRoundChange && num == int(c.valSet.F()+1) {
-		if cv.Round.Cmp(rc.Round) < 0 {
-			c.sendRoundChange(rc.Round)
+	} else {
+
+
+		num, err := c.roundChangeSet.Add(rc.Round, msg)
+		if err != nil {
+			logger.Warn("Failed to add round change message", "from", src, "msg", msg, "err", err)
+			return err
 		}
-	}
+		// Once we received f+1 round change messages, those messages form a weak certificate.
+		// If our round number is smaller than the certificate's round number, we would
+		// try to catch up the round number.
+		if c.waitingForRoundChange && num == int(c.valSet.F()+1) {
+			if cv.Round.Cmp(rc.Round) < 0 {
+				c.sendRoundChange(rc.Round)
+			}
+		}
 
-	// We've received 2f+1 round change messages, start a new round immediately.
-	if num == int(2*c.valSet.F()+1) {
-		c.startNewRound(&podc.View{
-			Round:    new(big.Int).Set(rc.Round),
-			Sequence: new(big.Int).Set(rc.Sequence),
-		}, true)
+		// We've received 2f+1 round change messages, start a new round immediately.
+		if num == int(2*c.valSet.F()+1) {
+			c.startNewRound(&podc.View{
+				Round:    new(big.Int).Set(rc.Round),
+				Sequence: new(big.Int).Set(rc.Sequence),
+			}, true)
+		}
+
+
 	}
 
 	return nil
