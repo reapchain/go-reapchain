@@ -35,8 +35,12 @@ import (
 )
 
 const Version = 4
+<<<<<<< HEAD
 //const boot_node_port = 30301
 var boot_node_port int  //temp , 30301, or 30391
+=======
+const boot_node_port = 30391
+>>>>>>> updated
 
 // Errors
 var (
