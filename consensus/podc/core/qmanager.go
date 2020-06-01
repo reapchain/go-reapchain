@@ -19,6 +19,7 @@ package core
 import (
 	"bytes"
 	"encoding/binary"
+	"reflect"
 
 	//"encoding/binary"
 	"github.com/ethereum/go-ethereum/common"
@@ -121,57 +122,59 @@ func generateExtraData() []ValidatorInfo{
 
 }
 func (c *core) handleExtraData(msg *message, src podc.Validator) error {
-	if qManager.QManConnected{
+	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+		if qManager.QManConnected {
 
-		log.Info("EXTRA DATA REQUEST")
-		//log.Info("Requesting Source", "from", src)
-		Counter = Counter + 1
-		log.Info("Round", "Count: ", Counter)
+			log.Info("EXTRA DATA REQUEST")
+			//log.Info("Requesting Source", "from", src)
+			Counter = Counter + 1
+			log.Info("Round", "Count: ", Counter)
 
-		var extra []ValidatorInfo
-		for {
-			extra = generateExtraData()
-			completed := false
-			divisor := rand.Intn(50) + 1
+			var extra []ValidatorInfo
+			for {
+				extra = generateExtraData()
+				completed := false
+				divisor := rand.Intn(50) + 1
 
-			index := 0
-			for index < len(extra) {
+				index := 0
+				for index < len(extra) {
 
-				if !c.valSet.IsProposer( extra[index].Address) && c.qmanager != extra[index].Address {
-					randomNumber := extra[index].Qrnd
-					if randomNumber%uint64(divisor) == 0 {
-						//log.Info("COORDINATOR", "Random Divisor", divisor)
-						//log.Info("COORDINATOR", "Random Number", randomNumber)
-						extra[index].Tag = podc.Coordinator
-						log.Info("Qmanager", "Random Coordinator Selected", extra[index].Address.String())
-						index = len(extra)
-						completed = true
-						Divisor = divisor
+					if !c.valSet.IsProposer(extra[index].Address) && c.qmanager != extra[index].Address {
+						randomNumber := extra[index].Qrnd
+						if randomNumber%uint64(divisor) == 0 {
+							//log.Info("COORDINATOR", "Random Divisor", divisor)
+							//log.Info("COORDINATOR", "Random Number", randomNumber)
+							extra[index].Tag = podc.Coordinator
+							log.Info("Qmanager", "Random Coordinator Selected", extra[index].Address.String())
+							index = len(extra)
+							completed = true
+							Divisor = divisor
+						}
 					}
+					index++
 				}
-				index++
+				if completed {
+					break
+				}
 			}
-			if completed{
-				break
+
+			log.Info("ExtraData list", "extradata", extra)
+
+			//defer db.Close()
+			extraDataJson, err := json.Marshal(extra)
+			if err != nil {
+				log.Error("Failed to encode JSON", err)
 			}
+
+			c.send(&message{
+				Code: msgExtraDataSend,
+				Msg:  extraDataJson,
+			}, src.Address())
+			// Decode commit message
+			//fmt.Println("EXTRA DATA HANDLE")
+			//fmt.Println(src)
+
 		}
-
-		log.Info("ExtraData list", "extradata", extra)
-
-		//defer db.Close()
-		extraDataJson, err := json.Marshal(extra)
-		if err != nil {
-			log.Error("Failed to encode JSON", err)
-		}
-
-		c.send(&message{
-			Code: msgExtraDataSend,
-			Msg: extraDataJson,
-		}, src.Address())
-		// Decode commit message
-		//fmt.Println("EXTRA DATA HANDLE")
-		//fmt.Println(src)
-
 	}
 	return nil
 }
