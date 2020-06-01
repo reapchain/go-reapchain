@@ -132,6 +132,7 @@ type Config struct {
 	ListenAddr string
 	//ListenLocalAddr string //local ip for reapchain
 
+	Bootnodeport int
 	// If set to a non-nil value, the given NAT port mapper
 	// is used to make the listening port available to the
 	// Internet.
