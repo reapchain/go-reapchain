@@ -26,6 +26,8 @@ var (
 	BootNodeReady bool
 	QRNDDeviceStat bool
  	RandomNumbers []uint64
+	BootNodePort int
+	IsBootNode bool
 )
 
 type (

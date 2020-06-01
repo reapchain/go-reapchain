@@ -55,6 +55,8 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/ethereum/go-ethereum/params"
 	//whisper "github.com/ethereum/go-ethereum/whisper/whisperv5"
+	"github.com/ethereum/go-ethereum/qManager"
+
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -693,13 +695,16 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 
 		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
 	}
-	if ctx.GlobalIsSet(BootnodeportFlag.Name ){  //yichoi for private net for reapchain office
-
-		cfg.Bootnodeport = ctx.GlobalInt(BootnodeportFlag.Name)  //yichoi
-		log.Info("SetNodeConfig: Bootnodeport : ",cfg.Bootnodeport )
-
-		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
-	}
+	//if ctx.GlobalIsSet(BootnodeportFlag.Name ){  //yichoi for private net for reapchain office
+	//
+	//	//cfg.Bootnodeport = ctx.GlobalInt(BootnodeportFlag.Name)  //yichoi
+	//	//log.Info("SetNodeConfig: Bootnodeport : ", ctx.GlobalInt(BootnodeportFlag.Name)  )
+	//
+	//	log.Info("setListenAddress BootNodePort", "Value", ctx.GlobalInt(BootnodeportFlag.Name))
+	//
+	//
+	//	//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
+	//}
 }
 // GetLocalIP returns the non loopback local IP of the host
 func GetLocalIP() string {
@@ -978,9 +983,11 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 
 	}
 	if ctx.GlobalIsSet(BootnodeportFlag.Name){
-		cfg.P2P.Bootnodeport = ctx.GlobalInt(BootnodeportFlag.Name)
+		bootnodeports := ctx.GlobalInt(BootnodeportFlag.Name)
 		//boot_node_port = cfg.P2P.Bootnodeport
-		log.Info("SetNodeConfig: cfg.P2P.Bootnodeport : ",cfg.P2P.Bootnodeport )
+		//log.Info("SetNodeConfig: cfg.P2P.Bootnodeport : ",bootnodeports )
+		log.Info("SetNodeConfig BootNodePort", "Value", bootnodeports)
+		qManager.BootNodePort = bootnodeports
 
 	}
     //SetQmanConfig(ctx, &cfg.P2P)
