@@ -44,7 +44,7 @@ $BIN_PATH/geth \
 	--password $SETUP_INFO_PATH/passwd.txt \
 	--verbosity 4 \
 	--nat none \
-	--bootnodes enode://5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c@192.168.0.2:30301 \
+	--bootnodes enode://5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c@192.168.0.2:30391 \
 	2>> $LOG_PATH/$NODE_NAME.log &
  
 else
@@ -69,6 +69,6 @@ $BIN_PATH/geth \
 	--password $SETUP_INFO_PATH/passwd.txt \
 	--verbosity 4 \
 	--nat none \
-	--bootnodes enode://5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c@192.168.0.2:30301 \
+	--bootnodes enode://5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c@192.168.0.2:30391 \
 	2>> $LOG_PATH/$NODE_NAME.log &
 fi
