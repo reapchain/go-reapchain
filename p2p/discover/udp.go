@@ -35,7 +35,8 @@ import (
 )
 
 const Version = 4
-const boot_node_port = 30301
+//const boot_node_port = 30301
+//var boot_node_port int  //temp , 30301, or 30391
 
 // Errors
 var (
@@ -151,7 +152,7 @@ type (
 		TCP uint16 // for RLPx protocol
 	}
 
-//QManDBStruct struct {
+	//QManDBStruct struct {
 	//	ID      NodeID
 	//	PubKey  *ecdsa.PublicKey
 	//	Address  common.Address
@@ -256,11 +257,14 @@ type reply struct {
 // ListenUDP returns a new table that listens for UDP packets on laddr.
 func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Table, error) {
 	addr, err := net.ResolveUDPAddr("udp", laddr)
-//	log.Info(fmt.Sprintf("ResolveUDPAddr result: %v, %v, %v ", addr.IP , addr.Port, addr.Zone  ))
+	//	log.Info(fmt.Sprintf("ResolveUDPAddr result: %v, %v, %v ", addr.IP , addr.Port, addr.Zone  ))
 	if err != nil {
 		return nil, err
 	}
 	conn, err := net.ListenUDP("udp", addr)  //socket setup ?
+	if(qManager.IsBootNode){
+		qManager.BootNodePort = addr.Port
+	}
 	log.Info("net.ListenUDP up: addr ", "self",laddr)
 	if err != nil {
 		return nil, err
@@ -657,9 +661,9 @@ func (req *pong) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) er
 		return errUnsolicitedReply
 	}
 
-	if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
-		fmt.Println("Pong From:", fromID)
-	}
+	//if t.conn.LocalAddr().(*net.UDPAddr).Port == qManager.BootNodePort {
+	//	fmt.Println("Pong From:", fromID)
+	//}
 
 
 	return nil
@@ -701,7 +705,7 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		}
 	}
 
-	if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
+	if t.conn.LocalAddr().(*net.UDPAddr).Port == qManager.BootNodePort  {
 
 		if !qManager.BootNodeReady{
 			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
@@ -750,7 +754,7 @@ func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	if expired(req.Expiration) {
 		return errExpired
 	}
-	
+
 	node_pubKey, _ := req.Node.Pubkey()
 	pubBytes := crypto.FromECDSAPub(node_pubKey)
 	qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
@@ -803,7 +807,7 @@ func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 		return errExpired
 	}
 
-	if t.conn.LocalAddr().(*net.UDPAddr).Port == boot_node_port {
+	if t.conn.LocalAddr().(*net.UDPAddr).Port == qManager.BootNodePort  {
 		fmt.Println("Recieved Qman Address")
 		//ps := recieveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		//fmt.Println(fromID)
