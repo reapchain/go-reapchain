@@ -150,7 +150,6 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.ListenPortFlag,
 			utils.ListenLocalIPFlag,  //yichoi
 			utils.ListenSetIPFlag,  //yichoi
-			utils.BootnodeportFlag, //yichoi
 			utils.MaxPeersFlag,
 			utils.MaxPendingPeersFlag,
 			utils.NATFlag,

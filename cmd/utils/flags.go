@@ -25,11 +25,9 @@ import (
 	"net"
 	"os"
 	"path/filepath"
-	//"reflect"
 	"runtime"
 	"strconv"
 	"strings"
-	//"unsafe"
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -432,11 +430,6 @@ var (
 		Usage: "Network listening another Local IP: ex) geth --setip 192.168.0.100",
 		Value: "",
 	}
-	BootnodeportFlag = cli.IntFlag{  //local ip
-		Name:  "bootnodeport",
-		Usage: "Discovery P2P boot node port : ex) geth --bootnodeport 30391",
-		Value: 30301,
-	}
 
 	BootnodesFlag = cli.StringFlag{
 		Name:  "bootnodes",
@@ -695,13 +688,6 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 
 		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
 	}
-	if ctx.GlobalIsSet(BootnodeportFlag.Name ){  //yichoi for private net for reapchain office
-
-		cfg.Bootnodeport = ctx.GlobalInt(BootnodeportFlag.Name)  //yichoi
-		log.Info("SetNodeConfig: Bootnodeport : ",cfg.Bootnodeport )
-
-		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
-	}
 }
 // GetLocalIP returns the non loopback local IP of the host
 func GetLocalIP() string {
@@ -905,17 +891,8 @@ func MakePasswordList(ctx *cli.Context) []string {
 	}
 	return lines
 }
-//func Copy(s string) string {
-//	var b []byte
-//	h := (*reflect.SliceHeader)(unsafe.Pointer(&b))
-//	h.Data = (*reflect.StringHeader)(unsafe.Pointer(&s)).Data
-//	h.Len = len(s)
-//	h.Cap = len(s)
-//	return string(b)
-//}
+
 func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
-	//discover.boot_node_port = cfg.Bootnodeport
-	//log.Info("discover.boot_node_port=","discover.boot_node_port", string(discover.boot_node_port) )
 	setNodeKey(ctx, cfg)
 	setNAT(ctx, cfg)
 	setListenAddress(ctx, cfg)
@@ -977,12 +954,6 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	if ctx.GlobalIsSet(ListenSetIPFlag.Name){
 		cfg.P2P.ListenAddr = ctx.GlobalString(ListenSetIPFlag.Name)
 		log.Info("SetNodeConfig: ListenAddr of another ip: ",cfg.P2P.ListenAddr )
-
-	}
-	if ctx.GlobalIsSet(BootnodeportFlag.Name){
-		cfg.P2P.Bootnodeport = ctx.GlobalInt(BootnodeportFlag.Name)
-		//boot_node_port = cfg.P2P.Bootnodeport
-		log.Info("SetNodeConfig: cfg.P2P.Bootnodeport : ",cfg.P2P.Bootnodeport )
 
 	}
     //SetQmanConfig(ctx, &cfg.P2P)
@@ -1263,13 +1234,6 @@ func SetupNetwork(ctx *cli.Context) {
 	// TODO(fjl): move target gas limit into config
 	params.TargetGasLimit = new(big.Int).SetUint64(ctx.GlobalUint64(TargetGasLimitFlag.Name))
 }
-// SetupNetwork configures the system for either the main net or some test network.
-//func SetupBootnodeport(ctx *cli.Context) {
-//	// TODO(fjl): move target gas limit into config
-//	//params.TargetGasLimit = new(big.Int).SetUint64(ctx.GlobalUint64(TargetGasLimitFlag.Name))
-//
-//	discover.boot_node_port = ctx.GlobalUint64(BootnodeportFlag.Name)
-//}
 
 // MakeChainDatabase open an LevelDB using the flags passed to the client and will hard crash if it fails.
 func MakeChainDatabase(ctx *cli.Context, stack *node.Node) ethdb.Database {
@@ -1365,9 +1329,4 @@ func MigrateFlags(action func(ctx *cli.Context) error) func(*cli.Context) error 
 		}
 		return action(ctx)
 	}
-}
-
-func getBootnodePort(ctx *cli.Context)(port int){
-
-	return ctx.GlobalInt(BootnodeportFlag.Name)
 }
