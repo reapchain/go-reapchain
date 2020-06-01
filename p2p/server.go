@@ -132,6 +132,8 @@ type Config struct {
 	ListenAddr string
 	//ListenLocalAddr string //local ip for reapchain
 
+	Bootnodeport int // added by yichoi boot node port 30391 ,, in order to set on command line
+
 	// If set to a non-nil value, the given NAT port mapper
 	// is used to make the listening port available to the
 	// Internet.

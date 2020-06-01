@@ -35,7 +35,8 @@ import (
 )
 
 const Version = 4
-const boot_node_port = 30301
+//const boot_node_port = 30301
+var boot_node_port int  //temp , 30301, or 30391
 
 // Errors
 var (
@@ -255,6 +256,8 @@ type reply struct {
 
 // ListenUDP returns a new table that listens for UDP packets on laddr.
 func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Table, error) {
+
+
 	addr, err := net.ResolveUDPAddr("udp", laddr)
 //	log.Info(fmt.Sprintf("ResolveUDPAddr result: %v, %v, %v ", addr.IP , addr.Port, addr.Zone  ))
 	if err != nil {
@@ -265,6 +268,8 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 	if err != nil {
 		return nil, err
 	}
+
+
 	tab, _, err := newUDP(priv, conn, natm, nodeDBPath, netrestrict)
 	if err != nil {
 		return nil, err
@@ -285,6 +290,14 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 		addpending:  make(chan *pending),
 	}
 	realaddr := c.LocalAddr().(*net.UDPAddr)  //? local ip or upnp public ip  c는 discover pkg , cast연산자,, ?
+
+	//ctx :=&ctx{
+	//
+	//
+	//
+	//}
+	//
+	//getBootnodePort(ctx , &boot_node_port)
 
 	fmt.Printf("======================> realaddr <======================= %s", realaddr )
 	if natm != nil {  //doit=any, none, extip , etc
