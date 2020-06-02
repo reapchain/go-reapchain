@@ -32,9 +32,12 @@ func (c *core) sendNextRoundChange() {
 	cv := c.currentView()
 	//if (c.qmanager == c.Address()) { // i am qmanager then
 	if (reflect.DeepEqual(c.qmanager, c.Address())){  //if I'm Qmanager
+
 	//log.Info("I'm Qmanager address: ", "c.qmanager", c.qmanager, "Self address", c.Address())
+
+//parent of a1d533a8... Inconsistent problem is solved, but I should test it more, on Amazon Dev.
 	//if( qManager.QManConnected ){
-		log.Info("I'm Qmanager sendNextRoundChange ", "cv.Sequence", cv.Sequence, "cv.Round", cv.Round )
+		log.Info("I'm Qmanager sendNextRoundChange ", "cv.Round", cv.Round, "cv.Sequence", cv.Sequence)
 		//logger.Error("This Inconsistent warning ", "current round", cv.Round)
 
 		//c.catchUpRound(&podc.View{
@@ -42,7 +45,7 @@ func (c *core) sendNextRoundChange() {
 		//	Round:    new(big.Int).Set(cv.Round),
 		//	Sequence: new(big.Int).Set(cv.Sequence),
 		//})
-		c.sendRoundChange(new(big.Int).Set(cv.Round))  // Round Num 증가 안시키고 현행 뷰데로.. // 현재 Inconsistent warning 안나옴, 다만, Sendtx, 및 합의가 안됨.
+		c.sendRoundChange(new(big.Int).Set(cv.Round))  // 1 증가시킴
 	} else {
 		c.sendRoundChange(new(big.Int).Add(cv.Round, common.Big1))  // 1 증가시킴
 	}
