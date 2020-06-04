@@ -25,7 +25,7 @@ import (
 
 
 func (c *core) handleRequest(request *podc.Request) error {
-	logger := c.logger.New("state", c.state, "seq", c.current.sequence)
+	logger := c.logger.New("state", c.state, "c.current.sequences", c.current.sequence)
 
 	if err := c.checkRequestMsg(request); err != nil {
 		logger.Warn("unexpected requests", "err", err, "request", request)
@@ -33,9 +33,8 @@ func (c *core) handleRequest(request *podc.Request) error {
 	}
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
-	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
-		log.Info("I'm not Qman in handleQmanager in handleRequest" )
-	}
+
+
 
 		//Qmanager response check is more prefer then StateAccepRequest state.
 	if c.state == StateAcceptRequest {
@@ -43,12 +42,15 @@ func (c *core) handleRequest(request *podc.Request) error {
 		c.sendPreprepare(request)
 	}
   //Qmanager가 아니라면,
+  if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
+	  log.Info("I'm not Qman  in handleRequest: sendRequestExtraDataToQman" )
 	if c.state ==StateRequestQman {
 		// c.sendPre_prepare()  //send to Qman to get Extradata
 		log.Info("StateRequestQman", "StateRequestQman", StateRequestQman)
 		c.sendRequestExtraDataToQman(request)
 	}
 
+  }
 
 
 
