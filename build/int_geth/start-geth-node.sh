@@ -5,7 +5,7 @@ if [ $# -ne 1 ]; then
     echo "Usage : $(basename "$0") <Node No>"
     echo ""
 
-    return
+    exit 0
 fi
 
 PROJ_PATH="$( cd "$(dirname "$0")" ; pwd -P )"

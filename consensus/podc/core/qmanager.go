@@ -38,7 +38,7 @@ import (
 var (
 
 	QManagerStorage *leveldb.DB
-	Counter int
+	Counter int  //For Qman, count Round Number..
 	Divisor int
 
 )
@@ -121,13 +121,14 @@ func generateExtraData() []ValidatorInfo{
 	return extra
 
 }
+//For Qmanager, handle the extraData request from geth( Proposer )
 func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
 		if qManager.QManConnected {
 
 			log.Info("EXTRA DATA REQUEST")
 			//log.Info("Requesting Source", "from", src)
-			Counter = Counter + 1
+			Counter = Counter + 1  //How many request ExtraData .. ? This Counter. is not defined zero anywhere.. 
 			log.Info("Round", "Count: ", Counter)
 
 			var extra []ValidatorInfo

@@ -253,32 +253,44 @@ func (n *Node) Start() error {
 	n.services = services
 	n.server = running
 	n.stop = make(chan struct{})
-	fmt.Printf("NODE SELF=%v\n", n.server.Self())
+	fmt.Printf("P2P SERVER SELF=%v\n", n.server.Self())  //Currently running P2P networking layer
 
+	//var exist bool
+	if (  n.checkQmanNodeID()) {
+		QmanEnode := n.serverConfig.QmanagerNodes[0].ID
 
-	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
+		if n.server.Self().ID == QmanEnode {  //if I'm Qman
+			qManager.ConnectDB()
+			qManager.QManConnected = true
 
-	if n.server.Self().ID == QmanEnode{
-		qManager.ConnectDB()
-		qManager.QManConnected = true
-
+		}
+	}else{
+		log.Info("check whether qmanager-nodes.json file exist or not")
 	}
-
 	// 2번째,, 포인트,, send public key to Qmanger
 
 	return nil
+}
+
+func (n *Node) checkQmanNodeID() bool {
+
+	if ( n.serverConfig.QmanagerNodes == nil){  //Qmanager enode address check. where it is exist or not
+
+		log.Info("Can't load qmanager.json file")
+		return false
+
+	}
+	return true
+
 }
 
 func (n *Node) openDataDir() error {
 	if n.config.DataDir == "" {
 		return nil // ephemeral
 	}
-
-
-
 	instdir := filepath.Join(n.config.DataDir, n.config.name())  //DataDir = /Users/yongilchoi/Library/Ethereum
 	                                                             //n.config.name = geth
-	log.Info("Current Diretory:","instdir", instdir)
+	log.Info("Current Dir:","instdir", instdir)
 	if err := os.MkdirAll(instdir, 0700); err != nil {
 		return err
 	}
@@ -340,7 +352,7 @@ func (n *Node) startInProc(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		log.Debug(fmt.Sprintf("InProc registered %T under '%s'", api.Service, api.Namespace))
+		//log.Debug(fmt.Sprintf("InProc registered %T under '%s'", api.Service, api.Namespace))
 	}
 	n.inprocHandler = handler
 	return nil
@@ -366,7 +378,7 @@ func (n *Node) startIPC(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		log.Debug(fmt.Sprintf("IPC registered %T under '%s'", api.Service, api.Namespace))
+		//log.Debug(fmt.Sprintf("IPC registered %T under '%s'", api.Service, api.Namespace))
 	}
 	// All APIs registered, start the IPC listener
 	var (
@@ -419,7 +431,7 @@ func (n *Node) startQmanagerRegister(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		log.Debug(fmt.Sprintf("public key  registered to Qmanager %T under '%s'", api.Service, api.Namespace))
+		//log.Debug(fmt.Sprintf("public key  registered to Qmanager %T under '%s'", api.Service, api.Namespace))
 	}
 	// All APIs registered, start the IPC listener
 	var (
@@ -501,7 +513,7 @@ func (n *Node) startHTTP(endpoint string, apis []rpc.API, modules []string, cors
 			if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 				return err
 			}
-			log.Debug(fmt.Sprintf("HTTP registered %T under '%s'", api.Service, api.Namespace))
+			//log.Debug(fmt.Sprintf("HTTP registered %T under '%s'", api.Service, api.Namespace))
 		}
 	}
 	// All APIs registered, start the HTTP listener

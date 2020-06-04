@@ -83,7 +83,7 @@ func (c *core) sendPreprepare(request *podc.Request) {
 
 func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //request to qman
 	logger := c.logger.New("from", src, "state", c.state)
-	if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	if (!reflect.DeepEqual(c.qmanager, c.Address())) {
 		log.Info("I'm not Qman in handleQmanager" )
 
 		// Qmanager receiver에 맞게 수정할 부분 begin
@@ -110,7 +110,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			return errNotFromProposer
 		}
 
-		if c.valSet.IsProposer(c.Address()) {
+		if c.valSet.IsProposer(c.Address()) {  // I'm Front node.
 			log.Info("I'm Proposer!!!!!!!")
 		}
 		// Verify the proposal we received

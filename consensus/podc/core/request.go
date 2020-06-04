@@ -45,6 +45,7 @@ func (c *core) handleRequest(request *podc.Request) error {
   //Qmanager가 아니라면,
 	if c.state ==StateRequestQman {
 		// c.sendPre_prepare()  //send to Qman to get Extradata
+		log.Info("StateRequestQman", "StateRequestQman", StateRequestQman)
 		c.sendRequestExtraDataToQman(request)
 	}
 
