@@ -17,10 +17,10 @@
 package podc
 
 import (
-    //"fmt"
+	"github.com/ethereum/go-ethereum/common"
+	//"fmt"
 	//"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"strings"
-	"github.com/ethereum/go-ethereum/common"
 	//"github.com/ethereum/go-ethereum/consensus/podc"
 	//"github.com/ethereum/go-ethereum/consensus/podc/validator"
 
@@ -136,10 +136,10 @@ type ValidatorSet interface {
 // ----------------------------------------------------------------------------
 
 type ProposalSelector func(ValidatorSet, common.Address, uint64, common.Address) Validator
-/*
-func EmptyValSet() {
-	valSet := validator.NewSet(validator.ExtractValidators([]byte{}), podc.RoundRobin)
-	if valSet == nil {
-		fmt.Errorf("validator set should not be nil")
-	}
-} */
+//type ProposalSelector func(ValidatorSet, common.Address, uint64) Validator
+//func EmptyValSet() {
+//	valSet := validator.NewSet(validator.ExtractValidators([]byte{}))
+//	if valSet == nil {
+//		fmt.Errorf("validator set should not be nil")
+//	}
+//}

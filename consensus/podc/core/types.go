@@ -48,43 +48,36 @@ type State uint64
 
 const (
 
-	StateAcceptRequest State = iota
-	StatePreprepared  // = pre-prepare of podc
-	StatePrepared     // = d-select
-	StateCommitted    // = d-commit
-	StateRequestQman  // request to Qman to get ExtraData
+	StateRequest State = iota // request to Qman to get ExtraData
+	StateAcceptRequest // geth가 프로포저(프런트노드)가 아닌 경우 일반 노드들은 수동적으로 외부 노드로부터 메시지를 수신 대기 상태 유지
+	StatePreprepared  // = pre-prepare of podc : Bx including coordi info, broadcast to all nodes.
+	StateDselected     // = d-select
+	StateDCommitted    // = d-commit
+    StateFinalCommitted     // variables initialize before go New Round state
 
-/*
-	StatePreprepared
-	StatePrepared
-	StateCommitted
-	StateRequestQMan  // state to send request for extra data to Qmanager
-	StateAcceptQMan  //podc
-	StateD_selected  //podc
-	StateD_committed //podc
->>>>>>> working:consensus/podc/core/types.go */
+
+	//
+	//StateAcceptRequest State = iota
+	//StatePreprepared  // = pre-prepare of podc
+	//StatePrepared     // = d-select
+	//StateCommitted    // = d-commit
+	//StateRequestQman  // request to Qman to get ExtraData
 )
 
 func (s State) String() string {
-	if s == StateRequestQman {
-		return "Request ExtraData"   //새 라운드가 시작하면, 매번 Qmanager에게 ExtraDATA 요청한다.
-	} else if s == StateAcceptRequest {
-		return "Accept request"
-	} else if s == StatePreprepared {
+	if s == StateRequest {
+		return "Request ExtraData to Qman"   //새 라운드가 시작하면, 매번 Qmanager에게 ExtraDATA 요청한다.
+	}  else if s == StatePreprepared {
 		return "Preprepared"
-	} else if s == StatePrepared {
-		return "Prepared"
-	} else if s == StateCommitted {
-		return "Committed"
+	} else if s == StateDselected {
+		return "Dselected"
+	} else if s == StateDCommitted {
+		return "DCommitted"
+	}else if s == StateFinalCommitted {
+		return "FinalCommitted"
 	} else {
 		return "Unknown"
 	}
-	/*  else if s == StateD_selected { //podc
-		return "D_selected"
-	} else if s == StateD_committed { //podc
-		return "D_committed"
-	} */
-
 }
 
 // Cmp compares s and y and returns:
@@ -102,40 +95,44 @@ func (s State) Cmp(y State) int {
 }
 
 const (
-	msgPreprepare uint64 = iota
+
+	//1. request step
+	msgRequest  uint64 = iota  //1.  	msgHandleQman // for Qman, receive event handler from geth ( sending qmanager )
+
+	//2. Pre-prepare step
+	msgPreprepare
+	//3. D-select step
 	msgDSelect
-	msgCoordinatorDecide
-	msgRacing
-	msgCandidateDecide
-	msgPrepare
-	msgCommit
+	msgCoordinatorDecide  //notify to Qman
+	msgRacing             // between coordi and candidates
+	msgCandidateDecide    //notify to Coordi
+
+	//3. D-commit step
+	msgDCommit
+
+	msgExtraDataRequest  //Request to Qman
+	msgExtraDataSend     //Qman send to geth
+
+	msgCoordinatorConfirmRequest  //Geth send Qman
+	msgCoordinatorConfirmSend     //Qman sennd geth
+
+	// etc:
 	msgRoundChange
+	/* In paper:
+	1. Request : 프런트 노드는 Qmanager에게 접속, 코디 정보가 담긴 ExtraData를 가져오는 단계
+	2. Pre-prepare : 프런트 노드는 코디 정보가 담긴 ExtraData로 Bx를 생성 후 모든 노드에 브로드캐스트 하는 단계
+	3. D-select :
+	   코디 : 본인의 패킷을 까서, 자신이 코디이면, Qmanager에게 코디임을 등록 하고, 레이싱 메시지를 각 운영위 후보군에 멀티캐스트
+	         코디는 메시지 이벤트 핸들러에서, 운영위 후보군으로부터, 레이싱 메시지를 선착순으로 선발해서, 15등 안에 도달하는 운영위 후보만,
+	         선발하여, 최종 운영위 후보( 하원 )로 확정하고, Qmanager에 확정 메시지와, 선발된 운영위 후보 목록을 전송한다.
+	   운영위 후보군: 본인의 패킷을 까서, 자신이 운영위 후보군이면 코디로 부터 레이싱메시지 수신을 기다렸다가, 레이싱 메신지를 수신하면,
+	         코디에게 "내가 운영위 후보"라는 메시지를 보내고 레이싱에 참여한다.
+	4. D-commit : 코디는 , 상임위, 최종 선발된 운영위들에 대하여 , 제안된 블럭을 가지고, , ( 상임위 14 + 확정된 운영위(하원) 15= 총 29개)
+	              투표(Voting)를 통하여 51%의 동의 메시지를 수신하면, 전체 노드에게 결과를 브로드캐스트해서, 각 노드들이 블럭을 체인에 삽입하도록 명령한다.
+	5. D-committed: 블럭 삽입이 성공한 후,  이 상태로 바뀐다.
+	6. Final committed: New Round 로 가기 전 단계로, 모든 변수 등을 초기화 한다.
+	 */
 
-	// msgD_commit          // podc
-	// msgD_select          // podc
-	msgRequestQman
-	msgHandleQman // for Qman, receive event handler from geth ( sending qmanager )
-	msgAll
-	//New Qmanager Implementation
-	msgExtraDataRequest
-	msgExtraDataSend
-
-	msgCoordinatorConfirmRequest
-	msgCoordinatorConfirmSend
-
-//=======
-/*	msgRequestQman        // send a request to Qmanager in order to get ExtraDATA
-	msgReceivedFromQman   // When receive a message from Qmanager, msg is ExtraData
-	msgPrepare
-	msgCommit
-	msgRoundChange
-
-	msgGetCandiateList   // podc
-	msgStartRacing       // podc
-	msgRegisterCommittee // podc
-
-//>>>>>>> working:consensus/podc/core/types.go
-*/
 )
 
 type message struct {
