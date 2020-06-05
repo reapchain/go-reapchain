@@ -206,12 +206,12 @@ OUTER:
 		}
 
 		// prepared is normal case
-		if r0.state != StatePrepared {
+		if r0.state != StateDselected {
 			// There are not enough prepared messages in core
 			if r0.state != StatePreprepared {
 				t.Errorf("state mismatch: have %v, want %v", r0.state, StatePreprepared)
 			}
-			if r0.current.Prepares.Size() > 2*r0.valSet.F() {
+			if r0.current.Dselects.Size() > 2*r0.valSet.F() {
 				t.Errorf("the size of prepare messages should be less than %v", 2*r0.valSet.F()+1)
 			}
 
@@ -219,8 +219,8 @@ OUTER:
 		}
 
 		// core should have 2F+1 prepare messages
-		if r0.current.Prepares.Size() <= 2*r0.valSet.F() {
-			t.Errorf("the size of prepare messages should be larger than 2F+1: size %v", r0.current.Commits.Size())
+		if r0.current.Dselects.Size() <= 2*r0.valSet.F() {
+			t.Errorf("the size of prepare messages should be larger than 2F+1: size %v", r0.current.Dcommits.Size())
 		}
 
 		// a message will be delivered to backend if 2F+1
@@ -235,8 +235,8 @@ OUTER:
 			t.Errorf("error mismatch: have %v, want nil", err)
 		}
 
-		if decodedMsg.Code != msgCommit {
-			t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgCommit)
+		if decodedMsg.Code != msgDCommit {
+			t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgDCommit)
 		}
 		var m *podc.Subject
 		err = decodedMsg.Decode(&m)

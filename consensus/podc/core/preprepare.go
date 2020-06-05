@@ -42,10 +42,10 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 			return
 		}
 
-			// Qmanager에게 최초 메시지 보낼때, payload 를 뭘로 줄건지?
-		if c.valSet.IsProposer(c.Address()) {
+
+		if c.valSet.IsProposer(c.Address()) {  //Proposer인 경우만 Qman에게 요청 메시지 보낸다.
 			c.broadcast(&message{
-				Code: msgHandleQman,
+				Code: msgRequest,  //request to qman to get ExtraData
 				Msg: preprepare,
 				Address: c.qmanager,
 			})
@@ -55,7 +55,7 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 
 	}
 }
-
+// 2. go to step 2 : pre-prepare step
 func (c *core) sendPreprepare(request *podc.Request) {
 	logger := c.logger.New("state", c.state)
 
@@ -123,7 +123,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 		log.Info("3. Set pre-prepare state", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
 
-		if c.state == StateRequestQman {
+		if c.state == StateRequest {
 			c.acceptPreprepare(preprepare)
 			c.setState(StatePreprepared)
 			//c.sendPrepare()
@@ -158,7 +158,7 @@ func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
 	}
 
 		if c.valSet.IsProposer(c.Address()){
-		log.Info("I'm Proposer!!!!!!!")
+			log.Info("I'm Proposer!!!!!!!")
 	}
 		// Verify the proposal we received
 		if err := c.backend.Verify(preprepare.Proposal); err != nil{
@@ -170,7 +170,7 @@ func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
 		if c.state == StateAcceptRequest{
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
-		//c.sendPrepare()
+		log.Info("2. handlePreprepare: StatePreprepared")
 		if c.valSet.IsProposer(c.Address()){
 		c.sendDSelect()
 	}

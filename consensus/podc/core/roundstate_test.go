@@ -27,8 +27,8 @@ func newTestRoundState(view *podc.View, validatorSet podc.ValidatorSet) *roundSt
 		round:       view.Round,
 		sequence:    view.Sequence,
 		Preprepare:  newTestPreprepare(view),
-		Prepares:    newMessageSet(validatorSet),
-		Commits:     newMessageSet(validatorSet),
+		Dselects:    newMessageSet(validatorSet),
+		Dcommits:    newMessageSet(validatorSet),
 		Checkpoints: newMessageSet(validatorSet),
 		mu:          new(sync.RWMutex),
 	}

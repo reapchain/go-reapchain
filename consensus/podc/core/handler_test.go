@@ -87,7 +87,7 @@ func TestHandleMsg(t *testing.T) {
 	})
 	// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
 	msg = &message{
-		Code:          msgCommit,
+		Code:          msgDCommit,
 		Msg:           m,
 		Address:       v0.Address(),
 		Signature:     []byte{},

@@ -340,7 +340,7 @@ func (pm *protocolManager) handle(p *peer, handleMsg func(*peer, p2p.Msg) error)
 	}
 	// main loop. handle incoming messages.
 	// 들어오는 메세지에 대해서 핸들링 할 메인 루프
-	for {
+	for {  //추후 select로 바꿔볼 것
 		if err := pm.handlePeerMsg(p, handleMsg); err != nil {
 			p.Log().Debug("Ethereum message handling failed", "err", err)
 			return err

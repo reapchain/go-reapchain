@@ -193,6 +193,7 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 
 func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error {
 	if c.state == StatePreprepared {
+		log.Info( "handleCandidateDecide: StatePreprepared")
 		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
 		c.sendDCommit()

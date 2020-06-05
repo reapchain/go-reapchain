@@ -1,1 +1,1 @@
-package qman
+package main

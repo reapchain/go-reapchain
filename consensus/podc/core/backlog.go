@@ -25,9 +25,10 @@ var (
 	// msgPriority is defined for calculating processing priority to speedup consensus
 	// msgPreprepare > msgCommit > msgPrepare
 	msgPriority = map[uint64]int{
-		msgPreprepare: 1,
-		msgCommit:     2,
-		msgPrepare:    3,
+		msgRequest: 1,
+		msgPreprepare: 2,
+		msgDSelect: 3,
+		msgDCommit: 4,
 
 	}
 )
@@ -122,7 +123,7 @@ func (c *core) processBacklog() {
 			msg := m.(*message)
 			var view *podc.View
 			switch msg.Code {
-			case msgPreprepare:
+			case msgPreprepare:  //다른 노드들은 기다리는 상태.. ?
 				var m *podc.Preprepare
 				err := msg.Decode(&m)
 				if err == nil {

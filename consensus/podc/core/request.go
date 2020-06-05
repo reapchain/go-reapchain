@@ -44,9 +44,9 @@ func (c *core) handleRequest(request *podc.Request) error {
   //Qmanager가 아니라면,
   if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
 	  log.Info("I'm not Qman  in handleRequest: sendRequestExtraDataToQman" )
-	if c.state ==StateRequestQman {
+	if c.state ==StateRequest {
 		// c.sendPre_prepare()  //send to Qman to get Extradata
-		log.Info("StateRequestQman", "StateRequestQman", StateRequestQman)
+		log.Info("StateRequestQman", "StateRequestQman", StateRequest)
 		c.sendRequestExtraDataToQman(request)
 	}
 
@@ -122,9 +122,7 @@ func (c *core) processPendingRequests() {
 	}
 }
 
-func makemsg() interface{} {
-	return 0x12345
-}
+
 //PendingRequest 는 지연 요청으로, 곧바로 보내지않고, 고루틴을 써서, 지연 처리.. ?
 func (c *core) processPendingRequestsQman() {
 	c.pendingRequestsMu.Lock()

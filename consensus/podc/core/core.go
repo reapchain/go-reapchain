@@ -36,7 +36,7 @@ func New(backend podc.Backend, config *podc.Config) Engine {
 	c := &core{
 		config:             config,
 		address:            backend.Address(),
-		state:              StateAcceptRequest,
+		state:              StateAcceptRequest,  //다 Qman에 ExtraData를 요청하는게 맞나? 아니면, 프런트 노드만 요청하는가?
 		logger:             log.New("address", backend.Address()),
 		backend:            backend,
 		backlogs:           make(map[podc.Validator]*prque.Prque),
@@ -116,7 +116,7 @@ func (c *core) finalizeMessage(msg *message) ([]byte, error) {
 	// Add proof of consensus
 	msg.CommittedSeal = []byte{}  // CommittedSeal 배열 초기화
 	// Assign the CommittedSeal if it's a commit message and proposal is not nil
-	if msg.Code == msgCommit && c.current.Proposal() != nil {
+	if msg.Code == msgDCommit && c.current.Proposal() != nil {
 		seal := PrepareCommittedSeal(c.current.Proposal().Hash())  // message 구조체에 CommittedSeal 배열을 채움
 		msg.CommittedSeal, err = c.backend.Sign(seal)
 		if err != nil {
@@ -213,12 +213,12 @@ func (c *core) isProposer() bool {
 }
 
 func (c *core) commit() {
-	c.setState(StateCommitted)
-
+	c.setState(StateDCommitted)
+    log.Info("3.commit : StateCommitted")
 	proposal := c.current.Proposal()
 	if proposal != nil {
 		var signatures []byte
-		for _, v := range c.current.Commits.Values() {
+		for _, v := range c.current.Dcommits.Values() {
 			signatures = append(signatures, v.CommittedSeal...) //  최종 커밋시, 서명이 들어가서,, 커밋함.
 		}
 
@@ -266,8 +266,9 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 	// Calculate new proposer
 	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64(), c.qmanager)
 	c.waitingForRoundChange = false
-	//c.setState(StateAcceptRequest)
-	c.setState(StateRequestQman)  //added by yichoi for state of request and response of extra data to Qmanager
+	c.setState(StateRequest)  //
+	//c.setState(StateRequest)  //added by yichoi for state of request and response of extra data to Qmanager
+	log.Info("1. StartNewRound: StateRequestQman")
 	if roundChange && c.isProposer() {
 		c.backend.NextRound()
 	}
@@ -277,7 +278,7 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 	c.newRoundChangeTimer()  //마냥 기다릴수 없어서, 여기서 타이머 설정하고, 빠져나감, 나머지는 메시지/이벤트 핸들러에서, 이벤트/메시지 수신시
 	// 처리함.
 
-	logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "valSet", c.valSet.List(), "size", c.valSet.Size())
+	logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "size", c.valSet.Size())
 }
 
 func (c *core) catchUpRound(view *podc.View) {
@@ -301,7 +302,8 @@ func (c *core) 	setState(state State) {
 	//if state == StateRequestQman {
 	//	c.processPendingRequestsQman()
 	//}
-	if state == StateAcceptRequest || state == StateRequestQman {
+	if state == StateAcceptRequest || state == StateRequest {
+	//if  state == StateRequest { //합의 제데로 동작안함.
 		c.processPendingRequests()
 	}
 	c.processBacklog()
@@ -344,7 +346,7 @@ func (c *core) checkValidatorSignature(data []byte, sig []byte) (common.Address,
 func PrepareCommittedSeal(hash common.Hash) []byte {
 	var buf bytes.Buffer
 	buf.Write(hash.Bytes())
-	buf.Write([]byte{byte(msgCommit)})
+	buf.Write([]byte{byte(msgDCommit)})
 	return buf.Bytes()
 }
 

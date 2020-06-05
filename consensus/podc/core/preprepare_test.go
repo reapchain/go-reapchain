@@ -17,6 +17,8 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/log"
+	//"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"reflect"
 	"testing"
@@ -32,7 +34,7 @@ func newTestPreprepare(v *podc.View) *podc.Preprepare {
 }
 
 func TestHandlePreprepare(t *testing.T) {
-	N := uint64(4) // replica 0 is primary, it will send messages to others
+	N := uint64(20) // replica 0 is primary, it will send messages to others
 	F := uint64(1) // F does not affect tests
 
 	testCases := []struct {
@@ -152,6 +154,7 @@ OUTER:
 			m, _ := Encode(preprepare)
 			_, val := r0.valSet.GetByAddress(v0.Address())
 			// run each backends and verify handlePreprepare function.
+			log.Info("Address", "Address", v0.Address() )
 			if err := c.handlePreprepare(&message{
 				Code:    msgPreprepare,
 				Msg:     m,
@@ -172,14 +175,20 @@ OUTER:
 			}
 
 			// verify prepare messages
+			//log.Info("message=", "message",message)
+			//testmsg := &message{
+			//	Code:    msgPreprepare,
+			//	Msg:     m,
+			//	Address: v0.Address(),
+			//}
 			decodedMsg := new(message)
 			err := decodedMsg.FromPayload(v.sentMsgs[0], nil)
 			if err != nil {
 				t.Errorf("error mismatch: have %v, want nil", err)
 			}
 
-			if decodedMsg.Code != msgPrepare {
-				t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgPrepare)
+			if decodedMsg.Code != msgDSelect {
+				t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgDSelect)
 			}
 			var subject *podc.Subject
 			err = decodedMsg.Decode(&subject)

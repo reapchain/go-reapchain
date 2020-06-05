@@ -30,8 +30,8 @@ func newRoundState(view *podc.View, validatorSet podc.ValidatorSet) *roundState 
 		round:       view.Round,
 		sequence:    view.Sequence,
 		Preprepare:  nil,
-		Prepares:    newMessageSet(validatorSet),
-		Commits:     newMessageSet(validatorSet),
+		Dselects:    newMessageSet(validatorSet),
+		Dcommits:     newMessageSet(validatorSet),
 		Checkpoints: newMessageSet(validatorSet),
 		mu:          new(sync.RWMutex),
 	}
@@ -47,8 +47,8 @@ type roundState struct {
 	//D_commit  *podc.D_commit
 
 
-	Prepares    *messageSet
-	Commits     *messageSet
+	Dselects    *messageSet
+	Dcommits     *messageSet
 	Checkpoints *messageSet
 
 	mu *sync.RWMutex
@@ -140,8 +140,8 @@ func (s *roundState) DecodeRLP(stream *rlp.Stream) error {
 		Round       *big.Int
 		Sequence    *big.Int
 		Preprepare  *podc.Preprepare
-		Prepares    *messageSet
-		Commits     *messageSet
+		Dselects    *messageSet
+		Dcommits     *messageSet
 		Checkpoints *messageSet
 	}
 
@@ -151,8 +151,8 @@ func (s *roundState) DecodeRLP(stream *rlp.Stream) error {
 	s.round = ss.Round
 	s.sequence = ss.Sequence
 	s.Preprepare = ss.Preprepare
-	s.Prepares = ss.Prepares
-	s.Commits = ss.Commits
+	s.Dselects = ss.Dselects
+	s.Dcommits = ss.Dcommits
 	s.Checkpoints = ss.Checkpoints
 	s.mu = new(sync.RWMutex)
 
@@ -175,8 +175,8 @@ func (s *roundState) EncodeRLP(w io.Writer) error {
 		s.round,
 		s.sequence,
 		s.Preprepare,
-		s.Prepares,
-		s.Commits,
+		s.Dselects,
+		s.Dcommits,
 		s.Checkpoints,
 	})
 }
