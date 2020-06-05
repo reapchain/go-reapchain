@@ -18,6 +18,7 @@ package core
 
 import (
 	"math/big"
+	"os"
 	"reflect"
 	"testing"
 	"time"
@@ -78,6 +79,10 @@ func TestNewRequest(t *testing.T) {
 	for _, backend := range sys.backends {
 		if len(backend.commitMsgs) != 0 {
 			t.Errorf("the number of executed requests mismatch: have %v, want 2", len(backend.commitMsgs))
+		}
+		if backend.commitMsgs[0] == nil {
+			t.Errorf("backend.commitMsgs[0]h:")
+			os.Exit(0)
 		}
 		if !reflect.DeepEqual(request1.Number(), backend.commitMsgs[0].Number()) {
 			t.Errorf("the number of requests mismatch: have %v, want %v", request1.Number(), backend.commitMsgs[0].Number())

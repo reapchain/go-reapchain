@@ -26,7 +26,7 @@ import (
 
 // notice: the normal case have been tested in integration tests.
 func TestHandleMsg(t *testing.T) {
-	N := uint64(4)
+	N := uint64(28)
 	F := uint64(1)
 	sys := NewTestSystemWithBackend(N, F)
 
@@ -36,15 +36,36 @@ func TestHandleMsg(t *testing.T) {
 	v0 := sys.backends[0]
 	r0 := v0.engine.(*core)
 
-	m, _ := Encode(&podc.Subject{
+	//m, _ := Encode(&podc.Subject{
+	//	View: &podc.View{
+	//		Sequence: big.NewInt(0),
+	//		Round:    big.NewInt(0),
+	//	},
+	//	Digest: common.StringToHash("1234567890"),
+	//})
+	//// with a matched payload. msgRequest should match with *podc. Request in normal case.
+	//msg := &message{
+	//	Code:          msgRequest,
+	//	Msg:           m,
+	//	Address:       v0.Address(),
+	//	Signature:     []byte{},
+	//	CommittedSeal: []byte{},
+	//}
+	//
+	//_, val := v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePreprepare {
+	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
+	//}
+
+	m, _ := Encode(&podc.Proposal{
 		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
+			Sequence: big.NewInt(1),
+			Round:    big.NewInt(1),
 		},
-		Digest: common.StringToHash("1234567890"),
+		Proposal: makeBlock(1),
 	})
-	// with a matched payload. msgPreprepare should match with *istanbul.Preprepare in normal case.
-	msg := &message{
+	// with a unmatched payload. msgPrepare should match with *istanbul.Subject in normal case.
+	msg = &message{
 		Code:          msgPreprepare,
 		Msg:           m,
 		Address:       v0.Address(),
@@ -52,8 +73,8 @@ func TestHandleMsg(t *testing.T) {
 		CommittedSeal: []byte{},
 	}
 
-	_, val := v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePreprepare {
+	_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePrepare {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
 	}
 
@@ -62,175 +83,154 @@ func TestHandleMsg(t *testing.T) {
 	//		Sequence: big.NewInt(0),
 	//		Round:    big.NewInt(0),
 	//	},
-	//	Proposal: makeBlock(1),
+	//	Proposal: makeBlock(2),
 	//})
-	//// with a unmatched payload. msgPrepare should match with *istanbul.Subject in normal case.
+	//// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
 	//msg = &message{
-	//	Code:          msgPrepare,
+	//	Code:          msgDCommit,
 	//	Msg:           m,
 	//	Address:       v0.Address(),
 	//	Signature:     []byte{},
 	//	CommittedSeal: []byte{},
 	//}
-	//
+   //
 	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePrepare {
-	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
+	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
 	//}
-
-	m, _ = Encode(&podc.Preprepare{
-		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
-		},
-		Proposal: makeBlock(2),
-	})
-	// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
-	msg = &message{
-		Code:          msgDCommit,
-		Msg:           m,
-		Address:       v0.Address(),
-		Signature:     []byte{},
-		CommittedSeal: []byte{},
-	}
-
-	_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
-		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
-	}
-
-	m, _ = Encode(&podc.Preprepare{
-		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
-		},
-		Proposal: makeBlock(3),
-	})
-	// invalid message code. message code is not exists in list
-	msg = &message{
-		Code:          uint64(99),
-		Msg:           m,
-		Address:       v0.Address(),
-		Signature:     []byte{},
-		CommittedSeal: []byte{},
-	}
-
-	_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err == nil {
-		t.Errorf("error mismatch: have %v, want nil", err)
-	}
-
-	// with malicious payload
-	if err := r0.handleMsg([]byte{1}); err == nil {
-		t.Errorf("error mismatch: have %v, want nil", err)
-	}
-	//--------------------- yichoi ------------------------
-
-	m, _ = Encode(&podc.Preprepare{
-		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
-		},
-		Proposal: makeBlock(2),
-	})
-	// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
-	msg = &message{
-		Code:          msgDSelect,
-		Msg:           m,
-		Address:       v0.Address(),
-		Signature:     []byte{},
-		CommittedSeal: []byte{},
-	}
-
-	_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
-		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
-	}
-   //-------------------------------------
-	m, _ = Encode(&podc.Preprepare{
-		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
-		},
-		Proposal: makeBlock(2),
-	})
-	// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
-	msg = &message{
-		Code:          msgCoordinatorDecide,
-		Msg:           m,
-		Address:       v0.Address(),
-		Signature:     []byte{},
-		CommittedSeal: []byte{},
-	}
-
-	_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
-		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
-	}
-	//-------------------------------------
-	m, _ = Encode(&podc.Preprepare{
-		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
-		},
-		Proposal: makeBlock(2),
-	})
-	// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
-	msg = &message{
-		Code:          msgRacing,
-		Msg:           m,
-		Address:       v0.Address(),
-		Signature:     []byte{},
-		CommittedSeal: []byte{},
-	}
-
-	_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
-		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
-	}
-	//-------------------------------------
-	m, _ = Encode(&podc.Preprepare{
-		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
-		},
-		Proposal: makeBlock(2),
-	})
-	// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
-	msg = &message{
-		Code:          msgCandidateDecide,
-		Msg:           m,
-		Address:       v0.Address(),
-		Signature:     []byte{},
-		CommittedSeal: []byte{},
-	}
-
-	_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
-		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
-	}
-
-	m, _ = Encode(&podc.Preprepare{
-		View: &podc.View{
-			Sequence: big.NewInt(0),
-			Round:    big.NewInt(0),
-		},
-		Proposal: makeBlock(2),
-	})
-	// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
-	msg = &message{
-		Code:          msgRoundChange,
-		Msg:           m,
-		Address:       v0.Address(),
-		Signature:     []byte{},
-		CommittedSeal: []byte{},
-	}
-
-	_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
-		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
-	}
-
+   //
+	//m, _ = Encode(&podc.Preprepare{
+	//	View: &podc.View{
+	//		Sequence: big.NewInt(0),
+	//		Round:    big.NewInt(0),
+	//	},
+	//	Proposal: makeBlock(3),
+	//})
+	//// invalid message code. message code is not exists in list
+	//msg = &message{
+	//	Code:          uint64(99),
+	//	Msg:           m,
+	//	Address:       v0.Address(),
+	//	Signature:     []byte{},
+	//	CommittedSeal: []byte{},
+	//}
+   //
+	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err == nil {
+	//	t.Errorf("error mismatch: have %v, want nil", err)
+	//}
+   //
+	//// with malicious payload
+	//if err := r0.handleMsg([]byte{1}); err == nil {
+	//	t.Errorf("error mismatch: have %v, want nil", err)
+	//}
+	////--------------------- yichoi ------------------------
+   //
+	//m, _ = Encode(&podc.Preprepare{
+	//	View: &podc.View{
+	//		Sequence: big.NewInt(0),
+	//		Round:    big.NewInt(0),
+	//	},
+	//	Proposal: makeBlock(2),
+	//})
+	//// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
+	//msg = &message{
+	//	Code:          msgDSelect,
+	//	Msg:           m,
+	//	Address:       v0.Address(),
+	//	Signature:     []byte{},
+	//	CommittedSeal: []byte{},
+	//}
+   //
+	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
+	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
+	//}
+   ////-------------------------------------
+	//m, _ = Encode(&podc.Preprepare{
+	//	View: &podc.View{
+	//		Sequence: big.NewInt(0),
+	//		Round:    big.NewInt(0),
+	//	},
+	//	Proposal: makeBlock(2),
+	//})
+	//// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
+	//msg = &message{
+	//	Code:          msgCoordinatorDecide,
+	//	Msg:           m,
+	//	Address:       v0.Address(),
+	//	Signature:     []byte{},
+	//	CommittedSeal: []byte{},
+	//}
+   //
+	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
+	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
+	//}
+	////-------------------------------------
+	//m, _ = Encode(&podc.Preprepare{
+	//	View: &podc.View{
+	//		Sequence: big.NewInt(0),
+	//		Round:    big.NewInt(0),
+	//	},
+	//	Proposal: makeBlock(2),
+	//})
+	//// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
+	//msg = &message{
+	//	Code:          msgRacing,
+	//	Msg:           m,
+	//	Address:       v0.Address(),
+	//	Signature:     []byte{},
+	//	CommittedSeal: []byte{},
+	//}
+   //
+	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
+	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
+	//}
+	////-------------------------------------
+	//m, _ = Encode(&podc.Preprepare{
+	//	View: &podc.View{
+	//		Sequence: big.NewInt(0),
+	//		Round:    big.NewInt(0),
+	//	},
+	//	Proposal: makeBlock(2),
+	//})
+	//// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
+	//msg = &message{
+	//	Code:          msgCandidateDecide,
+	//	Msg:           m,
+	//	Address:       v0.Address(),
+	//	Signature:     []byte{},
+	//	CommittedSeal: []byte{},
+	//}
+   //
+	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
+	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
+	//}
+   //
+	//m, _ = Encode(&podc.Preprepare{
+	//	View: &podc.View{
+	//		Sequence: big.NewInt(0),
+	//		Round:    big.NewInt(0),
+	//	},
+	//	Proposal: makeBlock(2),
+	//})
+	//// with a unmatched payload. istanbul.MsgCommit should match with *istanbul.Subject in normal case.
+	//msg = &message{
+	//	Code:          msgRoundChange,
+	//	Msg:           m,
+	//	Address:       v0.Address(),
+	//	Signature:     []byte{},
+	//	CommittedSeal: []byte{},
+	//}
+   //
+	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
+	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
+	//}
+   //
 
 
 

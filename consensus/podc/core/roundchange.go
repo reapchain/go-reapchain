@@ -19,7 +19,6 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
-	"reflect"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -31,14 +30,14 @@ func (c *core) sendNextRoundChange() {
 	//logger := c.logger.New("state", c.state)
 	cv := c.currentView()
 	//if (c.qmanager == c.Address()) { // i am qmanager then
-	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	//if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
 
 		//parent of a1d533a8... Inconsistent problem is solved, but I should test it more, on Amazon Dev.
 		//if( qManager.QManConnected ){
 		log.Info("I'm Qmanager sendNextRoundChange ", "cv.Round", cv.Round, "cv.Sequence", cv.Sequence)
 		//logger.Error("This Inconsistent warning ", "current round", cv.Round)
 
-	}
+//	}
 		//c.sendRoundChange(new(big.Int).Set(cv.Round))  // 1 증가시킴
 	//} else {
 		c.sendRoundChange(new(big.Int).Add(cv.Round, common.Big1))  // 1 증가시킴
@@ -55,9 +54,9 @@ func (c *core) sendRoundChange(round *big.Int) {
 		logger.Error("Cannot send out the round change", "current round", cv.Round, "target round", round)
 		return
 	}
-	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
-		log.Info("I'm Qmanager sendRoundChange ", "cv.Round", cv.Round, "cv.Sequence", cv.Sequence)
-	}
+	//if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	//	log.Info("I'm Qmanager sendRoundChange ", "cv.Round", cv.Round, "cv.Sequence", cv.Sequence)
+	//}
 	c.catchUpRound(&podc.View{
 		// The round number we'd like to transfer to.
 		Round:    new(big.Int).Set(round),
@@ -86,7 +85,7 @@ func (c *core) sendRoundChange(round *big.Int) {
 
 func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 	logger := c.logger.New("state", c.state)
-	if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	//if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
 
 		// Decode round change message
 		var rc *roundChange
@@ -149,7 +148,7 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 			}, true)
 		}
 
-	}
+	//}
 
 	return nil
 }

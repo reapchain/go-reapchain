@@ -20,6 +20,7 @@ package event
 import (
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"reflect"
 	"sync"
 	"time"
@@ -46,7 +47,7 @@ type TypeMux struct {
 
 // ErrMuxClosed is returned when Posting on a closed TypeMux.
 var ErrMuxClosed = errors.New("event: mux closed")
-
+var NilPointer = errors.New("event: nil pointer dereference")
 // Subscribe creates a subscription for events of the given types. The
 // subscription's channel is closed when it is unsubscribed
 // or the mux is closed.
@@ -178,8 +179,13 @@ func (s *TypeMuxSubscription) Chan() <-chan *TypeMuxEvent {
 }
 
 func (s *TypeMuxSubscription) Unsubscribe() {
-	s.mux.del(s)
-	s.closewait()
+	if ( s == nil ){
+		log.Info("Nil pointer error:")
+	}else{
+		s.mux.del(s)
+		s.closewait()
+	}
+
 }
 
 func (s *TypeMuxSubscription) closewait() {

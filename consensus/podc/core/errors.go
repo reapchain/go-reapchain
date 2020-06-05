@@ -39,8 +39,18 @@ var (
 	errFailedDecodePreprepare = errors.New("failed to decode preprepare")
 	// errFailedDecodePrepare is returned when the prepare message is malformed.
 	errFailedDecodePrepare = errors.New("failed to decode prepare")
+
+	// errFailedDecodePrepare is returned when the prepare message is malformed.
+	errFailedDecodeDselect = errors.New("failed to decode d-select")
+
+
+	// errFailedDecodeCommit is returned when the commit message is malformed.
+	errFailedDecodeDcommit = errors.New("failed to decode d-commit")
 	// errFailedDecodeCommit is returned when the commit message is malformed.
 	errFailedDecodeCommit = errors.New("failed to decode commit")
+
+
+
 	// errFailedDecodeCheckpoint is returned when the checkpoint message is malformed.
 	errFailedDecodeCheckpoint = errors.New("failed to decode checkpoint")
 	// errFailedDecodeMessageSet is returned when the message set is malformed.

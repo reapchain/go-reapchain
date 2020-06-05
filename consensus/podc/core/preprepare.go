@@ -18,7 +18,6 @@ package core
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"reflect"
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/podc"
@@ -83,7 +82,7 @@ func (c *core) sendPreprepare(request *podc.Request) {
 
 func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //request to qman
 	logger := c.logger.New("from", src, "state", c.state)
-	if (!reflect.DeepEqual(c.qmanager, c.Address())) {
+	//if (!reflect.DeepEqual(c.qmanager, c.Address())) {
 		log.Info("I'm not Qman in handleQmanager" )
 
 		// Qmanager receiver에 맞게 수정할 부분 begin
@@ -132,7 +131,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			}
 		}
 		// 수정할 부분 end
-	}
+	//}
 	return nil
 }
 
