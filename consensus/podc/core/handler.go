@@ -31,6 +31,8 @@ import (
 // Start implements core.Engine.Start
 func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error {
 	// Initialize last proposer
+	log.Info("lastSequence", "lastSequence", lastSequence)
+
 	c.lastProposer = lastProposer
 	var err error
 	if( qmanager == nil ) {
@@ -62,8 +64,8 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	start :=time.Now()
 	log.Info("start time of consensus of core engine start()", "start time", start )
 	c.startNewRound(&podc.View{
-		Sequence: new(big.Int).Add(lastSequence, common.Big1),
-		Round:    common.Big0,
+		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //seq +1
+		Round:    common.Big0,                                   //round 0
 	}, false)
 
 	// Tests will handle events itself, so we have to make subscribeEvents()
@@ -164,11 +166,9 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 
 	switch msg.Code {
 	/* Qmanager handler for receiving from geth : sending qmanager event */
-	//case msgHandleQman:
-	//	return testBacklog(c.handleQmanager(msg, src))  //Qmanager receiving event hadler
-	//case msgPrepare:
-	//	return testBacklog(c.handlePrepare(msg, src))
+	case msgRequest:
 
+		return testBacklog(c.handleQmanager(msg, src))  //Sending to Qmanager  event hadler  // this geth only proposer.
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
 	case msgDSelect:
@@ -179,10 +179,13 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleRacing(msg, src))
 	case msgCandidateDecide:
 		return testBacklog(c.handleCandidateDecide(msg, src))
-	case msgCommit:
+	//case msgPrepare:
+	//	return testBacklog(c.handlePrepare(msg, src))
+	case msgDCommit:
 		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))
+//Qmanager related begin
 	case msgExtraDataRequest:
 		return testBacklog(c.handleExtraData(msg, src))
 	case msgExtraDataSend:
@@ -191,7 +194,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.CoordinatorConfirmation(msg, src))
 	case msgCoordinatorConfirmSend:
 		return testBacklog(c.handleCoordinatorConfirm(msg, src))
-
+//Qman end
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}
