@@ -101,6 +101,7 @@ const (
 
 	//2. Pre-prepare step
 	msgPreprepare
+	msgPrepare
 	//3. D-select step
 	msgDSelect
 	msgCoordinatorDecide  //notify to Qman
