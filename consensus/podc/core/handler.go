@@ -166,7 +166,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 
 	switch msg.Code {
 	/* Qmanager handler for receiving from geth : sending qmanager event */
-	case msgRequest:
+	case msgHandleQman:
 
 		return testBacklog(c.handleQmanager(msg, src))  //Sending to Qmanager  event hadler  // this geth only proposer.
 	case msgPreprepare:
@@ -181,7 +181,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleCandidateDecide(msg, src))
 	//case msgPrepare:
 	//	return testBacklog(c.handlePrepare(msg, src))
-	case msgDCommit:
+	case msgCommit:
 		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))
