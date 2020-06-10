@@ -640,7 +640,7 @@ func ExampleJSON() {
 		log.Fatalln(err)
 	}
 
-	fmt.Printf("%x\n", out)
+	//fmt.Printf("%x\n", out)
 	// Output:
 	// 1f2c40920000000000000000000000000000000000000000000000000000000000000001
 }

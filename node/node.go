@@ -172,7 +172,7 @@ func (n *Node) Start() error {
 	}
 	if n.serverConfig.QmanagerNodes == nil {
 		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
-		fmt.Printf("Qmanager=%v\n",n.serverConfig.QmanagerNodes )
+		log.Debug("Qmanager=%v\n",n.serverConfig.QmanagerNodes )
 	}
 
 	if n.serverConfig.TrustedNodes == nil {
@@ -180,7 +180,7 @@ func (n *Node) Start() error {
 	}
 	if n.serverConfig.NodeDatabase == "" {
 		n.serverConfig.NodeDatabase = n.config.NodeDB()   //discovery node db
-		fmt.Printf("NodeDB=%v\n",n.serverConfig.NodeDatabase )
+		//fmt.Printf("NodeDB=%v\n",n.serverConfig.NodeDatabase )
 	}
 	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
 
@@ -253,7 +253,7 @@ func (n *Node) Start() error {
 	n.services = services
 	n.server = running
 	n.stop = make(chan struct{})
-	fmt.Printf("NODE SELF=%v\n", n.server.Self())
+	log.Info("NODE SELF=%v\n", "n.server" , n.server.Self())
 
 
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
@@ -340,7 +340,7 @@ func (n *Node) startInProc(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		log.Debug(fmt.Sprintf("InProc registered %T under '%s'", api.Service, api.Namespace))
+		//log.Debug(fmt.Sprintf("InProc registered %T under '%s'", api.Service, api.Namespace))
 	}
 	n.inprocHandler = handler
 	return nil
@@ -366,7 +366,7 @@ func (n *Node) startIPC(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		log.Debug(fmt.Sprintf("IPC registered %T under '%s'", api.Service, api.Namespace))
+		//log.Debug(fmt.Sprintf("IPC registered %T under '%s'", api.Service, api.Namespace))
 	}
 	// All APIs registered, start the IPC listener
 	var (
@@ -419,7 +419,7 @@ func (n *Node) startQmanagerRegister(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		log.Debug(fmt.Sprintf("public key  registered to Qmanager %T under '%s'", api.Service, api.Namespace))
+		//log.Debug(fmt.Sprintf("public key  registered to Qmanager %T under '%s'", api.Service, api.Namespace))
 	}
 	// All APIs registered, start the IPC listener
 	var (
@@ -501,7 +501,7 @@ func (n *Node) startHTTP(endpoint string, apis []rpc.API, modules []string, cors
 			if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 				return err
 			}
-			log.Debug(fmt.Sprintf("HTTP registered %T under '%s'", api.Service, api.Namespace))
+			//log.Debug(fmt.Sprintf("HTTP registered %T under '%s'", api.Service, api.Namespace))
 		}
 	}
 	// All APIs registered, start the HTTP listener

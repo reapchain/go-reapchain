@@ -267,11 +267,11 @@ func (c *Config) resolvePath(path string) string {
 		oldpath := ""
 		if c.Name == "geth" {
 			oldpath = filepath.Join(c.DataDir, path)
-			log.Info("resolvePath:", "oldpath", oldpath)
+			//log.Info("resolvePath:", "oldpath", oldpath)
 		}
 		if oldpath != "" && common.FileExist(oldpath) {
 			// TODO: print warning
-			log.Info("resolvePath:", "oldpath", oldpath)
+			//log.Info("resolvePath:", "oldpath", oldpath)
 			return oldpath
 		}
 	}

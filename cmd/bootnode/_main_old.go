@@ -20,7 +20,6 @@ package main
 import (
 	"crypto/ecdsa"
 	"flag"
-	"fmt"
 	"os"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
@@ -84,7 +83,7 @@ func main() {
 	}
 
 	if *writeAddr {
-		fmt.Printf("%v\n", discover.PubkeyID(&nodeKey.PublicKey))
+		//fmt.Printf("%v\n", discover.PubkeyID(&nodeKey.PublicKey))
 		os.Exit(0)
 	}
 

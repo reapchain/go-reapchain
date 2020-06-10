@@ -224,7 +224,7 @@ func (ac *accountCache) reload() {
 	case ac.notify <- struct{}{}:
 	default:
 	}
-	log.Debug("Reloaded keystore contents", "accounts", len(ac.all))
+	//log.Debug("Reloaded keystore contents", "accounts", len(ac.all))
 }
 
 func (ac *accountCache) scan() ([]accounts.Account, error) {
