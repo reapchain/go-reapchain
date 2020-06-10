@@ -18,7 +18,6 @@ package core
 
 import (
 	"github.com/ethereum/go-ethereum/common"
-	"reflect"
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/podc"
@@ -83,8 +82,8 @@ func (c *core) sendPreprepare(request *podc.Request) {
 
 func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //request to qman
 	logger := c.logger.New("from", src, "state", c.state)
-	if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
-		log.Info("I'm not Qman in handleQmanager" )
+	//if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	//	log.Info("I'm not Qman in handleQmanager" )
 
 		// Qmanager receiver에 맞게 수정할 부분 begin
 		// 1. Extra data 전송하고,
@@ -132,7 +131,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			}
 		}
 		// 수정할 부분 end
-	}
+	//}
 	return nil
 }
 
@@ -158,8 +157,8 @@ func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
 	}
 
 		if c.valSet.IsProposer(c.Address()){
-		log.Info("I'm Proposer!!!!!!!")
-	}
+			log.Info("I'm Proposer!!!!!!!")
+		}
 		// Verify the proposal we received
 		if err := c.backend.Verify(preprepare.Proposal); err != nil{
 		logger.Warn("Failed to verify proposal", "err", err)
@@ -172,8 +171,8 @@ func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
 		if c.valSet.IsProposer(c.Address()){
-		c.sendDSelect()
-	}
+			c.sendDSelect()
+		}
 
 	}
 	return nil

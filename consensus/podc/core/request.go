@@ -34,20 +34,20 @@ func (c *core) handleRequest(request *podc.Request) error {
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
 	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
-		log.Info("I'm not Qman in handleQmanager in handleRequest" )
+		log.Info("I'm the Qman in handleRequest" )
 	}
 
-		//Qmanager response check is more prefer then StateAccepRequest state.
-	if c.state == StateAcceptRequest {
-		log.Info("StateAcceptRequest", "StateAcceptRequest", StateAcceptRequest)
-		c.sendPreprepare(request)
-	}
+
   //Qmanager가 아니라면,
 	if c.state ==StateRequestQman {
 		// c.sendPre_prepare()  //send to Qman to get Extradata
 		c.sendRequestExtraDataToQman(request)
 	}
-
+	//Qmanager response check is more prefer then StateAccepRequest state.
+	if c.state == StateAcceptRequest {
+		log.Info("StateAcceptRequest", "StateAcceptRequest", StateAcceptRequest)
+		c.sendPreprepare(request)
+	}
 
 
 

@@ -17,9 +17,7 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/log"
 	"math/big"
-	"reflect"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
@@ -30,22 +28,7 @@ import (
 func (c *core) sendNextRoundChange() {
 	//logger := c.logger.New("state", c.state)
 	cv := c.currentView()
-	//if (c.qmanager == c.Address()) { // i am qmanager then
-	if (reflect.DeepEqual(c.qmanager, c.Address())){  //if I'm Qmanager
-	//log.Info("I'm Qmanager address: ", "c.qmanager", c.qmanager, "Self address", c.Address())
-	//if( qManager.QManConnected ){
-		log.Info("I'm Qmanager sendNextRoundChange ", "cv.Sequence", cv.Sequence, "cv.Round", cv.Round )
-		//logger.Error("This Inconsistent warning ", "current round", cv.Round)
-
-		//c.catchUpRound(&podc.View{
-		//	// The round number we'd like to transfer to.
-		//	Round:    new(big.Int).Set(cv.Round),
-		//	Sequence: new(big.Int).Set(cv.Sequence),
-		//})
-		c.sendRoundChange(new(big.Int).Set(cv.Round))  // Round Num 증가 안시키고 현행 뷰데로.. // 현재 Inconsistent warning 안나옴, 다만, Sendtx, 및 합의가 안됨.
-	} else {
-		c.sendRoundChange(new(big.Int).Add(cv.Round, common.Big1))  // 1 증가시킴
-	}
+	c.sendRoundChange(new(big.Int).Add(cv.Round, common.Big1))  // 1 증가시킴
 
 }
 
@@ -87,7 +70,7 @@ func (c *core) sendRoundChange(round *big.Int) {
 
 func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 	logger := c.logger.New("state", c.state)
-	if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	//if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
 
 		// Decode round change message
 		var rc *roundChange
@@ -150,7 +133,7 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 			}, true)
 		}
 
-	}
+	//}
 
 	return nil
 }
@@ -188,21 +171,21 @@ func (rcs *roundChangeSet) Add(r *big.Int, msg *message) (int, error) {
 	return rcs.roundChanges[round].Size(), nil
 }
 // Add adds the round and message into round change set
-func (rcs *roundChangeSet) Set(r *big.Int, msg *message) (int, error) {
-	rcs.mu.Lock()
-	defer rcs.mu.Unlock()
-
-	round := r.Uint64()
-	log.Info("round in Set =", "round", round ) //added by yichoi
-	if rcs.roundChanges[round] == nil {
-		rcs.roundChanges[round] = newMessageSet(rcs.validatorSet)
-	}
-	//err := rcs.roundChanges[round].Add(msg)
-	//if err != nil {
-	//	return 0, err
-	//}
-	return rcs.roundChanges[round].Size(), nil
-}
+//func (rcs *roundChangeSet) Set(r *big.Int, msg *message) (int, error) {
+//	rcs.mu.Lock()
+//	defer rcs.mu.Unlock()
+//
+//	round := r.Uint64()
+//	log.Info("round in Set =", "round", round ) //added by yichoi
+//	if rcs.roundChanges[round] == nil {
+//		rcs.roundChanges[round] = newMessageSet(rcs.validatorSet)
+//	}
+//	//err := rcs.roundChanges[round].Add(msg)
+//	//if err != nil {
+//	//	return 0, err
+//	//}
+//	return rcs.roundChanges[round].Size(), nil
+//}
 
 // Clear deletes the messages with smaller round
 func (rcs *roundChangeSet) Clear(round *big.Int) {

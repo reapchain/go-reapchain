@@ -59,7 +59,7 @@ func (c *core) handlePrepare(msg *message, src podc.Validator) error {
 	// and we are in earlier state before StatePrepared
 	if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StatePrepared) < 0 {
 		c.setState(StatePrepared)
-		c.sendDCommit()  //c.sendCommit
+		c.sendCommit()  //c.sendCommit
 	}
 
 	return nil
