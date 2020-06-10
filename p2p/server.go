@@ -132,6 +132,7 @@ type Config struct {
 	ListenAddr string
 	//ListenLocalAddr string //local ip for reapchain
 
+	Bootnodeport int
 	// If set to a non-nil value, the given NAT port mapper
 	// is used to make the listening port available to the
 	// Internet.
@@ -453,18 +454,18 @@ func (srv *Server) startListening() error {
 	//set local ip:192.168.0.x in reapchain office private network
 	//log.Info("startListening():","srv.Listen", srv.ListenAddr )
 	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
-	log.Info("listener", "addr", srv.Config.ListenAddr, "listener=", listener)
+	log.Info("startListening(tcp)", "addr", srv.Config.ListenAddr, "listener(tcp)=", listener)
 	if err != nil {
 		return err   //왜 에러 ?
 	}
 	laddr := listener.Addr().(*net.TCPAddr)  //192.168.0.2:5003 this type ㄱㅏ져와야함.
-	//fmt.Printf("\n laddr : %v\n", laddr )  //error , important
+	fmt.Printf("\n laddr(TCPAddr) : %v\n", laddr )  //error , important
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
 
-	//fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
-	//fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
+	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
+	fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
 
 	go srv.listenLoop()  // 루프를 여기서 돈다.
 

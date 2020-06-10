@@ -193,8 +193,8 @@ OUTER:
 		for i, v := range test.system.backends {
 			validator := r0.valSet.GetByIndex(uint64(i))
 			m, _ := Encode(v.engine.(*core).current.Subject())
-			if err := r0.handlePrepare(&message{
-				Code:    msgPrepare,
+			if err := r0.handleDSelect(&message{  //handlePrepare
+				Code:    msgDSelect,  //msgPrepare
 				Msg:     m,
 				Address: validator.Address(),
 			}, validator); err != nil {
@@ -341,7 +341,7 @@ func TestVerifyPrepare(t *testing.T) {
 		c := sys.backends[0].engine.(*core)
 		c.current = test.roundState
 
-		if err := c.verifyPrepare(test.prepare, peer); err != nil {
+		if err := c.verifyDCommit(test.prepare, peer); err != nil {  //verifyPrepare
 			if err != test.expected {
 				t.Errorf("result %d: error mismatch: have %v, want %v", i, err, test.expected)
 			}

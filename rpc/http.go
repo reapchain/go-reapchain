@@ -21,6 +21,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"io"
 	"io/ioutil"
 	"net"
@@ -64,7 +65,17 @@ func (hc *httpConn) Close() error {
 
 // DialHTTP creates a new RPC clients that connection to an RPC server over HTTP.
 func DialHTTP(endpoint string) (*Client, error) {
+	//log.Info("DialHTTP:yichoi debug: EOF ..")
+	//client := &http.Client{}
+	//data, err := EncodeClientRequest(method, req) //
+	//if err != nil {
+	//	return err
+	//}
+
+
+
 	req, err := http.NewRequest("POST", endpoint, nil)
+	//req, err := http.NewRequest("POST", endpoint, bytes.NewBuffer(data)) //
 	if err != nil {
 		return nil, err
 	}
@@ -78,21 +89,36 @@ func DialHTTP(endpoint string) (*Client, error) {
 }
 
 func (c *Client) sendHTTP(ctx context.Context, op *requestOp, msg interface{}) error {
+	//log.Info("sendHTTP:yichoi debug: EOF ..")
 	hc := c.writeConn.(*httpConn)
-	respBody, err := hc.doRequest(ctx, msg)
+	respBody, err := hc.doRequest(ctx, msg)  //client.Do(req) ?
 	if err != nil {
 		return err
 	}
-	defer respBody.Close()
+	defer respBody.Close()  //
 	var respmsg jsonrpcMessage
-	if err := json.NewDecoder(respBody).Decode(&respmsg); err != nil {
+	//var byteslice []byte
+	if err := json.NewDecoder(respBody).Decode(&respmsg); err != nil {  //?
 		return err
 	}
+	//response, err = ioutil.ReadAll(resp.Body) // <-- https://stackoverflow.com/questions/17714494/golang-http-request-results-in-eof-errors-when-making-multiple-requests-successi
+
+	//byteslice , err = ioutil.ReadAll(respBody)  //func ReadAll(r io.Reader) ([]byte, error) {
+
+	//respmsg = byteslice
+	if err != nil {
+		log.Info("yichoi debug: EOF ..")
+		return err
+	}
+
+
 	op.resp <- &respmsg
 	return nil
 }
 
+
 func (c *Client) sendBatchHTTP(ctx context.Context, op *requestOp, msgs []*jsonrpcMessage) error {
+	//log.Info("sendBatchHTTP:yichoi debug: EOF ..")
 	hc := c.writeConn.(*httpConn)
 	respBody, err := hc.doRequest(ctx, msgs)
 	if err != nil {
@@ -110,6 +136,7 @@ func (c *Client) sendBatchHTTP(ctx context.Context, op *requestOp, msgs []*jsonr
 }
 
 func (hc *httpConn) doRequest(ctx context.Context, msg interface{}) (io.ReadCloser, error) {
+	//log.Info("doRequest:yichoi debug: EOF ..")
 	body, err := json.Marshal(msg)
 	if err != nil {
 		return nil, err
@@ -175,3 +202,33 @@ func newCorsHandler(srv *Server, allowedOrigins []string) http.Handler {
 	})
 	return c.Handler(srv)
 }
+
+//And I got error EOF
+// EncodeClientRequest encodes parameters for a JSON-RPC client request.
+
+//func EncodeClientRequest(method string, args interface{}) ([]byte, error) {
+//	c := &clientRequest{
+//		Version: "2.0",
+//		Method: method,
+//		Params: [1]interface{}{args},
+//		Id:     uint64(rand.Int63()),
+//	}
+//
+//	return json.Marshal(c)
+//}
+//// DecodeClientResponse decodes the response body of a client request into // the interface reply.
+//
+//func DecodeClientResponse(r io.Reader, reply interface{}) error {
+//	var c clientResponse
+//	if err := json.NewDecoder(r).Decode(&c); err != nil {
+//		return err
+//	}
+//	if c.Error != nil {
+//		return fmt.Errorf("%v", c.Error)
+//	}
+//	if c.Result == nil {
+//		return errors.New("result is null")
+//	}
+//	return json.Unmarshal(*c.Result, reply)
+//}
+

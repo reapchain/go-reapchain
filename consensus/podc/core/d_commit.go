@@ -80,7 +80,7 @@ func (c *core) verifyDCommit(commit *podc.Subject, src podc.Validator) error {
 
 	sub := c.current.Subject()
 	if !reflect.DeepEqual(commit, sub) {
-		logger.Warn("Inconsistent subjects between commit and proposal", "expected", sub, "got", commit)
+		logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
 		return errInconsistentSubject
 	}
 

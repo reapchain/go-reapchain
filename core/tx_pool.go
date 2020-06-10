@@ -390,7 +390,7 @@ func (pool *TxPool) validateTx(tx *types.Transaction) error {
 	// block limit gas.
 	if pool.gasLimit().Cmp(tx.Gas()) < 0 {
 		if tx.Governance() != true {	// yhheo
-			fmt.Printf(" pool.gasLimit = %d\n tx.Gas = %d\n", pool.gasLimit(), tx.Gas) // yhheo
+			//fmt.Printf(" pool.gasLimit = %d\n tx.Gas = %d\n", pool.gasLimit(), tx.Gas) // yhheo
 			return ErrGasLimit
 		}
 	}

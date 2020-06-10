@@ -16,7 +16,7 @@
 */**/*tx_database*
 */**/*dapps*
 build/_vendor/pkg
-
+build/int_geth
 #*
 .#*
 *#

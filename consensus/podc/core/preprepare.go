@@ -18,6 +18,7 @@ package core
 
 import (
 	"github.com/ethereum/go-ethereum/common"
+	"reflect"
 	"time"
 
 	"github.com/ethereum/go-ethereum/consensus/podc"
@@ -78,97 +79,103 @@ func (c *core) sendPreprepare(request *podc.Request) {
 
 	}
 }
-func (c *core) handleQmanager(msg *message, src podc.Validator) error {
+
+
+func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //request to qman
 	logger := c.logger.New("from", src, "state", c.state)
-// Qmanager receiver에 맞게 수정할 부분 begin
-// 1. Extra data 전송하고,
-// 2. Enrollment 하고, martin
-// Cordi가 "자신기 코디"임을 보내오면,
-// Cordi에게 C-Confirm 를 보내고,
+	if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+		log.Info("I'm not Qman in handleQmanager" )
 
-	// Decode preprepare
-	var preprepare *podc.Preprepare
-	err := msg.Decode(&preprepare)
-	if err != nil {
-		return errFailedDecodePreprepare
-	}
+		// Qmanager receiver에 맞게 수정할 부분 begin
+		// 1. Extra data 전송하고,
+		// 2. Enrollment 하고, martin
+		// Cordi가 "자신기 코디"임을 보내오면,
+		// Cordi에게 C-Confirm 를 보내고,
 
-	// Ensure we have the same view with the preprepare message
-	if err := c.checkMessage(msgPreprepare, preprepare.View); err != nil {
-		return err
-	}
-
-	// Check if the message comes from current proposer
-	if !c.valSet.IsProposer(src.Address()) {
-		logger.Warn("Ignore preprepare messages from non-proposer")
-		return errNotFromProposer
-	}
-
-	if c.valSet.IsProposer(c.Address()) {
-		log.Info("I'm Proposer!!!!!!!")
-	}
-	// Verify the proposal we received
-	if err := c.backend.Verify(preprepare.Proposal); err != nil {
-		logger.Warn("Failed to verify proposal", "err", err)
-		c.sendNextRoundChange()
-		return err
-	}
-
-	log.Info("3. Set pre-prepare state", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
-	c.intervalTime = time.Now()
-
-	if c.state == StateRequestQman {
-		c.acceptPreprepare(preprepare)
-		c.setState(StatePreprepared)
-		//c.sendPrepare()
-		if c.valSet.IsProposer(c.Address()) {
-			c.sendExtraDataRequest()
+		// Decode preprepare
+		var preprepare *podc.Preprepare
+		err := msg.Decode(&preprepare)
+		if err != nil {
+			return errFailedDecodePreprepare
 		}
+
+		// Ensure we have the same view with the preprepare message
+		if err := c.checkMessage(msgPreprepare, preprepare.View); err != nil {
+			return err
+		}
+
+		// Check if the message comes from current proposer
+		if !c.valSet.IsProposer(src.Address()) {
+			logger.Warn("Ignore preprepare messages from non-proposer")
+			return errNotFromProposer
+		}
+
+		if c.valSet.IsProposer(c.Address()) {
+			log.Info("I'm Proposer!!!!!!!")
+		}
+		// Verify the proposal we received
+		if err := c.backend.Verify(preprepare.Proposal); err != nil {
+			logger.Warn("handleQmanager: Failed to verify proposal", "err", err) //?
+			c.sendNextRoundChange()                                              //important : inconsistent mismatch ...
+			return err
+		}
+
+		log.Info("3. Set pre-prepare state", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+		c.intervalTime = time.Now()
+
+		if c.state == StateRequestQman {
+			c.acceptPreprepare(preprepare)
+			c.setState(StatePreprepared)
+			//c.sendPrepare()
+			if c.valSet.IsProposer(c.Address()) {
+				c.sendExtraDataRequest()
+			}
+		}
+		// 수정할 부분 end
 	}
-// 수정할 부분 end
 	return nil
 }
 
-func (c *core) handlePreprepare(msg *message, src podc.Validator) error {
-	logger := c.logger.New("from", src, "state", c.state)
+func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
+		logger := c.logger.New("from", src, "state", c.state)
 
-	// Decode preprepare
-	var preprepare *podc.Preprepare
-	err := msg.Decode(&preprepare)
-	if err != nil {
+		// Decode preprepare
+		var preprepare *podc.Preprepare
+		err := msg.Decode(&preprepare)
+		if err != nil{
 		return errFailedDecodePreprepare
 	}
 
-	// Ensure we have the same view with the preprepare message
-	if err := c.checkMessage(msgPreprepare, preprepare.View); err != nil {
+		// Ensure we have the same view with the preprepare message
+		if err := c.checkMessage(msgPreprepare, preprepare.View); err != nil{
 		return err
 	}
 
-	// Check if the message comes from current proposer
-	if !c.valSet.IsProposer(src.Address()) {
+		// Check if the message comes from current proposer
+		if !c.valSet.IsProposer(src.Address()){
 		logger.Warn("Ignore preprepare messages from non-proposer")
 		return errNotFromProposer
 	}
 
-	if c.valSet.IsProposer(c.Address()) {
+		if c.valSet.IsProposer(c.Address()){
 		log.Info("I'm Proposer!!!!!!!")
 	}
-	// Verify the proposal we received
-	if err := c.backend.Verify(preprepare.Proposal); err != nil {
+		// Verify the proposal we received
+		if err := c.backend.Verify(preprepare.Proposal); err != nil{
 		logger.Warn("Failed to verify proposal", "err", err)
 		c.sendNextRoundChange()
 		return err
 	}
 
-	if c.state == StateAcceptRequest {
+		if c.state == StateAcceptRequest{
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
 		//c.sendPrepare()
-		if c.valSet.IsProposer(c.Address()) {
-			c.sendDSelect()
-		}
+		if c.valSet.IsProposer(c.Address()){
+		c.sendDSelect()
 	}
 
+	}
 	return nil
 }
 

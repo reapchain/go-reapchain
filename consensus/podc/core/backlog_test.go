@@ -205,7 +205,7 @@ func TestProcessFutureBacklog(t *testing.T) {
 		logger:     log.New("backend", "test", "id", 0),
 		backlogs:   make(map[podc.Validator]*prque.Prque),
 		backlogsMu: new(sync.Mutex),
-	//	backend:    backend, //podc.Backend
+		backend:    backend, //podc.Backend
 		current: newRoundState(&podc.View{
 			Sequence: big.NewInt(1),
 			Round:    big.NewInt(0),
@@ -289,7 +289,7 @@ func testProcessBacklog(t *testing.T, msg *message) {
 		logger:     log.New("backend", "test", "id", 0),
 		backlogs:   make(map[podc.Validator]*prque.Prque),
 		backlogsMu: new(sync.Mutex),
-		//backend:    backend,
+		backend:    backend,
 		state:      State(msg.Code),
 		current: newRoundState(&podc.View{
 			Sequence: big.NewInt(1),

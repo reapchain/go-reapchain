@@ -376,7 +376,7 @@ func (c *Config) parsePersistentNodes(path string) []*discover.Node {
 			continue
 		}
 		node, err := discover.ParseNode(url)
-		log.Info(fmt.Sprintf("Node URL %s: %v\n", url, err))
+		log.Info(fmt.Sprintf("Node loaded from json files) %s: %v\n", url, err))
 		if err != nil {
 			log.Error(fmt.Sprintf("Node URL %s: %v\n", url, err))
 			continue

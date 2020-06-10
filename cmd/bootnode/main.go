@@ -32,6 +32,8 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p/discover"
+	"github.com/ethereum/go-ethereum/qManager"
+
 )
 // setNodeKey creates a node key from set command line flags, either loading it
 // from a file or as a specified hex value. If neither flags were provided, this
@@ -290,6 +292,7 @@ func main() {
 		var account common.Address
 		account = PubkeyToAddress(nodeKey.PublicKey)
 		fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
+		qManager.IsBootNode = true
 		if _, err := discover.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {  //main
 			utils.Fatalf("%v", err)
 		}

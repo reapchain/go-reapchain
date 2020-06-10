@@ -84,7 +84,7 @@ func CheckPublicKey(pubkey []byte) bool {
         isGovernance = false
     }
 
-	log.Debug("CheckPublicKey", "isGovernance", isGovernance)
+	//log.Debug("CheckPublicKey", "isGovernance", isGovernance)
 
     return isGovernance
 }

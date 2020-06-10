@@ -85,7 +85,7 @@ func TestStoreRequestMsg(t *testing.T) {
 	}
 	c := &core{
 		logger:  log.New("backend", "test", "id", 0),
-		//backend: backend,
+		backend: backend,
 		state:   StateAcceptRequest,
 		current: newRoundState(&podc.View{
 			Sequence: big.NewInt(0),
