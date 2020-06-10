@@ -184,6 +184,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))
+//Qmanager related begin
 	case msgExtraDataRequest:
 		return testBacklog(c.handleExtraData(msg, src))  //Qmanager receiving extradata and received event handlelr
 	case msgExtraDataSend:
@@ -192,7 +193,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.CoordinatorConfirmation(msg, src))
 	case msgCoordinatorConfirmSend:
 		return testBacklog(c.handleCoordinatorConfirm(msg, src))
-
+//Qman end
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}

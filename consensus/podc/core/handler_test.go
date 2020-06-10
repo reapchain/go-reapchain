@@ -17,10 +17,11 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"testing"
 
-	"github.com/ethereum/go-ethereum/common"
+	//"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 )
 
