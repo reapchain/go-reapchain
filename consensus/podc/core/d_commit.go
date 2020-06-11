@@ -38,7 +38,7 @@ func (c *core) sendDCommit() {
 		return
 	}
 	c.broadcast(&message{
-		Code: msgDCommit,
+		Code: msgCommit,
 		Msg:  encodedSubject,
 	})
 }
@@ -51,7 +51,7 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {
 		return errFailedDecodeCommit
 	}
 
-	if err := c.checkMessage(msgDCommit, commit.View); err != nil {
+	if err := c.checkMessage(msgCommit, commit.View); err != nil {
 		return err
 	}
 
@@ -65,7 +65,7 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {
 	//
 	// If we already have a proposal, we may have chance to speed up the consensus process
 	// by committing the proposal without prepare messages.
-	if c.current.Dcommits.Size() > 2*c.valSet.F() && c.state.Cmp(StateDCommitted) < 0 {
+	if c.current.Commits.Size() > 2*c.valSet.F() && c.state.Cmp(StateCommitted) < 0 {
 		c.commit()
 		log.Info("6. D-commit end", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		log.Info("Total Time", "elapsed", common.PrettyDuration(time.Since(c.startTime)))
@@ -91,7 +91,7 @@ func (c *core) acceptDCommit(msg *message, src podc.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state)
 
 	// Add the commit message to current round state
-	if err := c.current.Dcommits.Add(msg); err != nil {
+	if err := c.current.Commits.Add(msg); err != nil {
 		logger.Error("Failed to record commit message", "msg", msg, "err", err)
 		return err
 	}

@@ -16,7 +16,6 @@
 
 package core
 
-
 import (
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
@@ -34,23 +33,23 @@ func (c *core) handleRequest(request *podc.Request) error {
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
 
+	if c.state ==StateRequest {
+		// c.sendPre_prepare()  //send to Qman to get Extradata
+		log.Info("StateRequestQman", "StateRequestQman", StateRequest)
+		//Qmanager가 아니라면,
+		if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
+			log.Info("I'm not Qman  in handleRequest: sendRequestExtraDataToQman" )
+			c.sendRequestExtraDataToQman(request)
+		}
 
+	}
 
 		//Qmanager response check is more prefer then StateAccepRequest state.
 	if c.state == StateAcceptRequest {
 		log.Info("StateAcceptRequest", "StateAcceptRequest", StateAcceptRequest)
 		c.sendPreprepare(request)
 	}
-  //Qmanager가 아니라면,
-  if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
-	  log.Info("I'm not Qman  in handleRequest: sendRequestExtraDataToQman" )
-	if c.state ==StateRequest {
-		// c.sendPre_prepare()  //send to Qman to get Extradata
-		log.Info("StateRequestQman", "StateRequestQman", StateRequest)
-		c.sendRequestExtraDataToQman(request)
-	}
 
-  }
 
 
 

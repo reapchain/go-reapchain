@@ -116,7 +116,7 @@ func (c *core) finalizeMessage(msg *message) ([]byte, error) {
 	// Add proof of consensus
 	msg.CommittedSeal = []byte{}  // CommittedSeal 배열 초기화
 	// Assign the CommittedSeal if it's a commit message and proposal is not nil
-	if msg.Code == msgDCommit && c.current.Proposal() != nil {
+	if msg.Code == msgCommit && c.current.Proposal() != nil {
 		seal := PrepareCommittedSeal(c.current.Proposal().Hash())  // message 구조체에 CommittedSeal 배열을 채움
 		msg.CommittedSeal, err = c.backend.Sign(seal)
 		if err != nil {
@@ -213,12 +213,12 @@ func (c *core) isProposer() bool {
 }
 
 func (c *core) commit() {
-	c.setState(StateDCommitted)
+	c.setState(StateCommitted)
     log.Info("3.commit : StateCommitted")
 	proposal := c.current.Proposal()
 	if proposal != nil {
 		var signatures []byte
-		for _, v := range c.current.Dcommits.Values() {
+		for _, v := range c.current.Commits.Values() {
 			signatures = append(signatures, v.CommittedSeal...) //  최종 커밋시, 서명이 들어가서,, 커밋함.
 		}
 
@@ -346,7 +346,7 @@ func (c *core) checkValidatorSignature(data []byte, sig []byte) (common.Address,
 func PrepareCommittedSeal(hash common.Hash) []byte {
 	var buf bytes.Buffer
 	buf.Write(hash.Bytes())
-	buf.Write([]byte{byte(msgDCommit)})
+	buf.Write([]byte{byte(msgCommit)})
 	return buf.Bytes()
 }
 

@@ -167,14 +167,14 @@ func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
 	}
 
 		if c.state == StateAcceptRequest{
-		c.acceptPreprepare(preprepare)
-		c.setState(StatePreprepared)
-		log.Info("2. handlePreprepare: StatePreprepared")
-		if c.valSet.IsProposer(c.Address()){
-		c.sendDSelect()
-	}
+			c.acceptPreprepare(preprepare)
+			c.setState(StatePreprepared)
+			log.Info("2. handlePreprepare: StatePreprepared")
+			if c.valSet.IsProposer(c.Address()){
+				c.sendDSelect()
+			}
 
-	}
+		}
 	return nil
 }
 

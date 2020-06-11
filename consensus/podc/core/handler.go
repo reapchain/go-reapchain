@@ -40,7 +40,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	}
     if (len(qmanager) <= 0)  {
     	log.Debug("Qmanager node is not exist")
-        return err
+        return nil // err ?
 	}
     QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
@@ -54,7 +54,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	start :=time.Now()
 	log.Info("start time of consensus of core engine start()", "start time", start )
 	c.startNewRound(&podc.View{
-		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //seq +1
+		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //lastSequence +1
 		Round:    common.Big0,                                   //round 0
 	}, false)
 
@@ -169,9 +169,9 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleRacing(msg, src))
 	case msgCandidateDecide:
 		return testBacklog(c.handleCandidateDecide(msg, src))
-	case msgPrepare:
-		return testBacklog(c.handlePrepare(msg, src))
-	case msgDCommit:
+	//case msgPrepare:
+	//	return testBacklog(c.handlePrepare(msg, src))
+	case msgCommit:
 		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))

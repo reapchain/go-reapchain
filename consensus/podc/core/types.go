@@ -51,8 +51,9 @@ const (
 	StateRequest State = iota // request to Qman to get ExtraData
 	StateAcceptRequest // geth가 프로포저(프런트노드)가 아닌 경우 일반 노드들은 수동적으로 외부 노드로부터 메시지를 수신 대기 상태 유지
 	StatePreprepared  // = pre-prepare of podc : Bx including coordi info, broadcast to all nodes.
-	StateDselected     // = d-select
-	StateDCommitted    // = d-commit
+	StatePrepared // 임시로 에러 잡기 위해서 넣음.
+	//StateDselected     // = d-select
+	StateCommitted    // = d-commit
     StateFinalCommitted     // variables initialize before go New Round state
 
 
@@ -69,9 +70,9 @@ func (s State) String() string {
 		return "Request ExtraData to Qman"   //새 라운드가 시작하면, 매번 Qmanager에게 ExtraDATA 요청한다.
 	}  else if s == StatePreprepared {
 		return "Preprepared"
-	} else if s == StateDselected {
+	} else if s == StatePrepared {
 		return "Dselected"
-	} else if s == StateDCommitted {
+	} else if s == StateCommitted {
 		return "DCommitted"
 	}else if s == StateFinalCommitted {
 		return "FinalCommitted"
@@ -109,6 +110,7 @@ const (
 	msgCandidateDecide    //notify to Coordi
 
 	//3. D-commit step
+	msgCommit
 	msgDCommit
 
 	msgExtraDataRequest  //Request to Qman

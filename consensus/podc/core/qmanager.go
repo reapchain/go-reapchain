@@ -19,7 +19,7 @@ package core
 import (
 	"bytes"
 	"encoding/binary"
-	"reflect"
+	//"reflect"
 
 	//"encoding/binary"
 	"github.com/ethereum/go-ethereum/common"
@@ -123,7 +123,7 @@ func generateExtraData() []ValidatorInfo{
 }
 //For Qmanager, handle the extraData request from geth( Proposer )
 func (c *core) handleExtraData(msg *message, src podc.Validator) error {
-	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	//if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
 		if qManager.QManConnected {
 
 			log.Info("EXTRA DATA REQUEST")
@@ -176,7 +176,7 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 			//fmt.Println(src)
 
 		}
-	}
+//	}
 	return nil
 }
 

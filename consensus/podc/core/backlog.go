@@ -26,9 +26,13 @@ var (
 	// msgPreprepare > msgCommit > msgPrepare
 	msgPriority = map[uint64]int{
 		msgRequest: 1,
+		//begin : origin
 		msgPreprepare: 2,
-		msgDSelect: 3,
-		msgDCommit: 4,
+		msgCommit: 3,
+		msgPrepare: 4,
+        //end
+		msgDSelect: 6,
+		msgDCommit: 7,
 
 	}
 )

@@ -37,33 +37,33 @@ func (c *core) sendPrepare() {
 	})
 }
 
-func (c *core) handlePrepare(msg *message, src podc.Validator) error {
-	// Decode prepare message
-	var prepare *podc.Subject
-	err := msg.Decode(&prepare)
-	if err != nil {
-		return errFailedDecodePrepare
-	}
-
-	if err := c.checkMessage(msgPrepare, prepare.View); err != nil {
-		return err
-	}
-
-	if err := c.verifyPrepare(prepare, src); err != nil {
-		return err
-	}
-
-	c.acceptPrepare(msg, src)
-
-	// Change to StatePrepared if we've received enough prepare messages
-	// and we are in earlier state before StatePrepared
-	if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StatePrepared) < 0 {
-		c.setState(StatePrepared)
-		c.sendDCommit()  //c.sendCommit
-	}
-
-	return nil
-}
+//func (c *core) handlePrepare(msg *message, src podc.Validator) error {
+//	// Decode prepare message
+//	var prepare *podc.Subject
+//	err := msg.Decode(&prepare)
+//	if err != nil {
+//		return errFailedDecodePrepare
+//	}
+//
+//	if err := c.checkMessage(msgPrepare, prepare.View); err != nil {
+//		return err
+//	}
+//
+//	if err := c.verifyPrepare(prepare, src); err != nil {
+//		return err
+//	}
+//
+//	c.acceptPrepare(msg, src)
+//
+//	// Change to StatePrepared if we've received enough prepare messages
+//	// and we are in earlier state before StatePrepared
+//	if c.current.Prepares.Size() > 2*c.valSet.F() && c.state.Cmp(StatePrepared) < 0 {
+//		c.setState(StatePrepared)
+//		c.sendCommit()  //c.sendCommit
+//	}
+//
+//	return nil
+//}
 
 // verifyPrepare verifies if the received prepare message is equivalent to our subject
 func (c *core) verifyPrepare(prepare *podc.Subject, src podc.Validator) error {
