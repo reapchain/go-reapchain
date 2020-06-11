@@ -464,8 +464,8 @@ func (srv *Server) startListening() error {
 	srv.listener = listener
 	srv.loopWG.Add(1)
 
-	fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
-	fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
+	//fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
+	//fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
 
 	go srv.listenLoop()  // 루프를 여기서 돈다.
 
