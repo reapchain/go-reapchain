@@ -503,7 +503,7 @@ func (t *timeoutError) Error() string {
 // TraceTransaction returns the structured logs created during the execution of EVM
 // and returns them as a JSON object.
 func (api *PrivateDebugAPI) TraceTransaction(ctx context.Context, txHash common.Hash, config *TraceArgs) (interface{}, error) {
-	//fmt.Printf("\nfunc (api *PrivateDebugAPI) TraceTransaction\n ctx = %v\n txHash = %x\n TraceArgs = %v\n", ctx, txHash, config)	// yhheo
+	fmt.Printf("\nfunc (api *PrivateDebugAPI) TraceTransaction\n ctx = %v\n txHash = %x\n TraceArgs = %v\n", ctx, txHash, config)	// yhheo
 	var tracer vm.Tracer
 	if config != nil && config.Tracer != nil {
 		timeout := defaultTraceTimeout

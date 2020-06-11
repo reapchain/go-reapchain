@@ -225,7 +225,7 @@ func (st *StateTransition) preCheck() error {
 // including the required gas for the operation as well as the used gas. It returns an error if it
 // failed. An error indicates a consensus issue.
 func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big.Int, failed bool, err error) {	// yhheo
-	//fmt.Printf("\nfunc (st *StateTransition) TransitionDb\n st.msg.Governance() = %t\n", st.msg.Governance())
+	fmt.Printf("\nfunc (st *StateTransition) TransitionDb\n st.msg.Governance() = %t\n", st.msg.Governance())
 	if err = st.preCheck(); err != nil {
 		return
 	}
@@ -240,9 +240,9 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 	isGovernance := st.msg.Governance()		// yhheo
 	isCoinTransfer := st.coinTransfer()		// yhheo
 
-	//disableGasMetering  := st.evm.VmConfig().DisableGasMetering		// yhheo
+	disableGasMetering  := st.evm.VmConfig().DisableGasMetering		// yhheo
 	estimateGasMetering := st.evm.VmConfig().EstimateGasMetering	// yhheo
-	//fmt.Printf(" contractCreation = %t\n disableGasMetering = %t\n estimateGasMetering = %t\n", contractCreation, disableGasMetering, estimateGasMetering)		// yhheo
+	fmt.Printf(" contractCreation = %t\n disableGasMetering = %t\n estimateGasMetering = %t\n", contractCreation, disableGasMetering, estimateGasMetering)		// yhheo
 
 
 	// Pay intrinsic gas
@@ -255,7 +255,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 		return nil, nil, nil, false, err	// yhheo
 	}
 
-	//fmt.Printf(" intrinsicGas = %d\n", intrinsicGas)	// yhheo
+	fmt.Printf(" intrinsicGas = %d\n", intrinsicGas)	// yhheo
 
 	var (
 		evm = st.evm
@@ -305,7 +305,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
     // yhheo - begin
 	requiredGas = new(big.Int).Set(st.gasUsed())
 	fee = st.calcFee(st.gasUsed())
-	//fmt.Printf("\n requiredGas = %v\n fee = %v\n", requiredGas, fee)
+	fmt.Printf("\n requiredGas = %v\n fee = %v\n", requiredGas, fee)
 
 	st.state.AddBalance(st.evm.Coinbase, fee)   // new(big.Int).Mul(st.gasUsed(), st.gasPrice)
 	//fmt.Printf("5. from = %x\n GetBalance = %x\n", sender.Address(), st.state.GetBalance(sender.Address()))
@@ -315,7 +315,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 }
 
 func (st *StateTransition) refundGas() {
-	//fmt.Printf("\nfunc (st *StateTransition) refundGas\n")
+	fmt.Printf("\nfunc (st *StateTransition) refundGas\n")
 	// Return eth for remaining gas to the sender account,
 	// exchanged at the original rate.
 	sender := st.from() // err already checked
@@ -326,7 +326,7 @@ func (st *StateTransition) refundGas() {
     if !isGovernance && !isCoinTransfer {
 		remaining = new(big.Int).Mul(new(big.Int).SetUint64(st.gas), big.NewInt(params.Gasfee)) // new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
 		st.state.AddBalance(sender.Address(), remaining)
-		//fmt.Printf(" remaining = %d\n st.gas = %d\n", remaining, st.gas)
+		fmt.Printf(" remaining = %d\n st.gas = %d\n", remaining, st.gas)
 		//fmt.Printf("2. from = %x\n GetBalance = %x\n", sender.Address(), st.state.GetBalance(sender.Address()))
 
 		// Apply refund counter, capped to half of the used gas.
@@ -335,7 +335,7 @@ func (st *StateTransition) refundGas() {
 		st.gas += refund.Uint64()
 
 		refundFee := new(big.Int).Mul(refund, big.NewInt(params.Gasfee))   // refund.Mul(refund, st.gasPrice)
-		//fmt.Printf(" refund = %v\n st.gas = %v\n refundFee = %v\n", refund, st.gas, refundFee)
+		fmt.Printf(" refund = %v\n st.gas = %v\n refundFee = %v\n", refund, st.gas, refundFee)
 		st.state.AddBalance(sender.Address(), refundFee)
 		//fmt.Printf("3. from = %x\n GetBalance = %x\n", sender.Address(), st.state.GetBalance(sender.Address()))
     }

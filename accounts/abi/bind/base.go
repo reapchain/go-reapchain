@@ -99,7 +99,7 @@ func DeployContract(opts *TransactOpts, abi abi.ABI, bytecode []byte, backend Co
 // returns, a slice of interfaces for anonymous returns and a struct for named
 // returns.
 func (c *BoundContract) Call(opts *CallOpts, result interface{}, method string, params ...interface{}) error {
-	//fmt.Printf("\nfunc (c *BoundContract) Call\n opts = %v\n result = %v\n method = %v\n params = %v\n", opts, result, method, params)	// yhheo
+	fmt.Printf("\nfunc (c *BoundContract) Call\n opts = %v\n result = %v\n method = %v\n params = %v\n", opts, result, method, params)	// yhheo
 	// Don't crash on a lazy user
 	if opts == nil {
 		opts = new(CallOpts)
@@ -148,7 +148,7 @@ func (c *BoundContract) Call(opts *CallOpts, result interface{}, method string, 
 
 // Transact invokes the (paid) contract method with params as input values.
 func (c *BoundContract) Transact(opts *TransactOpts, method string, params ...interface{}) (*types.Transaction, error) {
-	//fmt.Println("BoundContract - Transact : opts =", opts)	// yhheo
+	fmt.Println("BoundContract - Transact : opts =", opts)	// yhheo
 	// Otherwise pack up the parameters and invoke the contract
 	input, err := c.abi.Pack(method, params...)
 	if err != nil {
@@ -160,14 +160,14 @@ func (c *BoundContract) Transact(opts *TransactOpts, method string, params ...in
 // Transfer initiates a plain transaction to move funds to the contract, calling
 // its default method if one is available.
 func (c *BoundContract) Transfer(opts *TransactOpts) (*types.Transaction, error) {
-	//fmt.Println("BoundContract - Transfer : opts =", opts)	// yhheo
+	fmt.Println("BoundContract - Transfer : opts =", opts)	// yhheo
 	return c.transact(opts, &c.address, nil)
 }
 
 // transact executes an actual transaction invocation, first deriving any missing
 // authorization fields, and then scheduling the transaction for execution.
 func (c *BoundContract) transact(opts *TransactOpts, contract *common.Address, input []byte) (*types.Transaction, error) {
-	//fmt.Println("BoundContract - transact : opts =", opts, "\ncontract =", contract, "\ninput =", input)	// yhheo
+	fmt.Println("BoundContract - transact : opts =", opts, "\ncontract =", contract, "\ninput =", input)	// yhheo
 	var err error
 
 	// Ensure a valid value field and resolve the account nonce
