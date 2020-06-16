@@ -48,12 +48,12 @@ var RinkebyV5Bootnodes = []string{
 var OttomanBootnodes = []string{
 
 }
-//yichoi begin
+
 var ReapChainBootnodes = []string{
 	// ReapChain Primary Bootnode
 	"enode://5d686a07e38d2862322a2b7e829ee90c9931f119391c63328cab0d565067835808e46cb16dc2a0e920cf1a6a68806e6129b986b6b143cdb7d0752dec45a7f12c@116.126.85.23:30301",
 }
-//end
+
 // DiscoveryV5Bootnodes are the enode URLs of the P2P bootstrap nodes for the
 // experimental RLPx v5 topic-discovery network.
 var DiscoveryV5Bootnodes = []string{

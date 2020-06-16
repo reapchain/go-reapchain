@@ -119,7 +119,8 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			return err
 		}
 
-		log.Info("3. Set pre-prepare state", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+		log.Info("3. Set pre-prepare state",             "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+	   // log.Info("4. Get extra data and start d-select", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
 
 		if c.state == StateRequestQman {

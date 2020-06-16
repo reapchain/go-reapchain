@@ -47,16 +47,11 @@ var wg sync.WaitGroup      // used to wait until the runloop starts
 // started and is ready via the wg. It also serves purpose of a dummy source,
 // thanks to it the runloop does not return as it also has at least one source
 // registered.
-/* yichoi bug fix for building :" cannot use nil as type _Ctype_CFAllocatorRef in assignment"
-var source = C.CFRunLoopSourceCreate(nil, 0, &C.CFRunLoopSourceContext{
-	perform: (C.CFRunLoopPerformCallBack)(C.gosource),
-}) */
 
-// added by yichoi - begin
 var source = C.CFRunLoopSourceCreate(C.kCFAllocatorDefault, 0, &C.CFRunLoopSourceContext{
 	perform: (C.CFRunLoopPerformCallBack)(C.gosource),
 })
-// end
+
 
 
 // Errors returned when FSEvents functions fail.
