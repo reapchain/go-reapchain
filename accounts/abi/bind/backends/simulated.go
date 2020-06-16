@@ -70,7 +70,6 @@ func NewSimulatedBackend(alloc core.GenesisAlloc) *SimulatedBackend {
 // Commit imports all the pending transactions as a single block and starts a
 // fresh new state.
 func (b *SimulatedBackend) Commit() {
-	//fmt.Printf("\nfunc (b *SimulatedBackend) Commit\n")	// yhheo
 	b.mu.Lock()
 	defer b.mu.Unlock()
 
@@ -258,7 +257,7 @@ func (b *SimulatedBackend) callContract(ctx context.Context, call ethereum.CallM
 	// about the transaction and calling mechanisms.
 	vmenv := vm.NewEVM(evmContext, statedb, b.config, vm.Config{})
 	gaspool := new(core.GasPool).AddGas(math.MaxBig256)
-	ret, gasUsed, _, _, err := core.NewStateTransition(vmenv, msg, gaspool).TransitionDb()	// yhheo
+	ret, gasUsed, _, _, err := core.NewStateTransition(vmenv, msg, gaspool).TransitionDb()
 	return ret, gasUsed, err
 }
 
@@ -301,4 +300,4 @@ func (m callmsg) GasPrice() *big.Int   { return m.CallMsg.GasPrice }
 func (m callmsg) Gas() *big.Int        { return m.CallMsg.Gas }
 func (m callmsg) Value() *big.Int      { return m.CallMsg.Value }
 func (m callmsg) Data() []byte         { return m.CallMsg.Data }
-func (m callmsg) Governance() bool     { return false }		// yhheo
+func (m callmsg) Governance() bool     { return false }

@@ -26,5 +26,5 @@ const (
 )
 
 var (
-	FeeAddress = common.HexToAddress("0xd6b080c02f40441232e5c97632dd5fbcc38bb5d1")	// yhheo
+	FeeAddress = common.HexToAddress("0xd6b080c02f40441232e5c97632dd5fbcc38bb5d1")
 )

@@ -69,10 +69,8 @@ type Config struct {
 	// in memory.
 	DataDir string
 
-	// yhheo - begin
 	// Governance, if set, is used as perform the functions of the governance node.
 	Governance bool
-	// yhheo - end
 
 	// Configuration of peer-to-peer networking.
 	P2P p2p.Config
@@ -323,7 +321,6 @@ func (c *Config) NodeKey() *ecdsa.PrivateKey {
 	return key
 }
 
-// yhheo - begin
 func (c *Config) GetDataDir(dirname string) string {
     c.Name = datadirDefaultKeyStore
     defer func() {
@@ -331,7 +328,6 @@ func (c *Config) GetDataDir(dirname string) string {
     }()
     return c.resolvePath(dirname)
 }
-// yhheo - end
 
 // StaticNodes returns a list of node enode URLs configured as static nodes.
 func (c *Config) StaticNodes() []*discover.Node {

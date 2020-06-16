@@ -144,13 +144,10 @@ var (
 		Name:  "ottoman",
 		Usage: "Ottoman network: pre-configured istanbul bft test network",
 	}
-	//yichoi begin
 	ReapChainFlag = cli.BoolFlag{
 		Name:  "reapchain",
 		Usage: "ReapChain network: pre-configured podc bft test network",
 	}
-	//end
-	//yichoi --dev option
 	DevModeFlag = cli.BoolFlag{
 		Name:  "dev",
 		Usage: "Developer mode: pre-configured private network with several debugging flags",
@@ -193,13 +190,10 @@ var (
 		Name:  "lightkdf",
 		Usage: "Reduce key-derivation RAM & CPU usage at some expense of KDF strength",
 	}
-    // yhheo - begin
-    // Governance settings
     GovernanceFlag = cli.BoolFlag{
         Name:  "governance",
         Usage: "Setting when using governance node",
     }
-    // yhheo - end
 
 	// Ethash settings
 	EthashCacheDirFlag = DirectoryFlag{
@@ -810,7 +804,6 @@ func setIPC(ctx *cli.Context, cfg *node.Config) {
 	}
 }
 
-// yhheo - begin
 func setNodeGovernance(ctx *cli.Context, cfg *node.Config) {
     if ctx.GlobalIsSet(GovernanceFlag.Name) {
         cfg.Governance = true
@@ -819,7 +812,6 @@ func setNodeGovernance(ctx *cli.Context, cfg *node.Config) {
     }
     fmt.Println("cfg.Governance =", cfg.Governance)
 }
-// yhheo - end
 
 // makeDatabaseHandles raises out the number of allowed file handles per process
 // for Geth and returns half of the allowance to assign to the database.
@@ -859,23 +851,14 @@ func MakeAddress(ks *keystore.KeyStore, account string) (accounts.Account, error
 // setEtherbase retrieves the etherbase either from the directly specified
 // command line flags or from the keystore if CLI indexed.
 func setEtherbase(ctx *cli.Context, ks *keystore.KeyStore, cfg *eth.Config) {
-	//fmt.Printf("setEtherbase : cfg.Etherbase = %x\n", cfg.Etherbase) // yhheo
 	if ctx.GlobalIsSet(EtherbaseFlag.Name) {
-		// yhheo - begin
-		//account, err := MakeAddress(ks, ctx.GlobalString(EtherbaseFlag.Name))
-		//if err != nil {
-		//	Fatalf("Option %q: %v", EtherbaseFlag.Name, err)
-		//}
-		//cfg.Etherbase = account.Address
-		// yhheo - end
-		log.Warn("The etherbase cannot be set")	// yhheo
+		log.Warn("The etherbase cannot be set")
 		return
 	}
 	accounts := ks.Accounts()
 	if (cfg.Etherbase == common.Address{}) {
 		if len(accounts) > 0 {
-			//cfg.Etherbase = accounts[0].Address	// yhheo
-			log.Warn("The etherbase cannot be set")	// yhheo
+			log.Warn("The etherbase cannot be set")
 		} else {
 			log.Warn("No etherbase set and no accounts found as default")
 		}
@@ -996,7 +979,7 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setHTTP(ctx, cfg)
 	setWS(ctx, cfg)
 	setNodeUserIdent(ctx, cfg)
-	setNodeGovernance(ctx, cfg) // yhheo
+	setNodeGovernance(ctx, cfg)
 
 	switch {
 	case ctx.GlobalIsSet(DataDirFlag.Name):

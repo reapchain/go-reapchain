@@ -84,7 +84,7 @@ type TxPoolConfig struct {
 
 	Lifetime time.Duration // Maximum amount of time non-executable transaction are queued
 
-	MaxCodeSize  uint64 // Maximum size allowed of contract code that can be deployed (in KB)	// yhheo
+	MaxCodeSize  uint64 // Maximum size allowed of contract code that can be deployed (in KB)
 }
 
 // DefaultTxPoolConfig contains the default configurations for the transaction
@@ -100,7 +100,7 @@ var DefaultTxPoolConfig = TxPoolConfig{
 
 	Lifetime: 3 * time.Hour,
 
-	MaxCodeSize:  24,	// yhheo
+	MaxCodeSize:  24,
 }
 
 // sanitize checks the provided user configurations and changes anything that's
@@ -389,8 +389,7 @@ func (pool *TxPool) validateTx(tx *types.Transaction) error {
 	// Check the transaction doesn't exceed the current
 	// block limit gas.
 	if pool.gasLimit().Cmp(tx.Gas()) < 0 {
-		if tx.Governance() != true {	// yhheo
-			//fmt.Printf(" pool.gasLimit = %d\n tx.Gas = %d\n", pool.gasLimit(), tx.Gas) // yhheo
+		if tx.Governance() != true {
 			return ErrGasLimit
 		}
 	}

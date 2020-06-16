@@ -115,7 +115,7 @@ var (
 		utils.GpoBlocksFlag,
 		utils.GpoPercentileFlag,
 		utils.ExtraDataFlag,
-		utils.GovernanceFlag, // yhheo - Governance setting
+		utils.GovernanceFlag,
 		configFileFlag,
 		/* utils.IstanbulRequestTimeoutFlag,
 		utils.IstanbulBlockPeriodFlag,

@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-// yhheo begin
 package governance
 
 import (
@@ -44,8 +43,6 @@ type GovernanceConfig struct {
 	Governance bool
 }
 
-//var gc = &GovernanceConfig {
-//	Name:	datadirGovernanceKey,
 var gc = &GovernanceConfig{}
 
 func GetFileName() string {
@@ -69,13 +66,8 @@ func CheckPublicKey(pubkey []byte) bool {
 
     var isGovernance bool
 
-	//fmt.Printf("\nfunc CheckPublicKey\n gc.Governance = %t\n", gc.Governance)
-
     if gc.Governance {
         pkHash := common.BytesToHash(pubkey)
-        //fmt.Printf(" Tx.pubkey    = %x\n", pubkey)
-        //fmt.Printf(" Tx.pkHash    = %x\n", pkHash)
-        //fmt.Printf(" gc.PublicKey = %x\n", gc.PublicKey)
 
         governanceKey(gc)
 
@@ -83,8 +75,6 @@ func CheckPublicKey(pubkey []byte) bool {
     } else {
         isGovernance = false
     }
-
-	//log.Debug("CheckPublicKey", "isGovernance", isGovernance)
 
     return isGovernance
 }
@@ -123,4 +113,3 @@ func loadGKey(file string) ([]byte, error) {
     }
     return key, nil
 }
-// yhheo - end

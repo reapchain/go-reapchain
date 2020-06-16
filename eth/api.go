@@ -503,7 +503,6 @@ func (t *timeoutError) Error() string {
 // TraceTransaction returns the structured logs created during the execution of EVM
 // and returns them as a JSON object.
 func (api *PrivateDebugAPI) TraceTransaction(ctx context.Context, txHash common.Hash, config *TraceArgs) (interface{}, error) {
-	//fmt.Printf("\nfunc (api *PrivateDebugAPI) TraceTransaction\n ctx = %v\n txHash = %x\n TraceArgs = %v\n", ctx, txHash, config)	// yhheo
 	var tracer vm.Tracer
 	if config != nil && config.Tracer != nil {
 		timeout := defaultTraceTimeout
@@ -544,7 +543,7 @@ func (api *PrivateDebugAPI) TraceTransaction(ctx context.Context, txHash common.
 
 	// Run the transaction with tracing enabled.
 	vmenv := vm.NewEVM(context, statedb, api.config, vm.Config{Debug: true, Tracer: tracer})
-	ret, gas, _, err := core.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(tx.Gas()))	// yhheo
+	ret, gas, _, err := core.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(tx.Gas()))
 	if err != nil {
 		return nil, fmt.Errorf("tracing failed: %v", err)
 	}
@@ -591,7 +590,7 @@ func (api *PrivateDebugAPI) computeTxEnv(blockHash common.Hash, txIndex int) (co
 
 		vmenv := vm.NewEVM(context, statedb, api.config, vm.Config{})
 		gp := new(core.GasPool).AddGas(tx.Gas())
-		_, _, _, err := core.ApplyMessage(vmenv, msg, gp)	// yhheo
+		_, _, _, err := core.ApplyMessage(vmenv, msg, gp)
 		if err != nil {
 			return nil, vm.Context{}, nil, fmt.Errorf("tx %x failed: %v", tx.Hash(), err)
 		}

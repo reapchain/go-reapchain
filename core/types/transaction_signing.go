@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
 
-	gvn "github.com/ethereum/go-ethereum/governance"    // yhheo
+	gvn "github.com/ethereum/go-ethereum/governance"
 )
 
 var (
@@ -99,20 +99,15 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 	return addr, nil
 }
 
-// yhheo - begin
-// TxChecking
 func TxChecking(signer Signer, tx *Transaction) {
 
     pubkey, err := signer.PublicKey(tx)
     if err == nil {
         tx.data.Governance = gvn.CheckPublicKey(pubkey)
-		//fmt.Printf("\nfunc TxChecking\n tx.data.Governance = %t\n", tx.data.Governance)
 	} else {
 		tx.data.Governance = false
-		//fmt.Printf("\nfunc TxChecking\n tx.data.Governance = %t\n err = %v\n", tx.data.Governance, err)
     }
 }
-// yhheo - end
 
 type Signer interface {
 	// Hash returns the rlp encoded hash for signatures

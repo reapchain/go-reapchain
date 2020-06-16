@@ -50,7 +50,7 @@ type Config struct {
 	// table.
 	JumpTable [256]operation
 	// Estimate gas metering
-	EstimateGasMetering bool	// yhheo
+	EstimateGasMetering bool
 }
 
 // Interpreter is used to run Ethereum based contracts and will utilise the

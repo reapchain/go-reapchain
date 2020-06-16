@@ -28,7 +28,7 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/ethereum/go-ethereum/params"	// yhheo
+	"github.com/ethereum/go-ethereum/params"
 )
 
 //go:generate gencodec -type txdata -field-override txdataMarshaling -out gen_tx_json.go
@@ -62,7 +62,7 @@ type txdata struct {
 	Recipient    *common.Address `json:"to"         rlp:"nil"` // nil means contract creation
 	Amount       *big.Int        `json:"value"      gencodec:"required"`
 	Payload      []byte          `json:"input"      gencodec:"required"`
-	Governance   bool            `json:"governance" gencodec:"required"`	// yhheo
+	Governance   bool            `json:"governance" gencodec:"required"`
 
 	// Signature values
 	V *big.Int `json:"v" gencodec:"required"`
@@ -79,7 +79,7 @@ type txdataMarshaling struct {
 	GasLimit     *hexutil.Big
 	Amount       *hexutil.Big
 	Payload      hexutil.Bytes
-	Governance   bool			// yhheo
+	Governance   bool
 	V            *hexutil.Big
 	R            *hexutil.Big
 	S            *hexutil.Big
@@ -104,7 +104,7 @@ func newTransaction(nonce uint64, to *common.Address, amount, gasLimit, gasPrice
 		Amount:       new(big.Int),
 		GasLimit:     new(big.Int),
 		Price:        new(big.Int),
-		Governance:   false,		// yhheo
+		Governance:   false,
 		V:            new(big.Int),
 		R:            new(big.Int),
 		S:            new(big.Int),
@@ -190,7 +190,7 @@ func (tx *Transaction) GasPrice() *big.Int { return new(big.Int).Set(tx.data.Pri
 func (tx *Transaction) Value() *big.Int    { return new(big.Int).Set(tx.data.Amount) }
 func (tx *Transaction) Nonce() uint64      { return tx.data.AccountNonce }
 func (tx *Transaction) CheckNonce() bool   { return true }
-func (tx *Transaction) Governance() bool   { return tx.data.Governance }	// yhheo
+func (tx *Transaction) Governance() bool   { return tx.data.Governance }
 
 // To returns the recipient address of the transaction.
 // It returns nil if the transaction is a contract creation.
@@ -244,7 +244,7 @@ func (tx *Transaction) AsMessage(s Signer) (Message, error) {
 		amount:     tx.data.Amount,
 		data:       tx.data.Payload,
 		checkNonce: true,
-		governance: tx.data.Governance,		// yhheo
+		governance: tx.data.Governance,
 	}
 
 	var err error
@@ -260,13 +260,11 @@ func (tx *Transaction) WithSignature(signer Signer, sig []byte) (*Transaction, e
 
 // Cost returns amount + gasprice * gaslimit.
 func (tx *Transaction) Cost() *big.Int {
-	// yhheo - begin
 	if tx.Governance() || len(tx.data.Payload) == 0 {
 		return big.NewInt(0)
 	}
 	// 0.02 Reap(10^16) + (gas * 0.003 Reap(10^15))
-	total := new(big.Int).Add(big.NewInt(params.Basefee), new(big.Int).Mul(tx.data.GasLimit, big.NewInt(params.Gasfee)))	// new(big.Int).Mul(tx.data.Price, tx.data.GasLimit)
-	// yhheo - end
+	total := new(big.Int).Add(big.NewInt(params.Basefee), new(big.Int).Mul(tx.data.GasLimit, big.NewInt(params.Gasfee)))
 	total.Add(total, tx.data.Amount)
 	return total
 }
@@ -458,10 +456,10 @@ type Message struct {
 	amount, price, gasLimit *big.Int
 	data                    []byte
 	checkNonce              bool
-	governance              bool 	// yhheo
+	governance              bool
 }
 
-func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, gasLimit, price *big.Int, data []byte, checkNonce bool, governance bool) Message {	// yhheo
+func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, gasLimit, price *big.Int, data []byte, checkNonce bool, governance bool) Message {
 	return Message{
 		from:       from,
 		to:         to,
@@ -471,7 +469,7 @@ func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, g
 		gasLimit:   gasLimit,
 		data:       data,
 		checkNonce: checkNonce,
-		governance: governance,		// yhheo
+		governance: governance,
 	}
 }
 
@@ -483,4 +481,4 @@ func (m Message) Gas() *big.Int        { return m.gasLimit }
 func (m Message) Nonce() uint64        { return m.nonce }
 func (m Message) Data() []byte         { return m.data }
 func (m Message) CheckNonce() bool     { return m.checkNonce }
-func (m Message) Governance() bool     { return m.governance }		// yhheo
+func (m Message) Governance() bool     { return m.governance }

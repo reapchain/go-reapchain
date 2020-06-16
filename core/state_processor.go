@@ -56,7 +56,6 @@ func NewStateProcessor(config *params.ChainConfig, bc *BlockChain, engine consen
 // returns the amount of gas that was used in the process. If any of the
 // transactions failed to execute due to insufficient gas it will return an error.
 func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg vm.Config) (types.Receipts, []*types.Log, *big.Int, error) {
-	//fmt.Printf("\nfunc (p *StateProcessor) Process\n")	// yhheo
 	var (
 		receipts     types.Receipts
 		totalUsedGas = big.NewInt(0)
@@ -89,7 +88,6 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 // for the transaction, gas used and an error if the transaction failed,
 // indicating the block was invalid.
 func ApplyTransaction(config *params.ChainConfig, bc *BlockChain, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *big.Int, cfg vm.Config) (*types.Receipt, *big.Int, error) {
-	//fmt.Printf("\nfunc ApplyTransaction\n author = %x\n GasPool = %v\n usedGas = %v\n header = %v\n", author, gp, usedGas, header)	// yhheo
 	msg, err := tx.AsMessage(types.MakeSigner(config, header.Number))
 	if err != nil {
 		return nil, nil, err
@@ -100,7 +98,7 @@ func ApplyTransaction(config *params.ChainConfig, bc *BlockChain, author *common
 	// about the transaction and calling mechanisms.
 	vmenv := vm.NewEVM(context, statedb, config, cfg)
 	// Apply the transaction to the current state (included in the env)
-	_, gas, _, err := ApplyMessage(vmenv, msg, gp)	// yhheo
+	_, gas, _, err := ApplyMessage(vmenv, msg, gp)
 	if err != nil {
 		return nil, nil, err
 	}

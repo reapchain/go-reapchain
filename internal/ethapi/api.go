@@ -24,7 +24,6 @@ import (
 	"math/big"
 	"strings"
 	"time"
-	"encoding/hex"	// yhheo
 
 	"github.com/ethereum/go-ethereum/accounts"
 	"github.com/ethereum/go-ethereum/accounts/keystore"
@@ -314,23 +313,18 @@ func (s *PrivateAccountAPI) LockAccount(addr common.Address) bool {
 	return fetchKeystore(s.am).Lock(addr) == nil
 }
 
-// yhheo - begin
 // signTransaction sets defaults and signs the given transaction
 // NOTE: the caller needs to ensure that the nonceLock is held, if applicable,
 // and release it after the transaction has been submitted to the tx pool
 func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArgs, passwd string) (*types.Transaction, error) {
-	//log.Debug("(s *PrivateAccountAPI) signTransaction", "ctx ", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)	// yhheo
-
     // Look up the wallet containing the requested signer
     account := accounts.Account{Address: args.From}
     wallet, err := s.am.Find(account)
     if err != nil {
-		log.Warn("s.am.Find", "from", args.From, "err", err)	// yhheo
         return nil, err
     }
     // Set some sanity defaults and terminate on failure
     if err := args.setDefaults(ctx, s.b); err != nil {
-		log.Warn("args.setDefaults", "err", err)	// yhheo
         return nil, err
     }
     // Assemble the transaction and sign with the wallet
@@ -344,7 +338,6 @@ func (s *PrivateAccountAPI) signTransaction(ctx context.Context, args *SendTxArg
 // able to decrypt the key it fails.
 // disable temp by yichoi for debugging sendtx runtime error
 func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-	//log.Debug("(s *PrivateAccountAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
     if args.Nonce == nil {
         // Hold the addresse's mutex around signing to prevent concurrent assignment of
         // the same nonce to multiple accounts.
@@ -353,82 +346,39 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
     }
     signed, err := s.signTransaction(ctx, &args, passwd)
     if err != nil {
-        log.Warn("Failed transaction send attempt", "from", args.From, "to", args.To, "value", args.Value.ToInt(), "err", err)
         return common.Hash{}, err
     }
-	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)		// yhheo
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)
 
     return submitTransaction(ctx, s.b, signed)
 }
-
-/*
-func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs, passwd string) (common.Hash, error) {
-	// Look up the wallet containing the requested signer
-	account := accounts.Account{Address: args.From}
-    log.Info("SendTransaction:", "account", account ) //yichoi added
-	wallet, err := s.am.Find(account)
-	if err != nil {
-		return common.Hash{}, err
-	}
-
-	if args.Nonce == nil {
-		// Hold the addresse's mutex around signing to prevent concurrent assignment of
-		// the same nonce to multiple accounts.
-		s.nonceLock.LockAddr(args.From)
-		defer s.nonceLock.UnlockAddr(args.From)
-	}
-
-	// Set some sanity defaults and terminate on failure
-	if err := args.setDefaults(ctx, s.b); err != nil {
-		return common.Hash{}, err
-	}
-	// Assemble the transaction and sign with the wallet
-	tx := args.toTransaction()
-
-	var chainID *big.Int
-	if config := s.b.ChainConfig(); config.IsEIP155(s.b.CurrentBlock().Number()) {
-		chainID = config.ChainId
-	}
-	signed, err := wallet.SignTxWithPassphrase(account, passwd, tx, chainID)
-	if err != nil {
-		return common.Hash{}, err
-	}
-	return submitTransaction(ctx, s.b, signed)
-} */
 
 // SignTransaction will create a transaction from the given arguments and
 // tries to sign it with the key associated with args.To. If the given passwd isn't
 // able to decrypt the key it fails. The transaction is returned in RLP-form, not broadcast
 // to other nodes
 func (s *PrivateAccountAPI) SignTransaction(ctx context.Context, args SendTxArgs, passwd string) (*SignTransactionResult, error) {
-	//log.Debug("(s *PrivateAccountAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
     // No need to obtain the noncelock mutex, since we won't be sending this
     // tx into the transaction pool, but right back to the user
     if args.Gas == nil {
-		log.Warn("gas not specified")		// yhheo
         return nil, fmt.Errorf("gas not specified")
     }
     if args.GasPrice == nil {
-		log.Warn("gasPrice not specified")	// yhheo
         return nil, fmt.Errorf("gasPrice not specified")
     }
     if args.Nonce == nil {
-		log.Warn("nonce not specified")		// yhheo
         return nil, fmt.Errorf("nonce not specified")
     }
     signed, err := s.signTransaction(ctx, &args, passwd)
     if err != nil {
-        log.Warn("Failed transaction sign attempt", "from", args.From, "to", args.To, "value", args.Value.ToInt(), "err", err)
         return nil, err
     }
     data, err := rlp.EncodeToBytes(signed)
     if err != nil {
-		log.Warn("rlp.EncodeToBytes", "err", err)	// yhheo
         return nil, err
     }
     return &SignTransactionResult{data, signed}, nil
 }
-// yhheo - end
 
 // signHash is a helper function that calculates a hash for the given message that can be
 // safely used to calculate a signature from.
@@ -452,19 +402,16 @@ func signHash(data []byte) []byte {
 //
 // https://github.com/ethereum/go-ethereum/wiki/Management-APIs#personal_sign
 func (s *PrivateAccountAPI) Sign(ctx context.Context, data hexutil.Bytes, addr common.Address, passwd string) (hexutil.Bytes, error) {
-    log.Debug("(s *PrivateAccountAPI) Sign", "ctx", ctx, "data", data, "addr", addr)    // yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: addr}
 
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		log.Warn("s.b.AccountManager", "err", err)		// yhheo
 		return nil, err
 	}
 	// Assemble sign the data with the wallet
 	signature, err := wallet.SignHashWithPassphrase(account, passwd, signHash(data))
 	if err != nil {
-		log.Warn("wallet.SignHashWithPassphrase", "err", err)	// yhheo
 		return nil, err
 	}
 	signature[64] += 27 // Transform V from 0/1 to 27/28 according to the yellow paper
@@ -499,7 +446,6 @@ func (s *PrivateAccountAPI) EcRecover(ctx context.Context, data, sig hexutil.Byt
 	return recoveredAddr, nil
 }
 
-// yhheo - start
 func (s *PrivateAccountAPI) PubkeyHash(ctx context.Context, data, sig hexutil.Bytes) (common.Hash, error) {
 	if len(sig) != 65 {
 		return common.Hash{}, fmt.Errorf("signature must be 65 bytes long")
@@ -518,7 +464,6 @@ func (s *PrivateAccountAPI) PubkeyHash(ctx context.Context, data, sig hexutil.By
 	pkHash := common.BytesToHash(pubBytes)
 	return pkHash, nil
 }
-// yhheo - end
 
 // SignAndSendTransaction was renamed to SendTransaction. This method is deprecated
 // and will be removed in the future. It primary goal is to give clients time to update.
@@ -549,7 +494,6 @@ func (s *PublicBlockChainAPI) BlockNumber() *big.Int {
 func (s *PublicBlockChainAPI) GetBalance(ctx context.Context, address common.Address, blockNr rpc.BlockNumber) (*big.Int, error) {
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
-		log.Warn("s.b.StateAndHeaderByNumber", "err", err)		// yhheo
 		return nil, err
 	}
 
@@ -559,7 +503,6 @@ func (s *PublicBlockChainAPI) GetBalance(ctx context.Context, address common.Add
 // GetBlockByNumber returns the requested block. When blockNr is -1 the chain head is returned. When fullTx is true all
 // transactions in the block are returned in full detail, otherwise only the transaction hash is returned.
 func (s *PublicBlockChainAPI) GetBlockByNumber(ctx context.Context, blockNr rpc.BlockNumber, fullTx bool) (map[string]interface{}, error) {
-    log.Debug("(s *PublicBlockChainAPI) GetBlockByNumber", "ctx", ctx, "rpc.BlockNumber", blockNr, "fullTx", fullTx)    // yhheo
 	block, err := s.b.BlockByNumber(ctx, blockNr)
 	if block != nil {
 		response, err := s.rpcOutputBlock(block, true, fullTx)
@@ -577,7 +520,6 @@ func (s *PublicBlockChainAPI) GetBlockByNumber(ctx context.Context, blockNr rpc.
 // GetBlockByHash returns the requested block. When fullTx is true all transactions in the block are returned in full
 // detail, otherwise only the transaction hash is returned.
 func (s *PublicBlockChainAPI) GetBlockByHash(ctx context.Context, blockHash common.Hash, fullTx bool) (map[string]interface{}, error) {
-	log.Debug("(s *PublicBlockChainAPI) GetBlockByHash", "ctx", ctx, "blockHash", blockHash, "fullTx", fullTx)    // yhheo
 	block, err := s.b.GetBlock(ctx, blockHash)
 	if block != nil {
 		return s.rpcOutputBlock(block, true, fullTx)
@@ -639,13 +581,11 @@ func (s *PublicBlockChainAPI) GetUncleCountByBlockHash(ctx context.Context, bloc
 func (s *PublicBlockChainAPI) GetCode(ctx context.Context, address common.Address, blockNr rpc.BlockNumber) (string, error) {
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
-		log.Debug("s.b.StateAndHeaderByNumber", "err", err)	// yhheo
 		return "", err
 	}
 	res, err := state.GetCode(ctx, address)
 	if len(res) == 0 || err != nil { // backwards compatibility
 		if err != nil {
-			log.Debug("state.GetCode", "err", err) 	// yhheo
 		}
 		return "0x", err
 	}
@@ -702,7 +642,6 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 
 	state, header, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
-		log.Debug("s.b.StateAndHeaderByNumber", "err", err)		// yhheo
 		return nil, common.Big0, false, err
 	}
 	// Set sender address or use a default if none specified
@@ -724,7 +663,7 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 	}
 
 	// Create new call message
-	msg := types.NewMessage(addr, args.To, 0, args.Value.ToInt(), gas, gasPrice, args.Data, false, false) // yhheo
+	msg := types.NewMessage(addr, args.To, 0, args.Value.ToInt(), gas, gasPrice, args.Data, false, false)
 
 	// Setup context so it may be cancelled the call has completed
 	// or, in case of unmetered gas, setup a context with a timeout.
@@ -741,7 +680,6 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 	// Get a new instance of the EVM.
 	evm, vmError, err := s.b.GetEVM(ctx, msg, state, header, vmCfg)
 	if err != nil {
-		log.Debug("s.b.GetEVM", "err", err)	// yhheo
 		return nil, common.Big0, false, err
 	}
 	// Wait for the context to be done and cancel the evm. Even if the
@@ -758,7 +696,6 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 	gp := new(core.GasPool).AddGas(math.MaxBig256)
 	res, gas, failed, err := core.ApplyMessage(evm, msg, gp)
 	if err := vmError(); err != nil {
-		log.Debug("core.ApplyMessage", "err", err)	// yhheo
 		return nil, common.Big0, false, err
 	}
 	return res, gas, failed, err
@@ -767,14 +704,12 @@ func (s *PublicBlockChainAPI) doCall(ctx context.Context, args CallArgs, blockNr
 // Call executes the given transaction on the state for the given block number.
 // It doesn't make and changes in the state/blockchain and is useful to execute and retrieve values.
 func (s *PublicBlockChainAPI) Call(ctx context.Context, args CallArgs, blockNr rpc.BlockNumber) (hexutil.Bytes, error) {
-	result, _, _, err := s.doCall(ctx, args, blockNr, vm.Config{DisableGasMetering: true})	// yhheo
+	result, _, _, err := s.doCall(ctx, args, blockNr, vm.Config{DisableGasMetering: true})
 	return (hexutil.Bytes)(result), err
 }
 
-// yhheo - begin
 // EstimateGas returns an estimate of the amount of gas needed to execute the given transaction.
 func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*hexutil.Big, error) {
-    log.Debug("EstimateGas Start", "ctx", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "value", args.Value, "data", args.Data)    // yhheo
 	// Binary search the gas requirement, as it may be higher than the amount used
 	var (
 		lo  uint64 = params.TxGas - 1
@@ -787,7 +722,6 @@ func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*
 		// Retrieve the current pending block to act as the gas ceiling
 		block, err := s.b.BlockByNumber(ctx, rpc.PendingBlockNumber)
 		if err != nil {
-			log.Debug("s.b.BlockByNumber", "err", err)	// yhheo
 			return nil, err
 		}
 		hi = block.GasLimit().Uint64()
@@ -798,7 +732,7 @@ func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*
 	executable := func(gas uint64) bool {
 		(*big.Int)(&args.Gas).SetUint64(gas)
 
-		_, _, failed, err := s.doCall(ctx, args, rpc.PendingBlockNumber, vm.Config{EstimateGasMetering:true})	// yhheo
+		_, _, failed, err := s.doCall(ctx, args, rpc.PendingBlockNumber, vm.Config{EstimateGasMetering:true})
 		if err != nil || failed {
 			return false
 		}
@@ -820,10 +754,8 @@ func (s *PublicBlockChainAPI) EstimateGas(ctx context.Context, args CallArgs) (*
 			return (*hexutil.Big)(new(big.Int).SetUint64(0)), fmt.Errorf("gas required exceeds allowance or always failing transaction")
 		}
 	}
-	log.Debug("EstimateGas End", "gas", hi)		// yhheo
 	return (*hexutil.Big)(new(big.Int).SetUint64(hi)), nil
 }
-// yhheo - end
 
 // ExecutionResult groups all structured logs emitted by the EVM
 // while replaying a transaction in debug mode as well as the amount of
@@ -1053,10 +985,6 @@ func getTransaction(chainDb ethdb.Database, b Backend, txHash common.Hash) (*typ
 		// pending transaction?
 		tx = b.GetPoolTransaction(txHash)
 		isPending = true
-		log.Info("getTransaction: ", "isPending", isPending)
-		log.Info("getTransaction: ", "tx", tx)
-
-
 	}
 
 	return tx, isPending, nil
@@ -1064,7 +992,6 @@ func getTransaction(chainDb ethdb.Database, b Backend, txHash common.Hash) (*typ
 
 // GetBlockTransactionCountByNumber returns the number of transactions in the block with the given block number.
 func (s *PublicTransactionPoolAPI) GetBlockTransactionCountByNumber(ctx context.Context, blockNr rpc.BlockNumber) *hexutil.Uint {
-	log.Debug("(s *PublicTransactionPoolAPI) GetBlockTransactionCountByNumber", "ctx", ctx, "blockNr", blockNr)    // yhheo
 	if block, _ := s.b.BlockByNumber(ctx, blockNr); block != nil {
 		n := hexutil.Uint(len(block.Transactions()))
 		return &n
@@ -1074,7 +1001,6 @@ func (s *PublicTransactionPoolAPI) GetBlockTransactionCountByNumber(ctx context.
 
 // GetBlockTransactionCountByHash returns the number of transactions in the block with the given hash.
 func (s *PublicTransactionPoolAPI) GetBlockTransactionCountByHash(ctx context.Context, blockHash common.Hash) *hexutil.Uint {
-	log.Debug("(s *PublicTransactionPoolAPI) GetBlockTransactionCountByHash", "ctx", ctx, "blockHash", blockHash)    // yhheo
 	if block, _ := s.b.GetBlock(ctx, blockHash); block != nil {
 		n := hexutil.Uint(len(block.Transactions()))
 		return &n
@@ -1084,7 +1010,6 @@ func (s *PublicTransactionPoolAPI) GetBlockTransactionCountByHash(ctx context.Co
 
 // GetTransactionByBlockNumberAndIndex returns the transaction for the given block number and index.
 func (s *PublicTransactionPoolAPI) GetTransactionByBlockNumberAndIndex(ctx context.Context, blockNr rpc.BlockNumber, index hexutil.Uint) (*RPCTransaction, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByBlockNumberAndIndex", "ctx", ctx, "blockNr", blockNr, "rindex", index)    // yhheo
 	if block, _ := s.b.BlockByNumber(ctx, blockNr); block != nil {
 		return newRPCTransactionFromBlockIndex(block, uint(index))
 	}
@@ -1093,7 +1018,6 @@ func (s *PublicTransactionPoolAPI) GetTransactionByBlockNumberAndIndex(ctx conte
 
 // GetTransactionByBlockHashAndIndex returns the transaction for the given block hash and index.
 func (s *PublicTransactionPoolAPI) GetTransactionByBlockHashAndIndex(ctx context.Context, blockHash common.Hash, index hexutil.Uint) (*RPCTransaction, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionByBlockHashAndIndex", "ctx", ctx, "blockHash", blockHash, "rindex", index)    // yhheo
 	if block, _ := s.b.GetBlock(ctx, blockHash); block != nil {
 		return newRPCTransactionFromBlockIndex(block, uint(index))
 	}
@@ -1102,7 +1026,6 @@ func (s *PublicTransactionPoolAPI) GetTransactionByBlockHashAndIndex(ctx context
 
 // GetRawTransactionByBlockNumberAndIndex returns the bytes of the transaction for the given block number and index.
 func (s *PublicTransactionPoolAPI) GetRawTransactionByBlockNumberAndIndex(ctx context.Context, blockNr rpc.BlockNumber, index hexutil.Uint) (hexutil.Bytes, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByBlockNumberAndIndex", "ctx", ctx, "blockNr", blockNr, "rindex", index)    // yhheo
 	if block, _ := s.b.BlockByNumber(ctx, blockNr); block != nil {
 		return newRPCRawTransactionFromBlockIndex(block, uint(index))
 	}
@@ -1111,7 +1034,6 @@ func (s *PublicTransactionPoolAPI) GetRawTransactionByBlockNumberAndIndex(ctx co
 
 // GetRawTransactionByBlockHashAndIndex returns the bytes of the transaction for the given block hash and index.
 func (s *PublicTransactionPoolAPI) GetRawTransactionByBlockHashAndIndex(ctx context.Context, blockHash common.Hash, index hexutil.Uint) (hexutil.Bytes, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByBlockHashAndIndex", "ctx", ctx, "blockHash", blockHash, "rindex", index)    // yhheo
 	if block, _ := s.b.GetBlock(ctx, blockHash); block != nil {
 		return newRPCRawTransactionFromBlockIndex(block, uint(index))
 	}
@@ -1120,7 +1042,6 @@ func (s *PublicTransactionPoolAPI) GetRawTransactionByBlockHashAndIndex(ctx cont
 
 // GetTransactionCount returns the number of transactions the given address has sent for the given block number
 func (s *PublicTransactionPoolAPI) GetTransactionCount(ctx context.Context, address common.Address, blockNr rpc.BlockNumber) (*hexutil.Uint64, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionCount", "ctx", ctx, "address", address, "blockNr", blockNr)    // yhheo
 	state, _, err := s.b.StateAndHeaderByNumber(ctx, blockNr)
 	if state == nil || err != nil {
 		return nil, err
@@ -1156,7 +1077,6 @@ func getTransactionBlockData(chainDb ethdb.Database, txHash common.Hash) (common
 
 // GetTransactionByHash returns the transaction for the given hash
 func (s *PublicTransactionPoolAPI) GetTransactionByHash(ctx context.Context, hash common.Hash) (*RPCTransaction, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionByHash", "ctx", ctx, "hash", hash)    // yhheo
 	var tx *types.Transaction
 	var isPending bool
 	var err error
@@ -1185,7 +1105,6 @@ func (s *PublicTransactionPoolAPI) GetTransactionByHash(ctx context.Context, has
 
 // GetRawTransactionByHash returns the bytes of the transaction for the given hash.
 func (s *PublicTransactionPoolAPI) GetRawTransactionByHash(ctx context.Context, hash common.Hash) (hexutil.Bytes, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByHash", "ctx", ctx, "hash", hash)    // yhheo
 	var tx *types.Transaction
 	var err error
 
@@ -1201,7 +1120,6 @@ func (s *PublicTransactionPoolAPI) GetRawTransactionByHash(ctx context.Context, 
 
 // GetTransactionReceipt returns the transaction receipt for the given transaction hash.
 func (s *PublicTransactionPoolAPI) GetTransactionReceipt(hash common.Hash) (map[string]interface{}, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionReceipt", "hash", hash)    // yhheo
 	receipt := core.GetReceipt(s.b.ChainDb(), hash)
 	if receipt == nil {
 		log.Debug("Receipt not found for transaction", "hash", hash)
@@ -1252,13 +1170,11 @@ func (s *PublicTransactionPoolAPI) GetTransactionReceipt(hash common.Hash) (map[
 
 // sign is a helper function that signs a transaction with the private key of the given address.
 func (s *PublicTransactionPoolAPI) sign(addr common.Address, tx *types.Transaction) (*types.Transaction, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) sign", "addr", addr, "tx", tx)    // yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: addr}
 
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		log.Debug("s.b.AccountManager", "err", err)		// yhheo
 		return nil, err
 	}
 	// Request the wallet to sign the transaction
@@ -1288,7 +1204,6 @@ func (args *SendTxArgs) setDefaults(ctx context.Context, b Backend) error {
 	if args.GasPrice == nil {
 		price, err := b.SuggestPrice(ctx)
 		if err != nil {
-			log.Debug("b.SuggestPrice", "err", err)		// yhheo
 			return err
 		}
 		args.GasPrice = (*hexutil.Big)(price)
@@ -1299,7 +1214,6 @@ func (args *SendTxArgs) setDefaults(ctx context.Context, b Backend) error {
 	if args.Nonce == nil {
 		nonce, err := b.GetPoolNonce(ctx, args.From)
 		if err != nil {
-			log.Debug("b.GetPoolNonce", "err", err)		// yhheo
 			return err
 		}
 		args.Nonce = (*hexutil.Uint64)(&nonce)
@@ -1318,20 +1232,17 @@ func (args *SendTxArgs) toTransaction() *types.Transaction {
 // reviewed by yichoi for debug of sendtx error
 func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (common.Hash, error) {
 	if err := b.SendTx(ctx, tx); err != nil {
-	//	log.Debug("b.SendTx", "err", err)	// yhheo
 		return common.Hash{}, err
 	}
 	if tx.To() == nil {
 		signer := types.MakeSigner(b.ChainConfig(), b.CurrentBlock().Number())
 		from, _ := types.Sender(signer, tx)
 		addr := crypto.CreateAddress(from, tx.Nonce())
-		if !tx.Governance() {   // yhheo
+		if !tx.Governance() {
 			log.Warn("no contract creation permissions", "tx.Governance", tx.Governance(), "from", from)
 			return common.Hash{}, vm.ErrDeployPermissions
 		}
 		log.Info("Submitted contract creation", "fullhash", tx.Hash().Hex(), "contract", addr.Hex())
-	} else {
-		//log.Info("Submitted transaction", "fullhash", tx.Hash().Hex(), "recipient", tx.To())
 	}
 	return tx.Hash(), nil
 }
@@ -1339,13 +1250,10 @@ func submitTransaction(ctx context.Context, b Backend, tx *types.Transaction) (c
 // SendTransaction creates a transaction for the given argument, sign it and submit it to the
 // transaction pool.
 func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args SendTxArgs) (common.Hash, error) {
-	//log.Debug("(s *PublicTransactionPoolAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "value", args.Value)    // yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: args.From}
-   // log.Info("account:", "account", account)
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		log.Debug("s.b.AccountManager", "err", err)		// yhheo
 		return common.Hash{}, err
 	}
 
@@ -1358,7 +1266,6 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 
 	// Set some sanity defaults and terminate on failure
 	if err := args.setDefaults(ctx, s.b); err != nil {
-		log.Debug("args.setDefaults", "err", err)		// yhheo
 		return common.Hash{}, err
 	}
 	// Assemble the transaction and sign with the wallet
@@ -1370,10 +1277,9 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 	}
 	signed, err := wallet.SignTx(account, tx, chainID)
 	if err != nil {
-		log.Debug("wallet.SignTx", "err", err)	// yhheo
 		return common.Hash{}, err
 	}
-	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)		// yhheo
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)
 
 	return submitTransaction(ctx, s.b, signed)
 }
@@ -1381,16 +1287,13 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 // SendRawTransaction will add the signed transaction to the transaction pool.
 // The sender is responsible for signing the transaction and using the correct nonce.
 func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encodedTx hexutil.Bytes) (string, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) SendRawTransaction", "ctx", ctx, "encodedTx", hex.EncodeToString(encodedTx))    // yhheo
 	tx := new(types.Transaction)
 	if err := rlp.DecodeBytes(encodedTx, tx); err != nil {
-		log.Debug("rlp.DecodeBytes", "err", err)		// yhheo
 		return "", err
 	}
-	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), tx)	// yhheo
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), tx)
 
 	if err := s.b.SendTx(ctx, tx); err != nil {
-		log.Debug("s.b.SendTx", "err", err)			// yhheo
 		return "", err
 	}
 
@@ -1398,11 +1301,10 @@ func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encod
 	if tx.To() == nil {
 		from, err := types.Sender(signer, tx)
 		if err != nil {
-			log.Debug("types.Sender", "err", err)	// yhheo
 			return "", err
 		}
 		addr := crypto.CreateAddress(from, tx.Nonce())
-		if !tx.Governance() {    // yhheo
+		if !tx.Governance() {
 			log.Warn("no contract creation permissions", "tx.Governance", tx.Governance(), "from", from, "signer", signer)
 			return "", vm.ErrDeployPermissions
 		}
@@ -1424,13 +1326,11 @@ func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encod
 //
 // https://github.com/ethereum/wiki/wiki/JSON-RPC#eth_sign
 func (s *PublicTransactionPoolAPI) Sign(addr common.Address, data hexutil.Bytes) (hexutil.Bytes, error) {
-    log.Debug("(s *PublicTransactionPoolAPI) Sign", "addr", addr, "data", data)    // yhheo
 	// Look up the wallet containing the requested signer
 	account := accounts.Account{Address: addr}
 
 	wallet, err := s.b.AccountManager().Find(account)
 	if err != nil {
-		log.Debug("s.b.AccountManager", "err", err)		// yhheo
 		return nil, err
 	}
 	// Sign the requested hash with the wallet
@@ -1451,7 +1351,6 @@ type SignTransactionResult struct {
 // The node needs to have the private key of the account corresponding with
 // the given from address and it needs to be unlocked.
 func (s *PublicTransactionPoolAPI) SignTransaction(ctx context.Context, args SendTxArgs) (*SignTransactionResult, error) {
-	//log.Debug("(s *PublicTransactionPoolAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
 	if args.Nonce == nil {
 		// Hold the addresse's mutex around signing to prevent concurrent assignment of
 		// the same nonce to multiple accounts.
@@ -1459,17 +1358,14 @@ func (s *PublicTransactionPoolAPI) SignTransaction(ctx context.Context, args Sen
 		defer s.nonceLock.UnlockAddr(args.From)
 	}
 	if err := args.setDefaults(ctx, s.b); err != nil {
-		log.Debug("args.setDefaults", "err", err)	// yhheo
 		return nil, err
 	}
 	tx, err := s.sign(args.From, args.toTransaction())
 	if err != nil {
-		log.Debug("s.sign", "err", err)				// yhheo
 		return nil, err
 	}
 	data, err := rlp.EncodeToBytes(tx)
 	if err != nil {
-		log.Debug("rlp.EncodeToBytes", "err", err)	// yhheo
 		return nil, err
 	}
 	return &SignTransactionResult{data, tx}, nil
@@ -1478,7 +1374,6 @@ func (s *PublicTransactionPoolAPI) SignTransaction(ctx context.Context, args Sen
 // PendingTransactions returns the transactions that are in the transaction pool and have a from address that is one of
 // the accounts this node manages.
 func (s *PublicTransactionPoolAPI) PendingTransactions() ([]*RPCTransaction, error) {
-	log.Debug("(s *PublicTransactionPoolAPI) PendingTransactions")	// yhheo
 	pending, err := s.b.GetPoolTransactions()
 	if err != nil {
 		return nil, err

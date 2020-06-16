@@ -143,15 +143,13 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		etherbase:      config.Etherbase,
 	}
 
-	//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)	// yhheo
-
 	// force to set the istanbul etherbase to node key address
 	/* if (chainConfig.Istanbul != nil) || (chainConfig.PoDC != nil) {  //yichoi added for PoDC
-		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
+		eth.etherbase = params.FeeAddress
 		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
 	} */
 	if  (chainConfig.PoDC != nil) {  //yichoi added for PoDC
-		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress  //? 이상함.
+		eth.etherbase = params.FeeAddress
 		log.Info("Now : ", "chainConfig.PoDC", chainConfig.PoDC )
 		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
 	}
@@ -361,7 +359,6 @@ func (s *Ethereum) ResetWithGenesisBlock(gb *types.Block) {
 func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 	s.lock.RLock()
 	etherbase := s.etherbase
-	//etherbase := params.FeeAddress	// yhheo : s.etherbase --> params.FeeAddress
 	s.lock.RUnlock()
 
 	if etherbase != (common.Address{}) {
@@ -369,7 +366,7 @@ func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 	}
 	if wallets := s.AccountManager().Wallets(); len(wallets) > 0 {
 		if accounts := wallets[0].Accounts(); len(accounts) > 0 {
-			return params.FeeAddress, nil	// yhheo : accounts[0].Address --> params.FeeAddress,
+			return params.FeeAddress, nil
 		}
 	}
 	return common.Address{}, fmt.Errorf("etherbase address must be explicitly specified")
@@ -382,7 +379,6 @@ func (self *Ethereum) SetEtherbase(etherbase common.Address) {
 		log.Error("Cannot set etherbase in PoDC consensus")  //eth.sendtx가 안될때 현상... by yichoi
 		return
 	}
-	//fmt.Printf("Ethereum - SetEtherbase : etherbase = %x\n", etherbase) // yhheo
 	self.etherbase = etherbase
 	self.lock.Unlock()
 

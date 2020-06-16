@@ -170,7 +170,7 @@ func NewEVMEnvironment(vmTest bool, chainConfig *params.ChainConfig, statedb *st
 		to = &t
 	}
 
-	msg := types.NewMessage(origin, to, nonce, value, gas, price, data, true, false)	// yhheo
+	msg := types.NewMessage(origin, to, nonce, value, gas, price, data, true, false)
 
 	initialCall := true
 	canTransfer := func(db vm.StateDB, address common.Address, amount *big.Int) bool {

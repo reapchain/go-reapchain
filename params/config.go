@@ -206,7 +206,7 @@ type ChainConfig struct {
 	Clique   *CliqueConfig   `json:"clique,omitempty"`
     Istanbul *IstanbulConfig `json:"istanbul,omitempty"`
 	PoDC     *PoDCConfig     `json:"podc,omitempty"`
-	MaxCodeSize       uint64 `json:"maxCodeSize"`		// yhheo
+	MaxCodeSize       uint64 `json:"maxCodeSize"`
 
 }
 
@@ -277,19 +277,17 @@ func (c *ChainConfig) String() string {
 		c.EIP155Block,
 		c.EIP158Block,
 		c.MetropolisBlock,
-		c.MaxCodeSize,		// yhheo
+		c.MaxCodeSize,
 		engine,
 	)
 }
 
-// yhheo - begin
 func (c *ChainConfig) IsValid() error {
 	if c.MaxCodeSize < 24 || c.MaxCodeSize > 128 {
 		return errors.New("Genesis max code size must be between 24 and 128")
 	}
 	return nil
 }
-// yhheo - end
 
 // IsHomestead returns whether num is either equal to the homestead block or greater.
 func (c *ChainConfig) IsHomestead(num *big.Int) bool {

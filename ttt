@@ -1,0 +1,243 @@
+	Governance bool 		   // yhheo
+./interfaces.go
+	msg := types.NewMessage(origin, to, nonce, value, gas, price, data, true, false)	// yhheo
+./tests/util.go
+	ret, gasUsed, _, err := core.ApplyMessage(environment, msg, gaspool)	// yhheo
+./tests/state_test_util.go
+    // yhheo - begin
+    // yhheo - end
+// yhheo - begin
+// yhheo - end
+	//fmt.Printf("setEtherbase : cfg.Etherbase = %x\n", cfg.Etherbase) // yhheo
+		// yhheo - begin
+		// yhheo - end
+		log.Warn("The etherbase cannot be set")	// yhheo
+			//cfg.Etherbase = accounts[0].Address	// yhheo
+			log.Warn("The etherbase cannot be set")	// yhheo
+	setNodeGovernance(ctx, cfg) // yhheo
+./cmd/utils/flags.go
+		utils.GovernanceFlag, // yhheo - Governance setting
+./cmd/geth/main.go
+			utils.GovernanceFlag, // yhheo
+./cmd/geth/usage.go
+		if tx.Governance() != true { // yhheo
+./light/txpool.go
+	//fmt.Printf("miner.New : miner.coinbase = %x\n", miner.coinbase) // yhheo
+				//fmt.Println("Miner - update : self.coinbase =", self.coinbase)  // yhheo
+	//fmt.Printf("Miner - Start : self.coinbase = %x\n", self.coinbase)   // yhheo
+	//fmt.Printf("Miner - SetEtherbase : self.coinbase = %x\n", self.coinbase)	// yhheo
+./miner/miner.go
+	worker.coinbase = params.FeeAddress // yhheo
+	//fmt.Printf("newWorker : worker.coinbase = %x\n", worker.coinbase)   // yhheo
+	//fmt.Printf("worker - setEtherbase : self.coinbase = %x\n", self.coinbase)   // yhheo
+	//fmt.Printf("\nfunc (self *worker) update(\n")	// yhheo
+				//fmt.Printf("worker - update : self.coinbase = %x\n", self.coinbase) // yhheo
+		//fmt.Printf("worker - commitNewWork : header.Coinbase = %x\n self.coinbase = %x\n", header.Coinbase, self.coinbase)  // yhheo
+	//fmt.Printf("\nfunc (env *Work) commitTransaction\n coinbase = %x\n gp = %v\n", coinbase, gp)		// yhheo
+	//fmt.Printf("Work - commitTransaction : coinbase = %x\n", coinbase)  // yhheo
+./miner/worker.go
+	//fmt.Printf("\nfunc (api *PrivateDebugAPI) TraceTransaction\n ctx = %v\n txHash = %x\n TraceArgs = %v\n", ctx, txHash, config)	// yhheo
+	ret, gas, _, err := core.ApplyMessage(vmenv, msg, new(core.GasPool).AddGas(tx.Gas()))	// yhheo
+		_, _, _, err := core.ApplyMessage(vmenv, msg, gp)	// yhheo
+./eth/api.go
+	//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)	// yhheo
+		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress
+		eth.etherbase = params.FeeAddress	// yhheo crypto.PubkeyToAddress(ctx.NodeKey().PublicKey) --> params.FeeAddress  //? 이상함.
+	//etherbase := params.FeeAddress	// yhheo : s.etherbase --> params.FeeAddress
+			return params.FeeAddress, nil	// yhheo : accounts[0].Address --> params.FeeAddress,
+	//fmt.Printf("Ethereum - SetEtherbase : etherbase = %x\n", etherbase) // yhheo
+./eth/backend.go
+	"github.com/ethereum/go-ethereum/log"	// yhheo
+	log.Debug("Block Gas Limit", "gas", gl)	// yhheo
+./core/block_validator.go
+	//fmt.Printf("\nfunc (p *StateProcessor) Process\n")	// yhheo
+	//fmt.Printf("\nfunc ApplyTransaction\n author = %x\n GasPool = %v\n usedGas = %v\n header = %v\n", author, gp, usedGas, header)	// yhheo
+	_, gas, _, err := ApplyMessage(vmenv, msg, gp)	// yhheo
+./core/state_processor.go
+	Governance() bool 	// yhheo
+func ApplyMessage(evm *vm.EVM, msg Message, gp *GasPool) ([]byte, *big.Int, bool, error) {	// yhheo
+	//fmt.Printf("\nfunc ApplyMessage\n GasPool = %v\n", gp)	// yhheo
+	ret, _, gasUsed, failed, err := st.TransitionDb()	// yhheo
+	return ret, gasUsed, failed, err	// yhheo
+	mgval := st.calcFee(mgas)   // yhheo - new(big.Int).Mul(mgas, st.gasPrice)
+	isGovernance := st.msg.Governance()		// yhheo
+	isCoinTransfer := st.coinTransfer()		// yhheo
+	if !isGovernance && !isCoinTransfer { // yhheo
+    // yhheo - begin
+    // yhheo - end
+func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big.Int, failed bool, err error) {	// yhheo
+	//fmt.Printf(" st.evm.Coinbase = %x\n", st.evm.Coinbase)  // yhheo
+	//fmt.Printf("TransitionDb : st.gas = %d\n st.gasPrice = %d\n", st.gas, st.gasPrice)	// yhheo
+	isGovernance := st.msg.Governance()		// yhheo
+	isCoinTransfer := st.coinTransfer()		// yhheo
+	//disableGasMetering  := st.evm.VmConfig().DisableGasMetering		// yhheo
+	estimateGasMetering := st.evm.VmConfig().EstimateGasMetering	// yhheo
+	//fmt.Printf(" contractCreation = %t\n disableGasMetering = %t\n estimateGasMetering = %t\n", contractCreation, disableGasMetering, estimateGasMetering)		// yhheo
+		return nil, nil, nil, false, vm.ErrOutOfGas	// yhheo
+		return nil, nil, nil, false, err	// yhheo
+	//fmt.Printf(" intrinsicGas = %d\n", intrinsicGas)	// yhheo
+        fee *big.Int	// yhheo
+		if isGovernance || estimateGasMetering {		// yhheo
+			//fmt.Printf(" evm.Create (st.gas) = %d\n", st.gas)		// yhheo
+			return nil, nil, nil, false, vm.ErrDeployPermissions	// yhheo
+		//fmt.Printf(" evm.Call (st.gas) = %d\n", st.gas) // yhheo
+			return nil, nil, nil, false, vmerr	// yhheo
+    // yhheo - begin
+	//fmt.Printf("TransitionDb : isCoinTransfer = %t\n", isCoinTransfer)  // yhheo
+    // yhheo - end
+    // yhheo - begin
+    // yhheo - end
+	return ret, requiredGas, st.gasUsed(), vmerr != nil, err	// yhheo
+    // yhheo - begin
+	// yhheo - end
+// yhheo - begin
+	// fmt.Printf("\nfunc (st *StateTransition) calcFee\n big.NewInt(params.Basefee) = %d\n big.NewInt(params.Gasfee) = %d\n", big.NewInt(params.Basefee), big.NewInt(params.Gasfee))	// yhheo
+// yhheo - end
+./core/state_transition.go
+	"github.com/ethereum/go-ethereum/params"	// yhheo
+		beneficiary = params.FeeAddress	// yhheo
+	//fmt.Printf("NewEVMContext : beneficiary = %x\n", beneficiary)   // yhheo
+./core/evm.go
+	// yhheo - begin
+	// yhheo - end
+	maxCodeSizeExceeded := evm.ChainConfig().IsEIP158(evm.BlockNumber) && len(ret) > maxCodeSize	// yhheo
+func (evm *EVM) VmConfig() Config { return evm.vmConfig }	// yhheo
+./core/vm/evm.go
+	ErrDeployPermissions   = errors.New("no contract creation permissions")	// yhheo
+./core/vm/errors.go
+	EstimateGasMetering bool	// yhheo
+./core/vm/interpreter.go
+	//fmt.Printf("\nfunc (bc *BlockChain) InsertChain\n")	// yhheo
+./core/blockchain.go
+	gvn "github.com/ethereum/go-ethereum/governance"    // yhheo
+// yhheo - begin
+// yhheo - end
+./core/types/transaction_signing.go
+	"github.com/ethereum/go-ethereum/params"	// yhheo
+	Governance   bool            `json:"governance" gencodec:"required"`	// yhheo
+	Governance   bool			// yhheo
+		Governance:   false,		// yhheo
+func (tx *Transaction) Governance() bool   { return tx.data.Governance }	// yhheo
+		governance: tx.data.Governance,		// yhheo
+	// yhheo - begin
+	// yhheo - end
+	governance              bool 	// yhheo
+func NewMessage(from common.Address, to *common.Address, nonce uint64, amount, gasLimit, price *big.Int, data []byte, checkNonce bool, governance bool) Message {	// yhheo
+		governance: governance,		// yhheo
+func (m Message) Governance() bool     { return m.governance }		// yhheo
+./core/types/transaction.go
+	//fmt.Printf("\nfunc (b *BlockGen) AddTx\n AccountNonce = %v\n Price = %v\n GasLimit = %v\n Amount = %v\n Governance = %t\n", tx.Nonce(), tx.GasPrice(), tx.Gas(), tx.Value(), tx.Governance())	// yhheo
+		b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress
+		//fmt.Println("AddTx : b.header.Coinbase =", b.header.Coinbase)	// yhheo
+	//fmt.Printf("\nfunc newCanonical\n n = %d\n full = %t\n", n, full)	// yhheo
+		//b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})	// yhheo
+		b.SetCoinbase(params.FeeAddress)    // yhheo : common.Address{0: byte(seed), 19: byte(i)} --> params.FeeAddress
+./core/chain_makers.go
+	MaxCodeSize  uint64 // Maximum size allowed of contract code that can be deployed (in KB)	// yhheo
+	MaxCodeSize:  24,	// yhheo
+		if tx.Governance() != true {	// yhheo
+			//fmt.Printf(" pool.gasLimit = %d\n tx.Gas = %d\n", pool.gasLimit(), tx.Gas) // yhheo
+./core/tx_pool.go
+		// yhheo - begin
+		// yhheo - end
+./core/genesis.go
+// yhheo begin
+// yhheo - end
+./governance/config.go
+	//fmt.Printf("\nfunc (b *SimulatedBackend) Commit\n")	// yhheo
+	ret, gasUsed, _, _, err := core.NewStateTransition(vmenv, msg, gaspool).TransitionDb()	// yhheo
+func (m callmsg) Governance() bool     { return false }		// yhheo
+./accounts/abi/bind/backends/simulated.go
+	//fmt.Printf("\nfunc (c *BoundContract) Call\n opts = %v\n result = %v\n method = %v\n params = %v\n", opts, result, method, params)	// yhheo
+	//fmt.Println("BoundContract - Transact : opts =", opts)	// yhheo
+	//fmt.Println("BoundContract - Transfer : opts =", opts)	// yhheo
+	//fmt.Println("BoundContract - transact : opts =", opts, "\ncontract =", contract, "\ninput =", input)	// yhheo
+./accounts/abi/bind/base.go
+	gvn "github.com/ethereum/go-ethereum/governance"	// yhheo
+	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance) // yhheo
+./node/node.go
+	// yhheo - begin
+	// yhheo - end
+// yhheo - begin
+// yhheo - end
+./node/config.go
+		new web3._extend.Method({	// yhheo
+./internal/web3ext/web3ext.go
+	"encoding/hex"	// yhheo
+// yhheo - begin
+	//log.Debug("(s *PrivateAccountAPI) signTransaction", "ctx ", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)	// yhheo
+		log.Warn("s.am.Find", "from", args.From, "err", err)	// yhheo
+		log.Warn("args.setDefaults", "err", err)	// yhheo
+	//log.Debug("(s *PrivateAccountAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)		// yhheo
+	//log.Debug("(s *PrivateAccountAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas",  args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
+		log.Warn("gas not specified")		// yhheo
+		log.Warn("gasPrice not specified")	// yhheo
+		log.Warn("nonce not specified")		// yhheo
+		log.Warn("rlp.EncodeToBytes", "err", err)	// yhheo
+// yhheo - end
+    log.Debug("(s *PrivateAccountAPI) Sign", "ctx", ctx, "data", data, "addr", addr)    // yhheo
+		log.Warn("s.b.AccountManager", "err", err)		// yhheo
+		log.Warn("wallet.SignHashWithPassphrase", "err", err)	// yhheo
+// yhheo - start
+// yhheo - end
+		log.Warn("s.b.StateAndHeaderByNumber", "err", err)		// yhheo
+    log.Debug("(s *PublicBlockChainAPI) GetBlockByNumber", "ctx", ctx, "rpc.BlockNumber", blockNr, "fullTx", fullTx)    // yhheo
+	log.Debug("(s *PublicBlockChainAPI) GetBlockByHash", "ctx", ctx, "blockHash", blockHash, "fullTx", fullTx)    // yhheo
+		log.Debug("s.b.StateAndHeaderByNumber", "err", err)	// yhheo
+			log.Debug("state.GetCode", "err", err) 	// yhheo
+		log.Debug("s.b.StateAndHeaderByNumber", "err", err)		// yhheo
+	msg := types.NewMessage(addr, args.To, 0, args.Value.ToInt(), gas, gasPrice, args.Data, false, false) // yhheo
+		log.Debug("s.b.GetEVM", "err", err)	// yhheo
+		log.Debug("core.ApplyMessage", "err", err)	// yhheo
+	result, _, _, err := s.doCall(ctx, args, blockNr, vm.Config{DisableGasMetering: true})	// yhheo
+// yhheo - begin
+    log.Debug("EstimateGas Start", "ctx", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "value", args.Value, "data", args.Data)    // yhheo
+			log.Debug("s.b.BlockByNumber", "err", err)	// yhheo
+		_, _, failed, err := s.doCall(ctx, args, rpc.PendingBlockNumber, vm.Config{EstimateGasMetering:true})	// yhheo
+	log.Debug("EstimateGas End", "gas", hi)		// yhheo
+// yhheo - end
+	log.Debug("(s *PublicTransactionPoolAPI) GetBlockTransactionCountByNumber", "ctx", ctx, "blockNr", blockNr)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetBlockTransactionCountByHash", "ctx", ctx, "blockHash", blockHash)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByBlockNumberAndIndex", "ctx", ctx, "blockNr", blockNr, "rindex", index)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionByBlockHashAndIndex", "ctx", ctx, "blockHash", blockHash, "rindex", index)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByBlockNumberAndIndex", "ctx", ctx, "blockNr", blockNr, "rindex", index)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByBlockHashAndIndex", "ctx", ctx, "blockHash", blockHash, "rindex", index)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionCount", "ctx", ctx, "address", address, "blockNr", blockNr)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionByHash", "ctx", ctx, "hash", hash)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetRawTransactionByHash", "ctx", ctx, "hash", hash)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) GetTransactionReceipt", "hash", hash)    // yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) sign", "addr", addr, "tx", tx)    // yhheo
+		log.Debug("s.b.AccountManager", "err", err)		// yhheo
+			log.Debug("b.SuggestPrice", "err", err)		// yhheo
+			log.Debug("b.GetPoolNonce", "err", err)		// yhheo
+	//	log.Debug("b.SendTx", "err", err)	// yhheo
+		if !tx.Governance() {   // yhheo
+	//log.Debug("(s *PublicTransactionPoolAPI) SendTransaction", "ctx", ctx, "from", args.From, "to", args.To, "value", args.Value)    // yhheo
+		log.Debug("s.b.AccountManager", "err", err)		// yhheo
+		log.Debug("args.setDefaults", "err", err)		// yhheo
+		log.Debug("wallet.SignTx", "err", err)	// yhheo
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)		// yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) SendRawTransaction", "ctx", ctx, "encodedTx", hex.EncodeToString(encodedTx))    // yhheo
+		log.Debug("rlp.DecodeBytes", "err", err)		// yhheo
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), tx)	// yhheo
+		log.Debug("s.b.SendTx", "err", err)			// yhheo
+			log.Debug("types.Sender", "err", err)	// yhheo
+		if !tx.Governance() {    // yhheo
+    log.Debug("(s *PublicTransactionPoolAPI) Sign", "addr", addr, "data", data)    // yhheo
+		log.Debug("s.b.AccountManager", "err", err)		// yhheo
+	//log.Debug("(s *PublicTransactionPoolAPI) SignTransaction", "ctx", ctx, "from", args.From, "to", args.To, "gas", args.Gas, "gasPrice", args.GasPrice, "Value", args.Value)    // yhheo
+		log.Debug("args.setDefaults", "err", err)	// yhheo
+		log.Debug("s.sign", "err", err)				// yhheo
+		log.Debug("rlp.EncodeToBytes", "err", err)	// yhheo
+	log.Debug("(s *PublicTransactionPoolAPI) PendingTransactions")	// yhheo
+./internal/ethapi/api.go
+	FeeAddress = common.HexToAddress("0xd6b080c02f40441232e5c97632dd5fbcc38bb5d1")	// yhheo
+./params/fee_params.go
+	//FeeAddress = common.HexToAddress("0xd6b080c02f40441232e5c97632dd5fbcc38bb5d1")	// yhheo  //fixed coinbase address by yichoi
+./params/util.go
+	MaxCodeSize       uint64 `json:"maxCodeSize"`		// yhheo
+		c.MaxCodeSize,		// yhheo
+// yhheo - begin
+// yhheo - end
+./params/config.go
