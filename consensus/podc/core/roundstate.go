@@ -41,11 +41,8 @@ func newRoundState(view *podc.View, validatorSet podc.ValidatorSet) *roundState 
 type roundState struct {
 	round       *big.Int
 	sequence    *big.Int
-	//Preprepare  *istanbul.Preprepare  //yichoi
-	Preprepare  *podc.Preprepare
-	//D_select  *podc.D_select
-	//D_commit  *podc.D_commit
 
+	Preprepare  *podc.Preprepare
 
 	Prepares    *messageSet
 	Commits     *messageSet
@@ -77,28 +74,13 @@ func (s *roundState) SetPreprepare(preprepare *podc.Preprepare) {
 
 	s.Preprepare = preprepare
 }
-/* begin : yichoi added for d-select and d-commit */
-/* func (s *roundState) SetD_select(d_select *podc.Preprepare) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
 
-	s.D_select = d_select
-}
-
-func (s *roundState) SetD_commit(d_commit *podc.Preprepare) {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
-	s.D_commit = d_commit
-} */
-/* end */
-//왜 락을 걸지 ?
 func (s *roundState) Proposal() podc.Proposal {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 
 	if s.Preprepare != nil {
-		return s.Preprepare.Proposal  //제안할 블럭을 가져온다... 합의가 끝나면,, 체인에 연결할 블럭을 가져온다.
+		return s.Preprepare.Proposal
 	}
 
 	return nil

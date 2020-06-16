@@ -336,10 +336,7 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 		return err
 	}
 
-	// get valid candidate list
-
-	// 최종 검증자들 목록을 가져온다. yichoi
-	sb.candidatesLock.RLock()  //락 하고,
+	sb.candidatesLock.RLock()
 	var addresses []common.Address
 	var authorizes []bool
 	for address, authorize := range sb.candidates {
@@ -348,7 +345,7 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 			authorizes = append(authorizes, authorize)
 		}
 	}
-	sb.candidatesLock.RUnlock() // 락을 푼다. 아마도 동시성,, 때문에,, 잠시 락 하고 처리후 푸는듯
+	sb.candidatesLock.RUnlock()
 
 	// pick one of the candidates randomly
 	if len(addresses) > 0 {
@@ -361,11 +358,6 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 			copy(header.Nonce[:], nonceDropVote)
 		}
 	}
-
-	// add validators in snapshot to extraData's validators section
-	// extraDATA의 검증자 섹션에 검증자를 집어넣는다.
-
-
 	extra, err := prepareExtra(header, snap.validators())
 	if err != nil {
 		return err

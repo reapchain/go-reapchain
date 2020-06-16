@@ -37,10 +37,9 @@ const (
 	// PoDC is compatible with eth63 protocol  //?
 	PoDCName           = "podc"
 	PoDCVersion        = 1
-	PoDCProtocolLength = 18  //?
-	//IstanbulMsg = 0x11
+	PoDCProtocolLength = 18
 	PoDCMsg = 0x11
-	QmanMsg = 0x12 // added by yichoi for qman data exchange
+	QmanMsg = 0x12
 )
 
 type PoDCProtocolManager struct {
@@ -142,10 +141,10 @@ func (pm *PoDCProtocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 
 // event loop for PoDC
 func (pm *PoDCProtocolManager) eventLoop() {
-	for obj := range pm.eventSub.Chan() { //채널의 이벤트를 받음.
+	for obj := range pm.eventSub.Chan() {
 		switch ev := obj.Data.(type) {
-		case podc.ConsensusDataEvent: // //여기 내부에서 Qmanager 전송 / 수신 처리할것, 이유는 mux등 복잡한 내부 메카니즘을 쓰기에, 분기 안하는게 좋을듯
-			pm.sendEvent(ev)  ////yichoi -Qman data event
+		case podc.ConsensusDataEvent:
+			pm.sendEvent(ev)
 		case core.ChainHeadEvent:
 			pm.newHead(ev)
 		}

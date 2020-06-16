@@ -22,8 +22,4 @@ var (
 	// ErrUnauthorizedAddress is returned when given address cannot be found in
 	// current validator set.
 	ErrUnauthorizedAddress = errors.New("unauthorized address")
-	// podc 관련 에러 메시지 여기 정의할 것. yichoi
-
-
-
 )

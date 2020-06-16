@@ -41,7 +41,7 @@ func NewSet(addrs []common.Address, policy podc.ProposerPolicy) podc.ValidatorSe
 	case podc.Sticky:
 		return newDefaultSet(addrs, stickyProposer)
 	case podc.QRF:
-		return newDefaultSet(addrs, qrfProposer) //yichoi  Quantum 난수 일 경우
+		return newDefaultSet(addrs, qrfProposer)
 
 	}
 

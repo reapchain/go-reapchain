@@ -29,7 +29,7 @@ import (
 // Construct a new message set to accumulate messages for given sequence/view number.
 func newMessageSet(valSet podc.ValidatorSet) *messageSet {
 	return &messageSet{
-		view: &podc.View{  // yichoi for podc
+		view: &podc.View{
 			Round:    new(big.Int),
 			Sequence: new(big.Int),
 		},
@@ -40,16 +40,16 @@ func newMessageSet(valSet podc.ValidatorSet) *messageSet {
 }
 
 
-// yichoi begin
+
 type messageSet struct {
 	view       *podc.View
 	valSet     podc.ValidatorSet
 	messagesMu *sync.Mutex
 	messages   map[common.Hash]*message
 }
-// end
 
-func (ms *messageSet) View() *podc.View {  //yichoi
+
+func (ms *messageSet) View() *podc.View {
 	return ms.view
 }
 
@@ -80,8 +80,6 @@ func (ms *messageSet) Size() int {
 	defer ms.messagesMu.Unlock()
 	return len(ms.messages)
 }
-
-// ----------------------------------------------------------------------------
 
 func (ms *messageSet) verify(msg *message) error {
 	// verify if the message comes from one of the validators

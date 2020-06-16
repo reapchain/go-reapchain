@@ -17,13 +17,8 @@
 package podc
 
 import (
-    //"fmt"
-	//"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"strings"
 	"github.com/ethereum/go-ethereum/common"
-	//"github.com/ethereum/go-ethereum/consensus/podc"
-	//"github.com/ethereum/go-ethereum/consensus/podc/validator"
-
 )
 
 type Tag uint64
@@ -36,10 +31,6 @@ const (
 	QManager                      	// Q-Manager
 	Coordinator						// 코디
 )
-
-// =======
-// 모든 Validator 로 선언하고, 여기서 각 Label/ tag 붙여서 관리한다.
-// >>>>>>> working:consensus/podc/validator.go
 type Validator interface {
 	// Address returns address
 	Address() common.Address
@@ -57,30 +48,11 @@ type Validator interface {
 	SetTag(t Tag)
 
 	SetQrnd(q uint64)
-	//Tag() uint64 // Tag()  is bug ,, just test by yichoi
-	// Tag define : Senator(상원), parliamentarian(하원), general(일반), candidate(운영위 후보)
-
-	// Qrnd() uint64
 }
 
-// ----------------------------------------------------------------------------
 
-//type Validators []validator.ValidatorElement // go 배열 표현
-type Validators []Validator // go 배열 표현
-/* 설명 : Validators = [ address, String, Tag ] [ ... ] [ ... ] ......... */
-/*  Validator node
-|-------------------------|
-|  enode address(20 byte)
-|-------------------------|
-   String인데,,String()모르겠으나, 그냥 문자열,
-   Validator 를 나타내는
-|-------------------------|
-   Tag를 새로 달았음.
-|-------------------------|        ............   N 개 Validators
+type Validators []Validator
 
-
-
-*/
 func (slice Validators) Len() int {
 	return len(slice)
 }
@@ -93,17 +65,11 @@ func (slice Validators) Swap(i, j int) {
 	slice[i], slice[j] = slice[j], slice[i]
 }
 
-// ----------------------------------------------------------------------------
+
 
 type ValidatorSet interface {
 	// Calculate the proposer
 	CalcProposer(lastProposer common.Address, round uint64, qman common.Address) // 최초 Proposer 가 누군지 계산 ,,
-
-	// 코디 후보군 선정 ?
-	//RecvCordinator(lastProposer common.Address, round uint64) //yichoi
-
-	//Empty() string
-
 	// Return the validator size
 	Size() int
 	// Return the validator array
@@ -114,15 +80,8 @@ type ValidatorSet interface {
 	GetByAddress(addr common.Address) (int, Validator)
 	// Get current proposer
 	GetProposer() Validator
-
-	// 상임위, 운영위 확정 구성 위원회 정보 가져오기 , Steering committee ( 운영위원회 )
-	//GetConfirmedCommittee() Validator //yichoi
-
 	// Check whether the validator with given address is a proposer
 	IsProposer(address common.Address) bool
-	// Is request a ExtraDATA to Qmanager
-	//IsRequestQman(address common.Address) bool //podc
-
 	// Add validator
 	AddValidator(address common.Address) bool
 	// Remove validator
@@ -136,10 +95,4 @@ type ValidatorSet interface {
 // ----------------------------------------------------------------------------
 
 type ProposalSelector func(ValidatorSet, common.Address, uint64, common.Address) Validator
-/*
-func EmptyValSet() {
-	valSet := validator.NewSet(validator.ExtractValidators([]byte{}), podc.RoundRobin)
-	if valSet == nil {
-		fmt.Errorf("validator set should not be nil")
-	}
-} */
+

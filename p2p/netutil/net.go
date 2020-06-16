@@ -31,8 +31,8 @@ func init() {
 	lan4.Add("0.0.0.0/8")              // "This" network
 	lan4.Add("10.0.0.0/8")             // Private Use
 	lan4.Add("172.16.0.0/12")          // Private Use
-	// lan4.Add("192.168.0.0/16")         // Private Use, disable temporarily
-	lan4.Add("192.168.0.0/24")         // Private Use for reapchain office added by yichoi
+	// lan4.Add("192.168.0.0/16")           // Private Use, disable temporarily
+	lan4.Add("192.168.0.0/24")         // Private Use for a office
 	lan6.Add("fe80::/10")              // Link-Local
 	lan6.Add("fc00::/7")               // Unique-Local
 	special4.Add("192.0.0.0/29")       // IPv4 Service Continuity

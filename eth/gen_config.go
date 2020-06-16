@@ -37,8 +37,7 @@ func (c Config) MarshalTOML() (interface{}, error) {
 		TxPool                  core.TxPoolConfig
 		GPO                     gasprice.Config
 		EnablePreimageRecording bool
-		//Istanbul              istanbul.Config     //yichoi
-		PoDC                    podc.Config     //yichoi
+		PoDC                    podc.Config
 		DocRoot                 string `toml:"-"`
 		PowFake                 bool   `toml:"-"`
 		PowTest                 bool   `toml:"-"`
@@ -67,8 +66,7 @@ func (c Config) MarshalTOML() (interface{}, error) {
 	enc.TxPool = c.TxPool
 	enc.GPO = c.GPO
 	enc.EnablePreimageRecording = c.EnablePreimageRecording
-	//enc.Istanbul = c.Istanbul
-	enc.PoDC = c.PoDC  //yichoi added
+	enc.PoDC = c.PoDC
 	enc.DocRoot = c.DocRoot
 	enc.PowFake = c.PowFake
 	enc.PowTest = c.PowTest

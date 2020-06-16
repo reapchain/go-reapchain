@@ -88,27 +88,7 @@ func newDefaultSet(addrs []common.Address, selector podc.ProposalSelector) *defa
 
 	return valSet
 }
-// begin : added by yichoi for error fix in building
-/* func newDefaultSet(addrs []common.Address, selector podc.ProposalSelector) *podc.ValidatorSet {
-	valSet := &defaultSet{}
 
-	// init validators
-	valSet.validators = make([]podc.Validator, len(addrs))
-	for i, addr := range addrs {
-		valSet.validators[i] = New(addr)
-	}
-	// sort validator
-	sort.Sort(valSet.validators)
-	// init proposer
-	if valSet.Size() > 0 {
-		valSet.proposer = valSet.GetByIndex(0)
-	}
-	//set proposal selector
-	valSet.selector = selector
-
-	return valSet
-} */
-// end
 func (valSet *defaultSet) Size() int {
 	valSet.validatorMu.RLock()
 	defer valSet.validatorMu.RUnlock()

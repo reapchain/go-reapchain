@@ -51,8 +51,7 @@ var DefaultConfig = Config{
 		Percentile: 50,
 	},
 
-	// Istanbul: *istanbul.DefaultConfig,  ; yichoi unmarked
-	PoDC: *podc.DefaultConfig,   //added by yichoi
+	PoDC: *podc.DefaultConfig,
 }
 
 func init() {

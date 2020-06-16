@@ -61,7 +61,7 @@ func errResp(code errCode, format string, v ...interface{}) error {
 
 type ProtocolManager interface {
 	// Start protocol manager
-	Start(qman []*discover.Node)  //modified by yichoi
+	Start(qman []*discover.Node)
 
 	// Stop protocol manager
 	Stop()

@@ -21,7 +21,7 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/podc" //yichoi
+	"github.com/ethereum/go-ethereum/consensus/podc"
 )
 
 // sendNextRoundChange sends the round change message with current round + 1
@@ -160,7 +160,6 @@ func (rcs *roundChangeSet) Add(r *big.Int, msg *message) (int, error) {
 	defer rcs.mu.Unlock()
 
 	round := r.Uint64()
-	//log.Info("round in Add=", "round", round ) //added by yichoi
 	if rcs.roundChanges[round] == nil {
 		rcs.roundChanges[round] = newMessageSet(rcs.validatorSet)
 	}
@@ -170,22 +169,6 @@ func (rcs *roundChangeSet) Add(r *big.Int, msg *message) (int, error) {
 	}
 	return rcs.roundChanges[round].Size(), nil
 }
-// Add adds the round and message into round change set
-//func (rcs *roundChangeSet) Set(r *big.Int, msg *message) (int, error) {
-//	rcs.mu.Lock()
-//	defer rcs.mu.Unlock()
-//
-//	round := r.Uint64()
-//	log.Info("round in Set =", "round", round ) //added by yichoi
-//	if rcs.roundChanges[round] == nil {
-//		rcs.roundChanges[round] = newMessageSet(rcs.validatorSet)
-//	}
-//	//err := rcs.roundChanges[round].Add(msg)
-//	//if err != nil {
-//	//	return 0, err
-//	//}
-//	return rcs.roundChanges[round].Size(), nil
-//}
 
 // Clear deletes the messages with smaller round
 func (rcs *roundChangeSet) Clear(round *big.Int) {

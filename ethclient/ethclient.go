@@ -200,9 +200,9 @@ func (ec *Client) TransactionInBlock(ctx context.Context, blockHash common.Hash,
 // Note that the receipt is not available for pending transactions.
 func (ec *Client) TransactionReceipt(ctx context.Context, txHash common.Hash) (*types.Receipt, error) {
 	var r *types.Receipt
-	err := ec.c.CallContext(ctx, &r, "eth_getTransactionReceipt", txHash)  //eth.getTransactionReceipt  by yichoi
+	err := ec.c.CallContext(ctx, &r, "eth_getTransactionReceipt", txHash)
 	if err == nil {
-		log.Info("TransactionReceipt by yichoi:", "ec", ec )  //yichoi
+		log.Info("TransactionReceipt:", "ec", ec )
 
 		if r == nil {
 			return nil, ethereum.NotFound
@@ -355,7 +355,7 @@ func (ec *Client) PendingNonceAt(ctx context.Context, account common.Address) (u
 func (ec *Client) PendingTransactionCount(ctx context.Context) (uint, error) {
 	var num hexutil.Uint
 	err := ec.c.CallContext(ctx, &num, "eth_getBlockTransactionCountByNumber", "pending")
-	log.Info("PendingTransactionCount by yichoi", "ec", ec ) //yichoi
+	log.Info("PendingTransactionCount", "ec", ec )
 
 	return uint(num), err
 }
@@ -422,7 +422,7 @@ func (ec *Client) SendTransaction(ctx context.Context, tx *types.Transaction) er
 	if err != nil {
 		return err
 	}
-	return ec.c.CallContext(ctx, nil, "eth_sendRawTransaction", common.ToHex(data))  //reviewed by yichoi
+	return ec.c.CallContext(ctx, nil, "eth_sendRawTransaction", common.ToHex(data))
 }
 
 func toCallArg(msg ethereum.CallMsg) interface{} {

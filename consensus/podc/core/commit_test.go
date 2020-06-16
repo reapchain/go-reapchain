@@ -20,7 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"math/big"
 	"testing"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -305,7 +304,7 @@ func TestVerifyCommit(t *testing.T) {
 				valSet,
 			),
 		},
-//begin - by yichoi
+
 		{
 			// wrong prepare message with same round but different sequence
 			expected: errInconsistentSubject,
@@ -318,17 +317,13 @@ func TestVerifyCommit(t *testing.T) {
 				valSet,
 			),
 		},
-//end
+
 	}
 	for i, test := range testCases {
 		c := sys.backends[0].engine.(*core)
 		c.current = test.roundState
 
-		//if err := c.verifyCommit(test.commit, peer); err != nil {
-		//	if err != test.expected {
-		//		t.Errorf("result %d: error mismatch: have %v, want %v", i, err, test.expected)
-		//	}
-		//}
+
 		if err := c.verifyDCommit(test.commit, peer); err != nil {
 			if err != test.expected {
 				t.Errorf("result %d: error mismatch: have %v, want %v", i, err, test.expected)

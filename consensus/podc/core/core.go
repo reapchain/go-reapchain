@@ -23,7 +23,7 @@ import (
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/podc" //yichoi
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/metrics"
@@ -75,8 +75,6 @@ type core struct {
 	valSet                podc.ValidatorSet
 
 	waitingForRoundChange bool
-	//waitingForStateChange bool // added for PoDC, because Proposer release it's right to random coordinator
-    //statechange flag will be need, I think , by yichoi
 
 	validateFn            func([]byte, []byte) (common.Address, error)
 
@@ -229,29 +227,9 @@ func (c *core) commit() {
 	}
 }
 
-// state machine 의 NewRound start 여기서  .. yichoi
 func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 
 	var logger log.Logger
-
-	// Qmanager에게 Extradata 요청
-
-    // 핸들러는 나중에 추가하고,
-    // 여기서는 일단, Qman 에서 바로 응답이 온다고 가정하고, 짜고, 나중에 핸들러로 옮긴다. 2단계로.
-
-   //1.  send qman
-
-   //2. receive qman
-
-   //3. 그냥 블럭을 모든 노드에 던지면, 블럭연결 제안자는 여기서 빠지고,
-       // 임의로 선정된 코디가,, Qman에 통보하고, 자기가, 그 받은 블럭을 검증하고, 처리해서,
-       // 체인에 연결하고, 전체 노드에 전파시,
-       // 내 노드가 핸들러를 통해서, 받는다.
-       // 핸들러에서 처리되면,
-       // 아래 타이머를 리셋해서,, 본 라운드가 끝났다는 것을 통지하고, 다음 라운드로 돌아간다.
-       // Proposer( = Front node in PoDC ) 가,, 자기 권한을 임의로 선정된 코디에게 위임하는 개념잉
-
-
 	if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
 	} else {
@@ -266,17 +244,11 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 	// Calculate new proposer
 	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64(), c.qmanager)
 	c.waitingForRoundChange = false
-	//c.setState(StateAcceptRequest)
-	c.setState(StateRequestQman)  //added by yichoi for state of request and response of extra data to Qmanager
+	c.setState(StateRequestQman)
 	if roundChange && c.isProposer() {
 		c.backend.NextRound()
 	}
-	/* if roundChange  {
-		c.backend.NextRound()
-	} */
-	c.newRoundChangeTimer()  //마냥 기다릴수 없어서, 여기서 타이머 설정하고, 빠져나감, 나머지는 메시지/이벤트 핸들러에서, 이벤트/메시지 수신시
-	// 처리함.
-
+	c.newRoundChangeTimer()
 	logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "valSet", c.valSet.List(), "size", c.valSet.Size())
 }
 
@@ -298,9 +270,6 @@ func (c *core) 	setState(state State) {
 	if c.state != state {
 		c.state = state
 	}
-	//if state == StateRequestQman {
-	//	c.processPendingRequestsQman()
-	//}
 	if state == StateAcceptRequest || state == StateRequestQman {
 		c.processPendingRequests()
 	}
@@ -318,7 +287,6 @@ func (c *core) newRoundChangeTimer() {
 
 	// set timeout based on the round number
 	timeout := time.Duration(c.config.RequestTimeout)*time.Millisecond + time.Duration(c.current.Round().Uint64()*c.config.BlockPeriod)*time.Second
-	           // 타임아웃 시간은 우측 수식에 의해서 계산됨 값.
 	c.roundChangeTimer = time.AfterFunc(timeout, func() {
 		// If we're not waiting for round change yet, we can try to catch up
 		// the max round with F+1 round change message. We only need to catch up

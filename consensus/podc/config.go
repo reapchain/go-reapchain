@@ -20,9 +20,9 @@ package podc
 type ProposerPolicy uint64
 
 const (
-	RoundRobin ProposerPolicy = iota   //?
+	RoundRobin ProposerPolicy = iota
 	Sticky
-	QRF   //yichoi 립체인 퀀텀메카니즘 합의 정책 상수, 1단계 : 라운드로빈 방식으로 ,, 2단계에서 Quntum Random 으로
+	QRF
 )
 
 type Config struct {
@@ -37,8 +37,7 @@ var DefaultConfig = &Config{
 	RequestTimeout: 10000,
 	BlockPeriod:    1,
 	BlockPauseTime: 2,
-	ProposerPolicy: RoundRobin,   // pilot 으로 1차는 proposer 선택 정책은 라운드로빈 유지, 2차로 수정 예정,
-	                               // 1차 디버깅 후, QRF로 바꿀것,
+	ProposerPolicy: RoundRobin,
 	Epoch:          30000,
 }
 

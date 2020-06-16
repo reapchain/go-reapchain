@@ -638,7 +638,7 @@ func WriteChainConfig(db ethdb.Database, hash common.Hash, cfg *params.ChainConf
 
 // GetChainConfig will fetch the network settings based on the given hash.
 func GetChainConfig(db ethdb.Database, hash common.Hash) (*params.ChainConfig, error) {
-	log.Info("GetChainConfig: db", "db", db ) //by yichoi
+	log.Info("GetChainConfig: db", "db", db )
 	jsonChainConfig, _ := db.Get(append(configPrefix, hash[:]...))
 	if len(jsonChainConfig) == 0 {
 		return nil, ErrChainConfigNotFound

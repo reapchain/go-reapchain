@@ -35,39 +35,25 @@ import (
 // type ValidatorInfos []ValidatorInfo
 
 type Engine interface {
-
-	//Start(lastSequence *big.Int, lastProposer common.Address, lastProposal istanbul.Proposal, qmanager []*discover.Node) error  //modified by yichoi for qmanager
 	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error
-
 	Stop() error
 }
 
 type State uint64
 
-
-
 const (
 
 	StateAcceptRequest State = iota
-	StatePreprepared  // = pre-prepare of podc
-	StatePrepared     // = d-select
-	StateCommitted    // = d-commit
-	StateRequestQman  // request to Qman to get ExtraData
-
-/*
 	StatePreprepared
 	StatePrepared
 	StateCommitted
-	StateRequestQMan  // state to send request for extra data to Qmanager
-	StateAcceptQMan  //podc
-	StateD_selected  //podc
-	StateD_committed //podc
->>>>>>> working:consensus/podc/core/types.go */
+	StateRequestQman
+
 )
 
 func (s State) String() string {
 	if s == StateRequestQman {
-		return "Request ExtraData"   //새 라운드가 시작하면, 매번 Qmanager에게 ExtraDATA 요청한다.
+		return "Request ExtraData"
 	} else if s == StateAcceptRequest {
 		return "Accept request"
 	} else if s == StatePreprepared {
@@ -79,12 +65,6 @@ func (s State) String() string {
 	} else {
 		return "Unknown"
 	}
-	/*  else if s == StateD_selected { //podc
-		return "D_selected"
-	} else if s == StateD_committed { //podc
-		return "D_committed"
-	} */
-
 }
 
 // Cmp compares s and y and returns:
@@ -110,32 +90,11 @@ const (
 	msgPrepare
 	msgCommit
 	msgRoundChange
-
-	// msgD_commit          // podc
-	// msgD_select          // podc
-	msgRequestQman
-	msgHandleQman // for Qman, receive event handler from geth ( sending qmanager )
-	msgAll
-	//New Qmanager Implementation
+	msgHandleQman
 	msgExtraDataRequest
 	msgExtraDataSend
-
 	msgCoordinatorConfirmRequest
 	msgCoordinatorConfirmSend
-
-//=======
-/*	msgRequestQman        // send a request to Qmanager in order to get ExtraDATA
-	msgReceivedFromQman   // When receive a message from Qmanager, msg is ExtraData
-	msgPrepare
-	msgCommit
-	msgRoundChange
-
-	msgGetCandiateList   // podc
-	msgStartRacing       // podc
-	msgRegisterCommittee // podc
-
-//>>>>>>> working:consensus/podc/core/types.go
-*/
 )
 
 type message struct {
@@ -146,10 +105,7 @@ type message struct {
 	CommittedSeal []byte
 }
 
-// ==============================================
-//
 // define the functions that needs to be provided for rlp Encoder/Decoder.
-
 // EncodeRLP serializes m into the Ethereum RLP format.
 func (m *message) EncodeRLP(w io.Writer) error {
 	return rlp.Encode(w, []interface{}{m.Code, m.Msg, m.Address, m.Signature, m.CommittedSeal})
@@ -172,10 +128,7 @@ func (m *message) DecodeRLP(s *rlp.Stream) error {
 	return nil
 }
 
-// ==============================================
-//
 // define the functions that needs to be provided for core.
-
 func (m *message) FromPayload(b []byte, validateFn func([]byte, []byte) (common.Address, error)) error {
 	// Decode message
 	err := rlp.DecodeBytes(b, &m)
@@ -211,7 +164,6 @@ func (m *message) PayloadNoSig() ([]byte, error) {
 	})
 }
 
-// 메시지를 주면 val 값으로 돌려줌
 func (m *message) Decode(val interface{}) error {
 	return rlp.DecodeBytes(m.Msg, val) //DecodeBytes parses RLP data from b into val.
 }
@@ -220,8 +172,6 @@ func (m *message) String() string {
 	return fmt.Sprintf("{Code: %v, Address: %v}", m.Code, m.Address.String())
 }
 
-// ==============================================
-//
 // helper functions
 
 func Encode(val interface{}) ([]byte, error) {
@@ -259,31 +209,3 @@ func (rc *roundChange) DecodeRLP(s *rlp.Stream) error {
 	return nil
 }
 
-// ----------------------------------------------------------------------------
-/*
-type extraData struct {
-	HashValue common.Hash
-	Details   details
-	Signature []byte
-}
-
-func (ed *extraData) EncodeRLP(w io.Writer) error {
-	return rlp.Encode(w, []interface{}{
-		ed.HashValue,
-		ed.Details,
-		ed.Signature,
-	})
-}
-
-func (ed *extraData) DecodeRLP(s *rlp.Stream) error {
-	var extraData struct {
-		HashValue common.Hash
-		Details   Validator
-		Signature []byte
-	}
-	if err := s.Decode(&extraData); err != nil {
-		return err
-	}
-	ed.HashValue, ed.Details, ed.Signature = extraData.HashValue, extraData.Details, extraData.Signature
-	return nil
-} */

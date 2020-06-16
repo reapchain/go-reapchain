@@ -27,8 +27,7 @@ import (
 )
 
 const (
-	// dbKeySnapshotPrefix = "istanbul-snapshot"  //removed by yichoi
-	dbKeySnapshotPrefix = "podc-snapshot"   //added by yichoi
+	dbKeySnapshotPrefix = "podc-snapshot"
 )
 
 // Vote represents a single vote that an authorized validator made to modify the

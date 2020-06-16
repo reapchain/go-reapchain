@@ -97,41 +97,19 @@ func (v *View) Cmp(y *View) int {
 	return 0
 }
 
-// yichoi begin :
+
 type Preprepare struct {
 	View     *View
 	Proposal Proposal
 }
-
-// I add coordinator info and self-node info in here, because they are recognized when D-select
-
-// => 참고 :
-/* 모든 함수들이 Validators  등으로 입력 파라미터를 주기에.
-	코딩 작업 완료시까지는 Front node = Proposer 이기 때문에,
-	임시변수 제외하고는 Proposer를 Front node로 인식하고, 그대로 쓰고,
-	되도록 Validator의 Tag로 상원인지, 하원인지,, 등을 구분하는 것이 나을듯,,
-	그래야,, 많은 부분을 안건드림. 조언임.
-	default.go 와 validator.go 구조체 참조 요망.
-*/
-
-
-
 type D_select struct {
 	// TODO: define Coordinator struct like
-	// type Coordinator struct {
-	//		address common.Address
-	//		candidates []Node
-	// }
-	//Coordinator *Coordinator
-	// kind of self-node
-	//SelfNode *Node
 }
 type D_commit struct {
 	View     *View
 	Proposal Proposal
 }
 
-// end
 
 // EncodeRLP serializes b into the Ethereum RLP format.
 func (b *Preprepare) EncodeRLP(w io.Writer) error {

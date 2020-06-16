@@ -517,7 +517,7 @@ func (s *Service) assembleBlockStats(block *types.Block) *blockStats {
 		txs = make([]txStats, len(block.Transactions()))
 		for i, tx := range block.Transactions() {
 			txs[i].Hash = tx.Hash()
-			log.Info("transaction ID( hash ID ) = ","txs", txs[i].Hash ) //added by yichoi for tx hash log
+			log.Info("transaction ID( hash ID ) = ","txs", txs[i].Hash )
 		}
 		uncles = block.Uncles()
 	} else {

@@ -106,25 +106,17 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 	if genesis != nil && genesis.Config == nil {
 		return params.AllProtocolChanges, common.Hash{}, errGenesisNoConfig
 	}
-	//if genesis == nil, then
-	// Just commit the new block if there is no stored genesis block.
-	// Just commit the new block if there is no stored genesis block.
 	stored := GetCanonicalHash(db, 0)
-	if (stored == common.Hash{}) {  //if db has genesis
+	if (stored == common.Hash{}) {
 		if genesis == nil {
-			//disable temp for debugging
-			log.Info("Writing default main-net genesis block")
-			//genesis = DefaultGenesisBlock()
-			genesis = DefaultReapChainGenesisBlock()  //added by yichoi for main test net as default reapchain
 
-			//log.Info("Writing default reapchain-net genesis block")
-			//log.Info( "display of genesis.config(if genesis== nil) ", "genesis.Config", genesis.Config)
-			//DefaultReapChainGenesisBlock() // reapchain
+			log.Info("Writing default main-net genesis block")
+
+			genesis = DefaultReapChainGenesisBlock()
 
 		} else {
-			log.Info("Writing custom genesis block: normal status of podc!")  //istanbul or podc
-			//display podc instead of istanbul temporarly, all others implementation will be next time fully in the future.
-			//
+			log.Info("Writing custom genesis block: normal status of podc!")
+
 			log.Info( "display of genesis.config", "genesis.Config", genesis.Config)
 		}
 
@@ -143,7 +135,6 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 		block, err := genesis.Commit(db)
 		return genesis.Config, block.Hash(), err
 	}
-//============================================================
 
 	// Check whether the genesis block is already written.
 	if genesis != nil {
@@ -155,7 +146,7 @@ func SetupGenesisBlock(db ethdb.Database, genesis *Genesis) (*params.ChainConfig
 	}
 
 	// Get the existing chain configuration.
-	newcfg := genesis.configOrDefault(stored)  //chaindata folder, db에서 읽어오나?
+	newcfg := genesis.configOrDefault(stored)
 	storedcfg, err := GetChainConfig(db, stored)
 	if err != nil {
 		if err == ErrChainConfigNotFound {
@@ -191,12 +182,8 @@ func (g *Genesis) configOrDefault(ghash common.Hash) *params.ChainConfig {
 		return g.Config
 	case ghash == params.MainNetGenesisHash:
 		return params.MainnetChainConfig
-		//return params.ReapChainConfig  //change Mainget to reapchain
-
 	case ghash == params.TestNetGenesisHash:
 		return params.TestnetChainConfig
-	/* case ghash == params.ReapChainGenesisHash:
-		return params.ReapChainConfig */
 	default:
 		return params.AllProtocolChanges
 	}
@@ -334,19 +321,17 @@ func DefaultOttomanGenesisBlock() *Genesis {
 }
 // DefaultOttomanGenesisBlock returns the Ottoman network genesis block.
 func DefaultReapChainGenesisBlock() *Genesis {
-	log.Info("DefaultReapChainGenesisBlock()", "DefaultReapChainGenesisBlock", "DefaultReapChainGenesisBlock started")  //added by yichoi
+	log.Info("DefaultReapChainGenesisBlock()", "DefaultReapChainGenesisBlock", "DefaultReapChainGenesisBlock started")
 	return &Genesis{
 		Config:     params.ReapChainConfig,
 		Timestamp:  1496993285,
 		ExtraData:  hexutil.MustDecode("0x0000000000000000000000000000000000000000000000000000000000000000f89af85494475cc98b5521ab2a1335683e7567c8048bfe79ed9407d8299de61faed3686ba4c4e6c3b9083d7e2371944fe035ce99af680d89e2c4d73aca01dbfc1bd2fd94dc421209441a754f79c4a4ecd2b49c935aad0312b8410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0"),
-		//ExtraData:  hexutil.MustDecode("0x0000000000000000000000000000000000000000000000000000000000000000f90118f8d29407c81a6d020e938ec07b017d8893412249046bab9441b31b760378d24ca618b0fc47cf7c2fd9beb02a945e010cde057be9c4d5fb47bd807dcc1bc413f1279496d2693cd7e87f70af3433b5548459b19c51ecf69415f90543885390c8111df93056c0c41da27edaa694a4d259a0a69c58202cfa7e04eec28fd97ce01557948b376ea5b33456a8eaf56a8247e7579d073351ba94dbee7a835e1b269e3c0cfaac96788f27940c158f945fb694e7ffc130072a1e7c6d7f2efc626de1001f9480a0f50b89c5eae901745986e37832f901b4e3d1b8410000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000c0"),
 
 		GasLimit:   4700000,
 		Difficulty: big.NewInt(1),
 		Mixhash:    common.HexToHash("0x63746963616c2062797a616e74696e65206661756c7420746f6c6572616e6365"),
-		Alloc:      decodePrealloc(reapchainAllocData),  // to modify later by yichoi
-		//Alloc:      decodePrealloc(ottomanAllocData),  //extra data error debug, because OttomanChain is same istanbul test net , reapchain is same as Ottoman,
-		            // later I'll insert Extradata and reapchainAllocData after verifying somethings
+		Alloc:      decodePrealloc(reapchainAllocData),
+
 	}
 }
 

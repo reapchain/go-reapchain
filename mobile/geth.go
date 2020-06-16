@@ -119,11 +119,10 @@ func NewNode(datadir string, config *NodeConfig) (stack *Node, _ error) {
 		KeyStoreDir: filepath.Join(datadir, "keystore"), // Mobile should never use internal keystores!
 		P2P: p2p.Config{
 			NoDiscovery:      true,
-			DiscoveryV5:      false,  /* disabled by yichoi for simple development tempororaly */
+			DiscoveryV5:      false,  /* disabled for simple */
 			DiscoveryV5Addr:  ":0",
 			BootstrapNodesV5: config.BootstrapNodes.nodes,
 			ListenAddr:       ":0",
-		//	ListenLocalAddr:  ":0", //yichoi
 			NAT:              nat.Any(),
 			MaxPeers:         config.MaxPeers,
 		},

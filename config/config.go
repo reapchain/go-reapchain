@@ -28,7 +28,7 @@ func (c *EnvConfig) GetConfig(env string) {
 	if err != nil {
 		log.Error("Failed to read configurations", "error", err)
 	}
-	log.Info("path name of config.json =", "jsonFile", jsonFile ) //added by yichoi to check directory path of config.json
+	log.Info("path name of config.json =", "jsonFile", jsonFile )
 
 	defer jsonFile.Close()
 

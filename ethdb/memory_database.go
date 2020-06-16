@@ -33,7 +33,7 @@ type MemDatabase struct {
 }
 
 func NewMemDatabase() (*MemDatabase, error) {
-	log.Info("NewMemDatabse create",)  //added by yichoi
+	log.Info("NewMemDatabse create",)
 	return &MemDatabase{
 		db: make(map[string][]byte),
 	}, nil

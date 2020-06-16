@@ -170,7 +170,6 @@ func (db *LDBDatabase) LDB() *leveldb.DB {
 }
 
 // Meter configures the database metrics collectors and
-// Level DB 설정갑,,, 등 by yichoi
 func (db *LDBDatabase) Meter(prefix string) {
 	// Short circuit metering if the metrics system is disabled
 	if !metrics.Enabled {

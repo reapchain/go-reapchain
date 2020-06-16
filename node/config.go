@@ -38,9 +38,9 @@ import (
 var (
 	datadirPrivateKey      = "nodekey"            // Path within the datadir to the node's private key
 	datadirDefaultKeyStore = "keystore"           // Path within the datadir to the keystore
-	datadirBootNodes       = "boot-nodes.json"    // Path within the datadir to access boot node because of easy test by yichoi
+	datadirBootNodes       = "boot-nodes.json"    // Path within the datadir to access boot node because of easy test
 	datadirStaticNodes     = "static-nodes.json"  // Path within the datadir to the static node list
-	datadirQmanagerNodes   = "qmanager-nodes.json" // Path within the datadir to the qmananger node list - yichoi
+	datadirQmanagerNodes   = "qmanager-nodes.json" // Path within the datadir to the qmananger node list
 	                                               // Qmanager is Primary, Sencondary, Reserved ( 1, 2, 3 )
 	datadirTrustedNodes    = "trusted-nodes.json" // Path within the datadir to the trusted node list
 	datadirNodeDatabase    = "nodes"              // Path within the datadir to store the node infos
@@ -246,14 +246,14 @@ var isOldGethResource = map[string]bool{
 	"nodes":              true,
 	"nodekey":            true,
 	"static-nodes.json":  true,
-	"qmanager-nodes.json": true, //yichoi
+	"qmanager-nodes.json": true,
 	"trusted-nodes.json": true,
 }
 
 // resolvePath resolves path in the instance directory.
 func (c *Config) resolvePath(path string) string {
 	if filepath.IsAbs(path) {
-		log.Info("resolvePath(Current Directory): ", "path", path) //added by yichoi for debugging
+		log.Info("current Directory: ", "path", path)
 		return path
 	}
 	if c.DataDir == "" {
@@ -265,11 +265,11 @@ func (c *Config) resolvePath(path string) string {
 		oldpath := ""
 		if c.Name == "geth" {
 			oldpath = filepath.Join(c.DataDir, path)
-			//log.Info("resolvePath:", "oldpath", oldpath)
+
 		}
 		if oldpath != "" && common.FileExist(oldpath) {
 			// TODO: print warning
-			//log.Info("resolvePath:", "oldpath", oldpath)
+
 			return oldpath
 		}
 	}
@@ -333,12 +333,12 @@ func (c *Config) GetDataDir(dirname string) string {
 func (c *Config) StaticNodes() []*discover.Node {
 	return c.parsePersistentNodes(c.resolvePath(datadirStaticNodes))
 }
-//yichoi - begin
+
 // QmanagerNodes returns a list of node enode URLs configured as Qmanager nodes.
 func (c *Config) QmanagerNodes() []*discover.Node {
 	return c.parsePersistentNodes(c.resolvePath(datadirQmanagerNodes))
 }
-// end
+
 // StaticNodes returns a list of node enode URLs configured as static nodes.
 func (c *Config) BootNodes() []*discover.Node {
 	return c.parsePersistentNodes(c.resolvePath(datadirBootNodes))

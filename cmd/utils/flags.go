@@ -672,33 +672,14 @@ func setListenAddress(ctx *cli.Context, cfg *p2p.Config) {
 	if ctx.GlobalIsSet(ListenPortFlag.Name) {
 		cfg.ListenAddr = fmt.Sprintf(":%d\n", ctx.GlobalInt(ListenPortFlag.Name))
 	}
-	if ctx.GlobalIsSet(ListenLocalIPFlag.Name ){  //yichoi for private net for reapchain office
-	// geth --localIP 1
-		//cfg.ListenLocalAddr = GetLocalIP()
+	if ctx.GlobalIsSet(ListenLocalIPFlag.Name ){
 		cfg.ListenAddr = GetLocalIP()
-
-
-		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
 	}
-	if ctx.GlobalIsSet(ListenSetIPFlag.Name ){  //yichoi for private net for reapchain office
-		// geth --localIP 1
-		//cfg.ListenLocalAddr = GetLocalIP()
-		//cfg.ListenAddr = GetLocalIP()
+	if ctx.GlobalIsSet(ListenSetIPFlag.Name ){
+
 		cfg.ListenAddr = ctx.GlobalString(ListenSetIPFlag.Name)
 		log.Info("SetNodeConfig: ListenAddr of another ip: ",cfg.ListenAddr )
-
-		//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
 	}
-	//if ctx.GlobalIsSet(BootnodeportFlag.Name ){  //yichoi for private net for reapchain office
-	//
-	//	//cfg.Bootnodeport = ctx.GlobalInt(BootnodeportFlag.Name)  //yichoi
-	//	//log.Info("SetNodeConfig: Bootnodeport : ", ctx.GlobalInt(BootnodeportFlag.Name)  )
-	//
-	//	log.Info("setListenAddress BootNodePort", "Value", ctx.GlobalInt(BootnodeportFlag.Name))
-	//
-	//
-	//	//fmt.Printf("cfg.ListenLocalAddr:%s\n", cfg.ListenLocalAddr )
-	//}
 }
 // GetLocalIP returns the non loopback local IP of the host
 func GetLocalIP() string {
@@ -900,14 +881,10 @@ func MakePasswordList(ctx *cli.Context) []string {
 //	return string(b)
 //}
 func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
-	//discover.boot_node_port = cfg.Bootnodeport
-	//log.Info("discover.boot_node_port=","discover.boot_node_port", string(discover.boot_node_port) )
 	setNodeKey(ctx, cfg)
 	setNAT(ctx, cfg)
 	setListenAddress(ctx, cfg)
-	//temp disable by yichoi : setDiscoveryV5Address(ctx, cfg)
 	setBootstrapNodes(ctx, cfg)
-//	setBootstrapNodesV5(ctx, cfg)  //discovery 5 임시로 disable 시킴.. 디버깅시 다른 노드를 가져와서 복잡해서,
 
 	if ctx.GlobalIsSet(MaxPeersFlag.Name) {
 		cfg.MaxPeers = ctx.GlobalInt(MaxPeersFlag.Name)
@@ -940,8 +917,8 @@ func SetP2PConfig(ctx *cli.Context, cfg *p2p.Config) {
 	if ctx.GlobalBool(DevModeFlag.Name) {
 		// --dev mode can't use p2p networking.
 		cfg.MaxPeers = 0
-		cfg.ListenAddr = ":0"    //local address ipv4 mapped ipv5 address ?
-		if ctx.GlobalString(ListenLocalIPFlag.Name) != "" {  //yichoi for set local ip : 192.168.0.x,, ex) 192.168.0.2
+		cfg.ListenAddr = ":0"
+		if ctx.GlobalString(ListenLocalIPFlag.Name) != "" {
 			cfg.ListenAddr = GetLocalIP()
 		}
 
@@ -967,14 +944,13 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	}
 	if ctx.GlobalIsSet(BootnodeportFlag.Name){
 		bootnodeports := ctx.GlobalInt(BootnodeportFlag.Name)
-		//boot_node_port = cfg.P2P.Bootnodeport
-		//log.Info("SetNodeConfig: cfg.P2P.Bootnodeport : ",bootnodeports )
+
 		log.Info("SetNodeConfig BootNodePort", "Value", bootnodeports)
 		qManager.BootNodePort = bootnodeports
 
 	}
-    //SetQmanConfig(ctx, &cfg.P2P)
-	SetP2PConfig(ctx, &cfg.P2P)  //jump by yichoi
+
+	SetP2PConfig(ctx, &cfg.P2P)
 	setIPC(ctx, cfg)
 	setHTTP(ctx, cfg)
 	setWS(ctx, cfg)
@@ -985,8 +961,8 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	case ctx.GlobalIsSet(DataDirFlag.Name):
 		cfg.DataDir = ctx.GlobalString(DataDirFlag.Name)
 	case ctx.GlobalBool(DevModeFlag.Name):
-		//cfg.DataDir = filepath.Join(os.TempDir(), "ethereum_dev_mode")  //temp 로 설정됨.
-		cfg.DataDir = ctx.GlobalString(DataDirFlag.Name)  //we will use private ip and old datadir option when dev mode option
+
+		cfg.DataDir = ctx.GlobalString(DataDirFlag.Name)
 	case ctx.GlobalBool(TestnetFlag.Name):
 		cfg.DataDir = filepath.Join(node.DefaultDataDir(), "testnet")
 	case ctx.GlobalBool(RinkebyFlag.Name):
@@ -1062,18 +1038,7 @@ func setEthash(ctx *cli.Context, cfg *eth.Config) {
 		cfg.EthashDatasetsOnDisk = ctx.GlobalInt(EthashDatasetsOnDiskFlag.Name)
 	}
 }
-/*
-func setIstanbul(ctx *cli.Context, cfg *eth.Config) {
-	if ctx.GlobalIsSet(IstanbulRequestTimeoutFlag.Name) {
-		cfg.Istanbul.RequestTimeout = ctx.GlobalUint64(IstanbulRequestTimeoutFlag.Name)
-	}
-	if ctx.GlobalIsSet(IstanbulBlockPeriodFlag.Name) {
-		cfg.Istanbul.BlockPeriod = ctx.GlobalUint64(IstanbulBlockPeriodFlag.Name)
-	}
-	if ctx.GlobalIsSet(IstanbulBlockPauseTimeFlag.Name) {
-		cfg.Istanbul.BlockPauseTime = ctx.GlobalUint64(IstanbulBlockPauseTimeFlag.Name)
-	}
-} */
+
 func setPoDC(ctx *cli.Context, cfg *eth.Config) {
 	if ctx.GlobalIsSet(PoDCRequestTimeoutFlag.Name) {
 		cfg.PoDC.RequestTimeout = ctx.GlobalUint64(PoDCRequestTimeoutFlag.Name)
@@ -1101,7 +1066,7 @@ func checkExclusive(ctx *cli.Context, flags ...cli.Flag) {
 // SetEthConfig applies eth-related command line flags to the config.
 func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	// Avoid conflicting network flags
-	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag, OttomanFlag, ReapChainFlag)  //dev option , ReapChainFlag added by yichoi
+	checkExclusive(ctx, DevModeFlag, TestnetFlag, RinkebyFlag, OttomanFlag, ReapChainFlag)
 	checkExclusive(ctx, FastSyncFlag, LightModeFlag, SyncModeFlag)
 
 	ks := stack.AccountManager().Backends(keystore.KeyStoreType)[0].(*keystore.KeyStore)
@@ -1109,12 +1074,10 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	setGPO(ctx, &cfg.GPO)
 	setTxPool(ctx, &cfg.TxPool)
 	setEthash(ctx, cfg)
-	//setIstanbul(ctx, cfg) //istanbul initial value setting and check
-	// <- insert setPodc()... later , to do
-	setPoDC(ctx, cfg) //istanbul initial value setting and check
+	setPoDC(ctx, cfg)
 	switch {
 	case ctx.GlobalIsSet(SyncModeFlag.Name):
-		log.Info("SyncModeFlag.Name:", "SyncModeFlag.Name", SyncModeFlag.Name) //check current Synmode
+		log.Info("SyncModeFlag.Name:", "SyncModeFlag.Name", SyncModeFlag.Name)
 		cfg.SyncMode = *GlobalTextMarshaler(ctx, SyncModeFlag.Name).(*downloader.SyncMode)
 	case ctx.GlobalBool(FastSyncFlag.Name):
 		cfg.SyncMode = downloader.FastSync
@@ -1174,19 +1137,19 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 			cfg.NetworkId = 5
 		}
 		cfg.Genesis = core.DefaultOttomanGenesisBlock()
-	//begin added by yichoi
+
 	case ctx.GlobalBool(ReapChainFlag.Name):
 		if !ctx.GlobalIsSet(NetworkIdFlag.Name) {
 			cfg.NetworkId = 5
 		}
 		cfg.Genesis = core.DefaultReapChainGenesisBlock()
-	//end
+
 	case ctx.GlobalBool(DevModeFlag.Name):
-		cfg.Genesis = core.DevGenesisBlock()  //? 바꿔야함.
+		cfg.Genesis = core.DevGenesisBlock()
 		if !ctx.GlobalIsSet(GasPriceFlag.Name) {
 			cfg.GasPrice = new(big.Int)
 		}
-		cfg.PowTest = true //istanbul에서도 PowTest 하나, Dev option 주었을때,
+		cfg.PowTest = true
 	}
 
 	// TODO(fjl): move trie cache generations into config
@@ -1222,7 +1185,7 @@ func RegisterEthService(stack *node.Node, cfg *eth.Config) {
 // RegisterShhService configures Whisper and adds it to the given node.
 // Don't use this time for whisper.New(), because to see simply in debuging
 
-// if Whisper module not used, disable RegisterShhService , by yichoi
+// if Whisper module not used, disable RegisterShhService
 func RegisterShhService(stack *node.Node) {
 	//if err := stack.Register(func(*node.ServiceContext) (node.Service, error) { return whisper.New(), nil }); err != nil {
 	//	Fatalf("Failed to register the Whisper service: %v", err)
@@ -1251,14 +1214,6 @@ func SetupNetwork(ctx *cli.Context) {
 	// TODO(fjl): move target gas limit into config
 	params.TargetGasLimit = new(big.Int).SetUint64(ctx.GlobalUint64(TargetGasLimitFlag.Name))
 }
-// SetupNetwork configures the system for either the main net or some test network.
-//func SetupBootnodeport(ctx *cli.Context) {
-//	// TODO(fjl): move target gas limit into config
-//	//params.TargetGasLimit = new(big.Int).SetUint64(ctx.GlobalUint64(TargetGasLimitFlag.Name))
-//
-//	discover.boot_node_port = ctx.GlobalUint64(BootnodeportFlag.Name)
-//}
-
 // MakeChainDatabase open an LevelDB using the flags passed to the client and will hard crash if it fails.
 func MakeChainDatabase(ctx *cli.Context, stack *node.Node) ethdb.Database {
 	var (
@@ -1286,7 +1241,7 @@ func MakeGenesis(ctx *cli.Context) *core.Genesis {
 	 case ctx.GlobalBool(OttomanFlag.Name):
 		genesis = core.DefaultOttomanGenesisBlock()
 	case ctx.GlobalBool(ReapChainFlag.Name):
-		genesis = core.DefaultReapChainGenesisBlock() //added by yichoi
+		genesis = core.DefaultReapChainGenesisBlock()
 	case ctx.GlobalBool(DevModeFlag.Name):
 		genesis = core.DevGenesisBlock()
 	}

@@ -290,7 +290,7 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 	}
 	realaddr := c.LocalAddr().(*net.UDPAddr)  //? local ip or upnp public ip  c는 discover pkg , cast연산자,, ?
 
-	fmt.Printf("======================> realaddr <======================= %s", realaddr )
+	//fmt.Printf("======================> realaddr <======================= %s", realaddr )
 	if natm != nil {  //doit=any, none, extip , etc
 		if !realaddr.IP.IsLoopback() {
 			go nat.Map(natm, udp.closing, "udp", realaddr.Port, realaddr.Port, "ethereum discovery")
@@ -298,25 +298,12 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 			log.Info("newUDP loopback : ")
 		}
 		// TODO: react to external IP changes over time.
-		// disable public ip by yichoi for temp in order to test private network : 192.168.0.x inside of  reapchain office
 		if ext, err := natm.ExternalIP(); err == nil {
-			// disabled :
-			realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}  //192.168.0.2:30505
+			realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}
 		}
 
 
 	}
-	// if dev option is enabled, do this to set local ip
-	/* if natm == nil && natm.doit == none {
-
-		realaddr = c.LocalAddr().(*net.UDPAddr)
-
-	} */
-
-
-
-
-
 	// TODO: separate TCP port
 	udp.ourEndpoint = makeEndpoint(realaddr, uint16(realaddr.Port))
 	tab, err := newTable(udp, PubkeyID(&priv.PublicKey), realaddr, nodeDBPath)
@@ -615,7 +602,7 @@ func decodePacket(buf []byte) (packet, NodeID, []byte, error) {
 	case pongPacket:
 		req = new(pong)
 	case findnodePacket:
-		req = new(findnode)  //yichoi
+		req = new(findnode)
 	case neighborsPacket:
 		req = new(neighbors)
 	case qmanagerPacket:

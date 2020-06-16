@@ -414,8 +414,8 @@ func (self *worker) commitNewWork() {
 		header.Coinbase = self.coinbase
 	}
 	if err := self.engine.Prepare(self.chain, header); err != nil {
-		log.Error("Failed to prepare header for mining by yichoi ", "err", err)
-		return  //disable for extradata, because podc does not use local extra data
+		log.Error("Failed to prepare header for mining ", "err", err)
+		return
 	}
 	// If we are care about TheDAO hard-fork check whether to override the extra-data or not
 	if daoBlock := self.config.DAOForkBlock; daoBlock != nil {

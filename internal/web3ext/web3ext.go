@@ -31,7 +31,7 @@ var Modules = map[string]string{
 	"swarmfs":    SWARMFS_JS,
 	"txpool":     TxPool_JS,
 	"istanbul":   Istanbul_JS,
-	"PoDC": PoDC_JS, //added by yichoi
+	"PoDC": PoDC_JS,
 }
 
 const Chequebook_JS = `

@@ -83,9 +83,7 @@ type Ethereum struct {
 	miner     *miner.Miner
 	gasPrice  *big.Int
 	etherbase common.Address
-	feebase   common.Address //by yichoi added for recovery module when sendtx pending , in order to start miner again
-	                         // web console: miner.start()
-
+	feebase   common.Address
 	networkId     uint64
 	netRPCService *ethapi.PublicNetAPI
 
@@ -143,15 +141,9 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		etherbase:      config.Etherbase,
 	}
 
-	// force to set the istanbul etherbase to node key address
-	/* if (chainConfig.Istanbul != nil) || (chainConfig.PoDC != nil) {  //yichoi added for PoDC
+	if  (chainConfig.PoDC != nil) {
 		eth.etherbase = params.FeeAddress
-		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
-	} */
-	if  (chainConfig.PoDC != nil) {  //yichoi added for PoDC
-		eth.etherbase = params.FeeAddress
-		log.Info("Now : ", "chainConfig.PoDC", chainConfig.PoDC )
-		//fmt.Printf("eth.New : eth.etherbase = %x\n", eth.etherbase)
+		log.Info("Now :", "chainConfig.PoDC", chainConfig.PoDC )
 	}
 	if err := addMipmapBloomBins(chainDb); err != nil {
 		return nil, err
@@ -237,37 +229,19 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (ethdb.Data
 		db.Meter("eth/db/chaindata/")
 	} else
 	{
-		log.Info("CreateDB(db) interface : ", "db", db ) //yichoi
+		log.Info("CreateDB(db) interface : ", "db", db )
 	}
-	log.Info("CreateDB finished  : ", "db", db ) //yichoi
+	log.Info("CreateDB finished  : ", "db", db )
 	return db, err
 }
 
 // CreateConsensusEngine creates the required type of consensus engine instance for an Ethereum service
-//yichoi reviewed 2019-10-7
 func CreateConsensusEngine(ctx *node.ServiceContext, config *Config, chainConfig *params.ChainConfig, db ethdb.Database) consensus.Engine {
 	// If proof-of-authority is requested, set it up
 	if chainConfig.Clique != nil {
 		return clique.New(chainConfig.Clique, db)
 	}
-	// If Istanbul is requested, set it up
-/*
-	if (chainConfig.Istanbul != nil) || (chainConfig.PoDC != nil) {
-		if chainConfig.Istanbul.Epoch != 0 {
-			config.Istanbul.Epoch = chainConfig.Istanbul.Epoch
-		} */
-	/*	if chainConfig.PoDC.Epoch != 0 {
-			config.PoDC.Epoch = chainConfig.PoDC.Epoch
-		}
-		//config.Istanbul.ProposerPolicy = istanbul.ProposerPolicy(chainConfig.Istanbul.ProposerPolicy)
-		config.PoDC.ProposerPolicy = PoDC.ProposerPolicy(chainConfig.PoDC.ProposerPolicy)
-		//return istanbulBackend.New(&config.Istanbul, ctx.EventMux, ctx.NodeKey(), db)  // ?
-		return PoDCBackend.New(&config.PoDC, ctx.EventMux, ctx.NodeKey(), db)  // ?
-		       // consensus.Istanbul 인터페이스 모음으로 리턴하고,
-		       // 이건 다시. consensus.Engine으로 리턴. ?
 
-	} */
-	//합의 엔진 처음 생성시 PoDC면.. 처리
 	if chainConfig.PoDC != nil {
 		if chainConfig.PoDC.Epoch != 0 {
 			config.PoDC.Epoch = chainConfig.PoDC.Epoch
@@ -376,7 +350,7 @@ func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 func (self *Ethereum) SetEtherbase(etherbase common.Address) {
 	self.lock.Lock()
 	if _, ok := self.engine.(consensus.PoDC); ok {
-		log.Error("Cannot set etherbase in PoDC consensus")  //eth.sendtx가 안될때 현상... by yichoi
+		log.Error("Cannot set etherbase in PoDC consensus")
 		return
 	}
 	self.etherbase = etherbase

@@ -125,8 +125,6 @@ func TestHandleMsg(t *testing.T) {
 	if err := r0.handleMsg([]byte{1}); err == nil {
 		t.Errorf("error mismatch: have %v, want nil", err)
 	}
-	//--------------------- yichoi ------------------------
-
 	m, _ = Encode(&podc.Preprepare{
 		View: &podc.View{
 			Sequence: big.NewInt(0),
@@ -147,7 +145,6 @@ func TestHandleMsg(t *testing.T) {
 	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
 	}
-   //-------------------------------------
 	m, _ = Encode(&podc.Preprepare{
 		View: &podc.View{
 			Sequence: big.NewInt(0),
@@ -168,7 +165,7 @@ func TestHandleMsg(t *testing.T) {
 	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
 	}
-	//-------------------------------------
+
 	m, _ = Encode(&podc.Preprepare{
 		View: &podc.View{
 			Sequence: big.NewInt(0),
@@ -189,7 +186,7 @@ func TestHandleMsg(t *testing.T) {
 	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodeCommit {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodeCommit)
 	}
-	//-------------------------------------
+
 	m, _ = Encode(&podc.Preprepare{
 		View: &podc.View{
 			Sequence: big.NewInt(0),

@@ -157,14 +157,7 @@ func (n *Node) Start() error {
 	// Initialize the p2p server. This creates the node key and
 	// discovery databases.
 	n.serverConfig = n.config.P2P
-	n.serverConfig.PrivateKey = n.config.NodeKey()  //최초 노드 키 생성 부분, PriVateKey 가져옴. yichoi
-//	n.serverConfig.PublicKey = n.config.NodeKey().PublicKey   //?
-	// Public key print 할 것, 제대로 생성되었는지.
-
-	//var p ecdsa.PublicKey
-
-    /* p2p/server.go   */
-
+	n.serverConfig.PrivateKey = n.config.NodeKey()
 	n.serverConfig.Name = n.config.NodeName()
 
 	if n.serverConfig.StaticNodes == nil {
@@ -183,13 +176,8 @@ func (n *Node) Start() error {
 	}
 	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance)
 
-	//memory 연산자로 Server 구조체에 포인터 연결 시킴
-	//serverConfig p2p.Config
-	running := &p2p.Server{Config: n.serverConfig}  //p2p 서버 시작전에  Qmanager node 설정
+	running := &p2p.Server{Config: n.serverConfig}
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)
-
-	// Qmanager에 public key를 보내려면, 그래도 서버가 가동된 이후에 보내면,, 여기가 가장 먼저 보내는 포인트,, p2p 서버 가동 직후임.
-
 
 	// Otherwise copy and specialize the P2P configuration
 	services := make(map[reflect.Type]Service)
@@ -252,7 +240,7 @@ func (n *Node) Start() error {
 	n.services = services
 	n.server = running
 	n.stop = make(chan struct{})
-	log.Info("NODE SELF=%v\n", "n.server" , n.server.Self())
+	log.Info("NODE SELF", "n.server" , n.server.Self())
 
 
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
@@ -262,9 +250,6 @@ func (n *Node) Start() error {
 		qManager.QManConnected = true
 
 	}
-
-	// 2번째,, 포인트,, send public key to Qmanger
-
 	return nil
 }
 
@@ -275,9 +260,8 @@ func (n *Node) openDataDir() error {
 
 
 
-	instdir := filepath.Join(n.config.DataDir, n.config.name())  //DataDir = /Users/yongilchoi/Library/Ethereum
-	                                                             //n.config.name = geth
-	log.Info("Current Diretory:","instdir", instdir)
+	instdir := filepath.Join(n.config.DataDir, n.config.name())
+
 	if err := os.MkdirAll(instdir, 0700); err != nil {
 		return err
 	}
@@ -309,7 +293,7 @@ func (n *Node) startRPC(services map[reflect.Type]Service) error {
 		n.stopInProc()
 		return err
 	}
-	//yichoi - begin
+
 	if err := n.startQmanagerRegister(apis); err != nil {
 		//
 		return err
@@ -365,7 +349,7 @@ func (n *Node) startIPC(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		//log.Debug(fmt.Sprintf("IPC registered %T under '%s'", api.Service, api.Namespace))
+
 	}
 	// All APIs registered, start the IPC listener
 	var (
@@ -401,12 +385,8 @@ func (n *Node) startIPC(apis []rpc.API) error {
 
 	return nil
 }
-// start send public key to  Qmanger
-// startIPC initializes and starts the IPC RPC endpoint.
-// 테스트시 1차로는 이 방법으로 먼저,, 등록, ssh-copy-id -i ~/.ssh/id_rsa.pub remote-host
 
 func (n *Node) startQmanagerRegister(apis []rpc.API) error {
-	/* ipc로 할지, 일반 tcp할지. 고민해서,, 아래 내용 바꿀것,,, */
 
 	// Short circuit if the IPC endpoint isn't being exposed
 	if n.ipcEndpoint == "" {
@@ -418,7 +398,7 @@ func (n *Node) startQmanagerRegister(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
-		//log.Debug(fmt.Sprintf("public key  registered to Qmanager %T under '%s'", api.Service, api.Namespace))
+
 	}
 	// All APIs registered, start the IPC listener
 	var (
@@ -454,19 +434,6 @@ func (n *Node) startQmanagerRegister(apis []rpc.API) error {
 
 	return nil
 }
-/* 서버 등록하고, 키보내고,, 기다리고, 응답 받으면, 성공메시지를 "Qmanager에 성공적으로 public key를 등록" 했다는 메시지를
-   합의 쪽에 알려준다.
-   서버 올리고, 스톱하고, 기다리는 것을,, 기존 것을 쓰돼,
-   코드는 최소화 한다. Qmanger 등록 때문에,, 서버 하나 더 띄우면,, 부하 걸린다.
-
- */
-
-
-
-
-
-
-
 
 // stopIPC terminates the IPC RPC endpoint.
 func (n *Node) stopIPC() {
@@ -500,7 +467,6 @@ func (n *Node) startHTTP(endpoint string, apis []rpc.API, modules []string, cors
 			if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 				return err
 			}
-			//log.Debug(fmt.Sprintf("HTTP registered %T under '%s'", api.Service, api.Namespace))
 		}
 	}
 	// All APIs registered, start the HTTP listener

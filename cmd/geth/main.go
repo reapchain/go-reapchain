@@ -83,9 +83,9 @@ var (
 		utils.CacheFlag,
 		utils.TrieCacheGenFlag,
 		utils.ListenPortFlag,
-		utils.ListenLocalIPFlag, //yichoi
-		utils.ListenSetIPFlag, //yichoi
-		utils.BootnodeportFlag, //yichoi
+		utils.ListenLocalIPFlag,
+		utils.ListenSetIPFlag,
+		utils.BootnodeportFlag,
 		utils.MaxPeersFlag,
 		utils.MaxPendingPeersFlag,
 		utils.EtherbaseFlag,
@@ -104,7 +104,7 @@ var (
 		utils.TestnetFlag,
 		utils.RinkebyFlag,
 		utils.OttomanFlag,
-		utils.ReapChainFlag, //yichoi
+		utils.ReapChainFlag,
 		utils.VMEnableDebugFlag,
 		utils.NetworkIdFlag,
 		utils.RPCCORSDomainFlag,
@@ -117,10 +117,6 @@ var (
 		utils.ExtraDataFlag,
 		utils.GovernanceFlag,
 		configFileFlag,
-		/* utils.IstanbulRequestTimeoutFlag,
-		utils.IstanbulBlockPeriodFlag,
-		utils.IstanbulBlockPauseTimeFlag, */
-		//PoDC setting -yichoi
 		utils.PoDCRequestTimeoutFlag,
 		utils.PoDCBlockPeriodFlag,
 		utils.PoDCBlockPauseTimeFlag,
@@ -207,13 +203,9 @@ func main() {
 // It creates a default node based on the command line arguments and runs it in
 // blocking mode, waiting for it to be shut down.
 func geth(ctx *cli.Context) error {
-	//fmt.Println("\n geth: ctx =",  ctx)    // yichoi
-
 	node := makeFullNode(ctx)
-	// port no add
-
-	startNode(ctx, node)  //바로 갈거
-	node.Wait() // 리턴되기 전까지는 블럭상태,,
+	startNode(ctx, node)
+	node.Wait()
 	// Wait blocks the thread until the node is stopped. If the node is not running
 	// at the time of invocation, the method immediately returns.
 	return nil
