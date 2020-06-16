@@ -67,8 +67,8 @@ type core struct {
 	events  *event.TypeMuxSubscription
 
 
-	qmanager common.Address  //최초 Qmanager enode address를 staticQnodes.json  읽어온다.
-	                         //
+	qmanager common.Address
+
 	lastProposer          common.Address
 
 	lastProposal          podc.Proposal
@@ -109,13 +109,13 @@ type core struct {
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
 	var err error
 	// Add sender address
-	msg.Address = c.Address()  //message 에 송신자 enode 주소를 탑재
+	msg.Address = c.Address()
 
 	// Add proof of consensus
-	msg.CommittedSeal = []byte{}  // CommittedSeal 배열 초기화
+	msg.CommittedSeal = []byte{}
 	// Assign the CommittedSeal if it's a commit message and proposal is not nil
 	if msg.Code == msgCommit && c.current.Proposal() != nil {
-		seal := PrepareCommittedSeal(c.current.Proposal().Hash())  // message 구조체에 CommittedSeal 배열을 채움
+		seal := PrepareCommittedSeal(c.current.Proposal().Hash())
 		msg.CommittedSeal, err = c.backend.Sign(seal)
 		if err != nil {
 			return nil, err
@@ -160,7 +160,7 @@ func (c *core) send(msg *message, target common.Address) {
 func (c *core) broadcast(msg *message) {
 	logger := c.logger.New("state", c.state)
 
-	payload, err := c.finalizeMessage(msg)  //최종적으로 메시지 구조체에 탑재할 모든 메시지를 만듦
+	payload, err := c.finalizeMessage(msg)
 	if err != nil {
 		logger.Error("Failed to finalize message", "msg", msg, "err", err)
 		return
@@ -199,7 +199,7 @@ func (c *core) isRequestQman() bool {
 	if v == nil {
 		return false
 	}
-	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,  함수 내부 수정해야함.
+	return v.IsProposer(c.backend.Address())
 	         //Front node 인가
 }
 func (c *core) isProposer() bool {
@@ -207,7 +207,7 @@ func (c *core) isProposer() bool {
 	if v == nil {
 		return false
 	}
-	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,
+	return v.IsProposer(c.backend.Address())
 }
 
 func (c *core) commit() {
@@ -217,7 +217,7 @@ func (c *core) commit() {
 	if proposal != nil {
 		var signatures []byte
 		for _, v := range c.current.Commits.Values() {
-			signatures = append(signatures, v.CommittedSeal...) //  최종 커밋시, 서명이 들어가서,, 커밋함.
+			signatures = append(signatures, v.CommittedSeal...)
 		}
 
 		if err := c.backend.Commit(proposal, signatures); err != nil {

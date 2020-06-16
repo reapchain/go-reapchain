@@ -23,7 +23,7 @@ import (
 	"sync"
 
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/consensus/podc"  //podc
+	"github.com/ethereum/go-ethereum/consensus/podc"
 )
 
 // Construct a new message set to accumulate messages for given sequence/view number.

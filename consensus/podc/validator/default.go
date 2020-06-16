@@ -176,7 +176,7 @@ func stickyProposer(valSet podc.ValidatorSet, proposer common.Address, round uin
 	pick := seed % uint64(valSet.Size())
 	return valSet.GetByIndex(pick)
 }
-// begin : Quantum 난수데로 수정할 것,
+
 func qrfProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64, qman common.Address) podc.Validator {
 	if valSet.Size() == 0 {
 		return nil
@@ -190,7 +190,7 @@ func qrfProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64
 	pick := seed % uint64(valSet.Size())
 	return valSet.GetByIndex(pick)
 }
-// end
+
 
 func (valSet *defaultSet) AddValidator(address common.Address) bool {
 	valSet.validatorMu.Lock()

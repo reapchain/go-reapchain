@@ -94,8 +94,7 @@ var (
 // Author retrieves the Ethereum address of the account that minted the given
 // block, which may be different from the header's coinbase if a consensus
 // engine is based on signatures.
-/*
-작성자는 주어진 블록을 발행 한 계정의 이더리움 주소를 가져옵니다. 컨센서스 엔진이 서명을 기반으로하는 경우 헤더의 코인베이스와 다를 수 있습니다. */
+
 func (sb *simpleBackend) Author(header *types.Header) (common.Address, error) {
 	return ecrecover(header)
 }
@@ -244,7 +243,6 @@ func (sb *simpleBackend) verifySigner(chain consensus.ChainReader, header *types
 }
 
 // verifyCommittedSeals checks whether every committed seal is signed by one of the parent's validators
-// 매 커밋된 동봉이 부모 검증자의 하나에 의해서 싸인되었는지 검증하는 함수
 
 func (sb *simpleBackend) verifyCommittedSeals(chain consensus.ChainReader, header *types.Header, parents []*types.Header) error {
 	number := header.Number.Uint64()
@@ -340,7 +338,7 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 	var addresses []common.Address
 	var authorizes []bool
 	for address, authorize := range sb.candidates {
-		if snap.checkVote(address, authorize) {  //투표...
+		if snap.checkVote(address, authorize) {
 			addresses = append(addresses, address)
 			authorizes = append(authorizes, authorize)
 		}
@@ -477,15 +475,6 @@ func (sb *simpleBackend) updateBlock(parent *types.Header, block *types.Block) (
 // APIs returns the RPC APIs this consensus engine provides.
 func (sb *simpleBackend) APIs(chain consensus.ChainReader) []rpc.API {
 
-	/*
-
-	return []rpc.API{{
-		Namespace: "istanbul",
-		Version:   "1.0",
-		Service:   &API{chain: chain, istanbul: sb},   // istanbul
-		Public:    true,
-	}}
-*/
 	return []rpc.API{{
 		Namespace: "PoDC",  //PoDC와 Web3ext.go Namespace PoDC 여기서 연결 ? 
 		Version:   "1.0",
@@ -496,7 +485,7 @@ func (sb *simpleBackend) APIs(chain consensus.ChainReader) []rpc.API {
 }
 
 // HandleMsg implements consensus.PoDC.HandleMsg
-// 중요: 합의 메시지 핸들러
+
 func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 	addr := crypto.PubkeyToAddress(*pubKey)
 	// get the latest snapshot
@@ -522,8 +511,6 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 // 새로 블럭체인 헤더를 받는다. // 합의 시작되기 전에,
 func (sb *simpleBackend) NewChainHead(block *types.Block) {
 	p, err := sb.Author(block.Header())
-	// 왜 작가라고 표현 ? 이유 ?
-
 
 	if err != nil {
 		sb.logger.Error("Failed to get block proposer", "err", err)
@@ -535,12 +522,8 @@ func (sb *simpleBackend) NewChainHead(block *types.Block) {
 	})
 }
 
-// Start implements consensus.Istanbul.Start
+// Start implements consensus
 func (sb *simpleBackend) Start(chain consensus.ChainReader, qman []*discover.Node  , inserter func(block *types.Block) error) error {  //?
-//=======
-// Start implements consensus.PoDC.Start
-//func (sb *simpleBackend) Start(chain consensus.ChainReader, inserter func(block *types.Block) error) error {
-//>>>>>>> working:consensus/podc/backend/engine.go
 	sb.chain = chain
 	sb.inserter = inserter
 	sb.core = podcCore.New(sb, sb.config)
@@ -548,15 +531,13 @@ func (sb *simpleBackend) Start(chain consensus.ChainReader, qman []*discover.Nod
 	curHeader := chain.CurrentHeader()
 	lastSequence := new(big.Int).Set(curHeader.Number)
 	lastProposer := common.Address{}
-	// should get proposer if the block is not genesis
-	// 여기서 proposer를 최초로 가져온다. proposer가 Front node in PoDC
 
 	if lastSequence.Cmp(common.Big0) > 0 {
-		p, err := sb.Author(curHeader)  //블럭을 발행한 계정의 이더리움 주소를 가져옴.
+		p, err := sb.Author(curHeader)
 		if err != nil {
 			return err
 		}
-		lastProposer = p  // proposer를 가장 최신 Proposer로 대입
+		lastProposer = p
 	}
 	block := chain.GetBlock(curHeader.Hash(), lastSequence.Uint64())
 	return sb.core.Start(lastSequence, lastProposer, block, qman)
@@ -696,12 +677,6 @@ func prepareExtra(header *types.Header, vals []common.Address) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	/* QManager 에게 ExtraData를 요청 */
-
-	/* Wait response from Qmanger */
-	/* ExtraDATA 수신 */
-
-
 	return append(buf.Bytes(), payload...), nil
 }
 

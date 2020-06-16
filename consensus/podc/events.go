@@ -19,7 +19,7 @@ package podc
 import (
 	"github.com/ethereum/go-ethereum/common"
 )
-// Pre-Prepare state 에서 Qmanager에서 ExtraData를 수신하는 행위도 ConsensusDataEvent로 분류할 것.
+
 type ConsensusDataEvent struct {
 	// target to send message
 	Target common.Address

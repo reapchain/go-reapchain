@@ -19,17 +19,12 @@ package backend
 import (
 	"bytes"
 	"crypto/ecdsa"
-
 	"github.com/ethereum/go-ethereum/p2p/discover"
-
-
 	"os"
-
 	"math/big"
 	"reflect"
 	"testing"
 	"time"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/consensus"
@@ -92,85 +87,9 @@ func newBlockChain(n int) (*core.BlockChain, *simpleBackend) {
 	return blockchain, b
 }
 
-//func ExampleNewNode() {
-//	id := MustHexID("1dd9d65c4552b5eb43d5ad55a2ee3f56c6cbc1c64a5c8d659f51fcd51bace24351232b8d7821617d2b29b54b81cdefb9b3e9c37d7fd5f63270bcc9e1a6f6a439")
-//
-//	// Complete nodes contain UDP and TCP endpoints:
-//	n1 := NewNode(id, net.ParseIP("2001:db8:3c4d:15::abcd:ef12"), 52150, 30303)
-//	fmt.Println("n1:", n1)
-//	fmt.Println("n1.Incomplete() ->", n1.Incomplete())
-//
-//	// An incomplete node can be created by passing zero values
-//	// for all parameters except id.
-//	n2 := NewNode(id, nil, 0, 0)
-//	fmt.Println("n2:", n2)
-//	fmt.Println("n2.Incomplete() ->", n2.Incomplete())
-//
-//	// Output:
-//	// n1: enode://1dd9d65c4552b5eb43d5ad55a2ee3f56c6cbc1c64a5c8d659f51fcd51bace24351232b8d7821617d2b29b54b81cdefb9b3e9c37d7fd5f63270bcc9e1a6f6a439@[2001:db8:3c4d:15::abcd:ef12]:30303?discport=52150
-//	// n1.Incomplete() -> false
-//	// n2: enode://1dd9d65c4552b5eb43d5ad55a2ee3f56c6cbc1c64a5c8d659f51fcd51bace24351232b8d7821617d2b29b54b81cdefb9b3e9c37d7fd5f63270bcc9e1a6f6a439
-//	// n2.Incomplete() -> true
-//}
+
 
 var NumNodes = 10
-
-//func initialize(t *testing.T) {
-//	var err error
-//	ip := net.IPv4(127, 0, 0, 1)
-//	port0 := 30303
-//
-//	for i := 0; i < NumNodes; i++ {
-//		var node TestNode
-//		node.shh = New()
-//		node.shh.SetMinimumPoW(0.00000001)
-//		node.shh.Start(nil)
-//		topics := make([]TopicType, 0)
-//		topics = append(topics, sharedTopic)
-//		f := Filter{KeySym: sharedKey}
-//		f.Topics = [][]byte{topics[0][:]}
-//		node.filerId, err = node.shh.Subscribe(&f)
-//		if err != nil {
-//			t.Fatalf("failed to install the filter: %s.", err)
-//		}
-//		node.id, err = crypto.HexToECDSA(keys[i])
-//		if err != nil {
-//			t.Fatalf("failed convert the key: %s.", keys[i])
-//		}
-//		port := port0 + i
-//		addr := fmt.Sprintf(":%d", port) // e.g. ":30303"
-//		name := common.MakeName("whisper-go", "2.0")
-//		var peers []*discover.Node
-//		if i > 0 {
-//			peerNodeId := nodes[i-1].id
-//			peerPort := uint16(port - 1)
-//			peerNode := discover.PubkeyID(&peerNodeId.PublicKey)
-//			peer := discover.NewNode(peerNode, ip, peerPort, peerPort)
-//			peers = append(peers, peer)
-//		}
-//
-//		node.server = &p2p.Server{
-//			Config: p2p.Config{
-//				PrivateKey:     node.id,
-//				MaxPeers:       NumNodes/2 + 1,
-//				Name:           name,
-//				Protocols:      node.shh.Protocols(),
-//				ListenAddr:     addr,
-//				NAT:            nat.Any(),
-//				BootstrapNodes: peers,
-//				StaticNodes:    peers,
-//				TrustedNodes:   peers,
-//			},
-//		}
-//
-//		err = node.server.Start()
-//		if err != nil {
-//			t.Fatalf("failed to start server %d.", i)
-//		}
-//
-//		nodes[i] = &node
-//	}
-//}
 
 func getQmanager() ([]*discover.Node) {
 
@@ -212,8 +131,6 @@ func getGenesisAndKeys(n int) (*core.Genesis, []*ecdsa.PrivateKey) {
 	// generate genesis block
 	genesis := core.DefaultGenesisBlock()
 	genesis.Config = params.TestChainConfig
-	// force enable Istanbul engine
-	//genesis.Config.Istanbul = &params.IstanbulConfig{}
 	genesis.Config.PoDC = &params.PoDCConfig{}
 	genesis.Config.Ethash = nil
 	genesis.Difficulty = defaultDifficulty

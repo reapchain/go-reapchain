@@ -21,13 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/podc"
 )
 
-/* func New(addr common.Address, t uint64, q uint64) podc.Validator {
-	return &defaultValidator{
-		address: addr,
-		tag: t,
-		qrnd: q,
-	}
-} */
 func New(addr common.Address) podc.Validator {
 	return &defaultValidator{
 		address: addr,

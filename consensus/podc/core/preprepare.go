@@ -19,7 +19,6 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/common"
 	"time"
-
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
 )
@@ -40,8 +39,6 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 			logger.Error("Failed to encode", "view", curView)
 			return
 		}
-
-			// Qmanager에게 최초 메시지 보낼때, payload 를 뭘로 줄건지?
 		if c.valSet.IsProposer(c.Address()) {
 			c.broadcast(&message{
 				Code: msgHandleQman,
@@ -49,9 +46,6 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 				Address: c.qmanager,
 			})
 		}
-			// proposal block 전파는 핸들러로 옮겨야,, Qmanager에서 수신시,, 처리되게끔.  / pre-prepare 상태
-			// 다음은 d-select 상태로 상태 전이함.
-
 	}
 }
 
@@ -82,16 +76,7 @@ func (c *core) sendPreprepare(request *podc.Request) {
 
 func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //request to qman
 	logger := c.logger.New("from", src, "state", c.state)
-	//if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
-	//	log.Info("I'm not Qman in handleQmanager" )
 
-		// Qmanager receiver에 맞게 수정할 부분 begin
-		// 1. Extra data 전송하고,
-		// 2. Enrollment 하고, martin
-		// Cordi가 "자신기 코디"임을 보내오면,
-		// Cordi에게 C-Confirm 를 보내고,
-
-		// Decode preprepare
 		var preprepare *podc.Preprepare
 		err := msg.Decode(&preprepare)
 		if err != nil {
@@ -131,8 +116,6 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 				c.sendExtraDataRequest()
 			}
 		}
-		// 수정할 부분 end
-	//}
 	return nil
 }
 
@@ -170,7 +153,6 @@ func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
 		if c.state == StateAcceptRequest{
 		c.acceptPreprepare(preprepare)
 		c.setState(StatePreprepared)
-		//c.sendPrepare()
 		if c.valSet.IsProposer(c.Address()){
 			c.sendDSelect()
 		}

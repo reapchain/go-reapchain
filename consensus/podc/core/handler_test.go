@@ -20,8 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"math/big"
 	"testing"
-
-	//"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 )
 
@@ -57,27 +55,6 @@ func TestHandleMsg(t *testing.T) {
 	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePreprepare {
 		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
 	}
-
-	//m, _ = Encode(&podc.Preprepare{
-	//	View: &podc.View{
-	//		Sequence: big.NewInt(0),
-	//		Round:    big.NewInt(0),
-	//	},
-	//	Proposal: makeBlock(1),
-	//})
-	//// with a unmatched payload. msgPrepare should match with *istanbul.Subject in normal case.
-	//msg = &message{
-	//	Code:          msgPrepare,
-	//	Msg:           m,
-	//	Address:       v0.Address(),
-	//	Signature:     []byte{},
-	//	CommittedSeal: []byte{},
-	//}
-	//
-	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePrepare {
-	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
-	//}
 
 	m, _ = Encode(&podc.Preprepare{
 		View: &podc.View{

@@ -140,9 +140,6 @@ func (self *testSystemBackend) NewRequest(request podc.Proposal) {
 	})
 }
 
-
-// ==============================================
-//
 // define the struct that need to be provided for integration tests.
 
 type testSystem struct {
@@ -262,8 +259,6 @@ func (t *testSystem) NewBackend(id uint64) *testSystemBackend {
 	return backend
 }
 
-// ==============================================
-//
 // helper functions.
 
 func getPublicKeyAddress(privateKey *ecdsa.PrivateKey) common.Address {

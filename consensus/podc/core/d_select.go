@@ -98,7 +98,7 @@ func (c *core) sendCandidateDecide() {
 		Msg: []byte("Candidate decide testing"),
 	}, c.GetValidatorListExceptQman())
 }
-
+//D-Select msg
 func (c *core) handleSentExtraData(msg *message, src podc.Validator) error {
 	c.broadcast(&message{
 		Code: msgDSelect,
@@ -148,11 +148,6 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 			Msg: QRNDArray,
 		}, c.qmanager)
 
-
-		//log.Info("I am Coordinator!")
-		//c.criteria = math.Ceil((float64(len(extraData)) - 1) * 0.51)
-		//log.Info("c.criteria=", "c.criteria", c.criteria )
-		//c.sendCoordinatorDecide()
 	}
 
 	return nil

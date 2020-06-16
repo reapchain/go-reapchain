@@ -19,7 +19,6 @@ package backend
 import (
 	"bytes"
 	"encoding/json"
-
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -46,12 +45,7 @@ type Tally struct {
 	Votes     int  `json:"votes"`     // Number of votes until now wanting to pass the proposal
 }
 
-// Snapshot is the state of the authorization voting at a given point in time.
-/* 스냅샷(snapshot)이란 특정한 시점에서 각 사용자들이 보유하고 있는 암호화폐의 수량을 "마치 사진을 찍듯이" 별도로 저장해 두는 행위를 말한다. 스냅샷은 원래 동영상 화면이 재생되는 도중에 특정한
-시점에서 정지된 장면을 촬영하는 것을 말한다. 데이터베이스의 경우에도 끊임없이 새로운 데이터가 입력되고 기존 데이터가 수정·삭제되는데, 이 때 특정한 시점에서 데이터베이스의 정확한 상태를 별도로 복사하여
-저장하는 것을 스냅샷이라고 한다. 블록체인 데이터의 경우에 특정한 블록을 기준으로 데이터를 복사하여 저장하는 행위를 스냅샷이라고 한다.
-암호화폐 거래소에서 특정 시점에서 특정한 코인을 보유하고 있는 사람에게 에어드랍(airdrop)을 하는 경우, 반드시 해당 시점에서 각 사용자별로 보유하고 있는 정확한 암호화폐 수량을 파악할 필요가 있는데, 이를 위해 스냅샷을 찍는다.
- */
+
 type Snapshot struct {
 	Epoch uint64 // The number of blocks after which to checkpoint and reset the pending votes
 
@@ -60,7 +54,7 @@ type Snapshot struct {
 	Votes  []*Vote                  `json:"votes"`      // List of votes cast in chronological order
 	Tally  map[common.Address]Tally `json:"tally"`      // Current vote tally to avoid recalculating
 	ValSet podc.ValidatorSet    `json:"validators"` // Set of authorized validators at this moment
-	//특정시점에 블럭을 기준으로 Validator 집합을 보관했다가 스냅샷으로 찍어야 하는지 ? PoDC 합의에서는,, 나중에 살펴볼것 !
+
 
 
 }
@@ -79,8 +73,7 @@ func newSnapshot(epoch uint64, number uint64, hash common.Hash, valSet podc.Vali
 	return snap
 }
 
-// loadSnapshot loads an existing snapshot from the database.
-// 매번 스냅샷을 찍은 것을 데이터베이스에 넣어놓은걸 다시 읽어오는..
+
 func loadSnapshot(epoch uint64, db ethdb.Database, hash common.Hash) (*Snapshot, error) {
 	blob, err := db.Get(append([]byte(dbKeySnapshotPrefix), hash[:]...))
 	if err != nil {

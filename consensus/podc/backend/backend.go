@@ -35,10 +35,6 @@ import (
 lru "github.com/hashicorp/golang-lru"
 )
 
-// New creates an Ethereum backend for Istanbul core engine.
-
-// NewRound 인가 ? 스테이트 머신의 ?
-// 합의 엔진 메모리 로드 후 최초 여기로 분기됨.
 func New(config *podc.Config, eventMux *event.TypeMux, privateKey *ecdsa.PrivateKey, db ethdb.Database) consensus.PoDC {
 	// Allocate the snapshot caches and create the engine
 	recents, _ := lru.NewARC(inmemorySnapshots)
@@ -61,15 +57,13 @@ func New(config *podc.Config, eventMux *event.TypeMux, privateKey *ecdsa.Private
 // ----------------------------------------------------------------------------
 
 type simpleBackend struct {
-	//config           *istanbul.Config
 	config           *podc.Config
 	eventMux         *event.TypeMux
-	//istanbulEventMux *event.TypeMux
-	podcEventMux     *event.TypeMux  //podc
+	podcEventMux     *event.TypeMux
 	privateKey       *ecdsa.PrivateKey
 	address          common.Address
-//	core             istanbulCore.Engine
-	core             podcCore.Engine  // 요주의
+
+	core             podcCore.Engine
 	logger           log.Logger
 	quitSync         chan struct{}
 	db               ethdb.Database
@@ -79,7 +73,7 @@ type simpleBackend struct {
 
 	// the channels for istanbul engine notifications
 	commitCh          chan *types.Block
-	proposedBlockHash common.Hash  //   ?
+	proposedBlockHash common.Hash
 	sealMu            sync.Mutex
 
 	// Current list of candidates we are pushing
@@ -104,8 +98,7 @@ func (sb *simpleBackend) Validators(proposal podc.Proposal) podc.ValidatorSet {
 	}
 	return snap.ValSet
 }
-// 특정 enode 주소에 바이트 데이타를 보낸다.
-// Low layer에 ( 즉 코어 쪽에 ) 배달만 하면, EVM과 RPC가 알아서, 전송해준다. 우리는 코어쪽에 배달만 하면 된다.
+
 func (sb *simpleBackend) Send(payload []byte, target common.Address) error {
 	go sb.eventMux.Post(podc.ConsensusDataEvent{
 		Target: target,
@@ -118,23 +111,21 @@ func (sb *simpleBackend) Send(payload []byte, target common.Address) error {
 //
 
 // Broadcast implements podc.Backend.Send
-// 모든 Validator에게 Validator 집합에서 있는 목록으로 메시지 전송
 func (sb *simpleBackend) Broadcast(valSet podc.ValidatorSet, payload []byte) error {
 
 	// 모든 Validator 리스트에 다 보냄.
 	for _, val := range valSet.List() {
-		if val.Address() == sb.Address() {  // 목록에 있는 Validator node가 송신자, 자기 자신이라면,
+		if val.Address() == sb.Address() {
 			// send to self
 			msg := podc.MessageEvent{
 				Payload: payload,
 			}
-			go sb.podcEventMux.Post(msg)  // 이더리움 내부 , Evm에 메시지 전달
+			go sb.podcEventMux.Post(msg)
 
 		} else {
 			// send to other peers
-			sb.Send(payload, val.Address())  // 외부 노드로 보낸다.
-			// Proposer( Front node )는 Qmanager로 부터 ExtraDATA수신 후, 이걸로 메시지를 만들어서,
-			//   Validator 집합에 있는 노드들에게 메시지를 던진다.
+			sb.Send(payload, val.Address())
+
 		}
 	}
 	return nil
@@ -187,14 +178,11 @@ func (sb *simpleBackend) Commit(proposal podc.Proposal, seals []byte) error {
 		return nil
 	}
 
-	return sb.inserter(block)  // commit 끝나면 최종적으로 체인에 블럭을 삽입하는 마지막 단계 , PoDC에서 D-Commit 단계
-	       // 합의가 끝나는 최종 단계
+	return sb.inserter(block)
 }
 
 // NextRound will broadcast ChainHeadEvent to trigger next seal()
 
-
-// NewRound는 어디에? 있나? Start? New.. set?
 func (sb *simpleBackend) NextRound() error {
 	header := sb.chain.CurrentHeader()
 	sb.logger.Debug("NextRound", "address", sb.Address(), "current_hash", header.Hash(), "current_number", header.Number)
@@ -228,12 +216,8 @@ func (sb *simpleBackend) Verify(proposal podc.Proposal) error {
 // Sign implements podc.Backend.Sign
 func (sb *simpleBackend) Sign(data []byte) ([]byte, error) {
 	hashData := crypto.Keccak256([]byte(data))
-	return crypto.Sign(hashData, sb.privateKey)  // 해시와 개인키로 싸인하고 암호화
+	return crypto.Sign(hashData, sb.privateKey)
 }
-
-// CheckSignature implements podc.Backend.CheckSignature
-// 서명 먼저 체크 한다.
-
 
 func (sb *simpleBackend) CheckSignature(data []byte, address common.Address, sig []byte) error {
 	signer, err := podc.GetSignatureAddress(data, sig)
@@ -245,5 +229,5 @@ func (sb *simpleBackend) CheckSignature(data []byte, address common.Address, sig
 	if signer != address {
 		return errInvalidSignature
 	}
-	return nil  //에러 없으면 널 리턴
+	return nil
 }

@@ -19,10 +19,7 @@ package core
 import (
 	"bytes"
 	"encoding/binary"
-
-	//"encoding/binary"
 	"github.com/ethereum/go-ethereum/common"
-	//"github.com/ethereum/go-ethereum/consensus/quantum"
 	"os"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/qManager"
@@ -41,23 +38,12 @@ var (
 	Divisor int
 
 )
-/*
-type {
-	NodeID [NodeIDBits / 8]byte
 
-	qManagerNodes struct {
-		ID      NodeID
-		pubKey  *ecdsa.PublicKey
-		address common.Address
-	}
-
-*/
 func generateExtraData() []ValidatorInfo{
 
 	iter := qManager.QManagerStorage.NewIterator(nil, nil)
 	var extra []ValidatorInfo
-	//var i = 0
-	//flag := false
+
 
 	for iter.Next() {
 		//key := iter.Key()
@@ -72,7 +58,7 @@ func generateExtraData() []ValidatorInfo{
 		}
 
 		decodedAddress :=  common.HexToAddress(decodedBytes.Address)
-		//log.Info("Qmanager", "Address", decodedAddress)
+
 
 		var num uint64
 
@@ -80,16 +66,10 @@ func generateExtraData() []ValidatorInfo{
 			rand.Seed(time.Now().UnixNano())
 			randomIndex := rand.Intn(12280)
 			num = qManager.RandomNumbers[randomIndex]
-			//quant := quantum.GenerateQrnd()
-			////fmt.Println(quant)
-			//num = binary.LittleEndian.Uint64(quant)
-			////fmt.Println(quant)
-			////fmt.Println(num)
-			//log.Info("Qmanager", "Quantum Number", num)
+
 
 		} else {
 			num = rand.Uint64()
-			//log.Info("Qmanager", "Pusedo Quantum Number", num)
 		}
 
 		validatorInfo := ValidatorInfo{}
@@ -97,22 +77,6 @@ func generateExtraData() []ValidatorInfo{
 		validatorInfo.Qrnd = num
 		validatorInfo.Tag = podc.Candidate
 
-		//if i == 0 {
-		//	if !c.valSet.IsProposer( decodedAddress) {
-		//		validatorInfo.Tag = podc.Coordinator
-		//	} else {
-		//		flag = true
-		//		validatorInfo.Tag = podc.Candidate
-		//	}
-		//} else if i == 1 {
-		//	if flag {
-		//		validatorInfo.Tag = podc.Coordinator
-		//	} else {
-		//		validatorInfo.Tag = podc.Candidate
-		//	}
-		//} else {
-		//	validatorInfo.Tag = podc.Candidate
-		//}
 		extra = append(extra, validatorInfo)
 		//i++
 	}
@@ -120,11 +84,12 @@ func generateExtraData() []ValidatorInfo{
 	return extra
 
 }
+//For Qmanager, event handler to receive msg from geth
 func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 	if qManager.QManConnected{
 
-		log.Info("EXTRA DATA REQUEST")
-		//log.Info("Requesting Source", "from", src)
+		log.Info("Received EXTRA DATA REQUEST from geth")
+
 		Counter = Counter + 1
 		log.Info("Round", "Count: ", Counter)
 
@@ -140,8 +105,6 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 				if !c.valSet.IsProposer( extra[index].Address) && c.qmanager != extra[index].Address {
 					randomNumber := extra[index].Qrnd
 					if randomNumber%uint64(divisor) == 0 {
-						//log.Info("COORDINATOR", "Random Divisor", divisor)
-						//log.Info("COORDINATOR", "Random Number", randomNumber)
 						extra[index].Tag = podc.Coordinator
 						log.Info("Qmanager", "Random Coordinator Selected", extra[index].Address.String())
 						index = len(extra)
@@ -168,23 +131,12 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 			Code: msgExtraDataSend,
 			Msg: extraDataJson,
 		}, src.Address())
-		// Decode commit message
-		//fmt.Println("EXTRA DATA HANDLE")
-		//fmt.Println(src)
 
 	}
 	return nil
 }
 
 func (c *core) CoordinatorConfirmation(msg *message, src podc.Validator) error {
-	////logger := c.logger.New("EXTRA DATA")
-	//log.Trace("EXTRA DATA SENT DATA")
-	////logger := c.logger.New()
-	////logger.Info("EXTRA DATA REQUEST")
-	////log.Debug("from", src)
-	//log.Debug("Requesting Source", "from", src)
-	//log.Debug("ExtraDataMessage", "from", msg)
-
 	CoordiQRND := binary.LittleEndian.Uint64(msg.Msg)
 
 	if CoordiQRND%uint64(Divisor) == 0 {
