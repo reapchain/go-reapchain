@@ -115,7 +115,6 @@ var (
 		utils.GpoBlocksFlag,
 		utils.GpoPercentileFlag,
 		utils.ExtraDataFlag,
-		utils.GovernanceFlag,
 		configFileFlag,
 		utils.PoDCRequestTimeoutFlag,
 		utils.PoDCBlockPeriodFlag,

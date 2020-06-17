@@ -347,7 +347,6 @@ func (pool *TxPool) Pending() (map[common.Address]types.Transactions, error) {
 	for addr, list := range pool.pending {
 		pending[addr] = list.Flatten()
 	}
-	log.Info("pending:", "pending", pending )
 	return pending, nil
 }
 
