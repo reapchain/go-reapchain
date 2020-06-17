@@ -190,7 +190,7 @@ func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error {
 	if c.state == StatePreprepared {
 		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
-		c.sendDCommit()
+		c.sendDCommit()  // msgCommit 를 통하여, 메시지핸들러에서, handleDCommit를 실행, 여기서 c.verifyDCommit에서 inconsistent 발생,
 	}
 
 	return nil

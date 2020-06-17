@@ -27,7 +27,8 @@ var (
 	msgPriority = map[uint64]int{
 		msgPreprepare: 1,
 		msgCommit:     2,
-		msgPrepare:    3,
+		msgDSelect:    3,
+		//msgPrepare:    3,
 
 	}
 )

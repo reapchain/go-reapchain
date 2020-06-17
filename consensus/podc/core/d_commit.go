@@ -20,13 +20,14 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/qManager"
 	"reflect"
 	"time"
 )
 
-func (c *core) sendDCommit() {
+func (c *core) sendDCommit() {   //전송과
 	logger := c.logger.New("state", c.state)
-
+	logger.Warn("sendDCommit")
 	sub := c.current.Subject()
 	if sub == nil {
 		logger.Error("Failed to get Subject")
@@ -42,11 +43,13 @@ func (c *core) sendDCommit() {
 		Msg:  encodedSubject,
 	})
 }
-
-func (c *core) handleDCommit(msg *message, src podc.Validator) error {
+//==============================
+func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수신 핸들러가 같은 프로그램에 있음. 상태 천이로,, 해야함.
+	logger := c.logger.New("from", src, "state", c.state)
+	logger.Warn("handleDCommit")
 	// Decode commit message
 	var commit *podc.Subject
-	err := msg.Decode(&commit)
+	err := msg.Decode(&commit)  //commit 으로 메모리번지를 통해서, round와 sequence를 가져옴.
 	if err != nil {
 		return errFailedDecodeCommit
 	}
@@ -55,7 +58,7 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {
 		return err
 	}
 
-	if err := c.verifyDCommit(commit, src); err != nil {
+	if err := c.verifyDCommit(commit, src); err != nil {  //inconsistent.. 3.
 		return err
 	}
 
@@ -76,12 +79,18 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {
 
 // verifyCommit verifies if the received commit message is equivalent to our subject
 func (c *core) verifyDCommit(commit *podc.Subject, src podc.Validator) error {
-	logger := c.logger.New("from", src, "state", c.state)
+	logger := c.logger.New("from", src, "state", c.state) //state="Request ExtraData"
 
 	sub := c.current.Subject()
-	if !reflect.DeepEqual(commit, sub) {
-		logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
-		return errInconsistentSubject
+	if( qManager.QManConnected ){
+		log.Info("I'm Qmanager : verifyDCommit ", " sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+    }
+	if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
+		log.Info("I'm not Qmanager : verifyDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+		if !reflect.DeepEqual(commit, sub) {
+			logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
+			return errInconsistentSubject
+		}
 	}
 
 	return nil
