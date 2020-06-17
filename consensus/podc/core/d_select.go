@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"os"
 
@@ -154,9 +155,18 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 }
 
 func (c *core) handleCoordinatorConfirm(msg *message, src podc.Validator) error {
+        var err error
+		log.Info("I am Coordinator!", "ExtraDataLength", ExtraDataLength)  //grep -r 'I am Coordinator!' *.log
+		if( ExtraDataLength != nil ){
+			c.criteria = math.Ceil((float64(ExtraDataLength) - 1) * float64(0.51))  //Ceil.. >= 수 리턴.
+		}
+		if( ExtraDataLength == nil ){
+			log.Info("ExtraDataLength has problem")
+			//utils.Fatalf("ExtraDataLength has problem)
+			return err
+		}
 
-		log.Info("I am Coordinator!")
-		c.criteria = math.Ceil((float64(ExtraDataLength) - 1) * 0.51)
+
 		log.Info("c.criteria=", "c.criteria", c.criteria )
 		c.sendCoordinatorDecide()
 

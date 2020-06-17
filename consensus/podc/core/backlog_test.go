@@ -46,8 +46,8 @@ func TestCheckMessage(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want %v", err, errInvalidMessage)
 	}
 
-	testStates := []State{StateAcceptRequest, StateRequestQman, StatePreprepared, StatePrepared, StateCommitted}
-	testCode := []uint64{msgPreprepare, msgDSelect, msgCommit}  //msgPrepare
+	testStates := []State{StateAcceptRequest, StateRequestQman, StatePreprepared, StateDSelected, StateCommitted}
+	testCode := []uint64{msgPreprepare, msgDSelect, msgCommit}  //msgDSelect
 
 	// future sequence
 	v := &podc.View{

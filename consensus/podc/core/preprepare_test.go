@@ -178,8 +178,8 @@ OUTER:
 				t.Errorf("error mismatch: have %v, want nil", err)
 			}
 
-			if decodedMsg.Code != msgPrepare {
-				t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgPrepare)
+			if decodedMsg.Code != msgDSelect {
+				t.Errorf("message code mismatch: have %v, want %v", decodedMsg.Code, msgDSelect)
 			}
 			var subject *podc.Subject
 			err = decodedMsg.Decode(&subject)

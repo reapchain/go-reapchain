@@ -23,12 +23,12 @@ import (
 
 var (
 	// msgPriority is defined for calculating processing priority to speedup consensus
-	// msgPreprepare > msgCommit > msgPrepare
+	// msgPreprepare > msgCommit > msgDSelect
 	msgPriority = map[uint64]int{
 		msgPreprepare: 1,
 		msgCommit:     2,
 		msgDSelect:    3,
-		//msgPrepare:    3,
+		//msgDSelect:    3,
 
 	}
 )
@@ -92,7 +92,7 @@ func (c *core) storeBacklog(msg *message, src podc.Validator) {
 		if err == nil {
 			backlog.Push(msg, toPriority(msg.Code, p.View))
 		}
-		// for istanbul.MsgPrepare and istanbul.MsgCommit cases
+		// for istanbul.msgDSelect and istanbul.MsgCommit cases
 	default:
 		var p *podc.Subject
 		err := msg.Decode(&p)
@@ -129,7 +129,7 @@ func (c *core) processBacklog() {
 				if err == nil {
 					view = m.View
 				}
-				// for istanbul.MsgPrepare and istanbul.MsgCommit cases
+				// for istanbul.msgDSelect and istanbul.MsgCommit cases
 			default:
 				var sub *podc.Subject
 				err := msg.Decode(&sub)

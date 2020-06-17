@@ -64,9 +64,9 @@ func TestHandleMsg(t *testing.T) {
 	//	},
 	//	Proposal: makeBlock(1),
 	//})
-	//// with a unmatched payload. msgPrepare should match with *istanbul.Subject in normal case.
+	//// with a unmatched payload. msgDSelect should match with *istanbul.Subject in normal case.
 	//msg = &message{
-	//	Code:          msgPrepare,
+	//	Code:          msgDSelect,
 	//	Msg:           m,
 	//	Address:       v0.Address(),
 	//	Signature:     []byte{},

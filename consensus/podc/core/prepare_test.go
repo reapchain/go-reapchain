@@ -194,7 +194,7 @@ OUTER:
 			validator := r0.valSet.GetByIndex(uint64(i))
 			m, _ := Encode(v.engine.(*core).current.Subject())
 			if err := r0.handleDSelect(&message{  //handlePrepare
-				Code:    msgDSelect,  //msgPrepare
+				Code:    msgDSelect,  //msgDSelect
 				Msg:     m,
 				Address: validator.Address(),
 			}, validator); err != nil {

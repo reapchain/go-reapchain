@@ -81,7 +81,7 @@ const (
 	msgCoordinatorDecide
 	msgRacing
 	msgCandidateDecide
-	//msgPrepare
+	//msgDSelect
 	msgCommit
 	msgRoundChange
 	msgHandleQman

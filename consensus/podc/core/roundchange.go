@@ -17,6 +17,7 @@
 package core
 
 import (
+	"github.com/ethereum/go-ethereum/qManager"
 	"math/big"
 	"sync"
 
@@ -72,6 +73,7 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 	logger := c.logger.New("state", c.state)
 		// Decode round change message
 		var rc *roundChange
+	if( !qManager.QManConnected ) { // if i'm not Qman and general geth. then roundchange and start new round. for qman, don't roundchange, it is not necessary.
 
 		if err := msg.Decode(&rc); err != nil {
 			logger.Error("Failed to decode round change", "err", err)
@@ -79,10 +81,11 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 		}
 
 		cv := c.currentView()
+		//log.Info("I'm  not the Qmanager(handleRoundChange) ")
 
 		// We never accept round change message with different sequence number
 		if rc.Sequence.Cmp(cv.Sequence) != 0 {
-			logger.Warn("Inconsistent sequence number", "expected", cv.Sequence, "got", rc.Sequence)
+			logger.Warn("Inconsistent sequence number(handleRoundChange)", "expected", cv.Sequence, "got", rc.Sequence)
 			return errInvalidMessage
 		}
 
@@ -116,7 +119,8 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 			}, true)
 		}
 
-	//}
+		//}
+	}
 
 	return nil
 }
