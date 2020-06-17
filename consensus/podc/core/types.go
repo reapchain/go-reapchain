@@ -38,7 +38,8 @@ const (
 
 	StateAcceptRequest State = iota
 	StatePreprepared
-	StatePrepared
+	// StatePrepared
+	StateDSelected
 	StateCommitted
 	StateRequestQman
 
@@ -51,8 +52,8 @@ func (s State) String() string {
 		return "Accept request"
 	} else if s == StatePreprepared {
 		return "Preprepared"
-	} else if s == StatePrepared {
-		return "Prepared"
+	} else if s == StateDSelected {
+		return "DSelected"
 	} else if s == StateCommitted {
 		return "Committed"
 	} else {
@@ -80,7 +81,7 @@ const (
 	msgCoordinatorDecide
 	msgRacing
 	msgCandidateDecide
-	msgPrepare
+	//msgPrepare
 	msgCommit
 	msgRoundChange
 	msgHandleQman

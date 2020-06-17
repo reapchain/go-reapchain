@@ -46,8 +46,8 @@ func TestCheckMessage(t *testing.T) {
 		t.Errorf("error mismatch: have %v, want %v", err, errInvalidMessage)
 	}
 
-	testStates := []State{StateAcceptRequest, StatePreprepared, StatePrepared, StateCommitted}
-	testCode := []uint64{msgPreprepare, msgPrepare, msgCommit}
+	testStates := []State{StateAcceptRequest, StateRequestQman, StatePreprepared, StatePrepared, StateCommitted}
+	testCode := []uint64{msgPreprepare, msgDSelect, msgCommit}  //msgPrepare
 
 	// future sequence
 	v := &podc.View{
@@ -176,7 +176,7 @@ func TestStoreBacklog(t *testing.T) {
 	subjectPayload, _ := Encode(subject)
 
 	m = &message{
-		Code: msgPrepare,
+		Code: msgDSelect,
 		Msg:  subjectPayload,
 	}
 	c.storeBacklog(m, p)
@@ -266,7 +266,7 @@ func TestProcessBacklog(t *testing.T) {
 			Msg:  prepreparePayload,
 		},
 		&message{
-			Code: msgPrepare,
+			Code: msgDSelect,
 			Msg:  subjectPayload,
 		},
 		&message{
