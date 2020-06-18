@@ -79,7 +79,7 @@ Recommended environment is Ubuntu 18.04.4 LTS. REAP CHAIN binaries are fully tes
 Clone the repository to a directory of your choosing:
 
 ```
-git clone https://github.com/reapchain/release.git
+git clone https://github.com/reapchain/go-reapchain.git
 ```
 
 Install latest distribution of [Go](https://golang.org/) if you don't have it already.
@@ -106,7 +106,7 @@ You can now run `build/bin/geth` to start your node.
 Clone the repository to a directory of your choosing:
 
 ```
-git clone https://github.com/reapchain/release.git
+git clone https://github.com/reapchain/go-reapchain.git
 ```
 
 Building `geth` requires the Go compiler:
