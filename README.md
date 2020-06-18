@@ -42,7 +42,7 @@ For running an REAP CHAIN Endpoint Node requires following specifications.
 | ---- | --------- | ------- | ------------------------ | ----------------- | ------ | ------------------------- | -------------------------- |
 | 4    | 4         | 1,000   | 1                        | 600               | Seoul  | 129                       | 93,120                     |
 
-The information above is from **Hanaro Hosting **and may be changed  by **Hanaro Hosting**.
+The information above is from **Hanaro Hosting**and may be changed  by **Hanaro Hosting**.
 
 ##### Bare-metal Machine
 
