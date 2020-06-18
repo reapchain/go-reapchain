@@ -110,7 +110,7 @@ func (c *core) handleEvents() {
 			c.handleMsg(ev.Payload)
 		case podc.FinalCommittedEvent:
 			c.handleFinalCommitted(ev.Proposal, ev.Proposer)
-		case backlogEvent:
+		case backlogEvent:  //내부에서만 받는 이벤트, 서명 불필요.
 			// No need to check signature for internal messages
 			c.handleCheckedMsg(ev.msg, ev.src)
 		}

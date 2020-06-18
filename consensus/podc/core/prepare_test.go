@@ -206,7 +206,7 @@ OUTER:
 		}
 
 		// prepared is normal case
-		if r0.state != StatePrepared {
+		if r0.state != StateDSelected { //StatePrepared
 			// There are not enough prepared messages in core
 			if r0.state != StatePreprepared {
 				t.Errorf("state mismatch: have %v, want %v", r0.state, StatePreprepared)

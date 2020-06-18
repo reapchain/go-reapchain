@@ -104,6 +104,7 @@ type core struct {
 	startTime time.Time
 	intervalTime time.Time
 	criteria float64   //Criteria 	int		`json:"criteria"` type.go에서는  int 로 받았다가, 여기서는 float64
+	ExtraDataLength int
 }
 // 최종 전송할 메시지를 만듦
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
@@ -249,7 +250,8 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 		c.backend.NextRound()
 	}
 	c.newRoundChangeTimer()
-	logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "valSet", c.valSet.List(), "size", c.valSet.Size())
+	//logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "valSet", c.valSet.List(), "size", c.valSet.Size())
+	logger.Debug("New round", "new_round", newView.Round, "new_seq", newView.Sequence, "new_proposer", c.valSet.GetProposer(), "size", c.valSet.Size())
 }
 
 func (c *core) catchUpRound(view *podc.View) {
@@ -267,11 +269,11 @@ func (c *core) catchUpRound(view *podc.View) {
 }
 
 func (c *core) 	setState(state State) {
-	if c.state != state {
+	if c.state != state {  //상태가 다르면, 입력 파라미터 상태로 설
 		c.state = state
 	}
 	if state == StateAcceptRequest || state == StateRequestQman {
-		c.processPendingRequests()
+		c.processPendingRequests() //바로 보내지않고, 지연시켜서 보내는, sendevent 핸들러에게 보내서,,,
 	}
 	c.processBacklog()
 }

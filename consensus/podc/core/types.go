@@ -47,7 +47,7 @@ const (
 
 func (s State) String() string {
 	if s == StateRequestQman {
-		return "Request ExtraData"
+		return "Request ExtraData To Qman"
 	} else if s == StateAcceptRequest {
 		return "Accept request"
 	} else if s == StatePreprepared {

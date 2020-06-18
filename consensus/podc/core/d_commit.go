@@ -89,24 +89,24 @@ func (c *core) verifyDCommit(commit *podc.Subject, src podc.Validator) error {
 	logger := c.logger.New("from", src, "state", c.state) //state="Request ExtraData"
 
 	sub := c.current.Subject()
-	if( !qManager.QManConnected ) { // if I'm not Qman and general geth.
+	//if( !qManager.QManConnected ) { // if I'm not Qman and general geth.
 
 
 		//if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
-		log.Info("I'm not Qmanager : verifyDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
-		if !reflect.DeepEqual(commit, sub) {
-			logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
-			return errInconsistentSubject
-		}
+		//log.Info("I'm not Qmanager : verifyDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+		//if !reflect.DeepEqual(commit, sub) {
+		//	logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
+		//	return errInconsistentSubject
 		//}
-	}else{
-		log.Info("I'm Qmanager : verifyDCommit ", " sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+		//}
+	//}else{
+		log.Info("verifyDCommit ", "Sequence", sub.View.Sequence, "Round", sub.View.Round)
 		if !reflect.DeepEqual(commit, sub) {
 			logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
 			return errInconsistentSubject
 		}
 
-	}
+	//}
 	return nil
 }
 

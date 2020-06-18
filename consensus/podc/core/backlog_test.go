@@ -122,7 +122,7 @@ func TestCheckMessage(t *testing.T) {
 	}
 
 	// current view, state = StatePrepared
-	c.state = StatePrepared
+	c.state = StateDSelected  //StatePrepared
 	for i := 0; i < len(testCode); i++ {
 		err = c.checkMessage(testCode[i], v)
 		if err != nil {

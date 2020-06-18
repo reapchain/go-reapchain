@@ -42,9 +42,9 @@ var (
 func generateExtraData() []ValidatorInfo{
 
 	iter := qManager.QManagerStorage.NewIterator(nil, nil)
-	var extra []ValidatorInfo
+	var extra []ValidatorInfo  //slice의 경우 사용시 메모리를 잡아줘야 하는데 , 현재 없음.
 
-
+    //make slice memory... 할것,,
 	for iter.Next() {
 		//key := iter.Key()
 		value := iter.Value()

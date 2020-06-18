@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-var ExtraDataLength int
+//var ExtraDataLength int = 0  //int value is zero,
 
 type ValidatorInfo struct {
 	Address common.Address
@@ -27,7 +27,8 @@ type ValidatorInfos []ValidatorInfo
 
 func (c *core) sendDSelect() {
 	logger := c.logger.New("state", c.state)
-	var extra [7]ValidatorInfo
+	var extra [7]ValidatorInfo  // 최소 7개 노드에서 추가?  기동시 최소 7개 이상 띄워야함.
+	//var extra [50]ValidatorInfo  //debugging... 7 -> 50 ,, logical bug. 임시로 50개,, 나중에 수정할 것.
 	flag := false
 
 	for i, v := range c.valSet.List() {
@@ -101,6 +102,16 @@ func (c *core) sendCandidateDecide() {
 }
 //D-Select msg
 func (c *core) handleSentExtraData(msg *message, src podc.Validator) error {
+	// Decode d-select message
+	var extraData ValidatorInfos
+	if err := json.Unmarshal(msg.Msg, &extraData); err != nil {
+		log.Error("JSON Decode Error", "Err", err)
+		log.Info("Decode Error")
+		return errFailedDecodePrepare
+	}
+	c.ExtraDataLength = len(extraData)
+
+
 	c.broadcast(&message{
 		Code: msgDSelect,
 		Msg: msg.Msg,
@@ -142,7 +153,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		QRNDArray := make([]byte, 8)
 		binary.LittleEndian.PutUint64(QRNDArray, QRND)
 
-		ExtraDataLength = len(extraData)
+		c.ExtraDataLength = len(extraData)
 
 		c.send(&message{
 			Code: msgCoordinatorConfirmRequest,
@@ -156,11 +167,11 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 func (c *core) handleCoordinatorConfirm(msg *message, src podc.Validator) error {
         var err error
-		log.Info("I am Coordinator!", "ExtraDataLength", ExtraDataLength)  //grep -r 'I am Coordinator!' *.log
-		if( ExtraDataLength != nil ){
-			c.criteria = math.Ceil((float64(ExtraDataLength) - 1) * float64(0.51))  //Ceil.. >= 수 리턴.
+		log.Info(fmt.Sprintf("I am Coordinator! ExtraDataLength %d", c.ExtraDataLength))  //grep -r 'I am Coordinator!' *.log
+		if( c.ExtraDataLength != 0 ){
+			c.criteria = math.Ceil((( float64(c.ExtraDataLength) - 1.00) * float64(0.51) ) )  //Ceil.. >= 수 리턴.
 		}
-		if( ExtraDataLength == nil ){
+		if( c.ExtraDataLength == 0 ){
 			log.Info("ExtraDataLength has problem")
 			//utils.Fatalf("ExtraDataLength has problem)
 			return err

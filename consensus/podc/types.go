@@ -103,6 +103,8 @@ type Preprepare struct {
 }
 type D_select struct {
 	// TODO: define Coordinator struct like
+	View     *View
+	Proposal Proposal
 }
 type D_commit struct {
 	View     *View

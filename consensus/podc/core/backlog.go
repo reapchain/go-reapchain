@@ -123,18 +123,34 @@ func (c *core) processBacklog() {
 			msg := m.(*message)
 			var view *podc.View
 			switch msg.Code {
-			case msgPreprepare:
+			case msgPreprepare:  //?
+				//msgDSelect and msgDCommit 구현
+			case 	msgDSelect:
+			case 	msgCommit:
+			//코디와 주고 받는것,
+			case 	msgCoordinatorDecide:  //1. 코디 결정
+			case 	msgRacing:             //2. 레이싱
+			case 	msgCandidateDecide:    //3. 후보군 결정
+
+
+			//case 	msgRoundChange:
+			//Qmanager와 주고 받는 것 :
+			case 	msgHandleQman:
+			case 	msgExtraDataRequest:
+			case 	msgExtraDataSend:
+			case 	msgCoordinatorConfirmRequest:
+			case 	msgCoordinatorConfirmSend:
+
 				var m *podc.Preprepare
 				err := msg.Decode(&m)
 				if err == nil {
-					view = m.View
+					view = m.View   //메시지뷰를 뷰에 설
 				}
-				// for istanbul.msgDSelect and istanbul.MsgCommit cases
 			default:
 				var sub *podc.Subject
 				err := msg.Decode(&sub)
 				if err == nil {
-					view = sub.View
+					view = sub.View //주제 뷰를 설정
 				}
 			}
 			if view == nil {
@@ -163,7 +179,7 @@ func (c *core) processBacklog() {
 	}
 }
 
-func toPriority(msgCode uint64, view *podc.View) float32 {
+func toPriority(msgCode uint64, view *podc.View) float32 {  //나중에 시퀀스,, 중요. 속도 계산해서,, 추후 처리할 것.
 	// FIXME: round will be reset as 0 while new sequence
 	// 10 * Round limits the range of message code is from 0 to 9
 	// 1000 * Sequence limits the range of round is from 0 to 99
