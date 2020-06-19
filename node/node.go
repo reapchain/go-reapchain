@@ -244,8 +244,15 @@ func (n *Node) Start() error {
 
 
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
-	qManager.BootNodePort = 30301
-	
+
+	log.Info("NODE SELF", "BOOTNODE PORT" , qManager.BootNodePort)
+
+	if qManager.BootNodePort == 0{
+		
+		qManager.BootNodePort = 30301
+	}
+
+
 	if n.server.Self().ID == QmanEnode{
 		qManager.ConnectDB()
 		qManager.QManConnected = true

@@ -107,9 +107,10 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 					if randomNumber%uint64(divisor) == 0 {
 						extra[index].Tag = podc.Coordinator
 						log.Info("Qmanager", "Random Coordinator Selected", extra[index].Address.String())
-						index = len(extra)
+
 						completed = true
 						Divisor = divisor
+						break
 					}
 				}
 				index++
