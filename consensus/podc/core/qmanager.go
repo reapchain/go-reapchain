@@ -115,12 +115,13 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 				}
 				index++
 			}
+			log.Info("ExtraData list", "Address", extra[index].Address , "Qrnd", extra[index].Qrnd, "Tag",  extra[index].Tag)
 			if completed{
 				break
 			}
 		}
 
-		log.Info("ExtraData list", "extradata", extra)
+
 
 		//defer db.Close()
 		extraDataJson, err := json.Marshal(extra)
