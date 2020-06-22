@@ -121,7 +121,7 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 			}
 		}
 
-
+		log.Info("ExtraData list", "extradata", extra)
 
 		//defer db.Close()
 		extraDataJson, err := json.Marshal(extra)
