@@ -20,6 +20,7 @@ package event
 import (
 	"errors"
 	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"reflect"
 	"sync"
 	"time"
@@ -178,7 +179,13 @@ func (s *TypeMuxSubscription) Chan() <-chan *TypeMuxEvent {
 }
 
 func (s *TypeMuxSubscription) Unsubscribe() {
-	s.mux.del(s)
+	if( s == nil ){
+		log.Info("s : nil")
+		return
+	}else{
+		s.mux.del(s)
+	}
+
 	s.closewait()
 }
 

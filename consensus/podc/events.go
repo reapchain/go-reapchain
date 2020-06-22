@@ -37,7 +37,7 @@ type QmanDataEvent struct {
 type RequestEventQman struct {
 	Proposal Proposal
 }
-
+//-----------------------------------------
 type RequestEvent struct {
 	Proposal Proposal
 }

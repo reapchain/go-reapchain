@@ -320,7 +320,7 @@ func (t *dialTask) resolve(srv *Server) bool {
 	// The node was found.
 	t.resolveDelay = initialResolveDelay
 	t.dest = resolved
-	log.Debug("Resolved node", "id", t.dest.ID, "addr", &net.TCPAddr{IP: t.dest.IP, Port: int(t.dest.TCP)})
+	//temp: log.Debug("Resolved node", "id", t.dest.ID, "addr", &net.TCPAddr{IP: t.dest.IP, Port: int(t.dest.TCP)})
 	return true
 }
 

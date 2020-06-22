@@ -21,7 +21,7 @@ const NodeIDBits = 512
 var (
 
 	QManagerStorage *leveldb.DB
-	QManConnected bool
+	QManConnected bool  //If I'm Qmanager, this is true. when start p2p node, check whether Qman or not.
 	QManagerAddress *net.UDPAddr
 	BootNodeReady bool
 	QRNDDeviceStat bool

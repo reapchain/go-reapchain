@@ -574,7 +574,7 @@ func (t *udp) readLoop() {
 func (t *udp) handlePacket(from *net.UDPAddr, buf []byte) error {
 	packet, fromID, hash, err := decodePacket(buf)
 	if err != nil {
-		log.Debug("Bad discv4 packet", "addr", from, "err", err)
+		//temp : log.Debug("Bad discv4 packet", "addr", from, "err", err)
 		return err
 	}
 	err = packet.handle(t, from, fromID, hash)

@@ -45,9 +45,10 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 
     QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
-	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode)
+	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
+	                                                       //Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
 	c.lastProposal = lastProposal
-	c.valSet = c.backend.Validators(c.lastProposal)
+	c.valSet = c.backend.Validators(c.lastProposal)  // Validator array 관리
 
 
 	// Start a new round from last sequence + 1
@@ -96,6 +97,8 @@ func (c *core) handleEvents() {
 		// A real event arrived, process interesting content
 		switch ev := event.Data.(type) {
 		case podc.RequestEvent:
+			c.startTime = time.Now()
+			log.Info("1. Start")
 			r := &podc.Request{
 				Proposal: ev.Proposal,
 			}
@@ -107,7 +110,7 @@ func (c *core) handleEvents() {
 			c.handleMsg(ev.Payload)
 		case podc.FinalCommittedEvent:
 			c.handleFinalCommitted(ev.Proposal, ev.Proposer)
-		case backlogEvent:
+		case backlogEvent:  //내부에서만 받는 이벤트, 서명 불필요.
 			// No need to check signature for internal messages
 			c.handleCheckedMsg(ev.msg, ev.src)
 		}
@@ -166,8 +169,8 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleRacing(msg, src))
 	case msgCandidateDecide:
 		return testBacklog(c.handleCandidateDecide(msg, src))
-	case msgPrepare:
-		return testBacklog(c.handlePrepare(msg, src))
+	//case msgDSelect:
+	//	return testBacklog(c.handlePrepare(msg, src))
 	case msgCommit:
 		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
