@@ -163,7 +163,7 @@ func (n *Node) Start() error {
 	}
 	if n.serverConfig.QmanagerNodes == nil {
 		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
-		log.Debug("Qmanager=%v\n",n.serverConfig.QmanagerNodes )
+		log.Debug("Qmanager=","QmanagerNodes", n.serverConfig.QmanagerNodes )
 	}
 
 	if n.serverConfig.TrustedNodes == nil {
