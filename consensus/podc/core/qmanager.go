@@ -22,18 +22,16 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"os"
 	"encoding/json"
-	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"math/rand"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/rlp"
-	"github.com/syndtr/goleveldb/leveldb"
 	"time"
 )
 
 var (
 
-	QManagerStorage *leveldb.DB
 	Counter int
 	Divisor int
 
@@ -41,7 +39,7 @@ var (
 
 func generateExtraData() []ValidatorInfo{
 
-	iter := qManager.QManagerStorage.NewIterator(nil, nil)
+	iter := podc_global.QManagerStorage.NewIterator(nil, nil)
 	var extra []ValidatorInfo  //slice의 경우 사용시 메모리를 잡아줘야 하는데 , 현재 없음.
 
     //make slice memory... 할것,,
@@ -50,7 +48,7 @@ func generateExtraData() []ValidatorInfo{
 		value := iter.Value()
 		//log.Info("KEY & Val", "key:", key, "value: ", value)
 
-		var decodedBytes qManager.QManDBStruct
+		var decodedBytes podc_global.QManDBStruct
 		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
 		if err != nil {
 			log.Info("Qmanager", "Decoding Error", err.Error())
@@ -62,10 +60,10 @@ func generateExtraData() []ValidatorInfo{
 
 		var num uint64
 
-		if qManager.QRNDDeviceStat == true{
+		if podc_global.QRNDDeviceStat == true{
 			rand.Seed(time.Now().UnixNano())
 			randomIndex := rand.Intn(12280)
-			num = qManager.RandomNumbers[randomIndex]
+			num = podc_global.RandomNumbers[randomIndex]
 
 
 		} else {
@@ -86,7 +84,7 @@ func generateExtraData() []ValidatorInfo{
 }
 //For Qmanager, event handler to receive msg from geth
 func (c *core) handleExtraData(msg *message, src podc.Validator) error {
-	if qManager.QManConnected{
+	if podc_global.QManConnected{
 
 		log.Info("Received EXTRA DATA REQUEST from geth")
 

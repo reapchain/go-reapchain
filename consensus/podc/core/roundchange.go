@@ -17,7 +17,7 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"math/big"
 	"sync"
 
@@ -73,7 +73,7 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 	logger := c.logger.New("state", c.state)
 		// Decode round change message
 		var rc *roundChange
-	if( !qManager.QManConnected ) { // if i'm not Qman and general geth. then roundchange and start new round. for qman, don't roundchange, it is not necessary.
+	if( !podc_global.QManConnected ) { // if i'm not Qman and general geth. then roundchange and start new round. for qman, don't roundchange, it is not necessary.
 
 		if err := msg.Decode(&rc); err != nil {
 			logger.Error("Failed to decode round change", "err", err)

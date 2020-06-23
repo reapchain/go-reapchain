@@ -54,8 +54,6 @@ import (
 	"github.com/ethereum/go-ethereum/p2p/nat"
 	"github.com/ethereum/go-ethereum/p2p/netutil"
 	"github.com/ethereum/go-ethereum/params"
-	//whisper "github.com/ethereum/go-ethereum/whisper/whisperv5"
-	"github.com/ethereum/go-ethereum/qManager"
 
 	"gopkg.in/urfave/cli.v1"
 )
@@ -422,11 +420,11 @@ var (
 		Usage: "Network listening another Local IP: ex) geth --setip 192.168.0.100",
 		Value: "",
 	}
-	BootnodeportFlag = cli.IntFlag{  //local ip
-		Name:  "bootnodeport",
-		Usage: "Discovery P2P boot node port : ex) geth --bootnodeport 30391",
-		Value: 30301,
-	}
+	//BootnodeportFlag = cli.IntFlag{  //local ip
+	//	Name:  "bootnodeport",
+	//	Usage: "Discovery P2P boot node port : ex) geth --bootnodeport 30391",
+	//	Value: 30301,
+	//}
 
 	BootnodesFlag = cli.StringFlag{
 		Name:  "bootnodes",
@@ -621,6 +619,10 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	cfg.BootstrapNodes = make([]*discover.Node, 0, len(urls))
 	for _, url := range urls {
 		node, err := discover.ParseNode(url)
+		
+		log.Info("BootstrapNodes:","ID", node.ID.String())
+		log.Info("BootstrapNodes:","IP", node.IP)
+
 		if err != nil {
 			log.Error("Bootstrap URL invalid", "enode", url, "err", err)
 			continue
@@ -929,13 +931,13 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 		log.Info("SetNodeConfig: ListenAddr of another ip: ",cfg.P2P.ListenAddr )
 
 	}
-	if ctx.GlobalIsSet(BootnodeportFlag.Name){
-		bootnodeports := ctx.GlobalInt(BootnodeportFlag.Name)
-
-		log.Info("SetNodeConfig BootNodePort", "Value", bootnodeports)
-		qManager.BootNodePort = bootnodeports
-
-	}
+	//if ctx.GlobalIsSet(BootnodeportFlag.Name){
+	//	bootnodeports := ctx.GlobalInt(BootnodeportFlag.Name)
+	//
+	//	log.Info("SetNodeConfig BootNodePort", "Value", bootnodeports)
+	//	qManager.BootNodePort = bootnodeports
+	//
+	//}
 
 	SetP2PConfig(ctx, &cfg.P2P)
 	setIPC(ctx, cfg)

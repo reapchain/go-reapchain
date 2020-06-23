@@ -149,7 +149,7 @@ var AppHelpFlagGroups = []flagGroup{
 			utils.ListenPortFlag,
 			utils.ListenLocalIPFlag,
 			utils.ListenSetIPFlag,
-			utils.BootnodeportFlag,
+			//utils.BootnodeportFlag,
 			utils.MaxPeersFlag,
 			utils.MaxPendingPeersFlag,
 			utils.NATFlag,

@@ -24,6 +24,7 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"net"
 	"time"
 
@@ -262,8 +263,8 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 		return nil, err
 	}
 	conn, err := net.ListenUDP("udp", addr)  //socket setup ?
-	if(qManager.IsBootNode){
-		qManager.BootNodePort = addr.Port
+	if(podc_global.IsBootNode){
+		podc_global.BootNodePort = addr.Port
 	}
 	log.Info("net.ListenUDP up: addr ", "self",laddr)
 	if err != nil {
@@ -692,9 +693,9 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		}
 	}
 
-	if t.conn.LocalAddr().(*net.UDPAddr).Port == qManager.BootNodePort  {
+	if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
 
-		if !qManager.BootNodeReady{
+		if !podc_global.BootNodeReady{
 			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 			fmt.Println("Bootnode Requesting")
 
@@ -704,12 +705,12 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 
 	}
 
-	if qManager.BootNodeReady {
+	if podc_global.BootNodeReady {
 		ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		fmt.Println("BOOTNODE SEND DATA")
 		fmt.Println(from, fromID)
 
-		t.send(qManager.QManagerAddress , qmanagerPacket, &ps)
+		t.send(podc_global.QManagerAddress , qmanagerPacket, &ps)
 	}
 
 	return nil
@@ -747,12 +748,12 @@ func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	qNode := qManager.QManDBStruct{req.Node.String(), qManagerNodeAddress.String(), timestamp }
+	qNode := podc_global.QManDBStruct{req.Node.String(), qManagerNodeAddress.String(), timestamp }
 	nodeFound := qManager.FindNode(req.Node.String())
 
 	if !nodeFound {
 		log.Info("Qmanager New Entry", "ID = ", req.Node)
-		saveError := qNode.Save()
+		saveError := qManager.Save(qNode)
 		if !saveError {
 			//fmt.Println("Save Error")
 			log.Info("Save ERR", "err = ", saveError)
@@ -773,7 +774,7 @@ func (req *requestQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 		return errExpired
 	}
 
-	if qManager.QManConnected {
+	if podc_global.QManConnected {
 		fmt.Println("Qman Sending Address")
 		ps := receiveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		fmt.Println(fromID)
@@ -794,14 +795,14 @@ func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 		return errExpired
 	}
 
-	if t.conn.LocalAddr().(*net.UDPAddr).Port == qManager.BootNodePort  {
+	if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
 		fmt.Println("Recieved Qman Address")
 		//ps := recieveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		//fmt.Println(fromID)
 		//t.send(from , recieveQmanPacket, &ps)
 
-		qManager.QManagerAddress = from
-		qManager.BootNodeReady = true
+		podc_global.QManagerAddress = from
+		podc_global.BootNodeReady = true
 
 
 	}

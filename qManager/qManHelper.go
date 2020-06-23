@@ -8,57 +8,39 @@ import (
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/syndtr/goleveldb/leveldb"
 	//"math/rand"
-	"net"
 	"os"
 	"time"
 	"github.com/ethereum/go-ethereum/consensus/quantum"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
+
 
 )
 
 const NodeIDBits = 512
 
 
-var (
-
-	QManagerStorage *leveldb.DB
-	QManConnected bool  //If I'm Qmanager, this is true. when start p2p node, check whether Qman or not.
-	QManagerAddress *net.UDPAddr
-	BootNodeReady bool
-	QRNDDeviceStat bool
- 	RandomNumbers []uint64
-	BootNodePort int
-	IsBootNode bool
-)
-
-type (
-	QManDBStruct struct {
-		ID      string
-		Address  string
-		Timestamp	string
-	}
-)
 
 func CheckQRNDStatus(){
 
 	if fileExists("/Volumes/PSoC USB/" + "up.ini") {
-		QRNDDeviceStat = true
+		podc_global.QRNDDeviceStat = true
 	} else {
-		QRNDDeviceStat = false
+		podc_global.QRNDDeviceStat = false
 	}
 }
 func ConnectDB() {
 
 	var err error
-	QManagerStorage, err = leveldb.OpenFile("level", nil)
+	podc_global.QManagerStorage, err = leveldb.OpenFile("level", nil)
 	if err != nil{
 		log.Info("DB ERROR", "err = ", err)
 	}
 	go StartExpirationChecker()
 	CheckQRNDStatus()
 
-	if QRNDDeviceStat == true{
+	if podc_global.QRNDDeviceStat == true{
 
-		RandomNumbers = generateRandomNumbers()
+		podc_global.RandomNumbers = generateRandomNumbers()
 		go StartQRNDRefresher()
 
 	}
@@ -66,7 +48,7 @@ func ConnectDB() {
 }
 
 func IsQmanager() (isQMan bool){
-	return QManConnected
+	return podc_global.QManConnected
 }
 
 func StartQRNDRefresher(){
@@ -95,12 +77,12 @@ func StartExpirationChecker(){
 
 
 func expirationCheck() {
-	iter :=  QManagerStorage.NewIterator(nil, nil)
+	iter :=  podc_global.QManagerStorage.NewIterator(nil, nil)
 	for iter.Next() {
 		key := iter.Key()
 		value := iter.Value()
 
-		var decodedBytes QManDBStruct
+		var decodedBytes podc_global.QManDBStruct
 		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
 		if err != nil {
 			log.Info("Qmanager", "Decoding Error", err.Error())
@@ -121,7 +103,7 @@ func expirationCheck() {
 			log.Info("Qmanager", "Expired Node", key)
 
 
-			err = QManagerStorage.Delete(key, nil)
+			err = podc_global.QManagerStorage.Delete(key, nil)
 			if err != nil {
 				log.Info("Qmanager", "Decoding Error", err.Error())
 			}
@@ -152,7 +134,7 @@ func FindNode(nodeId string) ( found bool) {
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
 	//var data []byte
-	if QManConnected {
+	if podc_global.QManConnected {
 		//var nodeIDString string
 		//decode_err := rlp.DecodeBytes(nodeId, &nodeIDString)
 		//
@@ -163,20 +145,20 @@ func FindNode(nodeId string) ( found bool) {
 		//
 		//log.Info("Decoded ID", "qman = ", nodeIDString)
 
-		foundNode, err := QManagerStorage.Get(node_id_encoded, nil)
+		foundNode, err := podc_global.QManagerStorage.Get(node_id_encoded, nil)
 		if err != nil {
 			log.Info("QManager", "DB --", "Node Not Found")
 
 			return false
 		}
 
-		var decodedBytes  QManDBStruct
+		var decodedBytes  podc_global.QManDBStruct
 		DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
 		if DecodeErr != nil {
 			log.Info("Qmanager", "Decoding Error", DecodeErr.Error())
 		}
 
-		var encodedStruct *QManDBStruct
+		var encodedStruct *podc_global.QManDBStruct
 		initBytes, err := rlp.EncodeToBytes(encodedStruct)
 
 		if err != nil {
@@ -184,7 +166,7 @@ func FindNode(nodeId string) ( found bool) {
 
 		}
 		timestamp := time.Now().Format("2006-01-02 15:04:05")
-		encodedStruct = &QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address, Timestamp: timestamp }
+		encodedStruct = &podc_global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address, Timestamp: timestamp }
 
 		//t, _ := time.Parse("2006-01-02 15:04:05", encodedStruct.Timestamp)
 		//fmt.Println(t)
@@ -217,12 +199,12 @@ func FindNode(nodeId string) ( found bool) {
 }
 
 
-func ( n QManDBStruct) Save() (saved bool) {
+func  Save( dbStruct podc_global.QManDBStruct) (saved bool) {
 
-	encodedID,_ := rlp.EncodeToBytes(n.ID)
+	encodedID,_ := rlp.EncodeToBytes(dbStruct.ID)
 
 
-	var encodedStruct *QManDBStruct
+	var encodedStruct *podc_global.QManDBStruct
 	initBytes, err := rlp.EncodeToBytes(encodedStruct)
 
 	if err != nil {
@@ -231,7 +213,7 @@ func ( n QManDBStruct) Save() (saved bool) {
 	}
 
 
-	encodedStruct = &QManDBStruct{ID: n.ID,  Address: n.Address, Timestamp: n.Timestamp }
+	encodedStruct = &podc_global.QManDBStruct{ID: dbStruct.ID,  Address: dbStruct.Address, Timestamp: dbStruct.Timestamp }
 	//t, _ := time.Parse("2006-01-02 15:04:05", encodedStruct.Timestamp)
 	//fmt.Println(t)
 	initBytes, err = rlp.EncodeToBytes(encodedStruct)
@@ -252,8 +234,8 @@ func ( n QManDBStruct) Save() (saved bool) {
 
 
 func SaveToDB(ID []byte, NodeDetails []byte) ( saved bool) {
-	if QManConnected {
-		err := QManagerStorage.Put(ID, NodeDetails, nil)
+	if podc_global.QManConnected {
+		err := podc_global.QManagerStorage.Put(ID, NodeDetails, nil)
 
 		if err != nil {
 			log.Info("QManager DB Save", "err --", err)

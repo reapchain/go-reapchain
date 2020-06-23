@@ -20,6 +20,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"net"
 	"os"
 	"path/filepath"
@@ -242,17 +243,17 @@ func (n *Node) Start() error {
 
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
 
-	log.Info("NODE SELF", "BOOTNODE PORT" , qManager.BootNodePort)
+	log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)
 
-	if qManager.BootNodePort == 0{
-		
-		qManager.BootNodePort = 30301
+	if podc_global.BootNodePort == 0{
+
+		podc_global.BootNodePort = 30301
 	}
 
 
 	if n.server.Self().ID == QmanEnode{
 		qManager.ConnectDB()
-		qManager.QManConnected = true
+		podc_global.QManConnected = true
 
 
 	}
