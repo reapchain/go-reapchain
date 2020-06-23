@@ -693,6 +693,7 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		}
 	}
 
+
 	if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
 
 		if !podc_global.BootNodeReady{

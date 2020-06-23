@@ -31,7 +31,7 @@ func (c *core) sendDCommit() {   //전송과
 
 	sub := c.current.Subject()
 	if( !podc_global.QManConnected ){
-		log.Info("I'm  not the Qmanager : sendDCommit ", " sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+		//log.Info("I'm  not the Qmanager : sendDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
 
 		if sub == nil {
 			logger.Error("Failed to get Subject")
@@ -100,7 +100,7 @@ func (c *core) verifyDCommit(commit *podc.Subject, src podc.Validator) error {
 		//}
 		//}
 	//}else{
-		log.Info("verifyDCommit ", "Sequence", sub.View.Sequence, "Round", sub.View.Round)
+	//	log.Info("verifyDCommit ", "Sequence", sub.View.Sequence, "Round", sub.View.Round)
 		if !reflect.DeepEqual(commit, sub) {
 			logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
 			return errInconsistentSubject

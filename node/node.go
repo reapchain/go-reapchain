@@ -242,20 +242,18 @@ func (n *Node) Start() error {
 
 
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
-
-	log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)
-
-	if podc_global.BootNodePort == 0{
-
-		podc_global.BootNodePort = 30301
-	}
+	//
+	//log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)
+	//
+	//if podc_global.BootNodePort == 0{
+	//
+	//	podc_global.BootNodePort = 30301
+	//}
 
 
 	if n.server.Self().ID == QmanEnode{
 		qManager.ConnectDB()
 		podc_global.QManConnected = true
-
-
 	}
 	return nil
 }

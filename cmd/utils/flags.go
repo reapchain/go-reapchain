@@ -20,6 +20,7 @@ package utils
 import (
 	"crypto/ecdsa"
 	"fmt"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"io/ioutil"
 	"math/big"
 	"net"
@@ -619,9 +620,11 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	cfg.BootstrapNodes = make([]*discover.Node, 0, len(urls))
 	for _, url := range urls {
 		node, err := discover.ParseNode(url)
-		
+
 		log.Info("BootstrapNodes:","ID", node.ID.String())
 		log.Info("BootstrapNodes:","IP", node.IP)
+		podc_global.BootNodeID = node.ID.String()
+		podc_global.BootNodePort = int(node.UDP)
 
 		if err != nil {
 			log.Error("Bootstrap URL invalid", "enode", url, "err", err)
@@ -631,6 +634,7 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 
 	}
 	log.Info("BootstrapNodes:","BootstrapNodes", cfg.BootstrapNodes )
+
 
 }
 
