@@ -106,12 +106,12 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 						extra[index].Tag = podc.Coordinator
 						log.Info("Qmanager", "Random Coordinator Selected", extra[index].Address.String())
 
+						index = len(extra)
 						completed = true
 						Divisor = divisor
-						break
 					}
 				}
-				log.Info("ExtraData list", "Address", extra[index].Address , "Qrnd", extra[index].Qrnd, "Tag",  extra[index].Tag)
+				//log.Info("ExtraData list", "Address", extra[index].Address , "Qrnd", extra[index].Qrnd, "Tag",  extra[index].Tag)
 				index++
 			}
 			if completed{
