@@ -154,12 +154,16 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		binary.LittleEndian.PutUint64(QRNDArray, QRND)
 
 		c.ExtraDataLength = len(extraData)
+		c.criteria = 29
 
 		c.send(&message{
 			Code: msgCoordinatorConfirmRequest,
 			Msg: QRNDArray,
 		}, c.qmanager)
 
+	} else{
+		c.ExtraDataLength = 0
+		c.criteria = 0
 	}
 
 	return nil

@@ -78,7 +78,7 @@ func generateExtraData() []ValidatorInfo{
 		extra = append(extra, validatorInfo)
 		//i++
 	}
-
+    log.Info("generateExtraData:", "extradata_size", len(extra))
 	return extra
 
 }

@@ -204,7 +204,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 }
 
 func makeExtraData(extra []byte) []byte {
-	log.Info("current params.MaximumExtraDataSize=%v ", "extra" , uint(params.MaximumExtraDataSize)  )
+	log.Info("current params.MaximumExtraDataSize=", "extra" , uint(params.MaximumExtraDataSize)  )
 	//check for Byte or Kilo Byte?
 	if len(extra) == 0 {
 		// create default extradata

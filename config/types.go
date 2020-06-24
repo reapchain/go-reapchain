@@ -15,6 +15,7 @@ type EnvConfig struct {
 	Consensus	ConsensusConfig	`json:"consensus"`
 	Token		TokenConfig		`json:"token"`
 	Bootnodes	[]string		`json:"bootnodes"`
+	Senatornodes []string      `json:"Senatornodes"`
 }
 
 // detail configurations for consensus part
