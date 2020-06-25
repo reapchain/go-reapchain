@@ -36,6 +36,7 @@ import (
 )
 
 const Version = 4
+const ReapChainFlag = 5
 //const boot_node_port = 30301
 //var boot_node_port int  //temp , 30301, or 30391
 
@@ -83,6 +84,7 @@ type (
 		Expiration uint64
 		// Ignore additional fields (for forward compatibility).
 		Rest []rlp.RawValue `rlp:"tail"`
+
 	}
 
 	// pong is the reply to ping.
@@ -151,6 +153,7 @@ type (
 		IP  net.IP // len 4 for IPv4 or 16 for IPv6
 		UDP uint16 // for discovery protocol
 		TCP uint16 // for RLPx protocol
+		Flag uint16
 	}
 
 	//QManDBStruct struct {
@@ -168,7 +171,7 @@ func makeEndpoint(addr *net.UDPAddr, tcpPort uint16) rpcEndpoint {
 	if ip == nil {
 		ip = addr.IP.To16()
 	}
-	return rpcEndpoint{IP: ip, UDP: uint16(addr.Port), TCP: tcpPort}
+	return rpcEndpoint{IP: ip, UDP: uint16(addr.Port), TCP: tcpPort, Flag: uint16(ReapChainFlag)}
 }
 
 func (t *udp) nodeFromRPC(sender *net.UDPAddr, rn rpcNode) (*Node, error) {
@@ -333,6 +336,7 @@ func (t *udp) ping(toid NodeID, toaddr *net.UDPAddr) error {
 		From:       t.ourEndpoint,
 		To:         makeEndpoint(toaddr, 0), // TODO: maybe use known TCP port from DB
 		Expiration: uint64(time.Now().Add(expiration).Unix()),
+		//Flag: "Reapchain",
 	})
 	return <-errc
 }
@@ -625,16 +629,18 @@ func (req *ping) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) er
 	if expired(req.Expiration) {
 		return errExpired
 	}
-	t.send(from, pongPacket, &pong{
-		To:         makeEndpoint(from, req.From.TCP),
-		ReplyTok:   mac,
-		Expiration: uint64(time.Now().Add(expiration).Unix()),
-	})
-	if !t.handleReply(fromID, pingPacket, req) {
-		// Note: we're ignoring the provided IP address right now
-		go t.bond(true, fromID, from, req.From.TCP)
-	}
 
+	if req.From.Flag == uint16(ReapChainFlag) {
+		t.send(from, pongPacket, &pong{
+			To:         makeEndpoint(from, req.From.TCP),
+			ReplyTok:   mac,
+			Expiration: uint64(time.Now().Add(expiration).Unix()),
+		})
+		if !t.handleReply(fromID, pingPacket, req) {
+			// Note: we're ignoring the provided IP address right now
+			go t.bond(true, fromID, from, req.From.TCP)
+		}
+	}
 
 	return nil
 }
