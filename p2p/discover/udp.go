@@ -268,6 +268,7 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 	conn, err := net.ListenUDP("udp", addr)  //socket setup ?
 	if(podc_global.IsBootNode){
 		podc_global.BootNodePort = addr.Port
+		podc_global.BootNodeID = PubkeyID(&priv.PublicKey).String()
 	}
 	log.Info("net.ListenUDP up: addr ", "self",laddr)
 	if err != nil {
@@ -700,8 +701,9 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	}
 
 
-	if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
 
+
+	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
 		if !podc_global.BootNodeReady{
 			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 			fmt.Println("Bootnode Requesting")
@@ -710,15 +712,24 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			t.send(from , requestQmanPacket, &ps)
 		}
 
+		if podc_global.BootNodeReady {
+			ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+			fmt.Println("BOOTNODE SEND DATA")
+			fmt.Println(from, fromID)
+
+			t.send(podc_global.QManagerAddress , qmanagerPacket, &ps)
+		}
+
 	}
 
-	if podc_global.BootNodeReady {
-		ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-		fmt.Println("BOOTNODE SEND DATA")
-		fmt.Println(from, fromID)
+	//
+	//if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
+	//
+	//
+	//
+	//}
 
-		t.send(podc_global.QManagerAddress , qmanagerPacket, &ps)
-	}
+
 
 	return nil
 }
@@ -802,7 +813,8 @@ func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 		return errExpired
 	}
 
-	if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
+	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
+		//if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
 		fmt.Println("Recieved Qman Address")
 		//ps := recieveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		//fmt.Println(fromID)
