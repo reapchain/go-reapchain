@@ -271,7 +271,11 @@ func main() {
 	}
 	var restrictList *netutil.Netlist
 	if *netrestrict != "" {
-		restrictList, err = netutil.ParseNetlist(*netrestrict)
+		restrictList, err = netutil.ParseNetlist(*netrestrict)  //// ParseCIDR parses s as a CIDR notation IP address and prefix length,
+		// like "192.0.2.0/24"
+		//amazon:inet 172.31.6.169  netmask 255.255.240.0  broadcast 172.31.15.255 => CIDR TYPE:   	172.31.6.169/20
+		//제한 ip 범위: 172.31.0.0 ~ 172.31.15.255
+	    // https://www.ipaddressguide.com/cidr
 		if err != nil {
 			utils.Fatalf("-netrestrict: %v", err)
 		}

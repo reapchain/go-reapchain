@@ -709,7 +709,7 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			fmt.Println("Bootnode Requesting")
 
 			fmt.Println(from, fromID)
-			t.send(from , requestQmanPacket, &ps)
+			t.send(from , requestQmanPacket, &ps)  //broadcast to all to the world. ..
 		}
 
 		if podc_global.BootNodeReady {

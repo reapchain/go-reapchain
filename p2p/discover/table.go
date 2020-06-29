@@ -53,7 +53,7 @@ const (
 
 type Table struct {
 	mutex   sync.Mutex        // protects buckets, their content, and nursery
-	buckets [nBuckets]*bucket // index of known nodes by distance
+	buckets [nBuckets]*bucket // index of known nodes by distance  //알려진 노드들 담는 버킷, 피어 노드들을 최근 활동순으로 정렬된 목록 라우팅테이블에 버킷 형태로 유지
 	nursery []*Node           // bootstrap nodes
 	db      *nodeDB           // database of known nodes
 
