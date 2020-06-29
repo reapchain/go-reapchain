@@ -116,6 +116,7 @@ func RecoverPubkey(msg []byte, sig []byte) ([]byte, error) {
 	if C.secp256k1_ecdsa_recover_pubkey(context, (*C.uchar)(unsafe.Pointer(&pubkey[0])), sigdata, msgdata) == 0 {
 		return nil, ErrRecoverFailed
 	}
+
 	return pubkey, nil
 }
 
