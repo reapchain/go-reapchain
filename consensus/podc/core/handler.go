@@ -164,7 +164,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	case msgDSelect:
 		return testBacklog(c.handleDSelect(msg, src))
 	case msgCoordinatorDecide:
-		return testBacklog(c.handleCoordinatorDecide(msg, src))
+		return testBacklog(c.handleCoordinatorDecide(msg, src))  //레이싱 시작 메시지 전송
 	case msgRacing:
 		return testBacklog(c.handleRacing(msg, src))
 	case msgCandidateDecide:
@@ -183,7 +183,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	case msgCoordinatorConfirmRequest:
 		return testBacklog(c.CoordinatorConfirmation(msg, src))
 	case msgCoordinatorConfirmSend:
-		return testBacklog(c.handleCoordinatorConfirm(msg, src))
+		return testBacklog(c.handleCoordinatorConfirm(msg, src))  //c.criteria 결정,
 
 	default:
 		logger.Error("Invalid message", "msg", msg)

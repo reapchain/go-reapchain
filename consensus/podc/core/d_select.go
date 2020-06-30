@@ -190,7 +190,7 @@ func (c *core) handleCoordinatorConfirm(msg *message, src podc.Validator) error 
 
 func (c *core) handleCoordinatorDecide(msg *message, src podc.Validator) error {
 	if c.tag != podc.Coordinator {
-		c.sendRacing(src.Address())
+		c.sendRacing(src.Address())  //레이싱 시작 메시지 전송
 	}
 
 	return nil
@@ -211,10 +211,11 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 	return nil
 }
 
-func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error {
+func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error {  //커밋단계로 진입
 	if c.state == StatePreprepared {
 		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
+		c.setState(StateDSelected)  //D-selected 상태로 설정하고, 커밋 상태로 진입.
 		c.sendDCommit()  // msgCommit 를 통하여, 메시지핸들러에서, handleDCommit를 실행, 여기서 c.verifyDCommit에서 inconsistent 발생,
 	}
 
