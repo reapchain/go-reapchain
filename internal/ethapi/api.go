@@ -348,6 +348,7 @@ func (s *PrivateAccountAPI) SendTransaction(ctx context.Context, args SendTxArgs
     if err != nil {
         return common.Hash{}, err
     }
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)
 
     return submitTransaction(ctx, s.b, signed)
 }
@@ -1277,6 +1278,7 @@ func (s *PublicTransactionPoolAPI) SendTransaction(ctx context.Context, args Sen
 	if err != nil {
 		return common.Hash{}, err
 	}
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), signed)
 
 	return submitTransaction(ctx, s.b, signed)
 }
@@ -1288,6 +1290,7 @@ func (s *PublicTransactionPoolAPI) SendRawTransaction(ctx context.Context, encod
 	if err := rlp.DecodeBytes(encodedTx, tx); err != nil {
 		return "", err
 	}
+	types.TxChecking(types.MakeSigner(s.b.ChainConfig(), s.b.CurrentBlock().Number()), tx)
 
 	if err := s.b.SendTx(ctx, tx); err != nil {
 		return "", err
