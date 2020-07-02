@@ -23,6 +23,7 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
+	"github.com/ethereum/go-ethereum/log"
 )
 
 // sendNextRoundChange sends the round change message with current round + 1
@@ -68,12 +69,50 @@ func (c *core) sendRoundChange(round *big.Int) {
 		Msg:  payload,
 	})
 }
+/*
+모든 상태에서 Round Change상태로 올수 있다.
 
+라운드체인지로 오면, 곧바로 뉴라운드 시작한다.
+
+예외사항:
+
+Qmanager에 Extra data request 단계에서는 라운드 체인지 안함.
+
+
+
+
+
+
+
+
+*/
 func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 	logger := c.logger.New("state", c.state)
-		// Decode round change message
+	// Decode round change message
+	if c.lastSequence.Cmp(common.Big0) == 0 {  // x==y => 0
+		//log.Info("Started initialized")
+	}else{
+		log.Info("lastSequence(handleRoundChange) : loaded from file ", "lastSequence", c.lastSequence)
+	}
+
+	//if c.state == StateRequestQman  {
+	//	return nil
+	//}
+	//   -1 if x <  y
+	//    0 if x == y
+	//   +1 if x >  y
 		var rc *roundChange
-	if( !podc_global.QManConnected ) { // if i'm not Qman and general geth. then roundchange and start new round. for qman, don't roundchange, it is not necessary.
+	//if( !podc_global.QManConnected && ( c.state != StateRequestQman && c.state != StateDSelected) ){
+	if( !podc_global.QManConnected &&  c.lastSequence.Cmp(common.Big0) > 0 && c.state != StateRequestQman ){  //if geth, && lastSequence >0, 노드 죽이고 재기동시 lastSequence 는 0이 아닌. 저장된 일련번호를 가져옴.
+
+		//if lastSequence.Cmp(common.Big0) > 0 {
+		//	p, err := sb.Author(curHeader)
+		//	if err != nil {
+		//		return err
+		//	}
+		//	lastProposer = p
+		//}
+	//if( !podc_global.QManConnected ) { // if i'm not Qman and general geth. then roundchange and start new round. for qman, don't roundchange, it is not necessary.
 
 		if err := msg.Decode(&rc); err != nil {
 			logger.Error("Failed to decode round change", "err", err)

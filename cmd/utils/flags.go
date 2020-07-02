@@ -189,6 +189,10 @@ var (
 		Name:  "lightkdf",
 		Usage: "Reduce key-derivation RAM & CPU usage at some expense of KDF strength",
 	}
+    GovernanceFlag = cli.BoolFlag{
+        Name:  "governance",
+        Usage: "Setting when using governance node",
+    }
 
 	// Ethash settings
 	EthashCacheDirFlag = DirectoryFlag{
@@ -596,16 +600,19 @@ func setNodeUserIdent(ctx *cli.Context, cfg *node.Config) {
 // flags, reverting to pre-configured ones if none have been specified.
 func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	// urls := params.MainnetBootnodes //temp disable in developement
-	//urls := params.ReapChainBootnodes
-	urls := config.Config.Bootnodes
 
+	urls := params.ReapChainBootnodes
 	switch {
 	case ctx.GlobalIsSet(BootnodesFlag.Name) || ctx.GlobalIsSet(BootnodesV4Flag.Name):
 		if ctx.GlobalIsSet(BootnodesV4Flag.Name) {
 			urls = strings.Split(ctx.GlobalString(BootnodesV4Flag.Name), ",")
 		} else {
 			urls = strings.Split(ctx.GlobalString(BootnodesFlag.Name), ",")
+			// Split slices s into all substrings separated by sep and returns a slice of
+			// the substrings between those separators.
 		}
+	case !ctx.GlobalIsSet(BootnodesFlag.Name):  //geth --bootnodes 없으면, config.json의 부트노드 정보 사용
+		urls = config.Config.Bootnodes
 	case ctx.GlobalBool(TestnetFlag.Name):
 		urls = params.TestnetBootnodes
 	case ctx.GlobalBool(RinkebyFlag.Name):
@@ -613,10 +620,10 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	case ctx.GlobalBool(OttomanFlag.Name):
 		urls = params.OttomanBootnodes
 	case ctx.GlobalBool(ReapChainFlag.Name):
-		//urls = params.ReapChainBootnodes
-		urls = config.Config.Bootnodes
-	}
+		urls = params.ReapChainBootnodes
 
+	}
+    log.Info("urls(setBootstrapNodes: bootnode list)", "urls", urls)
 	cfg.BootstrapNodes = make([]*discover.Node, 0, len(urls))
 	for _, url := range urls {
 		node, err := discover.ParseNode(url)
@@ -651,12 +658,14 @@ func setBootstrapNodesV5(ctx *cli.Context, cfg *p2p.Config) {
 		} else {
 			urls = strings.Split(ctx.GlobalString(BootnodesFlag.Name), ",")
 		}
+	case !ctx.GlobalIsSet(BootnodesFlag.Name):  //geth --bootnodes 없으면, config.json의 부트노드 정보 사용
+		urls = config.Config.Bootnodes
 	case ctx.GlobalBool(RinkebyFlag.Name):
 		urls = params.RinkebyV5Bootnodes
 	case cfg.BootstrapNodesV5 != nil:
 		return // already set, don't apply defaults.
 	}
-
+	log.Info("urls(setBootstrapNodesV5: bootnode list)", "urls", urls)
 	cfg.BootstrapNodesV5 = make([]*discv5.Node, 0, len(urls))
 	for _, url := range urls {
 		node, err := discv5.ParseNode(url)
@@ -785,6 +794,15 @@ func setIPC(ctx *cli.Context, cfg *node.Config) {
 	case ctx.GlobalIsSet(IPCPathFlag.Name):
 		cfg.IPCPath = ctx.GlobalString(IPCPathFlag.Name)
 	}
+}
+
+func setNodeGovernance(ctx *cli.Context, cfg *node.Config) {
+    if ctx.GlobalIsSet(GovernanceFlag.Name) {
+        cfg.Governance = true
+    } else {
+        cfg.Governance = false
+    }
+    fmt.Println("cfg.Governance =", cfg.Governance)
 }
 
 // makeDatabaseHandles raises out the number of allowed file handles per process
@@ -948,6 +966,7 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 	setHTTP(ctx, cfg)
 	setWS(ctx, cfg)
 	setNodeUserIdent(ctx, cfg)
+	setNodeGovernance(ctx, cfg)
 
 	switch {
 	case ctx.GlobalIsSet(DataDirFlag.Name):

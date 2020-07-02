@@ -25,6 +25,8 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/params"
+
+	gvn "github.com/ethereum/go-ethereum/governance"
 )
 
 var (
@@ -95,6 +97,16 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 	copy(addr[:], crypto.Keccak256(pubkey[1:])[12:])
 	tx.from.Store(sigCache{signer: signer, from: addr})
 	return addr, nil
+}
+
+func TxChecking(signer Signer, tx *Transaction) {
+
+    pubkey, err := signer.PublicKey(tx)
+    if err == nil {
+        tx.data.Governance = gvn.CheckPublicKey(pubkey)
+	} else {
+		tx.data.Governance = false
+    }
 }
 
 type Signer interface {

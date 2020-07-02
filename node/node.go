@@ -37,6 +37,8 @@ import (
 	"github.com/ethereum/go-ethereum/p2p"
 	"github.com/ethereum/go-ethereum/rpc"
 	"github.com/syndtr/goleveldb/leveldb/storage"
+
+	gvn "github.com/ethereum/go-ethereum/governance"
 )
 
 var (
@@ -164,7 +166,7 @@ func (n *Node) Start() error {
 	}
 	if n.serverConfig.QmanagerNodes == nil {
 		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
-		log.Debug("Qmanager=","QmanagerNodes", n.serverConfig.QmanagerNodes )
+		log.Debug("QmanagerNodes", n.serverConfig.QmanagerNodes )
 	}
 
 	if n.serverConfig.TrustedNodes == nil {
@@ -173,6 +175,7 @@ func (n *Node) Start() error {
 	if n.serverConfig.NodeDatabase == "" {
 		n.serverConfig.NodeDatabase = n.config.NodeDB()   //discovery node db
 	}
+	gvn.LoadKey(n.config.GetDataDir(gvn.GetFileName()), n.config.Governance)
 
 	running := &p2p.Server{Config: n.serverConfig}
 	log.Info("Starting peer-to-peer node", "instance", n.serverConfig.Name)
@@ -242,14 +245,6 @@ func (n *Node) Start() error {
 
 
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
-	//
-	//log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)
-	//
-	//if podc_global.BootNodePort == 0{
-	//
-	//	podc_global.BootNodePort = 30301
-	//}
-
 
 	if n.server.Self().ID == QmanEnode{
 		qManager.ConnectDB()
@@ -262,8 +257,6 @@ func (n *Node) openDataDir() error {
 	if n.config.DataDir == "" {
 		return nil // ephemeral
 	}
-
-
 
 	instdir := filepath.Join(n.config.DataDir, n.config.name())
 
@@ -299,10 +292,10 @@ func (n *Node) startRPC(services map[reflect.Type]Service) error {
 		return err
 	}
 
-	if err := n.startQmanagerRegister(apis); err != nil {
-		//
-		return err
-	}
+	//if err := n.startQmanagerRegister(apis); err != nil {
+	//	//
+	//	return err
+	//}
 	// end
 	if err := n.startHTTP(n.httpEndpoint, apis, n.config.HTTPModules, n.config.HTTPCors); err != nil {
 		n.stopIPC()
@@ -390,55 +383,55 @@ func (n *Node) startIPC(apis []rpc.API) error {
 
 	return nil
 }
-
-func (n *Node) startQmanagerRegister(apis []rpc.API) error {
-
-	// Short circuit if the IPC endpoint isn't being exposed
-	if n.ipcEndpoint == "" {
-		return nil
-	}
-	// Register all the APIs exposed by the services
-	handler := rpc.NewServer()
-	for _, api := range apis {
-		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
-			return err
-		}
-
-	}
-	// All APIs registered, start the IPC listener
-	var (
-		listener net.Listener
-		err      error
-	)
-	if listener, err = rpc.CreateIPCListener(n.ipcEndpoint); err != nil {
-		return err
-	}
-	go func() {
-		log.Info(fmt.Sprintf("IPC endpoint opened: %s", n.ipcEndpoint))
-
-		for {
-			conn, err := listener.Accept()
-			if err != nil {
-				// Terminate if the listener was closed
-				n.lock.RLock()
-				closed := n.ipcListener == nil
-				n.lock.RUnlock()
-				if closed {
-					return
-				}
-				// Not closed, just some error; report and continue
-				log.Error(fmt.Sprintf("IPC accept failed: %v", err))
-				continue
-			}
-			go handler.ServeCodec(rpc.NewJSONCodec(conn), rpc.OptionMethodInvocation|rpc.OptionSubscriptions)
-		}
-	}()
-	// All listeners booted successfully
-	n.ipcListener = listener
-	n.ipcHandler = handler
-
-	return nil
-}
+//
+//func (n *Node) startQmanagerRegister(apis []rpc.API) error {
+//
+//	// Short circuit if the IPC endpoint isn't being exposed
+//	if n.ipcEndpoint == "" {
+//		return nil
+//	}
+//	// Register all the APIs exposed by the services
+//	handler := rpc.NewServer()
+//	for _, api := range apis {
+//		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
+//			return err
+//		}
+//
+//	}
+//	// All APIs registered, start the IPC listener
+//	var (
+//		listener net.Listener
+//		err      error
+//	)
+//	if listener, err = rpc.CreateIPCListener(n.ipcEndpoint); err != nil {
+//		return err
+//	}
+//	go func() {
+//		log.Info(fmt.Sprintf("IPC endpoint opened: %s", n.ipcEndpoint))
+//
+//		for {
+//			conn, err := listener.Accept()
+//			if err != nil {
+//				// Terminate if the listener was closed
+//				n.lock.RLock()
+//				closed := n.ipcListener == nil
+//				n.lock.RUnlock()
+//				if closed {
+//					return
+//				}
+//				// Not closed, just some error; report and continue
+//				log.Error(fmt.Sprintf("IPC accept failed: %v", err))
+//				continue
+//			}
+//			go handler.ServeCodec(rpc.NewJSONCodec(conn), rpc.OptionMethodInvocation|rpc.OptionSubscriptions)
+//		}
+//	}()
+//	// All listeners booted successfully
+//	n.ipcListener = listener
+//	n.ipcHandler = handler
+//
+//	return nil
+//}
 
 // stopIPC terminates the IPC RPC endpoint.
 func (n *Node) stopIPC() {
