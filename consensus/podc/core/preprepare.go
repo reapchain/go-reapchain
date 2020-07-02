@@ -28,7 +28,14 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 	log.Info("2. Interval time between start new round and pre-prepare", "elapsed", common.PrettyDuration(time.Since(c.startTime)))
 	c.intervalTime = time.Now()
 
+	// Decode round change message
+	if c.lastSequence.Cmp(common.Big0) == 0 {  // x==y => 0
+		//log.Info("Started initialized")
+	}else{
+		log.Info("lastSequence(sendRequestExtraDataToQman) : loaded from file ", "lastSequence", c.lastSequence)
+	}
 	// If I'm the proposer and I have the same sequence with the proposal
+	log.Info("lastSequence(sendRequestExtraDataToQman):", "currentSequence", c.current.Sequence(), "request.Proposal No", request.Proposal.Number(), "Is Propose?", c.isProposer())
 	if c.current.Sequence().Cmp(request.Proposal.Number()) == 0 && c.isProposer() { //?
 		curView := c.currentView()
 		preprepare, err := Encode(&podc.Preprepare{
@@ -98,9 +105,10 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			log.Info("I'm Proposer!!!!!!!")
 		}
 		// Verify the proposal we received
+		// If Invalid proposal
 		if err := c.backend.Verify(preprepare.Proposal); err != nil {
 			logger.Warn("handleQmanager: Failed to verify proposal", "err", err) //?
-			c.sendNextRoundChange()                                              //important : inconsistent mismatch ...
+			c.sendNextRoundChange()                                                 //important : inconsistent mismatch ...
 			return err
 		}
 
@@ -141,7 +149,7 @@ func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
 	}
 
 		if c.valSet.IsProposer(c.Address()){
-			log.Info("I'm Proposer!!!!!!!")
+			log.Info("I'm Proposer(handlePreprepare)!!!!!!!")
 		}
 		// Verify the proposal we received
 		if err := c.backend.Verify(preprepare.Proposal); err != nil{

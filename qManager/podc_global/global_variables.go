@@ -1,7 +1,6 @@
 package podc_global
 
 import (
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/syndtr/goleveldb/leveldb"
 	"net"
 )
@@ -28,11 +27,12 @@ type (
 )
 
 func CheckBootNodePortAndID(NodeID string, Port int) bool{
-	//log.Info("BootNode", "ID = ", NodeID)
-	//log.Info("BootNode", "IP Addr = ", Port)
+
+	//log.Info("Self Node", "ID = ", NodeID)  //?
+	//log.Info("Self Port", "Port = ", Port)  //?
 	//
-	//log.Info("Global", "ID = ", BootNodeID)
-	//log.Info("Global", "IP Addr = ", BootNodePort)
+	//log.Info("Remote Bootnode ID", "ID = ", BootNodeID)
+	//log.Info("Remote Bootnode Port", "BootNodePort = ", BootNodePort)
 
 	 if NodeID == BootNodeID && Port == BootNodePort{
 	 	return true

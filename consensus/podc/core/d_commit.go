@@ -36,7 +36,7 @@ func (c *core) sendDCommit() {   //전송과
 		logger.Warn("sendDCommit(StateDSelected)")
 
 		sub := c.current.Subject()
-		log.Info("I'm  not the Qmanager : sendDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+		log.Info("sendDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
 
 		if sub == nil {
 			logger.Error("Failed to get Subject")
@@ -55,13 +55,13 @@ func (c *core) sendDCommit() {   //전송과
 }
 //==============================
 func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수신 핸들러가 같은 프로그램에 있음. 상태 천이로,, 해야함.
-	logger := c.logger.New("from", src, "state", c.state)
-	logger.Warn("handleDCommit:")
+	//logger := c.logger.New("from", src, "state", c.state)
+	//logger.Warn("handleDCommit:")
 	// Decode commit message
 	var commit *podc.Subject
 	err := msg.Decode(&commit)  //commit 으로 메모리번지를 통해서, round와 sequence를 가져옴.
 	if( !podc_global.QManConnected && c.state != StateRequestQman ) {
-		log.Info("I'm  not the Qmanager : handleDCommit ", "commit.View.Sequence", commit.View.Sequence, "commit.View.Round", commit.View.Round)
+		//log.Info("handleDCommit ", "commit.View.Sequence", commit.View.Sequence, "commit.View.Round", commit.View.Round)
 		if err != nil {
 			return errFailedDecodeCommit
 		}

@@ -133,7 +133,7 @@ func (c *core) processBacklog() {
 			case 	msgCandidateDecide:    //3. 후보군 결정
 
 
-			//case 	msgRoundChange:
+			case 	msgRoundChange:
 			//Qmanager와 주고 받는 것 :
 			case 	msgHandleQman:
 			case 	msgExtraDataRequest:
