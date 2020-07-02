@@ -31,11 +31,8 @@ var Modules = map[string]string{
 	"swarmfs":    SWARMFS_JS,
 	"txpool":     TxPool_JS,
 	"istanbul":   Istanbul_JS,
-	"" +
-		"" +
-		"": PoDC_JS,
+	"PoDC":       PoDC_JS,
 }
-
 const Chequebook_JS = `
 web3._extend({
   property: 'chequebook',
