@@ -656,6 +656,9 @@ func (req *pong) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) er
 		return errUnsolicitedReply
 	}
 
+
+
+
 	//if t.conn.LocalAddr().(*net.UDPAddr).Port == qManager.BootNodePort {
 	//	fmt.Println("Pong From:", fromID)
 	//}
@@ -680,6 +683,8 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		// (which is a much bigger packet than findnode) to the victim.
 		return errUnknownNode
 	}
+
+
 	target := crypto.Keccak256Hash(req.Target[:])
 	t.mutex.Lock()
 	closest := t.closest(target, bucketSize).entries
@@ -700,9 +705,6 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		}
 	}
 
-
-
-
 	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
 		if !podc_global.BootNodeReady{
 			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
@@ -721,6 +723,10 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		}
 
 	}
+
+
+
+
 
 	//
 	//if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
@@ -792,6 +798,9 @@ func (req *requestQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 		return errExpired
 	}
 
+	log.Info("Bootnode Requesting Reply", "Node ID = ", t.self.ID.String())
+
+
 	if podc_global.QManConnected {
 		fmt.Println("Qman Sending Address")
 		ps := receiveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
@@ -812,6 +821,7 @@ func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []b
 	if expired(req.Expiration) {
 		return errExpired
 	}
+
 
 	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
 		//if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {

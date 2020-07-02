@@ -1,7 +1,6 @@
 package podc_global
 
 import (
-	"github.com/ethereum/go-ethereum/log"
 	"github.com/syndtr/goleveldb/leveldb"
 	"net"
 )
