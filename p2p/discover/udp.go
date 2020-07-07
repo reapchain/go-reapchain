@@ -708,7 +708,7 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
 		if !podc_global.BootNodeReady{
 			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-			fmt.Println("Bootnode Requesting")  //bootnode에서 Qmanager에게 요청 ?
+			fmt.Println("Bootnode Requesting")
 
 			fmt.Println(from, fromID)
 			t.send(from , requestQmanPacket, &ps)  //broadcast to all to the world. ..

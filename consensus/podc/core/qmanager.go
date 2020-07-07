@@ -86,7 +86,7 @@ func generateExtraData() []ValidatorInfo{
 func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 	if podc_global.QManConnected{
 
-		log.Info("Qman:Received EXTRA DATA REQUEST from geth")
+		log.Info("Received EXTRA DATA REQUEST from geth")
 
 		Counter = Counter + 1
 		log.Info("Round", "Count: ", Counter)

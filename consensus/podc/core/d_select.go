@@ -65,7 +65,6 @@ func (c *core) sendDSelect() {
 }
 
 func (c *core) sendExtraDataRequest() {
-	log.Info("sendExtraDataRequest")
 	c.send(&message{
 		Code: msgExtraDataRequest,
 		Msg: []byte("extra data request testing."),

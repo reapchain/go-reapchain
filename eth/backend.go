@@ -143,7 +143,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 
 	if  (chainConfig.PoDC != nil) {
 		eth.etherbase = params.FeeAddress
-		//log.Info("Now :", "chainConfig.PoDC", chainConfig.PoDC )
+		log.Info("Now :", "chainConfig.PoDC", chainConfig.PoDC )
 	}
 	if err := addMipmapBloomBins(chainDb); err != nil {
 		return nil, err

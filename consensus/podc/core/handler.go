@@ -32,7 +32,7 @@ import (
 func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error {
 	// Initialize last proposer
 	log.Info("lastSequence", "lastSequence", lastSequence)
-    c.lastSequence = lastSequence
+
 	c.lastProposer = lastProposer
 	var err error
 	if( qmanager == nil ) {
@@ -98,7 +98,7 @@ func (c *core) handleEvents() {
 		switch ev := event.Data.(type) {
 		case podc.RequestEvent:
 			c.startTime = time.Now()
-			//log.Info("1. Start")
+			log.Info("1. Start")
 			r := &podc.Request{
 				Proposal: ev.Proposal,
 			}
@@ -175,7 +175,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))
-//Qman related -begin
+
 	case msgExtraDataRequest:
 		return testBacklog(c.handleExtraData(msg, src))
 	case msgExtraDataSend:
@@ -184,7 +184,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.CoordinatorConfirmation(msg, src))
 	case msgCoordinatorConfirmSend:
 		return testBacklog(c.handleCoordinatorConfirm(msg, src))  //c.criteria 결정,
-//Qman related -end
+
 	default:
 		logger.Error("Invalid message", "msg", msg)
 	}
