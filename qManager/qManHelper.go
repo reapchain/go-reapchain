@@ -45,6 +45,8 @@ func ConnectDB() {
 
 	}
 
+	go Start()
+
 }
 
 func IsQmanager() (isQMan bool){
