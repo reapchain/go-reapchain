@@ -73,7 +73,7 @@ func generateExtraData() []ValidatorInfo{
 		validatorInfo := ValidatorInfo{}
 		validatorInfo.Address = decodedAddress
 		validatorInfo.Qrnd = num
-		validatorInfo.Tag = podc.Candidate
+		validatorInfo.Tag = podc.Tag(decodedBytes.Tag)
 
 		extra = append(extra, validatorInfo)
 		//i++
@@ -119,9 +119,12 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 			}
 		}
 
+
 		//log.Info("ExtraData list", "extradata", extra)
 
 		//defer db.Close()
+		log.Info("QManager", "ExtraData Length: ", len(extra))
+		log.Info("QManager", "ExtraData: ", extra)
 		extraDataJson, err := json.Marshal(extra)
 		if err != nil {
 			log.Error("Failed to encode JSON", err)

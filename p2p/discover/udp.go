@@ -708,18 +708,23 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
 		if !podc_global.BootNodeReady{
 			ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-			fmt.Println("Bootnode Requesting")
+			fmt.Println("Bootnode Requesting Qmanager Connection")
 
 			fmt.Println(from, fromID)
 			t.send(from , requestQmanPacket, &ps)  //broadcast to all to the world. ..
 		}
 
 		if podc_global.BootNodeReady {
-			ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-			fmt.Println("BOOTNODE SEND DATA")
-			fmt.Println(from, fromID)
+			if from.String() != podc_global.QManagerAddress.String(){
+				ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+				//fmt.Println("QMANAGER ", podc_global.QManagerAddress)
+				fmt.Println("BOOTNODE SEND DATA TO QMANAGER")
+				fmt.Println("Address: ", from)
+				fmt.Println("ID: ", fromID)
 
-			t.send(podc_global.QManagerAddress , qmanagerPacket, &ps)
+				t.send(podc_global.QManagerAddress , qmanagerPacket, &ps)
+			}
+
 		}
 
 	}
@@ -769,14 +774,15 @@ func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 
 	node_pubKey, _ := req.Node.Pubkey()
 	pubBytes := crypto.FromECDSAPub(node_pubKey)
-	qManagerNodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
+	nodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
 
-	qNode := podc_global.QManDBStruct{req.Node.String(), qManagerNodeAddress.String(), timestamp }
-	nodeFound := qManager.FindNode(req.Node.String())
+
+	qNode := podc_global.QManDBStruct{ID: req.Node.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: 2 }
+	nodeFound := qManager.FindNode(nodeAddress.String())
 
 	if !nodeFound {
-		log.Info("Qmanager New Entry", "ID = ", req.Node)
+		log.Info("Qmanager New Entry", "ID = ", req.Node.String())
 		saveError := qManager.Save(qNode)
 		if !saveError {
 			//fmt.Println("Save Error")

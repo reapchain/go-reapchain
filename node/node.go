@@ -244,6 +244,7 @@ func (n *Node) Start() error {
 	log.Info("NODE SELF", "n.server" , n.server.Self())
 
 
+
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
 	//
 	//log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)
@@ -257,6 +258,8 @@ func (n *Node) Start() error {
 	if n.server.Self().ID == QmanEnode{
 		qManager.ConnectDB()
 		podc_global.QManConnected = true
+		podc_global.QManPubKey, _ = n.server.Self().ID.Pubkey()
+
 	}
 	return nil
 }

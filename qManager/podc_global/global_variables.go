@@ -1,6 +1,7 @@
 package podc_global
 
 import (
+	"crypto/ecdsa"
 	"github.com/syndtr/goleveldb/leveldb"
 	"net"
 )
@@ -16,6 +17,7 @@ var (
 	BootNodePort int
 	BootNodeID string
 	IsBootNode bool
+	QManPubKey *ecdsa.PublicKey
 )
 
 type (
@@ -23,6 +25,7 @@ type (
 		ID      string
 		Address  string
 		Timestamp	string
+		Tag uint64
 	}
 )
 

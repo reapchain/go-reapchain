@@ -78,27 +78,25 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 
 
 
-	// var t []test_struct
-	// err = json.Unmarshal(body, &t)
-	// if err != nil {
-	//     panic(err)
-	// }
-
-	m := Message{
-		Message: "Success",
-		Code: http.StatusOK,
+	var t []test_struct
+	err = json.Unmarshal(body, &t)
+	if err != nil {
+	    panic(err)
 	}
+
+
+
 	// // b, err := json.Marshal(m)
 
 	// // p := "[{'Code': 'SUCCESS'},]"
-	// for index, element := range t {
-	// 	// log.Println(element)
-	// 	// log.Println("%d",index);
-	// 	log.Printf("Index: %d, Address:  %s, Tag: %s", index, element.Validator, element.Tag)
-	// 	// log.Println("Index: " + index + ", Address: " + element.Validator + ", Tag: " + element.Tag)
-	// 	// index is the index where we are
-	// 	// element is the element from someSlice for where we are
-	// }
+	for index, element := range t {
+		// log.Println(element)
+		// log.Println("%d",index);
+		log.Printf("Index: %d, Address:  %s, Tag: %s", index, element.Validator, element.Tag)
+		// log.Println("Index: " + index + ", Address: " + element.Validator + ", Tag: " + element.Tag)
+		// index is the index where we are
+		// element is the element from someSlice for where we are
+	}
 
 	// privateKeyFile, err := os.Open("private_key.pem")
 	// if err != nil {
@@ -137,12 +135,23 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 	// }
 	// fmt.Println("Decrypt", string(dedata))
 	timestamp := time.Now().String()
-	t, _ := time.Parse(timestamp, "2006-01-02 15:04:05")
-	fmt.Println(t)
+	ts, _ := time.Parse(timestamp, "2006-01-02 15:04:05")
+	fmt.Println(ts)
 
-	json.NewEncoder(w).Encode(m)
+
 	// w.WriteHeader(http.StatusCreated)
 	// json.NewEncoder(w).Encode(data)
+
+	m := Message{
+		Message: "Success",
+		Code: http.StatusOK,
+	}
+
+	json.NewEncoder(w).Encode(m)
+
+	log.Printf("HTTP Server Response Sent")
+
+
 }
 func headers(w http.ResponseWriter, req *http.Request) {
 
