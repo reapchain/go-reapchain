@@ -3,12 +3,13 @@ package qManager
 import (
 	"bytes"
 	"encoding/binary"
+	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/consensus/quantum"
 	//"fmt"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/syndtr/goleveldb/leveldb"
-	"github.com/ethereum/go-ethereum/consensus/quantum"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	//"math/rand"
 	"os"
 	"time"
@@ -125,6 +126,57 @@ func expirationCheck() {
 //
 //	return found_value
 //}
+
+
+func UpdateSenatorCandidateNodes() {
+	if podc_global.QManConnected {
+
+		for _, element := range podc_global.GovernanceList {
+			nodeAddress := element.Validator
+
+			node_address_encoded,_ := rlp.EncodeToBytes(nodeAddress)
+			foundNode, err := podc_global.QManagerStorage.Get(node_address_encoded, nil)
+			if err != nil {
+				log.Info("QManager", "DB --", "Node Not Found")
+
+			}
+
+			if foundNode != nil{
+				var decodedBytes  podc_global.QManDBStruct
+				DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
+				if DecodeErr != nil {
+					log.Info("Qmanager", "Decoding Error", DecodeErr.Error())
+				}
+
+				var encodedStruct *podc_global.QManDBStruct
+				initBytes, err := rlp.EncodeToBytes(encodedStruct)
+
+				if err != nil {
+					log.Info("QManager DB Save", "err --", err)
+
+				}
+				tagConverted, _ := math.ParseUint64(element.Tag)
+				encodedStruct = &podc_global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address,
+					Timestamp: decodedBytes.Timestamp, Tag:tagConverted }
+
+
+				//t, _ := time.Parse("2006-01-02 15:04:05", encodedStruct.Timestamp)
+				//fmt.Println(t)
+				initBytes, err = rlp.EncodeToBytes(encodedStruct)
+
+				if err != nil {
+					log.Info("QManager DB Save", "err --", err)
+
+				}
+
+				saved :=  SaveToDB(node_address_encoded, initBytes)
+				if !saved {
+					log.Info("QManager DB Save", "err --", "UPDATE ERROR")
+				}
+			}
+		}
+	}
+}
 
 
 func FindNode(nodeAddress string) ( found bool) {

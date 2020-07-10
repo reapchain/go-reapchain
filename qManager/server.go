@@ -1,7 +1,8 @@
 package qManager
 
 import (
-"net/http"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"net/http"
 "encoding/json"
 "log"
 //"encoding/hex"
@@ -20,10 +21,7 @@ import (
 
 )
 
-type test_struct struct {
-	Validator string
-	Tag string
-}
+
 
 type Message struct {
 	Message string
@@ -78,25 +76,33 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 
 
 
-	var t []test_struct
-	err = json.Unmarshal(body, &t)
+	var govStruct []podc_global.GovStruct
+	err = json.Unmarshal(body, &govStruct)
 	if err != nil {
-	    panic(err)
+		m := Message{
+			Message: "Error",
+			Code: http.StatusBadRequest,
+		}
+
+		json.NewEncoder(w).Encode(m)
+		return
 	}
+
+
 
 
 
 	// // b, err := json.Marshal(m)
 
 	// // p := "[{'Code': 'SUCCESS'},]"
-	for index, element := range t {
-		// log.Println(element)
-		// log.Println("%d",index);
-		log.Printf("Index: %d, Address:  %s, Tag: %s", index, element.Validator, element.Tag)
-		// log.Println("Index: " + index + ", Address: " + element.Validator + ", Tag: " + element.Tag)
-		// index is the index where we are
-		// element is the element from someSlice for where we are
-	}
+	//for index, element := range t {
+	//	// log.Println(element)
+	//	// log.Println("%d",index);
+	//	log.Printf("Index: %d, Address:  %s, Tag: %s", index, element.Validator, element.Tag)
+	//	// log.Println("Index: " + index + ", Address: " + element.Validator + ", Tag: " + element.Tag)
+	//	// index is the index where we are
+	//	// element is the element from someSlice for where we are
+	//}
 
 	// privateKeyFile, err := os.Open("private_key.pem")
 	// if err != nil {
@@ -134,13 +140,15 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 	// 	panic(err)
 	// }
 	// fmt.Println("Decrypt", string(dedata))
-	timestamp := time.Now().String()
-	ts, _ := time.Parse(timestamp, "2006-01-02 15:04:05")
-	fmt.Println(ts)
+	//timestamp := time.Now().String()
+	//ts, _ := time.Parse(timestamp, "2006-01-02 15:04:05")
+	//fmt.Println(ts)
 
 
 	// w.WriteHeader(http.StatusCreated)
 	// json.NewEncoder(w).Encode(data)
+
+	podc_global.GovernanceList = govStruct
 
 	m := Message{
 		Message: "Success",
@@ -149,7 +157,9 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 
 	json.NewEncoder(w).Encode(m)
 
-	log.Printf("HTTP Server Response Sent")
+	go  UpdateSenatorCandidateNodes()
+
+	//log.Printf("HTTP Server Response Sent")
 
 
 }

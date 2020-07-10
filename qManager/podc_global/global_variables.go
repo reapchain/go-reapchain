@@ -18,6 +18,7 @@ var (
 	BootNodeID string
 	IsBootNode bool
 	QManPubKey *ecdsa.PublicKey
+	GovernanceList []GovStruct
 )
 
 type (
@@ -28,6 +29,11 @@ type (
 		Tag uint64
 	}
 )
+
+type GovStruct struct {
+	Validator string
+	Tag string
+}
 
 func CheckBootNodePortAndID(NodeID string, Port int) bool{
 	//log.Info("BootNode", "ID = ", NodeID)
