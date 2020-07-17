@@ -60,7 +60,7 @@ const (
 	DiscRequested DiscReason = iota
 	DiscNetworkError
 	DiscProtocolError
-	DiscUselessPeer
+	DiscUselessPeer  //접속 끊기 이유, 사용치 않는 피어. ?
 	DiscTooManyPeers
 	DiscAlreadyConnected
 	DiscIncompatibleVersion

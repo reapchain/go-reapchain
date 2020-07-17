@@ -234,7 +234,7 @@ func (pm *protocolManager) removePeer(id string) {
 	}
 	// Hard disconnect at the networking layer
 	if peer != nil {
-		peer.Peer.Disconnect(p2p.DiscUselessPeer)
+		peer.Peer.Disconnect(p2p.DiscUselessPeer)  //useless peer..
 	}
 }
 
@@ -247,7 +247,7 @@ func (pm *protocolManager) Start( qman []*discover.Node ) {
 	go pm.minedBroadcastLoop()
 
 	// start sync handlers
-	go pm.syncer()
+	go pm.syncer()  //블럭 시퀀스 동기화 하는 루프..
 	go pm.txsyncLoop()
 }
 

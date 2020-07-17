@@ -86,6 +86,17 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 		// We never accept round change message with different sequence number
 		if rc.Sequence.Cmp(cv.Sequence) != 0 {
 			logger.Warn("Inconsistent sequence number(handleRoundChange)", "expected", cv.Sequence, "got", rc.Sequence)
+            // sequence no가 틀리면, 블럭 싱크 다시 맞춰주기 위해서, 싱크로나이즈 동작 수행 해주면 됨. 여기서,
+            // 싱크로나이즈를 수행하기 위해서 여기서 싱크코드 넣고, 시퀀스 맞춰지면,, 다시 startNewRound. 수행
+            // 메시지 fail 나는 경우, remove peer를 하기 때문에 쓸모없는 peer로,, 에러메시지 나오고, EOF,, 등등.
+            // 싱크 에러와, fetcher를,, 여기서 채널로,, fetcher or sync hanlder로,, 채널을 통해서 메시지르 보내면,
+            // eth/handler.go 의 synloop()에서,, 처리되게할 것.
+
+			//c.startNewRound(&podc.View{
+			//	Round:    new(big.Int).Set(rc.Round),
+			//	Sequence: new(big.Int).Set(rc.Sequence),
+			//}, true)
+
 			return errInvalidMessage
 		}
 

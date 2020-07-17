@@ -33,10 +33,10 @@ func (c *core) sendDCommit() {   //전송과
 	if( !podc_global.QManConnected && c.state== StateDSelected ){
 
 		logger := c.logger.New("state", c.state)
-		logger.Warn("sendDCommit(StateDSelected)")
+		//logger.Warn("sendDCommit(StateDSelected)")
 
 		sub := c.current.Subject()
-		log.Info("I'm  not the Qmanager : sendDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+		//log.Info("I'm  not the Qmanager : sendDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
 
 		if sub == nil {
 			logger.Error("Failed to get Subject")
