@@ -44,7 +44,7 @@ var DefaultConfig = Config{
 		ListenAddr:      ":30303",
 		//ListenLocalAddr:  ":30303",
 		DiscoveryV5Addr: ":30304",
-		MaxPeers:        25,
+		MaxPeers:        100,
 		NAT:             nat.Any(),
 	},
 }

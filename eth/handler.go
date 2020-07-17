@@ -114,6 +114,7 @@ type protocolManager struct {
 	txsyncCh    chan *txsync
 	quitSync    chan struct{}
 	noMorePeers chan struct{}
+	ValidatorSyncCh chan *peer  //added by channel by yichoi for validator sync. when add a new validator or validator reload and stop
 
 	// wait group is used for graceful shutdowns during downloading
 	// and processing
@@ -142,6 +143,7 @@ func newProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 		maxPeers:    maxPeers,
 		peers:       newPeerSet(),
 		newPeerCh:   make(chan *peer),
+		ValidatorSyncCh: make(chan *peer), //added for Validator sync
 		noMorePeers: make(chan struct{}),
 		txsyncCh:    make(chan *txsync),
 		quitSync:    make(chan struct{}),
@@ -174,6 +176,15 @@ func newProtocolManager(config *params.ChainConfig, mode downloader.SyncMode, ne
 					manager.wg.Add(1)
 					defer manager.wg.Done()
 					return manager.handle(peer, manager.handleMsg)
+
+
+					// To do after for some fixing
+				case manager.ValidatorSyncCh <- peer:
+					manager.wg.Add(1)
+					defer manager.wg.Done()
+					return manager.handle(peer, manager.handleMsg)
+					// end
+
 				case <-manager.quitSync:
 					return p2p.DiscQuitting
 				}

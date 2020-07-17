@@ -166,6 +166,13 @@ func (n *Node) Start() error {
 	}
 	if n.serverConfig.QmanagerNodes == nil {
 		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
+		if n.serverConfig.QmanagerNodes == nil {
+			pwd, err := os.Getwd()
+			if err != nil {
+				log.Debug("Can not find qmanager-nodes.json file in this folder", "Current Folder", pwd )
+			}
+
+		}
 		log.Debug("Qmanager=","QmanagerNodes", n.serverConfig.QmanagerNodes )
 	}
 
@@ -242,9 +249,10 @@ func (n *Node) Start() error {
 	n.server = running
 	n.stop = make(chan struct{})
 	log.Info("NODE SELF", "n.server" , n.server.Self())
-
-
-
+	if( len(n.serverConfig.QmanagerNodes) <= 0 ) {
+		log.Info("Qman is not set","Qman Enode", nil )
+		return nil
+	}
 	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
 	//
 	//log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)

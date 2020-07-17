@@ -75,6 +75,14 @@ func newPoDCProtocolManager(config *params.ChainConfig, mode downloader.SyncMode
 					manager.wg.Add(1)
 					defer manager.wg.Done()
 					return manager.handle(peer, manager.handleMsg)
+//
+				case manager.ValidatorSyncCh <- peer:
+					manager.wg.Add(1)  //? 양수, 음수 구분 및 나중에,, 추가 검
+					defer manager.wg.Done()
+					return manager.handle(peer, manager.handleMsg)
+
+					//
+
 				case <-manager.quitSync:
 					return p2p.DiscQuitting
 				}
@@ -133,6 +141,18 @@ func (pm *PoDCProtocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 			return errResp(ErrDecode, "msg %v: %v", msg, err)
 		}
 		return pm.engine.HandleMsg(pubKey, data)  // -> PoDC message handler : type PoDC interface.. /consensus.go
+	//
+
+
+
+
+
+
+
+
+
+	//
+
 	default:
 		// Invoke default protocol manager's message handler
 		return pm.protocolManager.handleMsg(p, msg) // -> general protocol message handler /eth/handler.go
