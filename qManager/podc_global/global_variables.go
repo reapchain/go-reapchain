@@ -13,6 +13,7 @@ var (
 	QManagerAddress *net.UDPAddr
 	BootNodeReady bool
 	QRNDDeviceStat bool
+	QRNGFilePrefix string
 	RandomNumbers []uint64
 	BootNodePort int
 	BootNodeID string

@@ -3,8 +3,11 @@ package qManager
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/consensus/quantum"
+	"runtime"
+
 	//"fmt"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
@@ -21,8 +24,27 @@ const NodeIDBits = 512
 
 func CheckQRNDStatus(){
 
-	if fileExists("/Volumes/PSoC USB/" + "up.ini") {
+	operatingSystem := runtime.GOOS
+	switch operatingSystem {
+	case "windows":
+		fmt.Println("Windows")
+	case "darwin":
+		podc_global.QRNGFilePrefix = "/Volumes/PSoC USB/"
+	case "linux":
+		user := os.Getenv("USERNAME")
+		podc_global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
+	default:
+		user := os.Getenv("USERNAME")
+		podc_global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
+	}
+
+	log.Info("Qmanager", "QRND = ", podc_global.QRNGFilePrefix)
+	if fileExists(podc_global.QRNGFilePrefix + "up.ini") {
 		podc_global.QRNDDeviceStat = true
+		//log.Info("QRND", "Buffer: ", "GENERATING NUMS")
+		podc_global.RandomNumbers = generateRandomNumbers()
+		go StartQRNDRefresher()
+
 	} else {
 		podc_global.QRNDDeviceStat = false
 	}
@@ -37,14 +59,14 @@ func ConnectDB() {
 	go StartExpirationChecker()
 	CheckQRNDStatus()
 
-	if podc_global.QRNDDeviceStat == true{
+	//if podc_global.QRNDDeviceStat == true{
+	//
+	//	//podc_global.RandomNumbers = generateRandomNumbers()
 
-		podc_global.RandomNumbers = generateRandomNumbers()
-		go StartQRNDRefresher()
 
-	}
+	//}
 
-	go Start()
+	//go Start()
 
 }
 
@@ -54,12 +76,13 @@ func IsQmanager() (isQMan bool){
 
 func StartQRNDRefresher(){
 
+
 	uptimeTicker := time.NewTicker(60 * time.Second)
 
 	for {
 		select {
 		case <-uptimeTicker.C:
-			generateRandomNumbers()
+			podc_global.RandomNumbers = generateRandomNumbers()
 		}
 	}
 }
@@ -101,7 +124,7 @@ func expirationCheck() {
 			log.Info("Qmanager", "DB Last Updated", dbtimestamp)
 
 
-			log.Info("Qmanager", "Expired Node", key)
+			log.Info("Qmanager", "Expired Node", string(key))
 
 
 			err = podc_global.QManagerStorage.Delete(key, nil)
@@ -311,7 +334,10 @@ func fileExists(filename string) bool {
 }
 
 func generateRandomNumbers() (RandomNumbers []uint64) {
+
 	generatedBUFFER := quantum.GenerateQrnd()
+	//log.Info("QRND", "Buffer: ", generatedBUFFER)
+
 
 	one := make([]byte, 8)
 	var RandomNums []uint64

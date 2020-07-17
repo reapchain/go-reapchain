@@ -1,24 +1,24 @@
 package qManager
 
 import (
+	"crypto/ecdsa"
+	"encoding/json"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"log"
 	"net/http"
-"encoding/json"
-"log"
-//"encoding/hex"
-"io/ioutil"
-// "bufio"
-// "crypto/x509"
-// "os"
-// "encoding/pem"
-// "crypto/ecdsa"
-//  "bytes"
+	//"encoding/hex"
+	"io/ioutil"
+	// "bufio"
+	// "crypto/x509"
+	// "os"
+	// "encoding/pem"
+	// "crypto/ecdsa"
+	//  "bytes"
 
-//"crypto/rand"
-"fmt"
-//"github.com/ethereum/go-ethereum/crypto/ecies"
-"time"
-
+	//"crypto/rand"
+	"fmt"
+	//"github.com/ethereum/go-ethereum/crypto/ecies"
+	"time"
 )
 
 
@@ -175,7 +175,7 @@ func headers(w http.ResponseWriter, req *http.Request) {
 
 
 
-func Start() {
+func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 
 	// bodyBytes := []byte{91, 66, 64, 51, 102, 100, 97, 100, 49, 56, 56}
 
@@ -201,6 +201,7 @@ func Start() {
 	// log.Println(myString)
 	//http.HandleFunc("/hello", hello)
 	http.HandleFunc("/RequestQmanager", RequestQmanager)
+	//addr, err := net.ResolveUDPAddr("udp", *Addr)
 
-	http.ListenAndServe(":5050", nil)
+	http.ListenAndServe(*Addr, nil)
 }

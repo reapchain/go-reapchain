@@ -2,14 +2,14 @@ package quantum
 
 import (
 	"fmt"
-	"io/ioutil"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"os"
+	"syscall"
 	"time"
 )
 
-const bufferSize = 16384
 
-const filePrefix ="/Volumes/PSoC USB/"  //on my MAC
+const bufferSize = 16384 *3
 
 func GenerateQrnd() []byte  {
 	var ioldIndex byte
@@ -18,7 +18,12 @@ func GenerateQrnd() []byte  {
 
 	for {
 		buffer := readUpFile()   //buffer data type is slice []byte
-		if buffer[0] == ioldIndex {
+
+		if len(buffer) == 0 {
+			writeDnFile(0)
+			time.Sleep(1 * time.Second)
+
+		} else if buffer[0] == ioldIndex {
 			writeDnFile(buffer[0])
 			time.Sleep(1 * time.Second)
 
@@ -35,6 +40,7 @@ func GenerateQrnd() []byte  {
 			}
 			break
 		}
+
 	}
 
 
@@ -42,21 +48,38 @@ func GenerateQrnd() []byte  {
 }
 
 func readUpFile() []byte {
-	buffer, err := ioutil.ReadFile(filePrefix + "up.ini")
+	buffer := make([]byte, bufferSize)
+
+	flags := os.O_RDONLY | os.O_EXCL  | syscall.O_DIRECT
+	upFile, err := os.OpenFile(podc_global.QRNGFilePrefix+"up.ini", flags, 0644)
 	if err != nil {
 		fmt.Println("OPEN-ERROR: up.ini")
 		panic(err.Error())
 	}
 
+	_, err = upFile.ReadAt(buffer, 0)
+	if err != nil {
+		fmt.Println("READ-ERROR: up.ini")
+		panic(err.Error())
+	}
+	upFile.Close()
+
 	return buffer
 }
 
 func writeDnFile(data byte) {
-	os.Remove(filePrefix + "dn.ini")
-	err := ioutil.WriteFile(filePrefix+"dn.ini", []byte{data}, 0644)
+ 	os.Remove(podc_global.QRNGFilePrefix + "dn.ini")
+	dnFile, err := os.OpenFile(podc_global.QRNGFilePrefix+"dn.ini", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		fmt.Println("CREATE-ERROR: dn.ini")
 		panic(err.Error())
 	}
+
+	writtenSize, err := dnFile.WriteAt([]byte{data}, 0)
+	if err != nil || writtenSize == 0 {
+		fmt.Println("WRITE-ERROR: dn.ini")
+		panic(err.Error())
+	}
+	dnFile.Close()
 }
 
