@@ -1,0 +1,13 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="qman" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30500 --datadir $PROJECT_DIR$/build/int_geth/qman --maxpeers 100 --verbosity 4  --nat none " />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/cmd/qman/main.go" />
+    <directory value="$PROJECT_DIR$/cmd/qman" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+</component>
