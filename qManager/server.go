@@ -1,6 +1,7 @@
 package qManager
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
@@ -204,4 +205,33 @@ func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 	//addr, err := net.ResolveUDPAddr("udp", *Addr)
 
 	http.ListenAndServe(*Addr, nil)
+}
+
+
+func MakeRequest() {
+
+	message := map[string]interface{}{
+		"hello": "world",
+		"life":  42,
+		"embedded": map[string]string{
+			"yes": "of course!",
+		},
+	}
+
+	bytesRepresentation, err := json.Marshal(message)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	resp, err := http.Post("http://192.168.0.67:5050/RequestQmanager", "application/json", bytes.NewBuffer(bytesRepresentation))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var result map[string]interface{}
+
+	json.NewDecoder(resp.Body).Decode(&result)
+
+	log.Println(result)
+	log.Println(result["data"])
 }
