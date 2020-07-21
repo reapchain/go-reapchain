@@ -264,7 +264,7 @@ func (n *Node) Start() error {
 
 
 	if n.server.Self().ID == QmanEnode{
-		qManager.ConnectDB()
+		qManager.QmanInit()
 		podc_global.QManConnected = true
 		podc_global.QManPubKey, _ = n.server.Self().ID.Pubkey()
 

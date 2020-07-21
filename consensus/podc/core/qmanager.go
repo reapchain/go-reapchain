@@ -20,6 +20,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/syndtr/goleveldb/leveldb"
 	"os"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
@@ -37,10 +39,14 @@ var (
 
 )
 
-func generateExtraData() []ValidatorInfo{
+func generateExtraData(snapshot *leveldb.Snapshot) []ValidatorInfo{
 
-	iter := podc_global.QManagerStorage.NewIterator(nil, nil)
+	//qManager.ConnectDB()
+	//log.Info("Qmanager", "DB Status", "4. Connected")
+
+	iter := snapshot.NewIterator(nil, nil)
 	var extra []ValidatorInfo  //slice의 경우 사용시 메모리를 잡아줘야 하는데 , 현재 없음.
+
 
     //make slice memory... 할것,,
 	for iter.Next() {
@@ -81,6 +87,9 @@ func generateExtraData() []ValidatorInfo{
 		//i++
 	}
     //log.Info("generateExtraData:", "extradata_size", len(extra))
+    //qManager.CloseDB()
+	//log.Info("Qmanager", "DB Status", "4. Disconnected")
+
 	return extra
 
 }
@@ -94,8 +103,16 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 		log.Info("Round", "Count: ", Counter)
 
 		var extra []ValidatorInfo
+		qManager.ConnectDB()
+		log.Info("Qmanager", "DB Status", "5. Connected")
+
+		dbSnapShot, _ := podc_global.QManagerStorage.GetSnapshot()
+
+		qManager.CloseDB()
+		log.Info("Qmanager", "DB Status", "5. Disconnected")
+
 		for {
-			extra = generateExtraData()
+			extra = generateExtraData(dbSnapShot)
 			completed := false
 			divisor := rand.Intn(50) + 1
 
