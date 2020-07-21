@@ -20,6 +20,7 @@ var (
 	IsBootNode bool
 	QManPubKey *ecdsa.PublicKey
 	GovernanceList []GovStruct
+	DBDataList []QManDBStruct
 )
 
 type (

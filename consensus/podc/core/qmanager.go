@@ -17,15 +17,12 @@
 package core
 
 import (
-	"bytes"
 	"encoding/binary"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/qManager"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
-	"github.com/ethereum/go-ethereum/rlp"
 	"math/rand"
 	"os"
 	"time"
@@ -38,13 +35,13 @@ var (
 
 )
 
-func generateExtraData(dbData []ValidatorInfo) []ValidatorInfo{
+func generateExtraData() []ValidatorInfo{
 
 	//qManager.ConnectDB()
 	//log.Info("Qmanager", "DB Status", "4. Connected")
 
 	var extra []ValidatorInfo
-	for index, validator := range dbData {
+	for index, validator := range podc_global.DBDataList {
 
 		var num uint64
 
@@ -59,9 +56,13 @@ func generateExtraData(dbData []ValidatorInfo) []ValidatorInfo{
 			log.Info("Suedo Random "  + string(index) , " Random Nums", podc_global.QRNDDeviceStat)
 			num = rand.Uint64()
 		}
+		validatorInfo := ValidatorInfo{}
+		validatorInfo.Address = common.HexToAddress(validator.Address)
+		validatorInfo.Qrnd = num
+		validatorInfo.Tag = podc.Tag(validator.Tag)
 
-		validator.Qrnd = num
-		extra = append(extra, validator)
+		extra = append(extra, validatorInfo)
+
 	}
 
 	//iter := snapshot.NewIterator(nil, nil)
@@ -122,38 +123,38 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 		log.Info("Round", "Count: ", Counter)
 
 		var extra []ValidatorInfo
-		qManager.ConnectDB()
-		//log.Info("Qmanager", "DB Status", "5. Connected")
+		//qManager.ConnectDB()
+		////log.Info("Qmanager", "DB Status", "5. Connected")
+		////
+		////dbSnapShot, _ := podc_global.QManagerStorage.GetSnapshot()
+		////
+		////qManager.CloseDB()
+		////log.Info("Qmanager", "DB Status", "5. Disconnected")
 		//
-		//dbSnapShot, _ := podc_global.QManagerStorage.GetSnapshot()
+		//var dbData []ValidatorInfo  //slice의 경우 사용시 메모리를 잡아줘야 하는데 , 현재 없음.
+		//iter := podc_global.QManagerStorage.NewIterator(nil, nil)
+		//
+		//for iter.Next() {
+		//	value := iter.Value()
+		//	var decodedBytes podc_global.QManDBStruct
+		//	err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
+		//	if err != nil {
+		//		log.Info("Qmanager", "Decoding Error", err.Error())
+		//	}
+		//	decodedAddress :=  common.HexToAddress(decodedBytes.Address)
+		//	validatorInfo := ValidatorInfo{}
+		//	validatorInfo.Address = decodedAddress
+		//	validatorInfo.Qrnd = 1
+		//	validatorInfo.Tag = podc.Tag(decodedBytes.Tag)
+		//	dbData = append(dbData, validatorInfo)
+		//}
 		//
 		//qManager.CloseDB()
 		//log.Info("Qmanager", "DB Status", "5. Disconnected")
 
-		var dbData []ValidatorInfo  //slice의 경우 사용시 메모리를 잡아줘야 하는데 , 현재 없음.
-		iter := podc_global.QManagerStorage.NewIterator(nil, nil)
-
-		for iter.Next() {
-			value := iter.Value()
-			var decodedBytes podc_global.QManDBStruct
-			err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
-			if err != nil {
-				log.Info("Qmanager", "Decoding Error", err.Error())
-			}
-			decodedAddress :=  common.HexToAddress(decodedBytes.Address)
-			validatorInfo := ValidatorInfo{}
-			validatorInfo.Address = decodedAddress
-			validatorInfo.Qrnd = 1
-			validatorInfo.Tag = podc.Tag(decodedBytes.Tag)
-			dbData = append(dbData, validatorInfo)
-		}
-
-		qManager.CloseDB()
-		log.Info("Qmanager", "DB Status", "5. Disconnected")
-
 		for {
 			log.Info("Qmanager", "Generating Random Numbers", "Outerloop")
-			extra = generateExtraData(dbData)
+			extra = generateExtraData()
 			completed := false
 			divisor := rand.Intn(50) + 1
 

@@ -121,6 +121,21 @@ func StartExpirationChecker(){
 	}
 }
 
+func GetDBData(){
+	var tempDBDataList []podc_global.QManDBStruct
+	iter :=  podc_global.QManagerStorage.NewIterator(nil, nil)
+	for iter.Next() {
+		value := iter.Value()
+		var decodedBytes podc_global.QManDBStruct
+		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
+		if err != nil {
+			log.Info("Qmanager", "Decoding Error", err.Error())
+		}
+		tempDBDataList = append(tempDBDataList, decodedBytes)
+	}
+
+	podc_global.DBDataList = tempDBDataList
+}
 
 func expirationCheck() {
 
@@ -153,6 +168,7 @@ func expirationCheck() {
 
 
 			err = podc_global.QManagerStorage.Delete(key, nil)
+			GetDBData()
 			if err != nil {
 				log.Info("Qmanager", "Decoding Error", err.Error())
 			}
@@ -224,6 +240,7 @@ func UpdateSenatorCandidateNodes() {
 				if saveError != nil {
 					log.Info("QManager DB Save", "err --", saveError)
 				}
+				GetDBData()
 
 				//
 				//saved :=  SaveToDB(node_address_encoded, initBytes)
@@ -305,6 +322,7 @@ func FindNode(nodeAddress string) ( found bool) {
 		if updateError != nil {
 			log.Info("QManager DB Save", "UPDATE ERROR --", updateError)
 		}
+		GetDBData()
 
 		//saved :=  SaveToDB(node_address_encoded, initBytes)
 		//if !saved {
@@ -382,7 +400,7 @@ func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
 			return false
 
 		}
-
+		GetDBData()
 		CloseDB()
 		log.Info("Qmanager", "DB Status", "4. Disconnected")
 
