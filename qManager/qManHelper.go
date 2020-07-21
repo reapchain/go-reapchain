@@ -20,6 +20,7 @@ import (
 
 const NodeIDBits = 512
 
+var IsInUse = false
 
 
 func CheckQRNDStatus(){
@@ -51,14 +52,26 @@ func CheckQRNDStatus(){
 }
 
 func ConnectDB(){
-	var err error
-	podc_global.QManagerStorage, err = leveldb.OpenFile("level", nil)
-	if err != nil{
-		log.Info("DB ERROR", "err = ", err)
+
+	if IsInUse == false {
+		var err error
+		podc_global.QManagerStorage, err = leveldb.OpenFile("level", nil)
+		if err != nil{
+			log.Info("DB ERROR", "err = ", err)
+		}
+
+		IsInUse = true
+	}else{
+		time.Sleep(1 *time.Millisecond)
+		ConnectDB()
 	}
+
+
 }
 func CloseDB(){
+
 	podc_global.QManagerStorage.Close()
+	IsInUse = false
 }
 
 func QmanInit() {

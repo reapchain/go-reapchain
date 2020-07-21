@@ -19,16 +19,15 @@ package core
 import (
 	"bytes"
 	"encoding/binary"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/qManager"
-	"github.com/syndtr/goleveldb/leveldb"
-	"os"
 	"encoding/json"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
-	"math/rand"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"github.com/ethereum/go-ethereum/rlp"
+	"math/rand"
+	"os"
 	"time"
 )
 
@@ -39,53 +38,73 @@ var (
 
 )
 
-func generateExtraData(snapshot *leveldb.Snapshot) []ValidatorInfo{
+func generateExtraData(dbData []ValidatorInfo) []ValidatorInfo{
 
 	//qManager.ConnectDB()
 	//log.Info("Qmanager", "DB Status", "4. Connected")
 
-	iter := snapshot.NewIterator(nil, nil)
-	var extra []ValidatorInfo  //slice의 경우 사용시 메모리를 잡아줘야 하는데 , 현재 없음.
-
-
-    //make slice memory... 할것,,
-	for iter.Next() {
-		//key := iter.Key()
-		value := iter.Value()
-		//log.Info("KEY & Val", "key:", key, "value: ", value)
-
-		var decodedBytes podc_global.QManDBStruct
-		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
-		if err != nil {
-			log.Info("Qmanager", "Decoding Error", err.Error())
-
-		}
-
-		decodedAddress :=  common.HexToAddress(decodedBytes.Address)
-
+	var extra []ValidatorInfo
+	for index, validator := range dbData {
 
 		var num uint64
 
 		if podc_global.QRNDDeviceStat == true{
-			log.Info("QRND ", "Random Nums", podc_global.QRNDDeviceStat)
+			log.Info("QRND " + string(index), " Random Nums" , podc_global.QRNDDeviceStat)
 			rand.Seed(time.Now().UnixNano())
 			randomIndex := rand.Intn(12280)
 			num = podc_global.RandomNumbers[randomIndex]
 
 
 		} else {
-			log.Info("Suedo Random ", "Random Nums", podc_global.QRNDDeviceStat)
+			log.Info("Suedo Random "  + string(index) , " Random Nums", podc_global.QRNDDeviceStat)
 			num = rand.Uint64()
 		}
 
-		validatorInfo := ValidatorInfo{}
-		validatorInfo.Address = decodedAddress
-		validatorInfo.Qrnd = num
-		validatorInfo.Tag = podc.Tag(decodedBytes.Tag)
-
-		extra = append(extra, validatorInfo)
-		//i++
+		validator.Qrnd = num
+		extra = append(extra, validator)
 	}
+
+	//iter := snapshot.NewIterator(nil, nil)
+
+
+    //make slice memory... 할것,,
+	//for iter.Next() {
+	//	//key := iter.Key()
+	//	value := iter.Value()
+	//	//log.Info("KEY & Val", "key:", key, "value: ", value)
+	//
+	//	var decodedBytes podc_global.QManDBStruct
+	//	err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
+	//	if err != nil {
+	//		log.Info("Qmanager", "Decoding Error", err.Error())
+	//
+	//	}
+	//
+	//	decodedAddress :=  common.HexToAddress(decodedBytes.Address)
+	//
+	//
+	//	var num uint64
+	//
+	//	if podc_global.QRNDDeviceStat == true{
+	//		log.Info("QRND ", "Random Nums", podc_global.QRNDDeviceStat)
+	//		rand.Seed(time.Now().UnixNano())
+	//		randomIndex := rand.Intn(12280)
+	//		num = podc_global.RandomNumbers[randomIndex]
+	//
+	//
+	//	} else {
+	//		log.Info("Suedo Random ", "Random Nums", podc_global.QRNDDeviceStat)
+	//		num = rand.Uint64()
+	//	}
+	//
+	//	validatorInfo := ValidatorInfo{}
+	//	validatorInfo.Address = decodedAddress
+	//	validatorInfo.Qrnd = num
+	//	validatorInfo.Tag = podc.Tag(decodedBytes.Tag)
+	//
+	//	extra = append(extra, validatorInfo)
+	//	//i++
+	//}
     //log.Info("generateExtraData:", "extradata_size", len(extra))
     //qManager.CloseDB()
 	//log.Info("Qmanager", "DB Status", "4. Disconnected")
@@ -104,20 +123,44 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 
 		var extra []ValidatorInfo
 		qManager.ConnectDB()
-		log.Info("Qmanager", "DB Status", "5. Connected")
+		//log.Info("Qmanager", "DB Status", "5. Connected")
+		//
+		//dbSnapShot, _ := podc_global.QManagerStorage.GetSnapshot()
+		//
+		//qManager.CloseDB()
+		//log.Info("Qmanager", "DB Status", "5. Disconnected")
 
-		dbSnapShot, _ := podc_global.QManagerStorage.GetSnapshot()
+		var dbData []ValidatorInfo  //slice의 경우 사용시 메모리를 잡아줘야 하는데 , 현재 없음.
+		iter := podc_global.QManagerStorage.NewIterator(nil, nil)
+
+		for iter.Next() {
+			value := iter.Value()
+			var decodedBytes podc_global.QManDBStruct
+			err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
+			if err != nil {
+				log.Info("Qmanager", "Decoding Error", err.Error())
+			}
+			decodedAddress :=  common.HexToAddress(decodedBytes.Address)
+			validatorInfo := ValidatorInfo{}
+			validatorInfo.Address = decodedAddress
+			validatorInfo.Qrnd = 1
+			validatorInfo.Tag = podc.Tag(decodedBytes.Tag)
+			dbData = append(dbData, validatorInfo)
+		}
 
 		qManager.CloseDB()
 		log.Info("Qmanager", "DB Status", "5. Disconnected")
 
 		for {
-			extra = generateExtraData(dbSnapShot)
+			log.Info("Qmanager", "Generating Random Numbers", "Outerloop")
+			extra = generateExtraData(dbData)
 			completed := false
 			divisor := rand.Intn(50) + 1
 
 			index := 0
 			for index < len(extra) {
+				log.Info("Qmanager", "Generating Random Numbers", "InnerLoop")
+
 
 				if !c.valSet.IsProposer( extra[index].Address) && c.qmanager != extra[index].Address {
 					randomNumber := extra[index].Qrnd
@@ -134,6 +177,9 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 				index++
 			}
 			if completed{
+				break
+			}
+			if len(extra) == 0 {
 				break
 			}
 		}
