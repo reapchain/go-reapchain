@@ -52,23 +52,32 @@ func CheckQRNDStatus(){
 }
 
 func ConnectDB(){
+	log.Info("Qmanager", "IsInUse OPEN = ", IsInUse)
+
 
 	if IsInUse == false {
+		IsInUse = true
+
+		log.Info("Qmanager", "DB = ", "STARTING---------------------------------------")
+
 		var err error
 		podc_global.QManagerStorage, err = leveldb.OpenFile("level", nil)
 		if err != nil{
 			log.Info("DB ERROR", "err = ", err)
+			IsInUse = false
 		}
 
-		IsInUse = true
+
 	}else{
-		time.Sleep(1 *time.Millisecond)
+		log.Info("Qmanager", "DB = ", "WAITING---------------------------------------")
+		time.Sleep(100 *time.Millisecond)
 		ConnectDB()
 	}
 
 
 }
 func CloseDB(){
+	log.Info("Qmanager", "IsInUse CLOSE = ", IsInUse)
 
 	podc_global.QManagerStorage.Close()
 	IsInUse = false
@@ -111,7 +120,7 @@ func StartQRNDRefresher(){
 
 func StartExpirationChecker(){
 
-	uptimeTicker := time.NewTicker(300 * time.Second)
+	uptimeTicker := time.NewTicker(60 * time.Second)
 
 	for {
 		select {
@@ -139,8 +148,9 @@ func GetDBData(){
 
 func expirationCheck() {
 
-	ConnectDB()
 	log.Info("Qmanager", "DB Status", "1. Connected")
+	ConnectDB()
+
 	iter :=  podc_global.QManagerStorage.NewIterator(nil, nil)
 	for iter.Next() {
 		key := iter.Key()
@@ -197,8 +207,9 @@ func expirationCheck() {
 
 func UpdateSenatorCandidateNodes() {
 	if podc_global.QManConnected {
-		ConnectDB()
 		log.Info("Qmanager", "DB Status", "2. Connected")
+		ConnectDB()
+
 
 
 		for _, element := range podc_global.GovernanceList {
@@ -266,8 +277,9 @@ func FindNode(nodeAddress string) ( found bool) {
 
 	//var data []byte
 	if podc_global.QManConnected {
-		ConnectDB()
 		log.Info("Qmanager", "DB Status", "3. Connected")
+		ConnectDB()
+
 
 		//var nodeIDString string
 		//decode_err := rlp.DecodeBytes(nodeId, &nodeIDString)
@@ -387,8 +399,9 @@ func  Save( dbStruct podc_global.QManDBStruct) (saved bool) {
 
 func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
 	if podc_global.QManConnected {
-		ConnectDB()
 		log.Info("Qmanager", "DB Status", "4. Connected")
+		ConnectDB()
+
 
 		saveErr := podc_global.QManagerStorage.Put(Address, NodeDetails, nil)
 
@@ -438,9 +451,4 @@ func generateRandomNumbers() (RandomNumbers []uint64) {
 	}
 
 	return RandomNums
-}
-
-func GetIterator() () {
-
-
 }
