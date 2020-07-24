@@ -63,7 +63,7 @@ func (val *defaultValidator) Qrnd() uint64 {
 
 type defaultSet struct {
 	validators  podc.Validators
-	proposer    podc.Validator
+	proposer    podc.Validator  //Front node in paper ..
 	validatorMu sync.RWMutex
 
 	selector podc.ProposalSelector
@@ -125,7 +125,7 @@ func (valSet *defaultSet) GetProposer() podc.Validator {
 
 func (valSet *defaultSet) IsProposer(address common.Address) bool {
 	_, val := valSet.GetByAddress(address)
-	return reflect.DeepEqual(valSet.GetProposer(), val)
+	return reflect.DeepEqual(valSet.GetProposer(), val)  //
 }
 
 func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64, qman common.Address) {
@@ -133,7 +133,11 @@ func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64
 	defer valSet.validatorMu.RUnlock()
 	valSet.proposer = valSet.selector(valSet, lastProposer, round, qman)
 }
-
+//func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64) {
+//	valSet.validatorMu.RLock()
+//	defer valSet.validatorMu.RUnlock()
+//	valSet.proposer = valSet.selector(valSet, lastProposer, round )
+//}
 func calcSeed(valSet podc.ValidatorSet, proposer common.Address, round uint64) uint64 {
 	offset := 0
 	if idx, val := valSet.GetByAddress(proposer); val != nil {

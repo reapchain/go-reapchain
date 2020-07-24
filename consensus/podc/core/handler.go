@@ -40,9 +40,12 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	}
     if (len(qmanager) <= 0)  {
     	log.Debug("Qmanager node is not exist")
-        return nil
+        return nil // err ?
 	}
+<<<<<<< HEAD
 
+=======
+>>>>>>> TestProgram
     QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
 	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
@@ -56,7 +59,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	start :=time.Now()
 	log.Info("start time of consensus of core engine start()", "start time", start )
 	c.startNewRound(&podc.View{
-		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //seq +1
+		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //lastSequence +1
 		Round:    common.Big0,                                   //round 0
 	}, false)
 
@@ -99,7 +102,7 @@ func (c *core) handleEvents() {
 		switch ev := event.Data.(type) {
 		case podc.RequestEvent:
 			c.startTime = time.Now()
-			//log.Info("1. Start")
+			log.Info("1. Start")
 			r := &podc.Request{
 				Proposal: ev.Proposal,
 			}
@@ -159,7 +162,10 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	switch msg.Code {
 
 	case msgHandleQman:
-		return testBacklog(c.handleQmanager(msg, src))
+	/* Qmanager handler for receiving from geth : sending qmanager event */
+	//case msgRequest:
+		return testBacklog(c.handleQmanager(msg, src))  //Sending to Qmanager  event hadler  // this geth only proposer.
+
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
 	case msgDSelect:
@@ -177,6 +183,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))
 
+//Qmanager related begin
 	case msgExtraDataRequest:
 		return testBacklog(c.handleExtraData(msg, src))
 	case msgExtraDataSend:
@@ -185,6 +192,7 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.CoordinatorConfirmation(msg, src))
 	case msgCoordinatorConfirmSend:
 		return testBacklog(c.handleCoordinatorConfirm(msg, src))  //c.criteria 결정,
+//Qman end
 
 	default:
 		logger.Error("Invalid message", "msg", msg)

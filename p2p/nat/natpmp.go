@@ -119,9 +119,9 @@ func potentialGateways() (gws []net.IP) {
 			switch x := addr.(type) {
 			case *net.IPNet:
 				if lan10.Contains(x.IP) || lan176.Contains(x.IP) || lan192.Contains(x.IP)|| lan254.Contains(x.IP){
-					fmt.Printf("Mask= %v, x.Mask\n")
+					//fmt.Printf("Mask= %v, x.Mask\n")
 					ip := x.IP.Mask(x.Mask).To4()
-					fmt.Printf("ip= %v, ip\n")
+					//fmt.Printf("ip= %v, ip\n")
 					if ip != nil {
 						ip[3] = ip[3] | 0x01
 						gws = append(gws, ip)

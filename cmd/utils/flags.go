@@ -854,7 +854,7 @@ func setEtherbase(ctx *cli.Context, ks *keystore.KeyStore, cfg *eth.Config) {
 
 // MakePasswordList reads password lines from the file specified by the global --password flag.
 func MakePasswordList(ctx *cli.Context) []string {
-	path := ctx.GlobalString(PasswordFileFlag.Name)
+	path := ctx.GlobalString(PasswordFileFlag.Name)  //path is string
 	if path == "" {
 		return nil
 	}
@@ -864,8 +864,8 @@ func MakePasswordList(ctx *cli.Context) []string {
 		//log.Warn("\nfull directory path of", "path", path )
 		abs, _ :=filepath.Abs(path)
 		log.Warn("\npasswd path:", "abs", abs )
-		path=abs
-		//append(path, abs)
+		path=abs  //yichoi
+		//append(path, abs)  //path is slice, abs is element.
 	}
 	text, err := ioutil.ReadFile(path)
 	if err != nil {

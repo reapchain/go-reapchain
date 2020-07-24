@@ -32,6 +32,8 @@ func newRoundState(view *podc.View, validatorSet podc.ValidatorSet) *roundState 
 		Preprepare:  nil,
 		Prepares:    newMessageSet(validatorSet),
 		Commits:     newMessageSet(validatorSet),
+		//Dselects:    newMessageSet(validatorSet),
+		//Dcommits:     newMessageSet(validatorSet),
 		Checkpoints: newMessageSet(validatorSet),
 		mu:          new(sync.RWMutex),
 	}
@@ -80,7 +82,7 @@ func (s *roundState) Proposal() podc.Proposal {
 	defer s.mu.RUnlock()
 
 	if s.Preprepare != nil {
-		return s.Preprepare.Proposal
+		return s.Preprepare.Proposal  //제안할 블럭을 가져온다... 합의가 끝나면,, 체인에 연결할 블럭을 가져온다.
 	}
 
 	return nil
@@ -124,6 +126,10 @@ func (s *roundState) DecodeRLP(stream *rlp.Stream) error {
 		Preprepare  *podc.Preprepare
 		Prepares    *messageSet
 		Commits     *messageSet
+
+
+		//Dselects    *messageSet
+		//Dcommits     *messageSet
 		Checkpoints *messageSet
 	}
 
@@ -135,6 +141,9 @@ func (s *roundState) DecodeRLP(stream *rlp.Stream) error {
 	s.Preprepare = ss.Preprepare
 	s.Prepares = ss.Prepares
 	s.Commits = ss.Commits
+
+	//s.Dselects = ss.Dselects
+	//s.Dcommits = ss.Dcommits
 	s.Checkpoints = ss.Checkpoints
 	s.mu = new(sync.RWMutex)
 
@@ -159,6 +168,8 @@ func (s *roundState) EncodeRLP(w io.Writer) error {
 		s.Preprepare,
 		s.Prepares,
 		s.Commits,
+		//s.Dselects,
+		//s.Dcommits,
 		s.Checkpoints,
 	})
 }

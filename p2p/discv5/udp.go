@@ -238,6 +238,7 @@ type udp struct {
 
 // ListenUDP returns a new table that listens for UDP packets on laddr.
 func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBPath string, netrestrict *netutil.Netlist) (*Network, error) {
+
 	transport, err := listenUDP(priv, laddr)
 	if err != nil {
 		return nil, err

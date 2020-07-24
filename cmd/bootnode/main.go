@@ -19,7 +19,11 @@ package main
 
 import (
 	"crypto/ecdsa"
-	"flag"
+
+    "flag"
+	"net"
+	"strings"
+
 	"fmt"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"os"
@@ -184,10 +188,25 @@ func  sendEvent2(event istanbul.ConsensusDataEvent) {
 	}
 	p2p.Send(p.rw, 0, event.Data)
 } */
-
+func GetLocalIP() string {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return ""
+	}
+	for _, address := range addrs {
+		// check the address type and if it is not a loopback the display it
+		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
+			if ipnet.IP.To4() != nil {
+				return ipnet.IP.String()
+			}
+		}
+	}
+	return ""
+}
 func main() {
 	var (
-		listenAddr  = flag.String("addr", ":30301", "listen address")
+		listenAddr  = flag.String("addr", ":30391", "listen address")
+		port        = flag.String("port", ":30391", "port")
 		genKey      = flag.String("genkey", "", "generate a node key")
 		writeAddr   = flag.Bool("writeAddress", false, "write out the node's pubkey hash and quit")
 		writeAccount   = flag.Bool("writeAccount", false, "write out the node's account hash and quit")
@@ -285,6 +304,17 @@ func main() {
 		//p2p.Send(p.rw, 0, event.Data)
 
 	}
+	if( *listenAddr ==""){
+		*listenAddr = GetLocalIP()
+
+		log.Info("I've get Local IP on this machine!", "listenAddr", listenAddr)
+	}
+	if( *port ==""){
+		*port = "30391"
+
+		log.Info("I've get Local IP on this machine!")
+	}
+
 
 	if *runv5 {
 		if _, err := discv5.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {

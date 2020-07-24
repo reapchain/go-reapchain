@@ -111,12 +111,14 @@ func (c *core) processPendingRequests() {
 	}
 }
 
+
+//PendingRequest 는 지연 요청으로, 곧바로 보내지않고, 고루틴을 써서, 지연 처리.. ?
 func (c *core) processPendingRequestsQman() {
 	c.pendingRequestsMu.Lock()
 	defer c.pendingRequestsMu.Unlock()
 
 	for !(c.pendingRequests.Empty()) {
-		m, prio := c.pendingRequests.Pop()
+		m, prio := c.pendingRequests.Pop()  //stack에서 우선순위 가져온다.
 
 		r, ok := m.(*podc.Request )
 		if !ok {

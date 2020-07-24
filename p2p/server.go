@@ -59,8 +59,9 @@ var errServerStopped = errors.New("server stopped")
 // Config holds Server options.
 type Config struct {
 	// This field must be set to a valid secp256k1 private key.
-	PrivateKey *ecdsa.PrivateKey `toml:"-"`
-	PublicKey   *ecdsa.PublicKey
+	PrivateKey *ecdsa.PrivateKey `toml:"-"`   // private key 저장하는 변수 서버쪽
+	PublicKey   *ecdsa.PublicKey  //yichoi added for  sending public key to store Qmanager
+	                              // 개인키 생성후 공개키를 임시로 저장하는 변수
 
 	// MaxPeers is the maximum number of peers that can be
 	// connected. It must be greater than zero.
@@ -361,7 +362,7 @@ func (srv *Server) Start() (err error) {
 		return errors.New("server already running")
 	}
 	srv.running = true
-	log.Info("Starting P2P networking")
+	log.Info("Starting P2P networking") //yichoi  // 3단계쯤. 여기서 완료단계..
 
 	// static fields
 	if srv.PrivateKey == nil {
@@ -373,7 +374,7 @@ func (srv *Server) Start() (err error) {
 	if srv.Dialer == nil {
 		srv.Dialer = &net.Dialer{Timeout: defaultDialTimeout}
 	}
-
+	//각종 채널 생성
 	srv.quit = make(chan struct{})
 	srv.addpeer = make(chan *conn)
 	srv.delpeer = make(chan peerDrop)
@@ -383,17 +384,24 @@ func (srv *Server) Start() (err error) {
 	srv.removestatic = make(chan *discover.Node)
 	srv.peerOp = make(chan peerOpFunc)
 	srv.peerOpDone = make(chan struct{})
+	//yichoi begin for private ip set
+	//VerA := strings.Trim(runtime.Version(),"go")
+	//VerB := "1.7"
+	//if ( compareVerLessthan( VerA, VerB) == 1 ) && !strings.HasPrefix(runtime.Version(), "devel")
 
-
-	if strings.HasPrefix( srv.Config.ListenAddr , ":") {
+	if strings.HasPrefix( srv.Config.ListenAddr , ":") {  //run error
 
 	    srv.ListenAddr = strings.Trim(srv.ListenAddr, "\n")
-		srv.ListenAddr = fmt.Sprintf(srv.GetLocalIP() + srv.ListenAddr )
+		srv.ListenAddr = fmt.Sprintf(srv.GetLocalIP() + srv.ListenAddr ) //yichoi
 		fmt.Printf("ListenAddr= %s\n", srv.ListenAddr )
+		//srv.ListenLocalAddr = srv.ListenAddr
+		//srv.ListenLocalAddr = fmt.Sprintf(srv.GetLocalIP() + srv.ListenLocalAddr  )//yichoi
+		//fmt.Printf("ListenLocalAddr= %s\n", srv.ListenLocalAddr )
 	}
-
-	if !srv.NoDiscovery {
-		ntab, err := discover.ListenUDP(srv.PrivateKey, srv.ListenAddr, srv.NAT, srv.NodeDatabase, srv.NetRestrict)
+    //end
+	// node table
+	if !srv.NoDiscovery {  // geth init 시 -nodiscovery option 없으면
+		ntab, err := discover.ListenUDP(srv.PrivateKey, srv.ListenAddr, srv.NAT, srv.NodeDatabase, srv.NetRestrict)  //Now using in development, important!!
 		if err != nil {
 			return err
 		}
@@ -404,7 +412,7 @@ func (srv *Server) Start() (err error) {
 	}
 
 	if srv.DiscoveryV5 {
-		ntab, err := discv5.ListenUDP(srv.PrivateKey, srv.DiscoveryV5Addr, srv.NAT, "", srv.NetRestrict)
+		ntab, err := discv5.ListenUDP(srv.PrivateKey, srv.DiscoveryV5Addr, srv.NAT, "", srv.NetRestrict) //srv.NodeDatabase)
 		if err != nil {
 			return err
 		}
@@ -428,7 +436,7 @@ func (srv *Server) Start() (err error) {
 	// listen/dial
 	if srv.ListenAddr != "" {
 		if err := srv.startListening(); err != nil { //
-			return err
+			return err  //에러 ..
 		}
 	}
 	if srv.NoDial && srv.ListenAddr == "" {
@@ -442,18 +450,24 @@ func (srv *Server) Start() (err error) {
 }
 
 func (srv *Server) startListening() error {
-
-	listener, err := net.Listen("tcp", srv.ListenAddr)
-	//log.Info("startListening(tcp)", "addr", srv.Config.ListenAddr, "listener(tcp)=", listener)
+	// Launch the TCP listener.
+	//set local ip:192.168.0.x in reapchain office private network
+	//log.Info("startListening():","srv.Listen", srv.ListenAddr )
+	listener, err := net.Listen("tcp", srv.ListenAddr)  //listener == nil.. error
+	log.Info("startListening(tcp)", "addr", srv.Config.ListenAddr, "listener(tcp)=", listener)
 	if err != nil {
-		return err
+		return err   //왜 에러 ?
 	}
-	laddr := listener.Addr().(*net.TCPAddr)
-
+	laddr := listener.Addr().(*net.TCPAddr)  //192.168.0.2:5003 this type ㄱㅏ져와야함.
+	fmt.Printf("\n laddr(TCPAddr) : %v\n", laddr )  //error , important
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)
-	go srv.listenLoop()
+
+	//fmt.Printf("srv.ListenAddr = %s, srv.listener =%s\n", srv.ListenAddr, srv.listener )
+	//fmt.Printf("srv.GetLocalIP=%s\n", srv.GetLocalIP() )
+
+	go srv.listenLoop()  // 루프를 여기서 돈다.
 
 	// Map the TCP listening port if NAT is configured.
 	if !laddr.IP.IsLoopback() && srv.NAT != nil {
@@ -659,6 +673,9 @@ func (srv *Server) listenLoop() {
 
 	defer srv.loopWG.Done()
 	log.Info("RLPx listener up", "self", srv.makeSelf(srv.listener, srv.ntab))
+	// RLPx Listener는 실행되면, 호스트의 IP를 0.0.0.0 로 셋팅하고, 기다린다. 원격지로부터 접속을
+	// 그래서 외부의 연결 허용을 위해서 공유기의 외부 공인IP를 가져와서,, 셋팅된다.
+
 
 	// This channel acts as a semaphore limiting
 	// active inbound connections that are lingering pre-handshake.
@@ -730,7 +747,7 @@ func (srv *Server) setupConn(fd net.Conn, flags connFlag, dialDest *discover.Nod
 	// Run the encryption handshake.
 	var err error
 	if c.id, err = c.doEncHandshake(srv.PrivateKey, dialDest); err != nil {
-		log.Trace("Failed RLPx handshake", "addr", c.fd.RemoteAddr(), "conn", c.flags, "err", err)
+		log.Trace("Failed RLPx handshake", "addr", c.fd.RemoteAddr(), "conn", c.flags, "err", err)  //reviewed by yichoi
 		c.close(err)
 		return
 	}

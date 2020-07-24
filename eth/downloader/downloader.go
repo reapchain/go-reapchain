@@ -381,10 +381,15 @@ func (d *Downloader) syncWithPeer(p *peer, hash common.Hash, td *big.Int) (err e
 	}()
 
 
-
+	// Skip protocol version if incompatible with the mode of operation
+	/* if mode == downloader.FastSync && version < eth63 {
+		continue
+	} */
+	log.Info("peer protocol.version =", "p.version", p.version ) //yichoi
 	if p.version < 62 {  // protocol version check, if < 62 , then err Too Old version return,
-		log.Info("peer protocol.version =", "p.version", p.version )
-
+		log.Info("peer protocol.version =", "p.version", p.version ) //yichoi
+		return errTooOld
+		//continue // added by yichoi temporarly
 	}
 
 

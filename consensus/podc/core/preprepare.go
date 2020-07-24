@@ -48,7 +48,7 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 		}
 	}
 }
-
+// 2. go to step 2 : pre-prepare step
 func (c *core) sendPreprepare(request *podc.Request) {
 	logger := c.logger.New("state", c.state)
 
@@ -76,7 +76,16 @@ func (c *core) sendPreprepare(request *podc.Request) {
 
 func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //request to qman
 	logger := c.logger.New("from", src, "state", c.state)
+	//if (!reflect.DeepEqual(c.qmanager, c.Address())) {
+		log.Info("I'm not Qman in handleQmanager" )
 
+		// Qmanager receiver에 맞게 수정할 부분 begin
+		// 1. Extra data 전송하고,
+		// 2. Enrollment 하고, martin
+		// Cordi가 "자신기 코디"임을 보내오면,
+		// Cordi에게 C-Confirm 를 보내고,
+
+		// Decode preprepare
 		var preprepare *podc.Preprepare
 		err := msg.Decode(&preprepare)
 		if err != nil {
@@ -94,7 +103,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			return errNotFromProposer
 		}
 
-		if c.valSet.IsProposer(c.Address()) {
+		if c.valSet.IsProposer(c.Address()) {  // I'm Front node.
 			log.Info("I'm Proposer!!!!!!!")
 		}
 		// Verify the proposal we received
@@ -104,8 +113,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			return err
 		}
 
-		log.Info("3. Set pre-prepare state",             "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
-	   // log.Info("4. Get extra data and start d-select", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+		log.Info("3. Set pre-prepare state", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
 
 		if c.state == StateRequestQman {

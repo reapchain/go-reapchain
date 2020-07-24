@@ -213,6 +213,7 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 
 func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error {  //커밋단계로 진입
 	if c.state == StatePreprepared {
+		log.Info( "handleCandidateDecide: StatePreprepared")
 		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
 		c.setState(StateDSelected)  //D-selected 상태로 설정하고, 커밋 상태로 진입.

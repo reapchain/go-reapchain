@@ -167,7 +167,7 @@ OUTER:
 			validator := r0.valSet.GetByIndex(uint64(i))
 			m, _ := Encode(v.engine.(*core).current.Subject())
 			if err := r0.handleDCommit(&message{
-				Code:          msgCommit,
+				Code:          msgDCommit,
 				Msg:           m,
 				Address:       validator.Address(),
 				Signature:     []byte{},
@@ -181,12 +181,12 @@ OUTER:
 		}
 
 		// prepared is normal case
-		if r0.state != StateCommitted {
+		if r0.state != StateDCommitted {
 			// There are not enough commit messages in core
 			if r0.state != StateDSelected { //StatePrepared
 				t.Errorf("state mismatch: have %v, want %v", r0.state, StateDSelected) //StatePrepared
 			}
-			if r0.current.Commits.Size() > 2*r0.valSet.F() {
+			if r0.current.Dcommits.Size() > 2*r0.valSet.F() {
 				t.Errorf("the size of commit messages should be less than %v", 2*r0.valSet.F()+1)
 			}
 
@@ -194,8 +194,8 @@ OUTER:
 		}
 
 		// core should have 2F+1 prepare messages
-		if r0.current.Commits.Size() <= 2*r0.valSet.F() {
-			t.Errorf("the size of commit messages should be larger than 2F+1: size %v", r0.current.Commits.Size())
+		if r0.current.Dcommits.Size() <= 2*r0.valSet.F() {
+			t.Errorf("the size of commit messages should be larger than 2F+1: size %v", r0.current.Dcommits.Size())
 		}
 
 		// check signatures large than 2F+1
@@ -304,7 +304,7 @@ func TestVerifyCommit(t *testing.T) {
 				valSet,
 			),
 		},
-
+//begin - by yichoi
 		{
 			// wrong prepare message with same round but different sequence
 			expected: errInconsistentSubject,
@@ -323,7 +323,11 @@ func TestVerifyCommit(t *testing.T) {
 		c := sys.backends[0].engine.(*core)
 		c.current = test.roundState
 
-
+		//if err := c.verifyCommit(test.commit, peer); err != nil {
+		//	if err != test.expected {
+		//		t.Errorf("result %d: error mismatch: have %v, want %v", i, err, test.expected)
+		//	}
+		//}
 		if err := c.verifyDCommit(test.commit, peer); err != nil {
 			if err != test.expected {
 				t.Errorf("result %d: error mismatch: have %v, want %v", i, err, test.expected)

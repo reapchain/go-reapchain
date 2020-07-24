@@ -36,7 +36,7 @@ func New(backend podc.Backend, config *podc.Config) Engine {
 	c := &core{
 		config:             config,
 		address:            backend.Address(),
-		state:              StateAcceptRequest,
+		state:              StateAcceptRequest,  //다 Qman에 ExtraData를 요청하는게 맞나? 아니면, 프런트 노드만 요청하는가?
 		logger:             log.New("address", backend.Address()),
 		backend:            backend,
 		backlogs:           make(map[podc.Validator]*prque.Prque),
@@ -76,6 +76,8 @@ type core struct {
 	valSet                podc.ValidatorSet
 
 	waitingForRoundChange bool
+	//waitingForStateChange bool // added for PoDC, because Proposer release it's right to random coordinator
+    //statechange flag will be need, I think , by yichoi
 
 	validateFn            func([]byte, []byte) (common.Address, error)
 
@@ -111,13 +113,13 @@ type core struct {
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
 	var err error
 	// Add sender address
-	msg.Address = c.Address()
+	msg.Address = c.Address()  //message 에 송신자 enode 주소를 탑재
 
 	// Add proof of consensus
-	msg.CommittedSeal = []byte{}
+	msg.CommittedSeal = []byte{}  // CommittedSeal 배열 초기화
 	// Assign the CommittedSeal if it's a commit message and proposal is not nil
 	if msg.Code == msgCommit && c.current.Proposal() != nil {
-		seal := PrepareCommittedSeal(c.current.Proposal().Hash())
+		seal := PrepareCommittedSeal(c.current.Proposal().Hash())  // message 구조체에 CommittedSeal 배열을 채움
 		msg.CommittedSeal, err = c.backend.Sign(seal)
 		if err != nil {
 			return nil, err
@@ -162,7 +164,7 @@ func (c *core) send(msg *message, target common.Address) {
 func (c *core) broadcast(msg *message) {
 	logger := c.logger.New("state", c.state)
 
-	payload, err := c.finalizeMessage(msg)
+	payload, err := c.finalizeMessage(msg)  //최종적으로 메시지 구조체에 탑재할 모든 메시지를 만듦
 	if err != nil {
 		logger.Error("Failed to finalize message", "msg", msg, "err", err)
 		return
@@ -201,7 +203,7 @@ func (c *core) isRequestQman() bool {
 	if v == nil {
 		return false
 	}
-	return v.IsProposer(c.backend.Address())
+	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,  함수 내부 수정해야함.
 	         //Front node 인가
 }
 func (c *core) isProposer() bool {
@@ -209,7 +211,7 @@ func (c *core) isProposer() bool {
 	if v == nil {
 		return false
 	}
-	return v.IsProposer(c.backend.Address())
+	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,
 }
 
 func (c *core) commit() {
@@ -290,6 +292,7 @@ func (c *core) newRoundChangeTimer() {
 
 	// set timeout based on the round number
 	timeout := time.Duration(c.config.RequestTimeout)*time.Millisecond + time.Duration(c.current.Round().Uint64()*c.config.BlockPeriod)*time.Second
+	           // 타임아웃 시간은 우측 수식에 의해서 계산됨 값.
 	c.roundChangeTimer = time.AfterFunc(timeout, func() {
 		// If we're not waiting for round change yet, we can try to catch up
 		// the max round with F+1 round change message. We only need to catch up
