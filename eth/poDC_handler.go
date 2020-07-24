@@ -36,7 +36,7 @@ import (
 const (
 	// PoDC is compatible with eth63 protocol  //?
 	PoDCName           = "podc"
-	PoDCVersion        = 1
+	PoDCVersion        = 64
 	PoDCProtocolLength = 18
 	PoDCMsg = 0x11
 	QmanMsg = 0x12
