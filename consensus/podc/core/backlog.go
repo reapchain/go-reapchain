@@ -136,10 +136,10 @@ func (c *core) processBacklog() {
 			//case 	msgRoundChange:
 			//Qmanager와 주고 받는 것 :
 			case 	msgHandleQman:
-			case 	msgExtraDataRequest:
-			case 	msgExtraDataSend:
-			case 	msgCoordinatorConfirmRequest:
-			case 	msgCoordinatorConfirmSend:
+			//case 	msgExtraDataRequest:
+			//case 	msgExtraDataSend:
+			//case 	msgCoordinatorConfirmRequest:
+			//case 	msgCoordinatorConfirmSend:
 
 				var m *podc.Preprepare
 				err := msg.Decode(&m)
