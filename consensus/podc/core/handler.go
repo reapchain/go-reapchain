@@ -35,17 +35,14 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 
 	c.lastProposer = lastProposer
 	var err error
-	if( qmanager == nil ) {
+	if qmanager == nil  {
 		return err
 	}
-    if (len(qmanager) <= 0)  {
+    if len(qmanager) <= 0 {
     	log.Debug("Qmanager node is not exist")
         return nil // err ?
 	}
-<<<<<<< HEAD
 
-=======
->>>>>>> TestProgram
     QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
 	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
@@ -102,7 +99,7 @@ func (c *core) handleEvents() {
 		switch ev := event.Data.(type) {
 		case podc.RequestEvent:
 			c.startTime = time.Now()
-			log.Info("1. Start")
+			//log.Info("1. Start")
 			r := &podc.Request{
 				Proposal: ev.Proposal,
 			}

@@ -19,16 +19,12 @@ package main
 
 import (
 	"crypto/ecdsa"
-
     "flag"
 	"net"
 	"strings"
-
 	"fmt"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"os"
-	"strings"
-
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/crypto"

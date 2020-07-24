@@ -315,7 +315,7 @@ func (st *StateTransition) TransitionDb() (ret []byte, requiredGas, usedGas *big
 }
 
 func (st *StateTransition) refundGas() {
-	fmt.Printf("\nfunc (st *StateTransition) refundGas\n")
+	//fmt.Printf("\nfunc (st *StateTransition) refundGas\n")
 	// Return eth for remaining gas to the sender account,
 	// exchanged at the original rate.
 	sender := st.from() // err already checked
@@ -326,7 +326,7 @@ func (st *StateTransition) refundGas() {
     if !isGovernance && !isCoinTransfer {
 		remaining = new(big.Int).Mul(new(big.Int).SetUint64(st.gas), big.NewInt(params.Gasfee)) // new(big.Int).Mul(new(big.Int).SetUint64(st.gas), st.gasPrice)
 		st.state.AddBalance(sender.Address(), remaining)
-		fmt.Printf(" remaining = %d\n st.gas = %d\n", remaining, st.gas)
+		//fmt.Printf(" remaining = %d\n st.gas = %d\n", remaining, st.gas)
 		//fmt.Printf("2. from = %x\n GetBalance = %x\n", sender.Address(), st.state.GetBalance(sender.Address()))
 
 		// Apply refund counter, capped to half of the used gas.
@@ -335,7 +335,7 @@ func (st *StateTransition) refundGas() {
 		st.gas += refund.Uint64()
 
 		refundFee := new(big.Int).Mul(refund, big.NewInt(params.Gasfee))   // refund.Mul(refund, st.gasPrice)
-		fmt.Printf(" refund = %v\n st.gas = %v\n refundFee = %v\n", refund, st.gas, refundFee)
+		//fmt.Printf(" refund = %v\n st.gas = %v\n refundFee = %v\n", refund, st.gas, refundFee)
 		st.state.AddBalance(sender.Address(), refundFee)
 		//fmt.Printf("3. from = %x\n GetBalance = %x\n", sender.Address(), st.state.GetBalance(sender.Address()))
     }

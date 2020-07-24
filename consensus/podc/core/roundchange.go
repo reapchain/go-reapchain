@@ -175,7 +175,7 @@ func (rcs *roundChangeSet) Set(r *big.Int, msg *message) (int, error) {
 	defer rcs.mu.Unlock()
 
 	round := r.Uint64()
-	log.Info("round in Set =", "round", round ) //added by yichoi
+	//log.Info("round in Set =", "round", round ) //added by yichoi
 	if rcs.roundChanges[round] == nil {
 		rcs.roundChanges[round] = newMessageSet(rcs.validatorSet)
 	}
