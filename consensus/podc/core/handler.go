@@ -31,7 +31,7 @@ import (
 // Start implements core.Engine.Start
 func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error {
 	// Initialize last proposer
-	log.Info("lastSequence", "lastSequence", lastSequence)
+	//log.Info("lastSequence", "lastSequence", lastSequence)
 
 	c.lastProposer = lastProposer
 	var err error
@@ -48,6 +48,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
 	                                                       //Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
 	c.lastProposal = lastProposal
+	c.lastSequence = lastSequence
 	c.valSet = c.backend.Validators(c.lastProposal)  // Validator array 관리
 
 
@@ -98,7 +99,7 @@ func (c *core) handleEvents() {
 		switch ev := event.Data.(type) {
 		case podc.RequestEvent:
 			c.startTime = time.Now()
-			log.Info("1. Start")
+			//log.Info("1. Start")
 			r := &podc.Request{
 				Proposal: ev.Proposal,
 			}

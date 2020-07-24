@@ -73,13 +73,13 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 	logger := c.logger.New("state", c.state)
 		// Decode round change message
 		var rc *roundChange
-	startsync := make (chan int)
+	//startsync := make (chan int)
 	if( !podc_global.QManConnected ) { // if i'm not Qman and general geth. then roundchange and start new round. for qman, don't roundchange, it is not necessary.
 
-		if err := msg.Decode(&rc); err != nil {
+			if err := msg.Decode(&rc); err != nil {
 			logger.Error("Failed to decode round change", "err", err)
 			return errInvalidMessage
-		}
+	}
 
 		cv := c.currentView()
 		//log.Info("I'm  not the Qmanager(handleRoundChange) ")
@@ -97,7 +97,7 @@ func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 			//	Round:    new(big.Int).Set(rc.Round),
 			//	Sequence: new(big.Int).Set(rc.Sequence),
 			//}, true)
-            startsync <- 1
+         //   startsync <- 1
 
 			return errInvalidMessage
 		}

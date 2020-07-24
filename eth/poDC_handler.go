@@ -76,10 +76,10 @@ func newPoDCProtocolManager(config *params.ChainConfig, mode downloader.SyncMode
 					defer manager.wg.Done()
 					return manager.handle(peer, manager.handleMsg)
 //
-				case manager.ValidatorSyncCh <- peer:
-					manager.wg.Add(1)  //? 양수, 음수 구분 및 나중에,, 추가 검
-					defer manager.wg.Done()
-					return manager.handle(peer, manager.handleMsg)
+//				case manager.ValidatorSyncCh <- peer:
+//					manager.wg.Add(1)  //? 양수, 음수 구분 및 나중에,, 추가 검
+//					defer manager.wg.Done()
+//					return manager.handle(peer, manager.handleMsg)
 
 					//
 
