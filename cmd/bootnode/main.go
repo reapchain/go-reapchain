@@ -21,6 +21,7 @@ import (
 	"crypto/ecdsa"
 	"flag"
 	"fmt"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"os"
 	"strings"
@@ -296,6 +297,7 @@ func main() {
 		account = PubkeyToAddress(nodeKey.PublicKey)
 		fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
 
+		config.Config.GetConfig("REAPCHAIN ENV")
 
 		podc_global.IsBootNode = true
 

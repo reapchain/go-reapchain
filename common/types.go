@@ -26,6 +26,26 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 )
 
+
+type Tag uint64
+
+const (
+	Senator         Tag = iota		// 상원
+	Parliamentarian               	// 하원
+	Candidate                     	// 하원, 운영위 후보군
+	General                       	// 일반 노드, 상원, 하원도 아닌.
+	QManager                      	// Q-Manager
+	Coordinator						// 코디
+)
+
+type ValidatorInfo struct {
+	Address Address
+	Tag Tag
+	Qrnd uint64
+}
+
+type ValidatorInfos []ValidatorInfo
+
 const (
 	HashLength    = 32
 	AddressLength = 20

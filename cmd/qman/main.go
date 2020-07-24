@@ -23,7 +23,11 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/ethereum/go-ethereum/config"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"os"
 
 	//"github.com/ethereum/go-ethereum/qManager"
 )
@@ -74,11 +78,26 @@ func main() {
 
 	}
 
+	pwd, err := os.Getwd()
+	fmt.Printf("current working directory: pwd= %v \n",  pwd)
+	if err != nil {
+		fmt.Printf("failed to get current working directory: pwd= %v , err=%v",  pwd, err)
+	}
+
+	log.Info("QManager Standalone Started")
+
+
+	podc_global.QManConnected = true
+	config.Config.GetConfig("REAPCHAIN ENV")
 
 		//var account common.Address
 		//account = PubkeyToAddress(nodeKey.PublicKey)
 		//fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
+
+		qManager.InitializeQManager()
 		qManager.Start(listenAddr, qmanKey)
+
+
 
 
 
