@@ -23,6 +23,8 @@ var (
 	DBDataList []QManDBStruct
 )
 
+
+
 type (
 	QManDBStruct struct {
 		ID      string
@@ -32,9 +34,26 @@ type (
 	}
 )
 
+type Message struct {
+	Message string
+	Code int
+}
+
 type GovStruct struct {
 	Validator string
 	Tag string
+}
+
+type RequestStruct struct {
+	Proposer string
+}
+
+type RequestCoordiStruct struct {
+	QRND uint64
+}
+
+type CoordiDecideStruct struct {
+	Status bool
 }
 
 func CheckBootNodePortAndID(NodeID string, Port int) bool{
