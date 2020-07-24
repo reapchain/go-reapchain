@@ -19,8 +19,6 @@ package node
 import (
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/qManager"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"net"
 	"os"
 	"path/filepath"
@@ -248,19 +246,27 @@ func (n *Node) Start() error {
 	n.services = services
 	n.server = running
 	n.stop = make(chan struct{})
-
 	log.Info("NODE SELF", "n.server" , n.server.Self())
 	if( len(n.serverConfig.QmanagerNodes) <= 0 ) {
 		log.Info("Qman is not set","Qman Enode", nil )
 		return nil
 	}
-	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
+	//QmanEnode := n.serverConfig.QmanagerNodes[0].ID
+	//
+	//log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)
+	//
+	//if podc_global.BootNodePort == 0{
+	//
+	//	podc_global.BootNodePort = 30301
+	//}
 
-	if n.server.Self().ID == QmanEnode{
-		qManager.QmanInit()
-		podc_global.QManConnected = true
-		podc_global.QManPubKey, _ = n.server.Self().ID.Pubkey()
-	}
+	//
+	//if n.server.Self().ID == QmanEnode{
+	//	qManager.InitializeQManager()
+	//	podc_global.QManConnected = true
+	//	podc_global.QManPubKey, _ = n.server.Self().ID.Pubkey()
+	//
+	//}
 	return nil
 }
 
@@ -268,9 +274,10 @@ func (n *Node) openDataDir() error {
 	if n.config.DataDir == "" {
 		return nil // ephemeral
 	}
-	instdir := filepath.Join(n.config.DataDir, n.config.name())  //DataDir = /Users/yongilchoi/Library/Ethereum
-	                                                             //n.config.name = geth
-	log.Info("Current Dir:","instdir", instdir)
+
+
+
+	instdir := filepath.Join(n.config.DataDir, n.config.name())
 
 	if err := os.MkdirAll(instdir, 0700); err != nil {
 		return err

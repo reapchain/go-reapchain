@@ -1,9 +1,10 @@
 package core
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"fmt"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
+
 	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"os"
@@ -17,37 +18,31 @@ import (
 
 //var ExtraDataLength int = 0  //int value is zero,
 
-type ValidatorInfo struct {
-	Address common.Address
-	Tag podc.Tag
-	Qrnd uint64
-}
 
-type ValidatorInfos []ValidatorInfo
 
 func (c *core) sendDSelect() {
 	logger := c.logger.New("state", c.state)
-	var extra [7]ValidatorInfo  // 최소 7개 노드에서 추가?  기동시 최소 7개 이상 띄워야함.
+	var extra [7]common.ValidatorInfo  // 최소 7개 노드에서 추가?  기동시 최소 7개 이상 띄워야함.
 	//var extra [50]ValidatorInfo  //debugging... 7 -> 50 ,, logical bug. 임시로 50개,, 나중에 수정할 것.
 	flag := false
 
 	for i, v := range c.valSet.List() {
-		validatorInfo := ValidatorInfo{}
+		validatorInfo := common.ValidatorInfo{}
 		validatorInfo.Address = v.Address()
 		validatorInfo.Qrnd = rand.Uint64()
 
 		if i == 0 {
 			if !c.valSet.IsProposer(v.Address()) {
-				validatorInfo.Tag = podc.Coordinator
+				validatorInfo.Tag = common.Coordinator
 			} else {
 				flag = true
 			}
 		} else if i == 1 {
 			if flag {
-				validatorInfo.Tag = podc.Coordinator
+				validatorInfo.Tag = common.Coordinator
 			}
 		} else {
-			validatorInfo.Tag = podc.Candidate
+			validatorInfo.Tag = common.Candidate
 		}
 
 		extra[i] = validatorInfo
@@ -65,10 +60,29 @@ func (c *core) sendDSelect() {
 }
 
 func (c *core) sendExtraDataRequest() {
-	c.send(&message{
-		Code: msgExtraDataRequest,
-		Msg: []byte("extra data request testing."),
-	}, c.qmanager)
+	//c.send(&message{
+	//	Code: msgExtraDataRequest,
+	//	Msg: []byte("extra data request testing."),
+	//}, c.qmanager)
+
+	log.Info("Extra Data Requesting To Standalone QMANAGER")
+
+	extra := podc_global.RequestExtraData(c.valSet.GetProposer().Address().String())
+	log.Info("Recieved ExtraData ", extra )
+
+	extraDataJson, err := json.Marshal(extra)
+	log.Info("Recieved extraDataJson ", extraDataJson )
+
+	if err != nil {
+		log.Error("Failed to encode", "extra data", extra)
+	}
+	c.ExtraDataLength = len(extra)
+
+
+	c.broadcast(&message{
+		Code: msgDSelect,
+		Msg: extraDataJson,
+	})
 }
 
 func (c *core) sendCoordinatorDecide() {
@@ -103,7 +117,7 @@ func (c *core) sendCandidateDecide() {
 //D-Select msg
 func (c *core) handleSentExtraData(msg *message, src podc.Validator) error {
 	// Decode d-select message
-	var extraData ValidatorInfos
+	var extraData common.ValidatorInfos
 	if err := json.Unmarshal(msg.Msg, &extraData); err != nil {
 		log.Error("JSON Decode Error", "Err", err)
 		log.Info("Decode Error")
@@ -127,7 +141,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	c.intervalTime = time.Now()
 
 	// Decode d-select message
-	var extraData ValidatorInfos
+	var extraData common.ValidatorInfos
 
 	if err := json.Unmarshal(msg.Msg, &extraData); err != nil {
 		log.Error("JSON Decode Error", "Err", err)
@@ -148,18 +162,37 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	}
 
 
-	if c.tag == podc.Coordinator {
+	if c.tag == common.Coordinator {
 
-		QRNDArray := make([]byte, 8)
-		binary.LittleEndian.PutUint64(QRNDArray, QRND)
+		//QRNDArray := make([]byte, 8)
+		//binary.LittleEndian.PutUint64(QRNDArray, QRND)
+
+
+
 
 		c.ExtraDataLength = len(extraData)
 		c.criteria = 29
 
-		c.send(&message{
-			Code: msgCoordinatorConfirmRequest,
-			Msg: QRNDArray,
-		}, c.qmanager)
+		isCoordinator := podc_global.CooridnatorConfirmation(podc_global.RequestCoordiStruct{QRND: QRND})
+
+		if isCoordinator{
+
+			var err error
+			log.Info(fmt.Sprintf("I am Coordinator! ExtraDataLength %d", c.ExtraDataLength))  //grep -r 'I am Coordinator!' *.log
+			if( c.ExtraDataLength != 0 ){
+				c.criteria = math.Ceil((( float64(c.ExtraDataLength) - 1.00) * float64(0.51) ) )  //Ceil.. >= 수 리턴.
+			}
+			if( c.ExtraDataLength == 0 ){
+				log.Info("ExtraDataLength has problem")
+				//utils.Fatalf("ExtraDataLength has problem)
+				return err
+			}
+
+
+			log.Info("c.criteria=", "c.criteria", c.criteria )
+			c.sendCoordinatorDecide()
+		}
+
 
 	} else{
 		c.ExtraDataLength = 0
@@ -189,7 +222,7 @@ func (c *core) handleCoordinatorConfirm(msg *message, src podc.Validator) error 
 }
 
 func (c *core) handleCoordinatorDecide(msg *message, src podc.Validator) error {
-	if c.tag != podc.Coordinator {
+	if c.tag != common.Coordinator {
 		c.sendRacing(src.Address())  //레이싱 시작 메시지 전송
 	}
 
@@ -199,7 +232,7 @@ func (c *core) handleCoordinatorDecide(msg *message, src podc.Validator) error {
 func (c *core) handleRacing(msg *message, src podc.Validator) error {
 	c.racingMu.Lock()
 	defer c.racingMu.Unlock()
-	if c.tag == podc.Coordinator {
+	if c.tag == common.Coordinator {
 
 		c.count = c.count + 1
 		if c.count > uint(c.criteria) && !c.racingFlag {

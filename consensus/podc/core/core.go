@@ -100,7 +100,7 @@ type core struct {
 	// the timer to record consensus duration (from accepting a preprepare to final committed stage)
 	consensusTimer goMetrics.Timer
 
-	tag podc.Tag
+	tag common.Tag
 	count uint
 	racingFlag bool
 	racingMu *sync.Mutex
@@ -322,11 +322,11 @@ func PrepareCommittedSeal(hash common.Hash) []byte {
 	return buf.Bytes()
 }
 
-func (c *core) Tag() podc.Tag {
+func (c *core) Tag() common.Tag {
 	return c.tag
 }
 
-func (c *core) SetTag(t podc.Tag) {
+func (c *core) SetTag(t common.Tag) {
 	c.tag = t
 }
 

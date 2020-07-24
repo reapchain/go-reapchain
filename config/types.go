@@ -15,8 +15,10 @@ type EnvConfig struct {
 	Consensus	ConsensusConfig	`json:"consensus"`
 	Token		TokenConfig		`json:"token"`
 	Bootnodes	[]string		`json:"bootnodes"`
-	Senatornodes []string       `json:"Senatornodes"`
-	Candidatenodes []string     `json:"Candidatenodes"`
+	QManagers	[]string		`json:"qmanagers"`
+	//Senatornodes []string       `json:"Senatornodes"`
+	//Candidatenodes []string     `json:"Candidatenodes"`
+
 }
 
 // detail configurations for consensus part

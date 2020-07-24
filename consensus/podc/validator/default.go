@@ -28,7 +28,7 @@ import (
 
 type defaultValidator struct {
 	address common.Address
-	tag podc.Tag
+	tag common.Tag
 	qrnd uint64
 }
 
@@ -40,7 +40,7 @@ func (val *defaultValidator) String() string {
 	return val.Address().String()
 }
 
-func (val *defaultValidator) Tag() podc.Tag {
+func (val *defaultValidator) Tag() common.Tag {
 	return val.tag
 }
 
@@ -48,7 +48,7 @@ func (val *defaultValidator) SetAddress(a common.Address) {
 	val.address = a
 }
 
-func (val *defaultValidator) SetTag(t podc.Tag) {
+func (val *defaultValidator) SetTag(t common.Tag) {
 	val.tag = t
 }
 

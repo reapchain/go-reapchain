@@ -32,7 +32,7 @@ func (c *EnvConfig) GetConfig(env string) {
 
 	if err != nil {
 		log.Error("Failed to read configurations", "error", err)
-		panic(err)
+
 	}
 
 	defer jsonFile.Close()
@@ -44,24 +44,29 @@ func (c *EnvConfig) GetConfig(env string) {
 		c.Consensus = TotalConfig.Dev.Consensus
 		c.Token = TotalConfig.Dev.Token
 		c.Bootnodes = TotalConfig.Dev.Bootnodes
-		c.Senatornodes = TotalConfig.Local.Senatornodes
-		c.Candidatenodes = TotalConfig.Local.Candidatenodes
+		c.QManagers = TotalConfig.Dev.QManagers
+		//c.Senatornodes = TotalConfig.Local.Senatornodes
+		//c.Candidatenodes = TotalConfig.Local.Candidatenodes
 
 	} else if env == "production" {
 		c.Consensus = TotalConfig.Prod.Consensus
 		c.Token = TotalConfig.Prod.Token
 		c.Bootnodes = TotalConfig.Prod.Bootnodes
-		c.Senatornodes = TotalConfig.Local.Senatornodes
-		c.Candidatenodes = TotalConfig.Local.Candidatenodes
+		c.QManagers = TotalConfig.Dev.QManagers
+
+		//c.Senatornodes = TotalConfig.Local.Senatornodes
+		//c.Candidatenodes = TotalConfig.Local.Candidatenodes
 	} else {
 		c.Consensus = TotalConfig.Local.Consensus
 		c.Token = TotalConfig.Local.Token
 		c.Bootnodes = TotalConfig.Local.Bootnodes
-		c.Senatornodes = TotalConfig.Local.Senatornodes
-		c.Candidatenodes = TotalConfig.Local.Candidatenodes
+		c.QManagers = TotalConfig.Dev.QManagers
+
+		//c.Senatornodes = TotalConfig.Local.Senatornodes
+		//c.Candidatenodes = TotalConfig.Local.Candidatenodes
 	}
-	fmt.Printf("\nSenator   nodes : %s\n", c.Senatornodes)
-	fmt.Printf("\nCandidate nodes : %s\n", c.Candidatenodes)
+	//fmt.Printf("\nSenator   nodes : %s\n", c.Senatornodes)
+	//fmt.Printf("\nCandidate nodes : %s\n", c.Candidatenodes)
 
 
 }

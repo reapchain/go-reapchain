@@ -21,16 +21,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 )
 
-type Tag uint64
-
-const (
-	Senator         Tag = iota		// 상원
-	Parliamentarian               	// 하원
-	Candidate                     	// 하원, 운영위 후보군
-	General                       	// 일반 노드, 상원, 하원도 아닌.
-	QManager                      	// Q-Manager
-	Coordinator						// 코디
-)
 type Validator interface {
 	// Address returns address
 	Address() common.Address
@@ -39,13 +29,13 @@ type Validator interface {
 	String() string
 
 
-	Tag() Tag
+	Tag() common.Tag
 
 	Qrnd() uint64
 
 	SetAddress(a common.Address)
 
-	SetTag(t Tag)
+	SetTag(t common.Tag)
 
 	SetQrnd(q uint64)
 	//Tag() uint64 // Tag()  is bug ,, just test by yichoi
