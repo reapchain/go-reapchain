@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with go-ethereum. If not, see <http://www.gnu.org/licenses/>.
 
-// bootnode runs a bootstrap node for the Ethereum Discovery Protocol.
 package main
 
 import (
@@ -34,7 +33,7 @@ import (
 func main() {
 	var (
 		listenAddr  = flag.String("addr", ":30301", "listen address")
-		genKey      = flag.String("genkey", "", "generate a node key")
+		genKey      = flag.String("genkey", "", "generate a qman key")
 		qmanKeyFile = flag.String("qmankey", "", "private key filename")
 		qmanKeyHex  = flag.String("qmankeyhex", "", "private key as hex (for testing)")
 		qmanKey *ecdsa.PrivateKey
@@ -55,26 +54,25 @@ func main() {
 		}
 		return
 	case *qmanKeyFile == "" && *qmanKeyHex == "":
-		utils.Fatalf("Use -nodekey or -nodekeyhex to specify a private key")
+		utils.Fatalf("Use -qmankey or -qmankeyhex to specify a private key")
 	case *qmanKeyFile != "" && *qmanKeyHex != "":
-		utils.Fatalf("Options -nodekey and -nodekeyhex are mutually exclusive")
+		utils.Fatalf("Options -qmankey and -qmankeyhex are mutually exclusive")
 	case *qmanKeyFile != "":
 		if qmanKey, err = crypto.LoadECDSA(*qmanKeyFile); err != nil {
 			fmt.Printf("%v\n", qmanKey )
 		}
 
-		//			fmt.Printf("read nodekey= %x\n, read nodekey(Public)= %x\n", nodeKey, nodeKey.Public() )
 		if(err != nil) {
 			fmt.Printf("%v\n", qmanKey )
 
-			utils.Fatalf("-nodekey: %v", err)
+			utils.Fatalf("-qmankey: %v", err)
 		}
 
 	case *qmanKeyHex != "":
 		if qmanKey, err = crypto.HexToECDSA(*qmanKeyHex); err != nil {
-			utils.Fatalf("-nodekeyhex: %v", err)
+			utils.Fatalf("-qmankeyhex: %v", err)
 		}
-		fmt.Printf("return private key from nodekey= %x\n", listenAddr )
+		fmt.Printf("return private key from qmankey= %x\n", listenAddr )
 
 	}
 
