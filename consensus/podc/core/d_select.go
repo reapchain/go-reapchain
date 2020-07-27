@@ -68,10 +68,12 @@ func (c *core) sendExtraDataRequest() {
 	log.Info("Extra Data Requesting To Standalone QMANAGER")
 
 	extra := podc_global.RequestExtraData(c.valSet.GetProposer().Address().String())
-	log.Info("Recieved ExtraData ", extra )
+	log.Info("Qmanager", "Recieved ExtraData", extra)
+
 
 	extraDataJson, err := json.Marshal(extra)
-	log.Info("Recieved extraDataJson ", extraDataJson )
+	log.Info("Qmanager", "Recieved extraDataJson", extraDataJson)
+
 
 	if err != nil {
 		log.Error("Failed to encode", "extra data", extra)
@@ -141,13 +143,16 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	c.intervalTime = time.Now()
 
 	// Decode d-select message
-	var extraData common.ValidatorInfos
+	var extraData []common.ValidatorInfo
 
 	if err := json.Unmarshal(msg.Msg, &extraData); err != nil {
 		log.Error("JSON Decode Error", "Err", err)
 		log.Info("Decode Error")
 		return errFailedDecodePrepare
 	}
+
+	log.Info("handleDSelect", "extraData", extraData)
+
 	nodename, err := os.Getwd()
 	if err != nil {
 		fmt.Printf("current nodename= %v , err=%v",  nodename, err)
@@ -161,19 +166,24 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		}
 	}
 
+	log.Info("handleDSelect", "QRND", QRND)
+	log.Info("handleDSelect", "c.tag", c.tag)
+	log.Info("handleDSelect", "c.address", c.address)
+
+
 
 	if c.tag == common.Coordinator {
+		log.Info("common.Coordinator", "c.tag", c.tag)
 
 		//QRNDArray := make([]byte, 8)
 		//binary.LittleEndian.PutUint64(QRNDArray, QRND)
-
-
-
 
 		c.ExtraDataLength = len(extraData)
 		c.criteria = 29
 
 		isCoordinator := podc_global.CooridnatorConfirmation(podc_global.RequestCoordiStruct{QRND: QRND})
+
+		log.Info("common.Coordinator", "isCoordinator", isCoordinator)
 
 		if isCoordinator{
 
@@ -195,8 +205,11 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 
 	} else{
+
 		c.ExtraDataLength = 0
 		c.criteria = 0
+		log.Info("handleDSelect", "c.ExtraDataLength", c.ExtraDataLength)
+
 	}
 
 	return nil

@@ -218,6 +218,8 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 	if err != nil {
 		panic(err)
 	}
+	log.Print("COORDINATOR CONFIRMATION")
+
 	log.Print(string(body))
 
 	var coordiStruct podc_global.RequestCoordiStruct
@@ -227,8 +229,12 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 	}
 
 
+	log.Print("QMAN DIVISOR")
+	log.Print(Divisor)
 
 	if coordiStruct.QRND%uint64(Divisor) == 0 {
+		log.Print("QMAN COORDI TRUE")
+
 		decideStruct  := podc_global.CoordiDecideStruct{
 			Status: true,
 		}
@@ -236,6 +242,8 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 
 
 	} else{
+		log.Print("QMAN COORDI FALSE")
+
 
 		decideStruct  := podc_global.CoordiDecideStruct{
 			Status: false,
