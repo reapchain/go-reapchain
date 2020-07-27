@@ -48,6 +48,9 @@ func RequestExtraData(Properser string) common.ValidatorInfos {
 
 	log.Info("VALIDATOR LIST", "Full BODY : ", resp)
 
+	//data := []common.ValidatorInfo{}
+	//json.Unmarshal([]byte(s), &data)
+
 	return result
 
 	//log.Info(result["data"])
@@ -110,7 +113,7 @@ func CooridnatorConfirmation(coordiReq RequestCoordiStruct) bool {
 		return false
 	}
 
-	resp, err := http.Post("http://"+ QManagerURL + "/BootNodeSendData", "application/json", bytes.NewBuffer(bytesRepresentation))
+	resp, err := http.Post("http://"+ QManagerURL + "/CoordinatorConfirmation", "application/json", bytes.NewBuffer(bytesRepresentation))
 	if err != nil {
 		log.Error(err.Error())
 		return false
