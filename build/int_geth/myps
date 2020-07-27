@@ -1,0 +1,9 @@
+#!/bin/sh
+LOGIN_NAME=$(logname)
+echo "\n### bootnode ###"
+ps -ef | egrep "bootnode " | grep $LOGIN_NAME | egrep -v "geth |grep|myps"
+echo "\n### qmanager ###"
+ps -ef | egrep "qman " | grep $LOGIN_NAME |  egrep -v "grep|myps"
+echo "\n### node ###"
+ps -ef | egrep "geth " | grep $LOGIN_NAME | egrep -v "30501|grep|myps" | sort -k 12
+echo ""
