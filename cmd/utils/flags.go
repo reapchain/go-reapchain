@@ -625,8 +625,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	for _, url := range urls {
 		node, err := discover.ParseNode(url)
 
-		log.Info("BootstrapNodes:","ID", node.ID.String())
-		log.Info("BootstrapNodes:","IP", node.IP)
+		//log.Info("BootstrapNodes:","ID", node.ID.String())
+		//log.Info("BootstrapNodes:","IP", node.IP)
 		podc_global.BootNodeID = node.ID.String()
 		podc_global.BootNodePort = int(node.UDP)
 
@@ -948,14 +948,6 @@ func SetNodeConfig(ctx *cli.Context, cfg *node.Config) {
 		log.Info("SetNodeConfig: ListenAddr of another ip: ",cfg.P2P.ListenAddr )
 
 	}
-	//if ctx.GlobalIsSet(BootnodeportFlag.Name){
-	//	bootnodeports := ctx.GlobalInt(BootnodeportFlag.Name)
-	//
-	//	log.Info("SetNodeConfig BootNodePort", "Value", bootnodeports)
-	//	qManager.BootNodePort = bootnodeports
-	//
-	//}
-
 	SetP2PConfig(ctx, &cfg.P2P)
 	setIPC(ctx, cfg)
 	setHTTP(ctx, cfg)
@@ -1083,7 +1075,7 @@ func SetEthConfig(ctx *cli.Context, stack *node.Node, cfg *eth.Config) {
 	setPoDC(ctx, cfg)
 	switch {
 	case ctx.GlobalIsSet(SyncModeFlag.Name):
-		log.Info("SyncModeFlag.Name:", "SyncModeFlag.Name", SyncModeFlag.Name)
+		//log.Info("SyncModeFlag.Name:", "SyncModeFlag.Name", SyncModeFlag.Name)
 		cfg.SyncMode = *GlobalTextMarshaler(ctx, SyncModeFlag.Name).(*downloader.SyncMode)
 	case ctx.GlobalBool(FastSyncFlag.Name):
 		cfg.SyncMode = downloader.FastSync

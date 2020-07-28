@@ -19,7 +19,6 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
-	"reflect"
 	"time"
 )
 
@@ -34,14 +33,8 @@ func (c *core) handleRequest(request *podc.Request) error {
 	}
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
-	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
-		log.Info("I'm the Qman in handleRequest" )
-	}
-
-
 
 	if c.state ==StateRequestQman {
-		// c.sendPre_prepare()  //send to Qman to get Extradata
 		c.sendRequestExtraDataToQman(request)
 	}
 

@@ -151,15 +151,6 @@ func (pm *protocolManager) syncer() {
 		case <-forceSync:
 			// Force a sync even if not enough peers are present
 			go pm.synchronise(pm.peers.BestPeer())
-// consensus related - begin
-// node 추가시.. 시퀀스 안맞는 부분 해결을 위해서,  startnewround나, roundchange에서, 시퀀스 번호가 안맞을때,, 강제로 싱크 명령을 수행시키기 위해서
-//   합의쪽에서 채널로 이벤트 메시지를 던져준다.
-//		case <-pm.ValidatorSyncCh:  //protocolmanager의 ValidatorSync 채널로 부터 데이타 수신.
-//		//case <-startsync :
-//			// Force a sync even if not enough peers are present
-//			log.Info("Received Channel from roundchange:", "ValidatorSync", pm.ValidatorSyncCh )
-//			go pm.synchronise(pm.peers.BestPeer())
-// end
 
 		case <-pm.noMorePeers:
 			return

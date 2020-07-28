@@ -72,73 +72,52 @@ func (c *core) sendRoundChange(round *big.Int) {
 func (c *core) handleRoundChange(msg *message, src podc.Validator) error {
 	logger := c.logger.New("state", c.state)
 		// Decode round change message
-		var rc *roundChange
-	//startsync := make (chan int)
-	if( !podc_global.QManConnected ) { // if i'm not Qman and general geth. then roundchange and start new round. for qman, don't roundchange, it is not necessary.
+	var rc *roundChange
 
+	if( !podc_global.QManConnected ) {
 			if err := msg.Decode(&rc); err != nil {
-			logger.Error("Failed to decode round change", "err", err)
-			return errInvalidMessage
-	}
-
-		cv := c.currentView()
-		//log.Info("I'm  not the Qmanager(handleRoundChange) ")
-
-		// We never accept round change message with different sequence number
-		if rc.Sequence.Cmp(cv.Sequence) != 0 {
-			logger.Warn("Inconsistent sequence number(handleRoundChange)", "expected", cv.Sequence, "got", rc.Sequence)
-            // sequence no가 틀리면, 블럭 싱크 다시 맞춰주기 위해서, 싱크로나이즈 동작 수행 해주면 됨. 여기서,
-            // 싱크로나이즈를 수행하기 위해서 여기서 싱크코드 넣고, 시퀀스 맞춰지면,, 다시 startNewRound. 수행
-            // 메시지 fail 나는 경우, remove peer를 하기 때문에 쓸모없는 peer로,, 에러메시지 나오고, EOF,, 등등.
-            // 싱크 에러와, fetcher를,, 여기서 채널로,, fetcher or sync hanlder로,, 채널을 통해서 메시지르 보내면,
-            // eth/handler.go 의 synloop()에서,, 처리되게할 것.
-
-			//c.startNewRound(&podc.View{
-			//	Round:    new(big.Int).Set(rc.Round),
-			//	Sequence: new(big.Int).Set(rc.Sequence),
-			//}, true)
-         //   startsync <- 1
-
-			return errInvalidMessage
-		}
-
-		// We never accept round change message with smaller round number
-		if rc.Round.Cmp(cv.Round) < 0 {
-			logger.Warn("Old round change", "from", src, "expected", cv.Round, "got", rc.Round)
-			return errOldMessage
-		}
-
-		num, err := c.roundChangeSet.Add(rc.Round, msg)
-
-		if err != nil {
-			logger.Warn("Failed to add round change message", "from", src, "msg", msg, "err", err)
-			return err
-		}
-
-		// Once we received f+1 round change messages, those messages form a weak certificate.
-		// If our round number is smaller than the certificate's round number, we would
-		// try to catch up the round number.
-		if c.waitingForRoundChange && num == int(c.valSet.F()+1) {
-			if cv.Round.Cmp(rc.Round) < 0 {
-				c.sendRoundChange(rc.Round)
+				logger.Error("Failed to decode round change", "err", err)
+				return errInvalidMessage
 			}
-		}
+			cv := c.currentView()
+			// We never accept round change message with different sequence number
+			if rc.Sequence.Cmp(cv.Sequence) != 0 {
+				logger.Warn("Inconsistent sequence number(handleRoundChange)", "expected", cv.Sequence, "got", rc.Sequence)
+				return errInvalidMessage
+			}
 
-		// We've received 2f+1 round change messages, start a new round immediately.
-		if num == int(2*c.valSet.F()+1) {
-			c.startNewRound(&podc.View{
-				Round:    new(big.Int).Set(rc.Round),
-				Sequence: new(big.Int).Set(rc.Sequence),
-			}, true)
-		}
+			// We never accept round change message with smaller round number
+			if rc.Round.Cmp(cv.Round) < 0 {
+				logger.Warn("Old round change", "from", src, "expected", cv.Round, "got", rc.Round)
+				return errOldMessage
+			}
 
-		//}
+			num, err := c.roundChangeSet.Add(rc.Round, msg)
+
+			if err != nil {
+				logger.Warn("Failed to add round change message", "from", src, "msg", msg, "err", err)
+				return err
+			}
+
+			// Once we received f+1 round change messages, those messages form a weak certificate.
+			// If our round number is smaller than the certificate's round number, we would
+			// try to catch up the round number.
+			if c.waitingForRoundChange && num == int(c.valSet.F()+1) {
+				if cv.Round.Cmp(rc.Round) < 0 {
+					c.sendRoundChange(rc.Round)
+				}
+			}
+
+			// We've received 2f+1 round change messages, start a new round immediately.
+			if num == int(2*c.valSet.F()+1) {
+				c.startNewRound(&podc.View{
+					Round:    new(big.Int).Set(rc.Round),
+					Sequence: new(big.Int).Set(rc.Sequence),
+				}, true)
+			}
 	}
-
 	return nil
 }
-
-// ----------------------------------------------------------------------------
 
 func newRoundChangeSet(valSet podc.ValidatorSet) *roundChangeSet {
 	return &roundChangeSet{

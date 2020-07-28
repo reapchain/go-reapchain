@@ -114,7 +114,7 @@ type protocolManager struct {
 	txsyncCh    chan *txsync
 	quitSync    chan struct{}
 	noMorePeers chan struct{}
-	//ValidatorSyncCh chan *peer  //added by channel by yichoi for validator sync. when add a new validator or validator reload and stop
+
 
 	// wait group is used for graceful shutdowns during downloading
 	// and processing
