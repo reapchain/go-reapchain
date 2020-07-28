@@ -79,9 +79,6 @@ func BootNodeSendData(NodeData QManDBStruct) {
 		log.Error(err.Error())
 	}
 
-
-
-
 	//json.NewDecoder(resp.Body).Decode(&result)
 
 

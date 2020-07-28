@@ -21,10 +21,10 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qManager"
-	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"os"
 
@@ -36,10 +36,19 @@ func main() {
 		genKey      = flag.String("genkey", "", "generate a qman key")
 		qmanKeyFile = flag.String("qmankey", "", "private key filename")
 		qmanKeyHex  = flag.String("qmankeyhex", "", "private key as hex (for testing)")
+		verbosity   = flag.Int("verbosity", int(log.LvlInfo), "log verbosity (0-9)")
+		vmodule     = flag.String("vmodule", "", "log verbosity pattern")
+
 		qmanKey *ecdsa.PrivateKey
 		err     error
 	)
 	flag.Parse()
+	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(false)))
+	//glogger.Qmanager()
+	glogger.Verbosity(log.Lvl(*verbosity))
+	glogger.Vmodule(*vmodule)
+	log.Root().SetHandler(glogger)
+
 
 	switch {
 	case *genKey != "":
@@ -76,14 +85,13 @@ func main() {
 
 	}
 
-	pwd, err := os.Getwd()
-	fmt.Printf("current working directory: pwd= %v \n",  pwd)
-	if err != nil {
-		fmt.Printf("failed to get current working directory: pwd= %v , err=%v",  pwd, err)
-	}
+	//pwd, err := os.Getwd()
+	//fmt.Printf("current working directory: pwd= %v \n",  pwd)
+	//if err != nil {
+	//	fmt.Printf("failed to get current working directory: pwd= %v , err=%v",  pwd, err)
+	//}
 
 	log.Info("QManager Standalone Started")
-
 
 	podc_global.QManConnected = true
 	config.Config.GetConfig("REAPCHAIN ENV")

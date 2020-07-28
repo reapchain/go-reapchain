@@ -4,8 +4,9 @@ import (
 	"crypto/ecdsa"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
-	"log"
+
 
 
 	"math/rand"
@@ -69,7 +70,7 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 	}
 	//log.Print(string(body))
 
-	log.Print("QManager Standalone Started")
+	log.Info("QManager Server Started")
 
 
 	var govStruct []podc_global.GovStruct
@@ -177,22 +178,22 @@ func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 
 	// bodyBytes := []byte{91, 66, 64, 51, 102, 100, 97, 100, 49, 56, 56}
 
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	fmt.Println(timestamp)
-
-	secondTime := time.Now().Add(time.Second * time.Duration(12)).Format("2006-01-02 15:04:05")
-
-	fmt.Println(secondTime)
-
-
-	t, _ := time.Parse("2006-01-02 15:04:05", timestamp )
-	t2, _ := time.Parse("2006-01-02 15:04:05", secondTime )
-	fmt.Println(t)
-
-
-
-	diff := t2.Sub(t)
-	fmt.Println(diff)
+	//timestamp := time.Now().Format("2006-01-02 15:04:05")
+	//fmt.Println(timestamp)
+	//
+	//secondTime := time.Now().Add(time.Second * time.Duration(12)).Format("2006-01-02 15:04:05")
+	//
+	//fmt.Println(secondTime)
+	//
+	//
+	//t, _ := time.Parse("2006-01-02 15:04:05", timestamp )
+	//t2, _ := time.Parse("2006-01-02 15:04:05", secondTime )
+	//fmt.Println(t)
+	//
+	//
+	//
+	//diff := t2.Sub(t)
+	//fmt.Println(diff)
 	// s := string(bodyBytes[:])
 	// log.Println(s)
 	// myString := hex.EncodeToString(bodyBytes)
@@ -218,9 +219,9 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 	if err != nil {
 		panic(err)
 	}
-	log.Print("COORDINATOR CONFIRMATION")
+	log.Info("COORDINATOR CONFIRMATION")
 
-	log.Print(string(body))
+	log.Info(string(body))
 
 	var coordiStruct podc_global.RequestCoordiStruct
 	err = json.Unmarshal(body, &coordiStruct)
@@ -229,11 +230,11 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 	}
 
 
-	log.Print("QMAN DIVISOR")
-	log.Print(Divisor)
+	log.Info("QMAN ", "DIVISOR: ", Divisor)
+
 
 	if coordiStruct.QRND%uint64(Divisor) == 0 {
-		log.Print("QMAN COORDI TRUE")
+		log.Info("QMAN COORDI TRUE")
 
 		decideStruct  := podc_global.CoordiDecideStruct{
 			Status: true,
@@ -242,7 +243,7 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 
 
 	} else{
-		log.Print("QMAN COORDI FALSE")
+		log.Info("QMAN COORDI FALSE")
 
 
 		decideStruct  := podc_global.CoordiDecideStruct{
@@ -261,7 +262,7 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 	if err != nil {
 		panic(err)
 	}
-	log.Print(string(body))
+	log.Info(string(body))
 
 	var nodeStruct podc_global.QManDBStruct
 	err = json.Unmarshal(body, &nodeStruct)
@@ -269,8 +270,8 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 		panic(err)
 	}
 
-	log.Print("Bootnode Sent Data Address" )
-	log.Print(nodeStruct.Address)
+	log.Info("Bootnode Sent Data Address" )
+	log.Info(nodeStruct.Address)
 
 
 	if nodeStruct.Address != ""{
@@ -303,7 +304,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		if err != nil {
 			panic(err)
 		}
-		log.Print(string(body))
+		log.Info(string(body))
 
 		var reqStruct podc_global.RequestStruct
 		err = json.Unmarshal(body, &reqStruct)
@@ -313,10 +314,11 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 
 		proposerAddress := common.HexToAddress(reqStruct.Proposer)
 
-		log.Print("Received EXTRA DATA REQUEST from geth")
+		log.Info("Received EXTRA DATA REQUEST from geth")
 
 		Counter = Counter + 1
-		log.Print("Round ", "Count: ", Counter)
+		log.Info("Round ", "Count: ", Counter)
+
 
 		var extra []common.ValidatorInfo
 
@@ -335,7 +337,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 					randomNumber := extra[index].Qrnd
 					if randomNumber%uint64(divisor) == 0 {
 						extra[index].Tag = common.Coordinator
-						log.Print("Qmanager " , "Random Coordinator Selected ", extra[index].Address.String())
+						log.Info("Qmanager " , "Random Coordinator Selected ", extra[index].Address.String())
 
 						index = len(extra)
 						completed = true
@@ -355,8 +357,8 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		//log.Print("ExtraData list", "extradata", extra)
 
 		//defer db.Close()
-		log.Print("QManager ", "ExtraData Length: ", len(extra))
-		log.Print("QManager ", "ExtraData: ", extra)
+		log.Info("QManager ", "ExtraData Length: ", len(extra))
+		log.Info("QManager ", "ExtraData: ", extra)
 	//	extraDataJson, err := json.Marshal(extra)
 	//
 	//	if err != nil {
@@ -382,19 +384,19 @@ func generateExtraData() []common.ValidatorInfo{
 	//log.Info("Qmanager", "DB Status", "4. Connected")
 
 	var extra []common.ValidatorInfo
-	for index, validator := range podc_global.DBDataList {
+	for _, validator := range podc_global.DBDataList {
 
 		var num uint64
 
 		if podc_global.QRNDDeviceStat == true{
-			log.Print("QRND " + string(index), " Random Nums" , podc_global.QRNDDeviceStat)
+			log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
 			rand.Seed(time.Now().UnixNano())
 			randomIndex := rand.Intn(12280)
 			num = podc_global.RandomNumbers[randomIndex]
 
 
 		} else {
-			log.Print("Suedo Random "  + string(index) , " Random Nums", podc_global.QRNDDeviceStat)
+			log.Info("Suedo Random "  ,   " Random Nums", podc_global.QRNDDeviceStat)
 			num = rand.Uint64()
 		}
 		validatorInfo := common.ValidatorInfo{}

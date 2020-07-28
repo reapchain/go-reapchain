@@ -326,6 +326,7 @@ func main() {
 		config.Config.GetConfig("REAPCHAIN ENV")
 
 		podc_global.IsBootNode = true
+		log.Info("You must start a node at first, and start the second node as miner if you want to avoid this error !")
 
 
 		if _, err := discover.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {  //main
