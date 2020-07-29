@@ -1,0 +1,12 @@
+#!/bin/sh
+
+PROJ_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+LOG_PATH=$PROJ_PATH/log
+NODE_NO=$1
+
+if [ -z $NODE_NO ]; then
+tail -f $LOG_PATH/node*.log
+else
+tail -100f $LOG_PATH/node$NODE_NO.log
+fi
+

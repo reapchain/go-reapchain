@@ -1,0 +1,7 @@
+#!/bin/sh
+
+PROJ_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
+LOG_PATH=$PROJ_PATH/log
+
+tail -f $LOG_PATH/node*.log $LOG_PATH/qman.log $LOG_PATH/bootnode.log
+

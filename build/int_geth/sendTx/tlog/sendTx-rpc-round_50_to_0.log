@@ -1,0 +1,5 @@
+===============================================================
+REAPCHAIN_ENV environment var not set, local will setFatal: Failed to start the JavaScript console: api modules: Post http://15.164.245.122:8690: dial tcp 15.164.245.122:8690: connect: connection refused
+REAPCHAIN_ENV environment var not set, local will setFatal: Failed to start the JavaScript console: api modules: Post http://15.164.245.122:8690: dial tcp 15.164.245.122:8690: connect: connection refused
+REAPCHAIN_ENV environment var not set, local will setFatal: Failed to start the JavaScript console: api modules: Post http://15.164.245.122:8690: dial tcp 15.164.245.122:8690: connect: connection refused
+REAPCHAIN_ENV environment var not set, local will setFatal: Failed to start the JavaScript console: api modules: Post http://15.164.245.122:8690: dial tcp 15.164.245.122:8690: connect: connection refused

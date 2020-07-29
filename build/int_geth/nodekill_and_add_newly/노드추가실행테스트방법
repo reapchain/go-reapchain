@@ -1,0 +1,36 @@
+Node 새로 추가해서 테스트 하는 방법
+
+1. genesis.json에서,, 기존 50개 노드 사용하던거에서 
+
+genesis.json에서 10개 지우고, 40개만 띄운다. ( 0 ~ 39 노드번호 )
+
+genesis_40nodes.json
+
+
+2. 새 노드를 40 ~ 50 개 사이에 아무거나 추가해본다. 
+    start-init-onenode.sh 41 
+
+3.  create_address.sh 41 
+; 기존 쉘이 어카운트 2개로 되어 있어서,, 위 명령 실행 안시키면, Fatal error 남. 
+
+4. start-geth-node.sh 41 
+
+
+
+
+요약 : 
+
+새로 노드 추가 순서 
+
+1. start-init-onenode.sh 41
+2. create_address.sh 41 
+3. start-geth-node.sh 41 
+
+
+이런식으로, 41 ~ N까지 추가하면, 노드가 정상적으로 합의 한다. 
+즉, genesis.json에 없던 Validator들도,, 새로 추가 하는 상황에서,, 정상 기동함. 
+
+새로 추가시.. 처음에는 합의가 약간 지연이 있으나, 수초후부터는 제대로 원래 속도데로 기동됨. 
+
+
+

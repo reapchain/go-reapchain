@@ -1,0 +1,10 @@
+istanbul node 기동시 주의사항
+
+1. genesis.json 의 podc -> istanbul 로 바꿀것, 
+2. start-geth-node.sh 에서, 
+불필요 옵션 지울것, 
+   -bootnode port
+   -governance
+   
+   
+   3. 기타.. 
