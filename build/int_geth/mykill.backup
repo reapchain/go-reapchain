@@ -1,8 +1,0 @@
-#!/bin/bash
-LOGIN_NAME=$(logname)
-proc_cnt=`ps -ef | egrep "geth|bootnode" | grep $LOGIN_NAME | egrep -v "grep|mykill" | awk '{ print $2 }'| wc -l`
-
-if [ $proc_cnt -gt 0 ]; then
-	ps -ef | egrep "geth|bootnode" | grep $LOGIN_NAME | egrep -v "grep|mykill" | awk '{ print $2 }' | xargs kill -9
-fi
-

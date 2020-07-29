@@ -1,6 +1,0 @@
-#!/bin/sh
-
-PROJ_PATH="$( cd "$(dirname "$0")" ; pwd -P )"
-
-tail -f $PROJ_PATH/log/bootnode.log
-
