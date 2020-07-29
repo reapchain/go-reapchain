@@ -72,7 +72,7 @@ type core struct {
 	lastProposer          common.Address
 
 	lastProposal          podc.Proposal
-	lastSequence          *big.Int
+	lastSequence          *big.Int  //yichoi added for solving inconsistent
 	valSet                podc.ValidatorSet
 
 	waitingForRoundChange bool

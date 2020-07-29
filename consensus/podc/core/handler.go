@@ -21,6 +21,8 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"time"
+
+	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/p2p/discover"
@@ -28,6 +30,8 @@ import (
 
 // Start implements core.Engine.Start
 func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error {
+	// Initialize last proposer
+	//log.Info("lastSequence", "lastSequence", lastSequence)
 
 	c.lastProposer = lastProposer
 	var err error
@@ -39,9 +43,10 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
         return nil
 	}
 
-    QmanEnode := qmanager[0].ID[:]
+    QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
-	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode)
+	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
+	                                                       //Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
 	c.lastProposal = lastProposal
 	c.lastSequence = lastSequence
 	c.valSet = c.backend.Validators(c.lastProposal)  // Validator array 관리
@@ -165,6 +170,8 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 		return testBacklog(c.handleRacing(msg, src))
 	case msgCandidateDecide:
 		return testBacklog(c.handleCandidateDecide(msg, src))
+	//case msgDSelect:
+	//	return testBacklog(c.handlePrepare(msg, src))
 	case msgCommit:
 		return testBacklog(c.handleDCommit(msg, src))
 	case msgRoundChange:
