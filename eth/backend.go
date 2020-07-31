@@ -46,7 +46,6 @@ import (
 	"github.com/ethereum/go-ethereum/miner"
 	"github.com/ethereum/go-ethereum/node"
 	"github.com/ethereum/go-ethereum/p2p"
-	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/params"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/ethereum/go-ethereum/rpc"
@@ -75,7 +74,7 @@ type Ethereum struct {
 
 	eventMux       *event.TypeMux
 	engine         consensus.Engine
-	qmanager       []*discover.Node  // Node enode list slice same as array
+	//qmanager       []*discover.Node  // Node enode list slice same as array
 	accountManager *accounts.Manager
 
 	ApiBackend *EthApiBackend
@@ -415,9 +414,9 @@ func (s *Ethereum) Protocols() []p2p.Protocol {
 func (s *Ethereum) Start(srvr *p2p.Server) error {
 	s.netRPCService = ethapi.NewPublicNetAPI(srvr, s.NetVersion())
     //srvr.Config.QmanagerNodes 값이 들어있음.
-    s.qmanager = srvr.Config.QmanagerNodes // Qmanager enode 목록을 넘겨줌. 포인터로
+    //s.qmanager = srvr.Config.QmanagerNodes // Qmanager enode 목록을 넘겨줌. 포인터로
 
-	s.protocolManager.Start( s.qmanager )  //Ethereum 객체의 protocolManager의 인터페이스함수  -> jump
+	s.protocolManager.Start()  //Ethereum 객체의 protocolManager의 인터페이스함수  -> jump
 	if s.lesServer != nil {
 		s.lesServer.Start(srvr)
 	}

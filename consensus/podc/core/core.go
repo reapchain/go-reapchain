@@ -67,7 +67,7 @@ type core struct {
 	events  *event.TypeMuxSubscription
 
 
-	qmanager common.Address
+	//qmanager common.Address
 
 	lastProposer          common.Address
 
@@ -246,7 +246,7 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 	// New snapshot for new round
 	c.current = newRoundState(newView, c.valSet)
 	// Calculate new proposer
-	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64(), c.qmanager)
+	c.valSet.CalcProposer(c.lastProposer, newView.Round.Uint64())
 	c.waitingForRoundChange = false
 	c.setState(StateRequestQman)
 	if roundChange && c.isProposer() {
@@ -334,9 +334,9 @@ func (c *core) GetValidatorListExceptQman() []common.Address {
 	var addrList []common.Address
 
 	for _, val := range c.valSet.List() {
-		if val.Address() != c.qmanager {
+		//if val.Address() != c.qmanager {
 			addrList = append(addrList, val.Address())
-		}
+		//}
 	}
 
 	return addrList

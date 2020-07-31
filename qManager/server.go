@@ -337,7 +337,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 				//log.Print("Qmanager ", "Generating Random Numbers ", "InnerLoop")
 
 				if  proposerAddress != extra[index].Address {
-					if extra[index].Tag == common.Senator{
+					//if extra[index].Tag == common.Senator{
 						randomNumber := extra[index].Qrnd
 						if randomNumber%uint64(divisor) == 0 {
 							extra[index].Tag = common.Coordinator
@@ -346,7 +346,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 							completed = true
 							Divisor = divisor
 						}
-					}
+					//}
 				}
 				//log.Print("ExtraData list", "Address", extra[index].Address , "Qrnd", extra[index].Qrnd, "Tag",  extra[index].Tag)
 				index++

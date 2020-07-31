@@ -17,7 +17,6 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"time"
@@ -25,27 +24,26 @@ import (
 	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
-	"github.com/ethereum/go-ethereum/p2p/discover"
 )
 
 // Start implements core.Engine.Start
-func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error {
+func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal ) error {
 	// Initialize last proposer
 	//log.Info("lastSequence", "lastSequence", lastSequence)
 
 	c.lastProposer = lastProposer
-	var err error
-	if qmanager == nil  {
-		return err
-	}
-    if len(qmanager) <= 0 {
-    	log.Debug("Qmanager node is not exist")
-        return nil // err ?
-	}
+	//var err error
+	//if qmanager == nil  {
+	//	return err
+	//}
+    //if len(qmanager) <= 0 {
+    //	log.Debug("Qmanager node is not exist")
+    //    return nil // err ?
+	//}
+	//
+    //QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
-    QmanEnode := qmanager[0].ID[:]  //여기까지 정상
-
-	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
+	//c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
 	                                                       //Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
 	c.lastProposal = lastProposal
 	c.lastSequence = lastSequence

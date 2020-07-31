@@ -102,7 +102,7 @@ type Config struct {
 
 	// Qmanager nodes are used as pre-configured connections which are always
 	// maintained and re-connected on disconnects.
-	QmanagerNodes []*discover.Node
+	//QmanagerNodes []*discover.Node
 
 	// Trusted nodes are used as pre-configured connections which are always
 	// allowed to connect, even above the peer limit.

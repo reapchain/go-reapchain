@@ -40,10 +40,11 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 			return
 		}
 		if c.valSet.IsProposer(c.Address()) {
+
+			//c.handleQmanager(preprepare, c.valSet.GetProposer())
 			c.broadcast(&message{
 				Code: msgHandleQman,
 				Msg: preprepare,
-				Address: c.qmanager,
 			})
 		}
 	}

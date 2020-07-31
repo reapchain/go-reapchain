@@ -61,7 +61,7 @@ func errResp(code errCode, format string, v ...interface{}) error {
 
 type ProtocolManager interface {
 	// Start protocol manager
-	Start(qman []*discover.Node)
+	Start()
 
 	// Stop protocol manager
 	Stop()
@@ -249,7 +249,7 @@ func (pm *protocolManager) removePeer(id string) {
 	}
 }
 
-func (pm *protocolManager) Start( qman []*discover.Node ) {
+func (pm *protocolManager) Start( ) {
 	// broadcast transactions
 	pm.txSub = pm.eventMux.Subscribe(core.TxPreEvent{})
 	go pm.txBroadcastLoop()
@@ -732,7 +732,7 @@ func (pm *protocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 		}
 		pm.txpool.AddBatch(txs)
 
-	case msg.Code == TxMsgFromQman:  //for Qmanager of martin
+	//case msg.Code == TxMsgFromQman:  //for Qmanager of martin
          //To do
 
 

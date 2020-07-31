@@ -164,7 +164,7 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 				log.Info("Qmanager", "Generating Random Numbers", "InnerLoop")
 
 
-				if !c.valSet.IsProposer( extra[index].Address) && c.qmanager != extra[index].Address {
+				if !c.valSet.IsProposer( extra[index].Address) {
 					randomNumber := extra[index].Qrnd
 					if randomNumber%uint64(divisor) == 0 {
 						extra[index].Tag = common.Coordinator

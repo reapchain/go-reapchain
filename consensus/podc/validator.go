@@ -78,7 +78,7 @@ func (slice Validators) Swap(i, j int) {
 
 type ValidatorSet interface {
 	// Calculate the proposer
-	CalcProposer(lastProposer common.Address, round uint64, qman common.Address) // 최초 Proposer 가 누군지 계산 ,,
+	CalcProposer(lastProposer common.Address, round uint64 ) // 최초 Proposer 가 누군지 계산 ,,
 
 	// 코디 후보군 선정 ?
 	//RecvCordinator(lastProposer common.Address, round uint64) //yichoi
@@ -116,7 +116,7 @@ type ValidatorSet interface {
 
 // ----------------------------------------------------------------------------
 
-type ProposalSelector func(ValidatorSet, common.Address, uint64, common.Address) Validator
+type ProposalSelector func(ValidatorSet, common.Address, uint64 ) Validator
 //type ProposalSelector func(ValidatorSet, common.Address, uint64) Validator
 //func EmptyValSet() {
 //	valSet := validator.NewSet(validator.ExtractValidators([]byte{}))
