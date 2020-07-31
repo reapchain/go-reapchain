@@ -101,12 +101,16 @@ func Sender(signer Signer, tx *Transaction) (common.Address, error) {
 
 func TxChecking(signer Signer, tx *Transaction) {
 
-    pubkey, err := signer.PublicKey(tx)
-    if err == nil {
-        tx.data.Governance = gvn.CheckPublicKey(pubkey)
+	if gvn.IsTxChecking() {
+		pubkey, err := signer.PublicKey(tx)
+		if err == nil {
+			tx.data.Governance = gvn.CheckPublicKey(pubkey)
+		} else {
+			tx.data.Governance = false
+		}
 	} else {
 		tx.data.Governance = false
-    }
+	}
 }
 
 type Signer interface {
