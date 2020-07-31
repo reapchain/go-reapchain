@@ -70,7 +70,7 @@ func ConnectDB(){
 
 
 	}else{
-		log.Info("Qmanager", "DB = ", "WAITING---------------------------------------")
+		//log.Info("Qmanager", "DB = ", "WAITING---------------------------------------")
 		time.Sleep(100 *time.Millisecond)
 		ConnectDB()
 	}

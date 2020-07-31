@@ -35,7 +35,7 @@ import (
 )
 
 const Version = 4
-const ReapChainFlag = 5
+const ReapChainFlag = 65
 //const boot_node_port = 30301
 //var boot_node_port int  //temp , 30301, or 30391
 

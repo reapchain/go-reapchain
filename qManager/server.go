@@ -70,7 +70,7 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 	}
 	//log.Print(string(body))
 
-	log.Info("QManager Server Started")
+	//log.Info("QManager Server Started")
 
 
 	var govStruct []podc_global.GovStruct
@@ -262,7 +262,7 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 	if err != nil {
 		panic(err)
 	}
-	log.Info(string(body))
+	//log.Info(string(body))
 
 	var nodeStruct podc_global.QManDBStruct
 	err = json.Unmarshal(body, &nodeStruct)
@@ -270,8 +270,11 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 		panic(err)
 	}
 
-	log.Info("Bootnode Sent Data Address" )
-	log.Info(nodeStruct.Address)
+	log.Info("QManager ", "Bootnode Data From: ", nodeStruct.Address)
+
+
+	//log.Info("Bootnode Sent Data Address" )
+	//log.Info(nodeStruct.Address)
 
 
 	if nodeStruct.Address != ""{
@@ -322,7 +325,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 
 		var extra []common.ValidatorInfo
 
-
+		outerLoop := 0
 		for {
 			//log.Print("Qmanager ", "Generating Random Numbers ", "Outerloop")
 			extra = generateExtraData()
@@ -334,20 +337,29 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 				//log.Print("Qmanager ", "Generating Random Numbers ", "InnerLoop")
 
 				if  proposerAddress != extra[index].Address {
-					randomNumber := extra[index].Qrnd
-					if randomNumber%uint64(divisor) == 0 {
-						extra[index].Tag = common.Coordinator
-						log.Info("Qmanager " , "Random Coordinator Selected ", extra[index].Address.String())
-
-						index = len(extra)
-						completed = true
-						Divisor = divisor
+					if extra[index].Tag == common.Senator{
+						randomNumber := extra[index].Qrnd
+						if randomNumber%uint64(divisor) == 0 {
+							extra[index].Tag = common.Coordinator
+							log.Info("Qmanager " , "Random Coordinator Selected ", extra[index].Address.String())
+							index = len(extra)
+							completed = true
+							Divisor = divisor
+						}
 					}
 				}
 				//log.Print("ExtraData list", "Address", extra[index].Address , "Qrnd", extra[index].Qrnd, "Tag",  extra[index].Tag)
 				index++
 			}
+			outerLoop++
 			if completed{
+				log.Info("QManager ExtraData ", "For Loop Index: ", outerLoop)
+
+				break
+			}
+
+			if outerLoop == 30{
+				log.Error("QManager ExtraData ", "Error", "Cannot Select Coordinator")
 				break
 			}
 
@@ -389,14 +401,14 @@ func generateExtraData() []common.ValidatorInfo{
 		var num uint64
 
 		if podc_global.QRNDDeviceStat == true{
-			log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
+			//log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
 			rand.Seed(time.Now().UnixNano())
 			randomIndex := rand.Intn(12280)
 			num = podc_global.RandomNumbers[randomIndex]
 
 
 		} else {
-			log.Info("Suedo Random "  ,   " Random Nums", podc_global.QRNDDeviceStat)
+			//log.Info("Suedo Random "  ,   " Random Nums", podc_global.QRNDDeviceStat)
 			num = rand.Uint64()
 		}
 		validatorInfo := common.ValidatorInfo{}

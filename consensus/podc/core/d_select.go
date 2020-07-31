@@ -151,7 +151,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		return errFailedDecodePrepare
 	}
 
-	log.Info("handleDSelect", "extraData", extraData)
+	//log.Info("handleDSelect", "extraData", extraData)
 
 	nodename, err := os.Getwd()
 	if err != nil {
@@ -166,14 +166,14 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		}
 	}
 
-	log.Info("handleDSelect", "QRND", QRND)
-	log.Info("handleDSelect", "c.tag", c.tag)
-	log.Info("handleDSelect", "c.address", c.address)
+	//log.Info("handleDSelect", "QRND", QRND)
+	//log.Info("handleDSelect", "c.tag", c.tag)
+	//log.Info("handleDSelect", "c.address", c.address)
 
 
 
 	if c.tag == common.Coordinator {
-		log.Info("common.Coordinator", "c.tag", c.tag)
+		//log.Info("common.Coordinator", "c.tag", c.tag)
 
 		//QRNDArray := make([]byte, 8)
 		//binary.LittleEndian.PutUint64(QRNDArray, QRND)
@@ -183,7 +183,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 		isCoordinator := podc_global.CooridnatorConfirmation(podc_global.RequestCoordiStruct{QRND: QRND})
 
-		log.Info("common.Coordinator", "isCoordinator", isCoordinator)
+		//log.Info("common.Coordinator", "isCoordinator", isCoordinator)
 
 		if isCoordinator{
 
