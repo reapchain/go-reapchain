@@ -13,18 +13,22 @@ import (
 var Config EnvConfig
 var TotalConfig Configurations
 
-func (c *EnvConfig) GetConfig(env string) {
+func (c *EnvConfig) GetConfig(env string, setupenv string) {
 
 	if confenv := os.Getenv(env); confenv == "" {
 		fmt.Printf("REAPCHAIN_ENV environment var not set, local will set\n")
+	}
+	if setupInfo := os.Getenv(setupenv); setupInfo ==""{
+		fmt.Printf("SETUP_INFO environment var not set, you should setup_info environment \n")
 	}
 	pwd, err := os.Getwd()
 	fmt.Printf("current working directory: pwd= %v \n",  pwd)
 	if err != nil {
 		fmt.Printf("failed to get current working directory: pwd= %v , err=%v",  pwd, err)
 	}
-    //var filename string
-    filename := pwd + "/setup_info/config.json"
+
+    fmt.Println("SETUP_INFO :", os.Getenv( "SETUP_INFO"))
+    filename := os.Getenv( "SETUP_INFO") + "/config.json"
    // log.Info("confi.json is located at ", "filename", filename )
 	fmt.Printf("\ncurrent config file : %v ",  filename)
 
