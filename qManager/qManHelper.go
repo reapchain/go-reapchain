@@ -32,10 +32,10 @@ func CheckQRNDStatus(){
 	case "darwin":
 		podc_global.QRNGFilePrefix = "/Volumes/PSoC USB/"
 	case "linux":
-		user := os.Getenv("USERNAME")
+		user := os.Getenv("USER")
 		podc_global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
 	default:
-		user := os.Getenv("USERNAME")
+		user := os.Getenv("USER")
 		podc_global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
 	}
 
