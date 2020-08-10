@@ -102,7 +102,7 @@ func newPoDCProtocolManager(config *params.ChainConfig, mode downloader.SyncMode
 	return manager, nil
 }
 // 비로소 이스탄불 프로토콜 매니저가 시작되는 부분 중
-func (pm *PoDCProtocolManager) Start(qman []*discover.Node) {
+func (pm *PoDCProtocolManager) Start() {
 	// Subscribe required events
 	pm.eventSub = pm.eventMux.Subscribe(podc.ConsensusDataEvent{}, core.ChainHeadEvent{}) //이벤트 구독 등록
 	//Qmanager로부터 오는 이벤트도 등록해야하나?
@@ -110,8 +110,8 @@ func (pm *PoDCProtocolManager) Start(qman []*discover.Node) {
 
 	//Qmanager list에서 하나의 address만 뽑는다.
 	go pm.eventLoop()  // //고루틴으로 동시성 처리 // 순서 중요할듯 1. 이벤트루프
-	pm.protocolManager.Start(qman) //    2. 프로토콜매니저의 일반 핸들러 시작
-	pm.engine.Start(pm.protocolManager.blockchain, qman, pm.commitBlock)  // 합의 엔진 핸들러 시작
+	pm.protocolManager.Start() //    2. 프로토콜매니저의 일반 핸들러 시작
+	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)  // 합의 엔진 핸들러 시작
 }
 
 func (pm *PoDCProtocolManager) Stop() {

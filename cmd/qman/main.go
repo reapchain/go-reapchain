@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with go-ethereum. If not, see <http://www.gnu.org/licenses/>.
 
-// bootnode runs a bootstrap node for the Ethereum Discovery Protocol.
 package main
 
 import (
@@ -22,21 +21,34 @@ import (
 	"flag"
 	"fmt"
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qManager"
+	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"os"
 
 	//"github.com/ethereum/go-ethereum/qManager"
 )
 func main() {
 	var (
 		listenAddr  = flag.String("addr", ":30301", "listen address")
-		genKey      = flag.String("genkey", "", "generate a node key")
+		genKey      = flag.String("genkey", "", "generate a qman key")
 		qmanKeyFile = flag.String("qmankey", "", "private key filename")
 		qmanKeyHex  = flag.String("qmankeyhex", "", "private key as hex (for testing)")
+		verbosity   = flag.Int("verbosity", int(log.LvlInfo), "log verbosity (0-9)")
+		vmodule     = flag.String("vmodule", "", "log verbosity pattern")
+
 		qmanKey *ecdsa.PrivateKey
 		err     error
 	)
 	flag.Parse()
+	glogger := log.NewGlogHandler(log.StreamHandler(os.Stderr, log.TerminalFormat(false)))
+	//glogger.Qmanager()
+	glogger.Verbosity(log.Lvl(*verbosity))
+	glogger.Vmodule(*vmodule)
+	log.Root().SetHandler(glogger)
+
 
 	switch {
 	case *genKey != "":
@@ -51,34 +63,47 @@ func main() {
 		}
 		return
 	case *qmanKeyFile == "" && *qmanKeyHex == "":
-		utils.Fatalf("Use -nodekey or -nodekeyhex to specify a private key")
+		utils.Fatalf("Use -qmankey or -qmankeyhex to specify a private key")
 	case *qmanKeyFile != "" && *qmanKeyHex != "":
-		utils.Fatalf("Options -nodekey and -nodekeyhex are mutually exclusive")
+		utils.Fatalf("Options -qmankey and -qmankeyhex are mutually exclusive")
 	case *qmanKeyFile != "":
 		if qmanKey, err = crypto.LoadECDSA(*qmanKeyFile); err != nil {
 			fmt.Printf("%v\n", qmanKey )
 		}
 
-		//			fmt.Printf("read nodekey= %x\n, read nodekey(Public)= %x\n", nodeKey, nodeKey.Public() )
 		if(err != nil) {
 			fmt.Printf("%v\n", qmanKey )
 
-			utils.Fatalf("-nodekey: %v", err)
+			utils.Fatalf("-qmankey: %v", err)
 		}
 
 	case *qmanKeyHex != "":
 		if qmanKey, err = crypto.HexToECDSA(*qmanKeyHex); err != nil {
-			utils.Fatalf("-nodekeyhex: %v", err)
+			utils.Fatalf("-qmankeyhex: %v", err)
 		}
-		fmt.Printf("return private key from nodekey= %x\n", listenAddr )
+		fmt.Printf("return private key from qmankey= %x\n", listenAddr )
 
 	}
 
+	//pwd, err := os.Getwd()
+	//fmt.Printf("current working directory: pwd= %v \n",  pwd)
+	//if err != nil {
+	//	fmt.Printf("failed to get current working directory: pwd= %v , err=%v",  pwd, err)
+	//}
+
+	log.Info("QManager Standalone Started")
+
+	podc_global.QManConnected = true
+	config.Config.GetConfig("REAPCHAIN ENV")
 
 		//var account common.Address
 		//account = PubkeyToAddress(nodeKey.PublicKey)
 		//fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
+
+		qManager.InitializeQManager()
 		qManager.Start(listenAddr, qmanKey)
+
+
 
 
 

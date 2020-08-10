@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/consensus/quantum"
+	"github.com/ethereum/go-ethereum/log"
 	"runtime"
 
 	//"fmt"
-	"github.com/ethereum/go-ethereum/log"
+
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/syndtr/goleveldb/leveldb"
@@ -52,13 +53,13 @@ func CheckQRNDStatus(){
 }
 
 func ConnectDB(){
-	log.Info("Qmanager", "IsInUse OPEN = ", IsInUse)
+	//log.Info("Qmanager", "IsInUse OPEN = ", IsInUse)
 
 
 	if IsInUse == false {
 		IsInUse = true
 
-		log.Info("Qmanager", "DB = ", "STARTING---------------------------------------")
+		//log.Info("Qmanager", "DB = ", "STARTING---------------------------------------")
 
 		var err error
 		podc_global.QManagerStorage, err = leveldb.OpenFile("level", nil)
@@ -69,7 +70,7 @@ func ConnectDB(){
 
 
 	}else{
-		log.Info("Qmanager", "DB = ", "WAITING---------------------------------------")
+		//log.Info("Qmanager", "DB = ", "WAITING---------------------------------------")
 		time.Sleep(100 *time.Millisecond)
 		ConnectDB()
 	}
@@ -77,13 +78,13 @@ func ConnectDB(){
 
 }
 func CloseDB(){
-	log.Info("Qmanager", "IsInUse CLOSE = ", IsInUse)
+	//log.Info("Qmanager", "IsInUse CLOSE = ", IsInUse)
 
 	podc_global.QManagerStorage.Close()
 	IsInUse = false
 }
 
-func QmanInit() {
+func InitializeQManager() {
 
 
 	go StartExpirationChecker()
@@ -148,7 +149,7 @@ func GetDBData(){
 
 func expirationCheck() {
 
-	log.Info("Qmanager", "DB Status", "1. Connected")
+	//log.Info("Qmanager", "DB Status", "1. Connected")
 	ConnectDB()
 
 	iter :=  podc_global.QManagerStorage.NewIterator(nil, nil)
@@ -185,7 +186,7 @@ func expirationCheck() {
 		}
 	}
 	CloseDB()
-	log.Info("Qmanager", "DB Status", "1. Disconnected")
+	//log.Info("Qmanager", "DB Status", "1. Disconnected")
 
 }
 
@@ -207,7 +208,7 @@ func expirationCheck() {
 
 func UpdateSenatorCandidateNodes() {
 	if podc_global.QManConnected {
-		log.Info("Qmanager", "DB Status", "2. Connected")
+		//log.Info("Qmanager", "DB Status", "2. Connected")
 		ConnectDB()
 
 
@@ -261,7 +262,7 @@ func UpdateSenatorCandidateNodes() {
 			}
 		}
 		CloseDB()
-		log.Info("Qmanager", "DB Status", "2. Disconnected")
+		//log.Info("Qmanager", "DB Status", "2. Disconnected")
 
 	}
 }
@@ -277,7 +278,7 @@ func FindNode(nodeAddress string) ( found bool) {
 
 	//var data []byte
 	if podc_global.QManConnected {
-		log.Info("Qmanager", "DB Status", "3. Connected")
+		//log.Info("Qmanager", "DB Status", "3. Connected")
 		ConnectDB()
 
 
@@ -294,9 +295,9 @@ func FindNode(nodeAddress string) ( found bool) {
 		foundNode, err := podc_global.QManagerStorage.Get(node_address_encoded, nil)
 		if err != nil {
 			CloseDB()
-			log.Info("Qmanager", "DB Status", "3. Disconnected")
+			//log.Info("Qmanager", "DB Status", "3. Disconnected")
 
-			log.Info("QManager", "DB --", "Node Not Found")
+			log.Info("QManager ", "DB --", "Node Not Found")
 
 			return false
 		}
@@ -304,7 +305,7 @@ func FindNode(nodeAddress string) ( found bool) {
 		var decodedBytes  podc_global.QManDBStruct
 		DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
 		if DecodeErr != nil {
-			log.Info("Qmanager", "Decoding Error", DecodeErr.Error())
+			log.Info("Qmanager ", "Decoding Error", DecodeErr.Error())
 		}
 
 		var encodedStruct *podc_global.QManDBStruct
@@ -318,7 +319,7 @@ func FindNode(nodeAddress string) ( found bool) {
 		encodedStruct = &podc_global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address, Timestamp: timestamp, Tag: decodedBytes.Tag }
 
 		//t, _ := time.Parse("2006-01-02 15:04:05", encodedStruct.Timestamp)
-		//fmt.Println(t)
+		//fmt.Infoln(t)
 		initBytes, err = rlp.EncodeToBytes(encodedStruct)
 
 		if err != nil {
@@ -342,7 +343,7 @@ func FindNode(nodeAddress string) ( found bool) {
 		//}
 
 
-		//fmt.Println(data)
+		//log.Info(data)
 
 		//dec := gob.NewDecoder(bytes.NewReader(data))
 		//
@@ -350,7 +351,7 @@ func FindNode(nodeAddress string) ( found bool) {
 
 		//defer QManagerStorage.Close()
 		CloseDB()
-		log.Info("Qmanager", "DB Status", "3. Disconnected")
+		//log.Info("Qmanager", "DB Status", "3. Disconnected")
 
 		return true
 
@@ -377,8 +378,7 @@ func  Save( dbStruct podc_global.QManDBStruct) (saved bool) {
 
 
 	encodedStruct = &podc_global.QManDBStruct{ID: dbStruct.ID,  Address: dbStruct.Address, Timestamp: dbStruct.Timestamp, Tag: dbStruct.Tag}
-	//t, _ := time.Parse("2006-01-02 15:04:05", encodedStruct.Timestamp)
-	//fmt.Println(t)
+
 	initBytes, err = rlp.EncodeToBytes(encodedStruct)
 
 	if err != nil {
@@ -399,7 +399,7 @@ func  Save( dbStruct podc_global.QManDBStruct) (saved bool) {
 
 func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
 	if podc_global.QManConnected {
-		log.Info("Qmanager", "DB Status", "4. Connected")
+		//log.Info("Qmanager", "DB Status", "4. Connected")
 		ConnectDB()
 
 
@@ -415,7 +415,7 @@ func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
 		}
 		GetDBData()
 		CloseDB()
-		log.Info("Qmanager", "DB Status", "4. Disconnected")
+		//log.Info("Qmanager", "DB Status", "4. Disconnected")
 
 		return true
 

@@ -62,7 +62,7 @@ func newBlockChain(n int) (*core.BlockChain, *simpleBackend) {
 
 
 
-	backend.Start(blockchain, qman, commitBlock)  //insert qman ?
+	backend.Start(blockchain, commitBlock)  //insert qman ?
 
 	b, _ := backend.(*simpleBackend)
 

@@ -17,7 +17,6 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"time"
@@ -25,27 +24,26 @@ import (
 	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
-	"github.com/ethereum/go-ethereum/p2p/discover"
 )
 
 // Start implements core.Engine.Start
-func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error {
+func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal ) error {
 	// Initialize last proposer
 	//log.Info("lastSequence", "lastSequence", lastSequence)
 
 	c.lastProposer = lastProposer
-	var err error
-	if( qmanager == nil ) {
-		return err
-	}
-    if (len(qmanager) <= 0)  {
-    	log.Debug("Qmanager node is not exist")
-        return nil
-	}
+	//var err error
+	//if qmanager == nil  {
+	//	return err
+	//}
+    //if len(qmanager) <= 0 {
+    //	log.Debug("Qmanager node is not exist")
+    //    return nil // err ?
+	//}
+	//
+    //QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
-    QmanEnode := qmanager[0].ID[:]  //여기까지 정상
-
-	c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
+	//c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
 	                                                       //Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
 	c.lastProposal = lastProposal
 	c.lastSequence = lastSequence
@@ -56,7 +54,7 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	start :=time.Now()
 	log.Info("start time of consensus of core engine start()", "start time", start )
 	c.startNewRound(&podc.View{
-		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //seq +1
+		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //lastSequence +1
 		Round:    common.Big0,                                   //round 0
 	}, false)
 
@@ -159,7 +157,10 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	switch msg.Code {
 
 	case msgHandleQman:
-		return testBacklog(c.handleQmanager(msg, src))
+	/* Qmanager handler for receiving from geth : sending qmanager event */
+	//case msgRequest:
+		return testBacklog(c.handleQmanager(msg, src))  //Sending to Qmanager  event hadler  // this geth only proposer.
+
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
 	case msgDSelect:
@@ -177,14 +178,14 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	case msgRoundChange:
 		return testBacklog(c.handleRoundChange(msg, src))
 
-	case msgExtraDataRequest:
-		return testBacklog(c.handleExtraData(msg, src))
-	case msgExtraDataSend:
-		return testBacklog(c.handleSentExtraData(msg, src))
-	case msgCoordinatorConfirmRequest:
-		return testBacklog(c.CoordinatorConfirmation(msg, src))
-	case msgCoordinatorConfirmSend:
-		return testBacklog(c.handleCoordinatorConfirm(msg, src))  //c.criteria 결정,
+	//case msgExtraDataRequest:
+	//	return testBacklog(c.handleExtraData(msg, src))
+	//case msgExtraDataSend:
+	//	return testBacklog(c.handleSentExtraData(msg, src))
+	//case msgCoordinatorConfirmRequest:
+	//	return testBacklog(c.CoordinatorConfirmation(msg, src))
+	//case msgCoordinatorConfirmSend:
+	//	return testBacklog(c.handleCoordinatorConfirm(msg, src))  //c.criteria 결정,
 
 	default:
 		logger.Error("Invalid message", "msg", msg)

@@ -25,7 +25,7 @@ import (
 
 // notice: the normal case have been tested in integration tests.
 func TestHandleMsg(t *testing.T) {
-	N := uint64(4)
+	N := uint64(28)
 	F := uint64(1)
 	sys := NewTestSystemWithBackend(N, F)
 
@@ -62,7 +62,7 @@ func TestHandleMsg(t *testing.T) {
 	//		Sequence: big.NewInt(0),
 	//		Round:    big.NewInt(0),
 	//	},
-	//	Proposal: makeBlock(1),
+	//	Digest: common.StringToHash("1234567890"),
 	//})
 	//// with a unmatched payload. msgDSelect should match with *istanbul.Subject in normal case.
 	//msg = &message{
@@ -73,10 +73,31 @@ func TestHandleMsg(t *testing.T) {
 	//	CommittedSeal: []byte{},
 	//}
 	//
-	//_, val = v0.Validators(nil).GetByAddress(v0.Address())
-	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePrepare {
+	//_, val := v0.Validators(nil).GetByAddress(v0.Address())
+	//if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePreprepare {
 	//	t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
 	//}
+
+	m, _ := Encode(&podc.Proposal{
+		View: &podc.View{
+			Sequence: big.NewInt(1),
+			Round:    big.NewInt(1),
+		},
+		Proposal: makeBlock(1),
+	})
+	// with a unmatched payload. msgPrepare should match with *istanbul.Subject in normal case.
+	msg = &message{
+		Code:          msgPreprepare,
+		Msg:           m,
+		Address:       v0.Address(),
+		Signature:     []byte{},
+		CommittedSeal: []byte{},
+	}
+
+	_, val = v0.Validators(nil).GetByAddress(v0.Address())
+	if err := r0.handleCheckedMsg(msg, val); err != errFailedDecodePrepare {
+		t.Errorf("error mismatch: have %v, want %v", err, errFailedDecodePreprepare)
+	}
 
 	//m, _ = Encode(&podc.Preprepare{
 	//	View: &podc.View{

@@ -19,8 +19,6 @@ package node
 import (
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/qManager"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"net"
 	"os"
 	"path/filepath"
@@ -164,17 +162,18 @@ func (n *Node) Start() error {
 	if n.serverConfig.StaticNodes == nil {
 		n.serverConfig.StaticNodes = n.config.StaticNodes()
 	}
-	if n.serverConfig.QmanagerNodes == nil {
-		n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
-		if n.serverConfig.QmanagerNodes == nil {
-			pwd, err := os.Getwd()
-			if err != nil {
-				log.Debug("Can not find qmanager-nodes.json file in this folder", "Current Folder", pwd )
-			}
 
-		}
-		log.Debug("Qmanager=","QmanagerNodes", n.serverConfig.QmanagerNodes )
-	}
+	//if n.serverConfig.QmanagerNodes == nil {
+	//	n.serverConfig.QmanagerNodes = n.config.QmanagerNodes()
+	//	if n.serverConfig.QmanagerNodes == nil {
+	//		pwd, err := os.Getwd()
+	//		if err != nil {
+	//			log.Debug("Can not find qmanager-nodes.json file in this folder", "Current Folder", pwd )
+	//		}
+	//
+	//	}
+	//	log.Debug("Qmanager=","QmanagerNodes", n.serverConfig.QmanagerNodes )
+	//}
 
 	if n.serverConfig.TrustedNodes == nil {
 		n.serverConfig.TrustedNodes = n.config.TrusterNodes()
@@ -249,11 +248,11 @@ func (n *Node) Start() error {
 	n.server = running
 	n.stop = make(chan struct{})
 	log.Info("NODE SELF", "n.server" , n.server.Self())
-	if( len(n.serverConfig.QmanagerNodes) <= 0 ) {
-		log.Info("Qman is not set","Qman Enode", nil )
-		return nil
-	}
-	QmanEnode := n.serverConfig.QmanagerNodes[0].ID
+	//if( len(n.serverConfig.QmanagerNodes) <= 0 ) {
+	//	log.Info("Qman is not set","Qman Enode", nil )
+	//	return nil
+	//}
+	//QmanEnode := n.serverConfig.QmanagerNodes[0].ID
 	//
 	//log.Info("NODE SELF", "BOOTNODE PORT" , podc_global.BootNodePort)
 	//
@@ -262,13 +261,13 @@ func (n *Node) Start() error {
 	//	podc_global.BootNodePort = 30301
 	//}
 
-
-	if n.server.Self().ID == QmanEnode{
-		qManager.QmanInit()
-		podc_global.QManConnected = true
-		podc_global.QManPubKey, _ = n.server.Self().ID.Pubkey()
-
-	}
+	//
+	//if n.server.Self().ID == QmanEnode{
+	//	qManager.InitializeQManager()
+	//	podc_global.QManConnected = true
+	//	podc_global.QManPubKey, _ = n.server.Self().ID.Pubkey()
+	//
+	//}
 	return nil
 }
 
@@ -368,6 +367,7 @@ func (n *Node) startIPC(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
+		//log.Debug(fmt.Sprintf("IPC registered %T under '%s'", api.Service, api.Namespace))
 
 	}
 	// All APIs registered, start the IPC listener
@@ -417,6 +417,7 @@ func (n *Node) startQmanagerRegister(apis []rpc.API) error {
 		if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 			return err
 		}
+		//log.Debug(fmt.Sprintf("public key  registered to Qmanager %T under '%s'", api.Service, api.Namespace))
 
 	}
 	// All APIs registered, start the IPC listener
@@ -486,6 +487,9 @@ func (n *Node) startHTTP(endpoint string, apis []rpc.API, modules []string, cors
 			if err := handler.RegisterName(api.Namespace, api.Service); err != nil {
 				return err
 			}
+
+			//log.Debug(fmt.Sprintf("HTTP registered %T under '%s'", api.Service, api.Namespace))
+
 		}
 	}
 	// All APIs registered, start the HTTP listener

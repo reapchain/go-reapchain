@@ -40,7 +40,7 @@ var (
 	datadirDefaultKeyStore = "keystore"           // Path within the datadir to the keystore
 	datadirBootNodes       = "boot-nodes.json"    // Path within the datadir to access boot node because of easy test
 	datadirStaticNodes     = "static-nodes.json"  // Path within the datadir to the static node list
-	datadirQmanagerNodes   = "qmanager-nodes.json" // Path within the datadir to the qmananger node list
+	//datadirQmanagerNodes   = "qmanager-nodes.json" // Path within the datadir to the qmananger node list
 	                                               // Qmanager is Primary, Sencondary, Reserved ( 1, 2, 3 )
 	datadirTrustedNodes    = "trusted-nodes.json" // Path within the datadir to the trusted node list
 	datadirNodeDatabase    = "nodes"              // Path within the datadir to store the node infos
@@ -335,9 +335,9 @@ func (c *Config) StaticNodes() []*discover.Node {
 }
 
 // QmanagerNodes returns a list of node enode URLs configured as Qmanager nodes.
-func (c *Config) QmanagerNodes() []*discover.Node {
-	return c.parsePersistentNodes(c.resolvePath(datadirQmanagerNodes))
-}
+//func (c *Config) QmanagerNodes() []*discover.Node {
+//	return c.parsePersistentNodes(c.resolvePath(datadirQmanagerNodes))
+//}
 
 // StaticNodes returns a list of node enode URLs configured as static nodes.
 func (c *Config) BootNodes() []*discover.Node {

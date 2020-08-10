@@ -17,7 +17,6 @@
 package core
 
 import (
-	"encoding/binary"
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
@@ -35,12 +34,12 @@ var (
 
 )
 
-func generateExtraData() []ValidatorInfo{
+func generateExtraData() []common.ValidatorInfo{
 
 	//qManager.ConnectDB()
 	//log.Info("Qmanager", "DB Status", "4. Connected")
 
-	var extra []ValidatorInfo
+	var extra []common.ValidatorInfo
 	for index, validator := range podc_global.DBDataList {
 
 		var num uint64
@@ -56,10 +55,10 @@ func generateExtraData() []ValidatorInfo{
 			log.Info("Suedo Random "  + string(index) , " Random Nums", podc_global.QRNDDeviceStat)
 			num = rand.Uint64()
 		}
-		validatorInfo := ValidatorInfo{}
+		validatorInfo := common.ValidatorInfo{}
 		validatorInfo.Address = common.HexToAddress(validator.Address)
 		validatorInfo.Qrnd = num
-		validatorInfo.Tag = podc.Tag(validator.Tag)
+		validatorInfo.Tag = common.Tag(validator.Tag)
 
 		extra = append(extra, validatorInfo)
 
@@ -122,7 +121,7 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 		Counter = Counter + 1
 		log.Info("Round", "Count: ", Counter)
 
-		var extra []ValidatorInfo
+		var extra []common.ValidatorInfo
 		//qManager.ConnectDB()
 		////log.Info("Qmanager", "DB Status", "5. Connected")
 		////
@@ -152,6 +151,8 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 		//qManager.CloseDB()
 		//log.Info("Qmanager", "DB Status", "5. Disconnected")
 
+		c.valSet.GetProposer().Address()
+
 		for {
 			log.Info("Qmanager", "Generating Random Numbers", "Outerloop")
 			extra = generateExtraData()
@@ -163,10 +164,10 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 				log.Info("Qmanager", "Generating Random Numbers", "InnerLoop")
 
 
-				if !c.valSet.IsProposer( extra[index].Address) && c.qmanager != extra[index].Address {
+				if !c.valSet.IsProposer( extra[index].Address) {
 					randomNumber := extra[index].Qrnd
 					if randomNumber%uint64(divisor) == 0 {
-						extra[index].Tag = podc.Coordinator
+						extra[index].Tag = common.Coordinator
 						log.Info("Qmanager", "Random Coordinator Selected", extra[index].Address.String())
 
 						index = len(extra)
@@ -201,29 +202,41 @@ func (c *core) handleExtraData(msg *message, src podc.Validator) error {
 			Msg: extraDataJson,
 		}, src.Address())
 
+
+		//extra := podc_global.RequestExtraData(c.valSet.GetProposer().Address().String())
+		//extraDataJson, err := json.Marshal(extra)
+		//if err != nil {
+		//	log.Error("Failed to encode JSON", err)
+		//}
+		//
+		//c.send(&message{
+		//	Code: msgExtraDataSend,
+		//	Msg: extraDataJson,
+		//}, src.Address())
+
 	}
 	return nil
 }
 
-func (c *core) CoordinatorConfirmation(msg *message, src podc.Validator) error {
-	CoordiQRND := binary.LittleEndian.Uint64(msg.Msg)
-
-	if CoordiQRND%uint64(Divisor) == 0 {
-		log.Info("QManager", "Coordinator Confirm Status: ", true)
-
-		c.send(&message{
-			Code: msgCoordinatorConfirmSend,
-			Msg: []byte("Coordinator Confirmed"),
-		}, src.Address())
-
-	} else{
-		log.Info("QManager Error", "Coordinator Confirm Status: ", false)
-	}
-
-
-
-	return nil
-}
+//func (c *core) CoordinatorConfirmation(msg *message, src podc.Validator) error {
+//	CoordiQRND := binary.LittleEndian.Uint64(msg.Msg)
+//
+//	if CoordiQRND%uint64(Divisor) == 0 {
+//		log.Info("QManager", "Coordinator Confirm Status: ", true)
+//
+//		c.send(&message{
+//			Code: msgCoordinatorConfirmSend,
+//			Msg: []byte("Coordinator Confirmed"),
+//		}, src.Address())
+//
+//	} else{
+//		log.Info("QManager Error", "Coordinator Confirm Status: ", false)
+//	}
+//
+//
+//
+//	return nil
+//}
 
 func fileExists(filename string) bool {
 	info, err := os.Stat(filename)

@@ -61,7 +61,7 @@ func errResp(code errCode, format string, v ...interface{}) error {
 
 type ProtocolManager interface {
 	// Start protocol manager
-	Start(qman []*discover.Node)
+	Start()
 
 	// Stop protocol manager
 	Stop()
@@ -249,7 +249,7 @@ func (pm *protocolManager) removePeer(id string) {
 	}
 }
 
-func (pm *protocolManager) Start( qman []*discover.Node ) {
+func (pm *protocolManager) Start( ) {
 	// broadcast transactions
 	pm.txSub = pm.eventMux.Subscribe(core.TxPreEvent{})
 	go pm.txBroadcastLoop()
@@ -352,14 +352,15 @@ func (pm *protocolManager) handle(p *peer, handleMsg func(*peer, p2p.Msg) error)
 	}
 	// main loop. handle incoming messages.
 	// 들어오는 메세지에 대해서 핸들링 할 메인 루프
+
 	//addDial := func(flag connFlag, n *discover.Node) bool {
 	//	if err := s.checkDial(n, peers); err != nil {
 	//		log.Trace("Skipping dial candidate", "id", n.ID, "addr", &net.TCPAddr{IP: n.IP, Port: int(n.TCP)}, "err", err)
 	//		return false
 	//	}
 
+	for {  //추후 select로 바꿔볼 것
 
-	for {
 		if err := pm.handlePeerMsg(p, handleMsg); err != nil {
 			p.Log().Debug("Full or Fast Sync : Ethereum message handling failed", "err", err)
 			return err
@@ -731,7 +732,7 @@ func (pm *protocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 		}
 		pm.txpool.AddBatch(txs)
 
-	case msg.Code == TxMsgFromQman:  //for Qmanager of martin
+	//case msg.Code == TxMsgFromQman:  //for Qmanager of martin
          //To do
 
 

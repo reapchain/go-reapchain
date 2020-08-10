@@ -28,7 +28,7 @@ import (
 
 type defaultValidator struct {
 	address common.Address
-	tag podc.Tag
+	tag common.Tag
 	qrnd uint64
 }
 
@@ -40,7 +40,7 @@ func (val *defaultValidator) String() string {
 	return val.Address().String()
 }
 
-func (val *defaultValidator) Tag() podc.Tag {
+func (val *defaultValidator) Tag() common.Tag {
 	return val.tag
 }
 
@@ -48,7 +48,7 @@ func (val *defaultValidator) SetAddress(a common.Address) {
 	val.address = a
 }
 
-func (val *defaultValidator) SetTag(t podc.Tag) {
+func (val *defaultValidator) SetTag(t common.Tag) {
 	val.tag = t
 }
 
@@ -63,7 +63,7 @@ func (val *defaultValidator) Qrnd() uint64 {
 
 type defaultSet struct {
 	validators  podc.Validators
-	proposer    podc.Validator
+	proposer    podc.Validator  //Front node in paper ..
 	validatorMu sync.RWMutex
 
 	selector podc.ProposalSelector
@@ -125,15 +125,19 @@ func (valSet *defaultSet) GetProposer() podc.Validator {
 
 func (valSet *defaultSet) IsProposer(address common.Address) bool {
 	_, val := valSet.GetByAddress(address)
-	return reflect.DeepEqual(valSet.GetProposer(), val)
+	return reflect.DeepEqual(valSet.GetProposer(), val)  //
 }
 
-func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64, qman common.Address) {
+func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64 ) {
 	valSet.validatorMu.RLock()
 	defer valSet.validatorMu.RUnlock()
-	valSet.proposer = valSet.selector(valSet, lastProposer, round, qman)
+	valSet.proposer = valSet.selector(valSet, lastProposer, round )
 }
-
+//func (valSet *defaultSet) CalcProposer(lastProposer common.Address, round uint64) {
+//	valSet.validatorMu.RLock()
+//	defer valSet.validatorMu.RUnlock()
+//	valSet.proposer = valSet.selector(valSet, lastProposer, round )
+//}
 func calcSeed(valSet podc.ValidatorSet, proposer common.Address, round uint64) uint64 {
 	offset := 0
 	if idx, val := valSet.GetByAddress(proposer); val != nil {
@@ -146,7 +150,7 @@ func emptyAddress(addr common.Address) bool {
 	return addr == common.Address{}
 }
 
-func roundRobinProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64, qman common.Address) podc.Validator {
+func roundRobinProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64 ) podc.Validator {
 	if valSet.Size() == 0 {
 		return nil
 	}
@@ -157,13 +161,13 @@ func roundRobinProposer(valSet podc.ValidatorSet, proposer common.Address, round
 		seed = calcSeed(valSet, proposer, round) + 1
 	}
 	pick := seed % uint64(valSet.Size())
-	if valSet.GetByIndex(pick).Address() == qman {
-		return valSet.GetByIndex(pick + 1)
-	}
+	//if valSet.GetByIndex(pick).Address() == qman {
+	//	return valSet.GetByIndex(pick + 1)
+	//}
 	return valSet.GetByIndex(pick)
 }
 
-func stickyProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64, qman common.Address) podc.Validator {
+func stickyProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64 ) podc.Validator {
 	if valSet.Size() == 0 {
 		return nil
 	}
@@ -177,7 +181,7 @@ func stickyProposer(valSet podc.ValidatorSet, proposer common.Address, round uin
 	return valSet.GetByIndex(pick)
 }
 
-func qrfProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64, qman common.Address) podc.Validator {
+func qrfProposer(valSet podc.ValidatorSet, proposer common.Address, round uint64 ) podc.Validator {
 	if valSet.Size() == 0 {
 		return nil
 	}

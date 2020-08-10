@@ -61,7 +61,7 @@ const (
 	NodeDataMsg    = 0x0e
 	GetReceiptsMsg = 0x0f
 	ReceiptsMsg    = 0x10
-	TxMsgFromQman  = 0x11 //Qman receive tx msg for PoDC
+	//TxMsgFromQman  = 0x11 //Qman receive tx msg for PoDC
 )
 
 type errCode int

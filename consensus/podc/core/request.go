@@ -19,7 +19,6 @@ package core
 import (
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
-	"reflect"
 	"time"
 )
 
@@ -34,9 +33,9 @@ func (c *core) handleRequest(request *podc.Request) error {
 	}
 
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
-	if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
-		log.Info("I'm the Qman in handleRequest" )
-	}
+	//if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
+	//	log.Info("I'm the Qman in handleRequest" )
+	//}
 
 
 
@@ -111,36 +110,38 @@ func (c *core) processPendingRequests() {
 	}
 }
 
-func (c *core) processPendingRequestsQman() {
-	c.pendingRequestsMu.Lock()
-	defer c.pendingRequestsMu.Unlock()
 
-	for !(c.pendingRequests.Empty()) {
-		m, prio := c.pendingRequests.Pop()
-
-		r, ok := m.(*podc.Request )
-		if !ok {
-			c.logger.Warn("Malformed request, skip", "msg", m)
-			continue
-		}
-		// Push back if it's a future message
-		err := c.checkRequestMsg(r)
-		if err != nil {
-			if err == errFutureMessage {
-				c.logger.Trace("Stop processing request", "request", r)
-				c.pendingRequests.Push(m, prio)
-				break
-			}
-			c.logger.Trace("Skip the pending request", "request", r, "err", err)
-			continue
-		}
-		c.logger.Trace("Post pending request", "request", r)
-
-        enode_slice := c.qmanager[:]
-		go c.sendEvent(podc.QmanDataEvent{
-			Target : c.qmanager,
-			Data : enode_slice ,
-
-		})
-	}
-}
+//PendingRequest 는 지연 요청으로, 곧바로 보내지않고, 고루틴을 써서, 지연 처리.. ?
+//func (c *core) processPendingRequestsQman() {
+//	c.pendingRequestsMu.Lock()
+//	defer c.pendingRequestsMu.Unlock()
+//
+//	for !(c.pendingRequests.Empty()) {
+//		m, prio := c.pendingRequests.Pop()  //stack에서 우선순위 가져온다.
+//
+//		r, ok := m.(*podc.Request )
+//		if !ok {
+//			c.logger.Warn("Malformed request, skip", "msg", m)
+//			continue
+//		}
+//		// Push back if it's a future message
+//		err := c.checkRequestMsg(r)
+//		if err != nil {
+//			if err == errFutureMessage {
+//				c.logger.Trace("Stop processing request", "request", r)
+//				c.pendingRequests.Push(m, prio)
+//				break
+//			}
+//			c.logger.Trace("Skip the pending request", "request", r, "err", err)
+//			continue
+//		}
+//		c.logger.Trace("Post pending request", "request", r)
+//
+//        enode_slice := c.qmanager[:]
+//		go c.sendEvent(podc.QmanDataEvent{
+//			Target : c.qmanager,
+//			Data : enode_slice ,
+//
+//		})
+//	}
+//}

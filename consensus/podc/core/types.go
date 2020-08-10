@@ -23,12 +23,11 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
-	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/rlp"
 )
 
 type Engine interface {
-	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal, qmanager []*discover.Node) error
+	Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal) error
 	Stop() error
 }
 
