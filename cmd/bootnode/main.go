@@ -323,8 +323,7 @@ func main() {
 		account = PubkeyToAddress(nodeKey.PublicKey)
 		fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
 
-		config.Config.GetConfig("REAPCHAIN ENV")
-
+		config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
 		podc_global.IsBootNode = true
 		log.Info("You must start a node at first, and start the second node as miner if you want to avoid this error !")
 

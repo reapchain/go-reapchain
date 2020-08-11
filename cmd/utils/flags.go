@@ -664,22 +664,23 @@ func setQmanagerNodes(ctx *cli.Context, cfg *p2p.Config) {
 		urls = config.Config.Bootnodes
 	}
 
-	cfg.QmanagerNodes = make([]*discover.Node, 0, len(urls))
-	for _, url := range urls {
-		node, err := discover.ParseNode(url)
-
-		log.Info("QmanagerNodes:","ID", node.ID.String())
-		log.Info("QmanagerNodes:","IP", node.IP)
-
-
-		if err != nil {
-			log.Error("Bootstrap URL invalid", "enode", url, "err", err)
-			continue
-		}
-		cfg.QmanagerNodes = append(cfg.QmanagerNodes, node)
-
-	}
-	log.Info("QmanagerNodes:","QmanagerNodes", cfg.QmanagerNodes )
+	log.Info("QmanagerNodes:","ID", urls)
+	//cfg.QmanagerNodes = make([]*discover.Node, 0, len(urls))
+	//for _, url := range urls {
+	//	node, err := discover.ParseNode(url)
+	//
+	//	log.Info("QmanagerNodes:","ID", node.ID.String())
+	//	log.Info("QmanagerNodes:","IP", node.IP)
+	//
+	//
+	//	if err != nil {
+	//		log.Error("Bootstrap URL invalid", "enode", url, "err", err)
+	//		continue
+	//	}
+	//	cfg.QmanagerNodes = append(cfg.QmanagerNodes, node)
+	//
+	//}
+	//log.Info("QmanagerNodes:","QmanagerNodes", cfg.QmanagerNodes )
 
 
 }
