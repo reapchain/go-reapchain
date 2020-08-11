@@ -6,8 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
-
-
+	"strings"
 
 	"math/rand"
 	"net/http"
@@ -23,6 +22,7 @@ import (
 var (
 	Counter int
 	Divisor int
+	DBName string
 )
 
 //func ECCDecrypt(ct []byte, prk ecies.PrivateKey) ([]byte, error) {
@@ -207,9 +207,10 @@ func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 
 
 	//addr, err := net.ResolveUDPAddr("udp", *Addr)
-
-
+	s := strings.Split(*Addr, ":")
+	DBName = s[1]
 	http.ListenAndServe(*Addr, nil)
+	
 }
 
 func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {

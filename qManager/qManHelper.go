@@ -55,14 +55,13 @@ func CheckQRNDStatus(){
 func ConnectDB(){
 	//log.Info("Qmanager", "IsInUse OPEN = ", IsInUse)
 
-
 	if IsInUse == false {
 		IsInUse = true
 
 		//log.Info("Qmanager", "DB = ", "STARTING---------------------------------------")
 
 		var err error
-		podc_global.QManagerStorage, err = leveldb.OpenFile("level", nil)
+		podc_global.QManagerStorage, err = leveldb.OpenFile("qman-" + DBName, nil)
 		if err != nil{
 			log.Info("DB ERROR", "err = ", err)
 			IsInUse = false
