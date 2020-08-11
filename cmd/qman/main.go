@@ -94,8 +94,7 @@ func main() {
 	log.Info("QManager Standalone Started")
 
 	podc_global.QManConnected = true
-	config.Config.GetConfig("REAPCHAIN ENV")
-
+	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
 		//var account common.Address
 		//account = PubkeyToAddress(nodeKey.PublicKey)
 		//fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )

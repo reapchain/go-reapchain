@@ -59,7 +59,13 @@ func LoadKey(DataDir string, flag bool) {
 		governanceKey(gc)
 
 		log.Debug("Initialised governance configuration", "gconfig", gc)
+	} else {
+		gc.Governance = false
 	}
+}
+
+func IsTxChecking() bool {
+	return gc.Governance
 }
 
 func CheckPublicKey(pubkey []byte) bool {

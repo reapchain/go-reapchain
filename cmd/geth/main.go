@@ -192,7 +192,7 @@ func init() {
 }
 
 func main() {
-	config.Config.GetConfig("REAPCHAIN_ENV")
+	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)

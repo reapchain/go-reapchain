@@ -113,8 +113,10 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 			c.sendNextRoundChange()                                              //important : inconsistent mismatch ...
 			return err
 		}
+		
+         elapsed := time.Since(c.intervalTime)
+		log.Info("3. Set pre-prepare state",             "elapsed",  common.PrettyDuration(elapsed))
 
-		log.Info("3. Set pre-prepare state", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
 
 		if c.state == StateRequestQman {
