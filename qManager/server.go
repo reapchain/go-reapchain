@@ -8,12 +8,11 @@ import (
 	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"strings"
 
+	"io/ioutil"
 	"math/rand"
 	"net/http"
-	"io/ioutil"
 
 	"fmt"
-	"time"
 )
 
 
@@ -271,7 +270,7 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 		panic(err)
 	}
 
-	log.Info("QManager ", "Bootnode Data From: ", nodeStruct.Address)
+	log.Info("Bootnode Data ", "Addr: ", nodeStruct.Address)
 
 
 	//log.Info("Bootnode Sent Data Address" )
@@ -299,9 +298,9 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 ////For Qmanager, event handler to receive msg from geth
 func  handleExtraData (w http.ResponseWriter, req *http.Request){
 
-	ConnectDB()
-	GetDBData()
-	CloseDB()
+	//ConnectDB()
+	//GetDBData()
+	//CloseDB()
 
 		w.Header().Set("Content-Type", "application/json")
 		body, err := ioutil.ReadAll(req.Body)
@@ -403,8 +402,9 @@ func generateExtraData() []common.ValidatorInfo{
 
 		if podc_global.QRNDDeviceStat == true{
 			//log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
-			rand.Seed(time.Now().UnixNano())
-			randomIndex := rand.Intn(12280)
+ 			randomIndex := rand.Intn(12280) + 1
+			log.Info("QRND " ,  " Random Number" , randomIndex)
+
 			num = podc_global.RandomNumbers[randomIndex]
 
 
@@ -422,5 +422,27 @@ func generateExtraData() []common.ValidatorInfo{
 	}
 
 	return extra
+
+}
+
+
+func  TestQmanServer (w http.ResponseWriter, req *http.Request){
+
+	w.Header().Set("Content-Type", "application/json")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		panic(err)
+	}
+	log.Info(string(body))
+
+
+	m := podc_global.Message{
+		Message: "Success",
+		Code: http.StatusOK,
+	}
+
+	json.NewEncoder(w).Encode(m)
+
+
 
 }

@@ -5,8 +5,8 @@ import (
 	"encoding/binary"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/math"
-	"github.com/ethereum/go-ethereum/consensus/quantum"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/qManager/quantum"
 	"runtime"
 
 	//"fmt"
