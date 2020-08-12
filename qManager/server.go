@@ -260,6 +260,7 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
+		log.Info("Qmanager is not alive")
 		panic(err)
 	}
 	//log.Info(string(body))
