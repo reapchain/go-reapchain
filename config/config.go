@@ -3,6 +3,7 @@ package config
 import (
 	//"errors"
 	"encoding/json"
+	"fmt"
 	"github.com/ethereum/go-ethereum/log"
 	"io/ioutil"
 	"os"
@@ -54,15 +55,15 @@ func (c *EnvConfig) GetConfig(env string, setupenv string) {
 		c.Consensus = TotalConfig.Prod.Consensus
 		c.Token = TotalConfig.Prod.Token
 		c.Bootnodes = TotalConfig.Prod.Bootnodes
-		c.QManagers = TotalConfig.Dev.QManagers
-
+		c.QManagers = TotalConfig.Prod.QManagers
+		fmt.Printf("\nQManagers nodes : %s\n", c.QManagers)
 		//c.Senatornodes = TotalConfig.Local.Senatornodes
 		//c.Candidatenodes = TotalConfig.Local.Candidatenodes
 	} else {
 		c.Consensus = TotalConfig.Local.Consensus
 		c.Token = TotalConfig.Local.Token
 		c.Bootnodes = TotalConfig.Local.Bootnodes
-		c.QManagers = TotalConfig.Dev.QManagers
+		c.QManagers = TotalConfig.Local.QManagers
 
 		//c.Senatornodes = TotalConfig.Local.Senatornodes
 		//c.Candidatenodes = TotalConfig.Local.Candidatenodes

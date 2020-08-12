@@ -60,8 +60,11 @@ func RequestExtraData(Properser string) common.ValidatorInfos {
 }
 
 func BootNodeSendData(NodeData QManDBStruct) {
+    if  len(config.Config.QManagers) == 0 {
+    	log.Info("File Not Found:", "QManagers", config.Config.QManagers[0] )
+	}
 
-	var QManagerURLs= config.Config.QManagers[0]
+	var QManagerURLs = config.Config.QManagers[0]
 	s := strings.Split(QManagerURLs, "@")
 	QManagerURL := s[1]
 
