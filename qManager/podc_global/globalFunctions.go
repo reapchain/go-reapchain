@@ -7,11 +7,14 @@ import (
 	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/log"
 	"net/http"
+	"strings"
 )
 
 func RequestExtraData(Properser string) common.ValidatorInfos {
 
-	var QManagerURL= config.Config.QManagers[0]
+	var QManagerURLs= config.Config.QManagers[0]
+	s := strings.Split(QManagerURLs, "@")
+	QManagerURL := s[1]
 
 	requestStruct := RequestStruct{
 		Proposer: Properser,
@@ -58,8 +61,9 @@ func RequestExtraData(Properser string) common.ValidatorInfos {
 
 func BootNodeSendData(NodeData QManDBStruct) {
 
-	var QManagerURL= config.Config.QManagers[0]
-
+	var QManagerURLs= config.Config.QManagers[0]
+	s := strings.Split(QManagerURLs, "@")
+	QManagerURL := s[1]
 
 	//message := map[string]interface{}{
 	//	"hello": "world",
@@ -93,8 +97,9 @@ func BootNodeSendData(NodeData QManDBStruct) {
 
 func CooridnatorConfirmation(coordiReq RequestCoordiStruct) bool {
 
-	var QManagerURL= config.Config.QManagers[0]
-
+	var QManagerURLs= config.Config.QManagers[0]
+	s := strings.Split(QManagerURLs, "@")
+	QManagerURL := s[1]
 
 	//message := map[string]interface{}{
 	//	"hello": "world",

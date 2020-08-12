@@ -3,11 +3,9 @@ package config
 import (
 	//"errors"
 	"encoding/json"
-	"fmt"
+	"github.com/ethereum/go-ethereum/log"
 	"io/ioutil"
 	"os"
-	"github.com/ethereum/go-ethereum/log"
-
 )
 
 var Config EnvConfig
@@ -16,26 +14,26 @@ var TotalConfig Configurations
 func (c *EnvConfig) GetConfig(env string, setupenv string) {
 
 	if confenv := os.Getenv(env); confenv == "" {
-		fmt.Printf("REAPCHAIN_ENV environment var not set, local will set\n")
+		log.Info("Configurations","REAPCHAIN_ENV environment var not set",  "local will set")
 	}
 	if setupInfo := os.Getenv(setupenv); setupInfo ==""{
-		fmt.Printf("SETUP_INFO environment var not set, you should setup_info environment \n")
+		log.Info("Configurations","SETUP_INFO environment var not set",  "you should set SETUP_INFO var")
 	}
 	pwd, err := os.Getwd()
-	fmt.Printf("current working directory: pwd= %v \n",  pwd)
+	log.Info("Configurations","Current Directory: ",  pwd)
 	if err != nil {
-		fmt.Printf("failed to get current working directory: pwd= %v , err=%v",  pwd, err)
+		log.Info("Configurations","failed to get current working directory: ", err)
 	}
 
-    fmt.Println("SETUP_INFO :", os.Getenv( "SETUP_INFO"))
-    filename := os.Getenv( "SETUP_INFO") + "/config.json"
+	log.Info("Configurations","SETUP_INFO: ", os.Getenv( "SETUP_INFO"))
+    filename := os.Getenv( "SETUP_INFO") + "config.json"
    // log.Info("confi.json is located at ", "filename", filename )
-	fmt.Printf("\ncurrent config file : %v ",  filename)
+	log.Info("Configurations","current config file: ",  filename)
 
 	jsonFile, err := os.Open(filename)
 
 	if err != nil {
-		log.Error("Failed to read configurations", "error", err)
+		log.Error("Configurations","Failed to read configurations", "error", err)
 
 	}
 

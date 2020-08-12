@@ -210,7 +210,7 @@ func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 	s := strings.Split(*Addr, ":")
 	DBName = s[1]
 	http.ListenAndServe(*Addr, nil)
-	
+
 }
 
 func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
