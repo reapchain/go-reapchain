@@ -3,7 +3,6 @@ package config
 import (
 	//"errors"
 	"encoding/json"
-	"fmt"
 	"github.com/ethereum/go-ethereum/log"
 	"io/ioutil"
 	"os"
@@ -23,18 +22,18 @@ func (c *EnvConfig) GetConfig(env string, setupenv string) {
 	pwd, err := os.Getwd()
 	log.Info("Configurations","Current Directory: ",  pwd)
 	if err != nil {
-		log.Info("Configurations","failed to get current working directory: ", err)
+		log.Info("Configurations Failure","Error Message: ", err)
 	}
 
 	log.Info("Configurations","SETUP_INFO: ", os.Getenv( "SETUP_INFO"))
-    filename := os.Getenv( "SETUP_INFO") + "config.json"
+    filename := os.Getenv( "SETUP_INFO") + "/config.json"
    // log.Info("confi.json is located at ", "filename", filename )
 	log.Info("Configurations","current config file: ",  filename)
 
 	jsonFile, err := os.Open(filename)
 
 	if err != nil {
-		log.Error("Configurations","Failed to read configurations", "error", err)
+		log.Error("Configurations Failure","Error Message: ", err)
 
 	}
 
@@ -56,7 +55,7 @@ func (c *EnvConfig) GetConfig(env string, setupenv string) {
 		c.Token = TotalConfig.Prod.Token
 		c.Bootnodes = TotalConfig.Prod.Bootnodes
 		c.QManagers = TotalConfig.Prod.QManagers
-		fmt.Printf("\nQManagers nodes : %s\n", c.QManagers)
+
 		//c.Senatornodes = TotalConfig.Local.Senatornodes
 		//c.Candidatenodes = TotalConfig.Local.Candidatenodes
 	} else {

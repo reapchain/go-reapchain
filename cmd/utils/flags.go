@@ -600,8 +600,8 @@ func setNodeUserIdent(ctx *cli.Context, cfg *node.Config) {
 // flags, reverting to pre-configured ones if none have been specified.
 func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	// urls := params.MainnetBootnodes //temp disable in developement
-	urls := params.ReapChainBootnodes
-	//urls := config.Config.Bootnodes
+	//urls := params.ReapChainBootnodes
+	urls := config.Config.Bootnodes
 
 	switch {
 	case ctx.GlobalIsSet(BootnodesFlag.Name) || ctx.GlobalIsSet(BootnodesV4Flag.Name):
@@ -625,8 +625,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 	for _, url := range urls {
 		node, err := discover.ParseNode(url)
 
-		log.Info("BootstrapNodes:","ID", node.ID.String())
-		log.Info("BootstrapNodes:","IP", node.IP)
+		//log.Info("BootstrapNodes:","ID", node.ID.String())
+		//log.Info("BootstrapNodes:","IP", node.IP)
 		podc_global.BootNodeID = node.ID.String()
 		podc_global.BootNodePort = int(node.UDP)
 
@@ -637,7 +637,7 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 		cfg.BootstrapNodes = append(cfg.BootstrapNodes, node)
 
 	}
-	log.Info("BootstrapNodes:","BootstrapNodes", cfg.BootstrapNodes )
+	log.Info("BootstrapNodes:","Config JSON: ", cfg.BootstrapNodes )
 
 
 }

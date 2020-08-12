@@ -316,9 +316,16 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		panic(err)
 	}
 
+
+
 		proposerAddress := common.HexToAddress(reqStruct.Proposer)
 
 		log.Info("Received EXTRA DATA REQUEST from geth")
+		if podc_global.QRNDDeviceStat == true{
+			log.Info("Random Number Generator " ,  "Using - " , "Quantum Device")
+		} else {
+			log.Info("Random Number Generator " ,  "Using - " , "Pusedo Random")
+		}
 
 		Counter = Counter + 1
 		log.Info("Round ", "Count: ", Counter)
@@ -404,7 +411,7 @@ func generateExtraData() []common.ValidatorInfo{
 		if podc_global.QRNDDeviceStat == true{
 			//log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
  			randomIndex := rand.Intn(12280) + 1
-			log.Info("QRND " ,  " Random Number" , randomIndex)
+
 
 			num = podc_global.RandomNumbers[randomIndex]
 

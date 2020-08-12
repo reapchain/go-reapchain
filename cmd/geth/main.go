@@ -19,6 +19,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/ethereum/go-ethereum/config"
 	"os"
 	"runtime"
 	"strings"
@@ -28,7 +29,6 @@ import (
 	"github.com/ethereum/go-ethereum/accounts/keystore"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/console"
 	"github.com/ethereum/go-ethereum/eth"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -192,7 +192,7 @@ func init() {
 }
 
 func main() {
-	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
+
 	if err := app.Run(os.Args); err != nil {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
@@ -203,6 +203,7 @@ func main() {
 // It creates a default node based on the command line arguments and runs it in
 // blocking mode, waiting for it to be shut down.
 func geth(ctx *cli.Context) error {
+	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
 	node := makeFullNode(ctx)
 	startNode(ctx, node)
 	node.Wait()
