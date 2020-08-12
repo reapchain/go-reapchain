@@ -13,9 +13,15 @@ var TotalConfig Configurations
 
 func (c *EnvConfig) GetConfig(env string, setupenv string) {
 
-	if confenv := os.Getenv(env); confenv == "" {
+	confenv := os.Getenv(env)
+	if confenv == "" {
 		log.Info("Configurations","REAPCHAIN_ENV environment var not set",  "local will set")
+	}else {
+		log.Info("Configurations","Current ", confenv)
+
 	}
+
+
 	if setupInfo := os.Getenv(setupenv); setupInfo ==""{
 		log.Info("Configurations","SETUP_INFO environment var not set",  "you should set SETUP_INFO var")
 	}
@@ -42,7 +48,7 @@ func (c *EnvConfig) GetConfig(env string, setupenv string) {
 
 	json.Unmarshal(byteValue, &TotalConfig)
 
-	if env == "development" {
+	if confenv == "development" {
 		c.Consensus = TotalConfig.Dev.Consensus
 		c.Token = TotalConfig.Dev.Token
 		c.Bootnodes = TotalConfig.Dev.Bootnodes
@@ -50,7 +56,7 @@ func (c *EnvConfig) GetConfig(env string, setupenv string) {
 		//c.Senatornodes = TotalConfig.Local.Senatornodes
 		//c.Candidatenodes = TotalConfig.Local.Candidatenodes
 
-	} else if env == "production" {
+	} else if confenv == "production" {
 		c.Consensus = TotalConfig.Prod.Consensus
 		c.Token = TotalConfig.Prod.Token
 		c.Bootnodes = TotalConfig.Prod.Bootnodes

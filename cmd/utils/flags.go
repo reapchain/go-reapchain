@@ -627,14 +627,15 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 
 		//log.Info("BootstrapNodes:","ID", node.ID.String())
 		//log.Info("BootstrapNodes:","IP", node.IP)
-		podc_global.BootNodeID = node.ID.String()
-		podc_global.BootNodePort = int(node.UDP)
+
 
 		if err != nil {
 			log.Error("Bootstrap URL invalid", "enode", url, "err", err)
 			continue
 		}
 		cfg.BootstrapNodes = append(cfg.BootstrapNodes, node)
+		podc_global.BootNodeID = node.ID.String()
+		podc_global.BootNodePort = int(node.UDP)
 
 	}
 	log.Info("BootstrapNodes:","Config JSON: ", cfg.BootstrapNodes )
