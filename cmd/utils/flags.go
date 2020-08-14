@@ -20,7 +20,7 @@ package utils
 import (
 	"crypto/ecdsa"
 	"fmt"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"github.com/ethereum/go-ethereum/qmanager/global"
 	"io/ioutil"
 	"math/big"
 	"net"
@@ -634,8 +634,8 @@ func setBootstrapNodes(ctx *cli.Context, cfg *p2p.Config) {
 			continue
 		}
 		cfg.BootstrapNodes = append(cfg.BootstrapNodes, node)
-		podc_global.BootNodeID = node.ID.String()
-		podc_global.BootNodePort = int(node.UDP)
+		global.BootNodeID = node.ID.String()
+		global.BootNodePort = int(node.UDP)
 
 	}
 	log.Info("BootstrapNodes:","Config JSON: ", cfg.BootstrapNodes )

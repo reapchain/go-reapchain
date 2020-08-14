@@ -1,4 +1,4 @@
-package qmanager
+package utils
 
 import (
 	"bytes"
@@ -142,4 +142,19 @@ func CooridnatorConfirmation(coordiReq global.RequestCoordiStruct) bool {
 
 
 
+}
+
+
+func CheckBootNodePortAndID(NodeID string, Port int) bool{
+	//log.Info("BootNode", "ID = ", NodeID)
+	//log.Info("BootNode", "IP Addr = ", Port)
+	//
+	//log.Info("Global", "ID = ", BootNodeID)
+	//log.Info("Global", "IP Addr = ", BootNodePort)
+
+	if NodeID == BootNodeID && Port == BootNodePort {
+		return true
+	}
+
+	return false
 }

@@ -3,7 +3,8 @@ package core
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"github.com/ethereum/go-ethereum/qmanager/global"
+	"github.com/ethereum/go-ethereum/qmanager/utils"
 
 	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
@@ -67,7 +68,7 @@ func (c *core) sendExtraDataRequest() {
 
 	log.Info("Extra Data Requesting To Standalone QMANAGER")
 
-	extra := podc_global.RequestExtraData(c.valSet.GetProposer().Address().String())
+	extra := utils.RequestExtraData(c.valSet.GetProposer().Address().String())
 	log.Info("Qmanager", "Recieved ExtraData", extra)
 
 
@@ -181,7 +182,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		c.ExtraDataLength = len(extraData)
 		c.criteria = 29
 
-		isCoordinator := podc_global.CooridnatorConfirmation(podc_global.RequestCoordiStruct{QRND: QRND})
+		isCoordinator := utils.CooridnatorConfirmation(global.RequestCoordiStruct{QRND: QRND})
 
 		//log.Info("common.Coordinator", "isCoordinator", isCoordinator)
 

@@ -5,17 +5,12 @@ import (
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
-	"strings"
-
+	"github.com/ethereum/go-ethereum/qmanager/global"
 	"io/ioutil"
 	"math/rand"
 	"net/http"
-
-	"fmt"
+	"strings"
 )
-
-
-
 
 var (
 	Counter int
@@ -71,10 +66,10 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 	//log.Info("QManager Server Started")
 
 
-	var govStruct []GovStruct
+	var govStruct []global.GovStruct
 	err = json.Unmarshal(body, &govStruct)
 	if err != nil {
-		m := Message{
+		m := global.Message{
 			Message: "Error",
 			Code: http.StatusBadRequest,
 		}
@@ -143,9 +138,9 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 	// w.WriteHeader(http.StatusCreated)
 	// json.NewEncoder(w).Encode(data)
 
-	GovernanceList = govStruct
+	global.GovernanceList = govStruct
 
-	m := Message{
+	m := global.Message{
 		Message: "Success",
 		Code: http.StatusOK,
 	}
@@ -158,16 +153,6 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 
 
 }
-func headers(w http.ResponseWriter, req *http.Request) {
-
-	for name, headers := range req.Header {
-		for _, h := range headers {
-			fmt.Fprintf(w, "%v: %v\n", name, h)
-		}
-	}
-}
-
-
 
 
 func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
@@ -222,7 +207,7 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 
 	log.Info(string(body))
 
-	var coordiStruct RequestCoordiStruct
+	var coordiStruct global.RequestCoordiStruct
 	err = json.Unmarshal(body, &coordiStruct)
 	if err != nil {
 		panic(err)
@@ -235,7 +220,7 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 	if coordiStruct.QRND%uint64(Divisor) == 0 {
 		log.Info("QMAN COORDI TRUE")
 
-		decideStruct  := CoordiDecideStruct{
+		decideStruct  := global.CoordiDecideStruct{
 			Status: true,
 		}
 		json.NewEncoder(w).Encode(decideStruct)
@@ -245,7 +230,7 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 		log.Info("QMAN COORDI FALSE")
 
 
-		decideStruct  := CoordiDecideStruct{
+		decideStruct  := global.CoordiDecideStruct{
 			Status: false,
 		}
 		json.NewEncoder(w).Encode(decideStruct)
@@ -264,7 +249,7 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 	}
 	//log.Info(string(body))
 
-	var nodeStruct QManDBStruct
+	var nodeStruct global.QManDBStruct
 	err = json.Unmarshal(body, &nodeStruct)
 	if err != nil {
 		panic(err)
@@ -283,7 +268,7 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 		}
 	}
 
-	m := Message{
+	m := global.Message{
 		Message: "Success",
 		Code: http.StatusOK,
 	}
@@ -309,7 +294,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		}
 		log.Info(string(body))
 
-		var reqStruct RequestStruct
+		var reqStruct global.RequestStruct
 		err = json.Unmarshal(body, &reqStruct)
 		if err != nil {
 		panic(err)
@@ -320,7 +305,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		proposerAddress := common.HexToAddress(reqStruct.Proposer)
 
 		log.Info("Received EXTRA DATA REQUEST from geth")
-		if QRNGDeviceStat == true{
+		if global.QRNGDeviceStat == true{
 			log.Info("Random Number Generator " ,  "Using - " , "Quantum Device")
 		} else {
 			log.Info("Random Number Generator " ,  "Using - " , "Pusedo Random")
@@ -403,16 +388,16 @@ func generateExtraData() []common.ValidatorInfo{
 	//log.Info("Qmanager", "DB Status", "4. Connected")
 
 	var extra []common.ValidatorInfo
-	for _, validator := range DBDataList {
+	for _, validator := range global.DBDataList {
 
 		var num uint64
 
-		if QRNGDeviceStat == true{
+		if global.QRNGDeviceStat == true{
 			//log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
  			randomIndex := rand.Intn(12280) + 1
 
 
-			num = RandomNumbers[randomIndex]
+			num = global.RandomNumbers[randomIndex]
 
 
 		} else {

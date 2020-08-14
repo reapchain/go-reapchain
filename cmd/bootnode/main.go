@@ -19,21 +19,21 @@ package main
 
 import (
 	"crypto/ecdsa"
-    "flag"
-	"net"
-	"strings"
+	"flag"
 	"fmt"
-	"github.com/ethereum/go-ethereum/config"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
-	"os"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/p2p/discv5"
 	"github.com/ethereum/go-ethereum/p2p/nat"
 	"github.com/ethereum/go-ethereum/p2p/netutil"
+	"github.com/ethereum/go-ethereum/qmanager/global"
+	"net"
+	"os"
+	"strings"
 )
 // setNodeKey creates a node key from set command line flags, either loading it
 // from a file or as a specified hex value. If neither flags were provided, this
@@ -324,7 +324,7 @@ func main() {
 		fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
 
 		config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
-		podc_global.IsBootNode = true
+		global.IsBootNode = true
 		if _, err := discover.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {  //main
 			utils.Fatalf("%v", err)
 		}

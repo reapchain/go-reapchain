@@ -2,7 +2,7 @@ package quantum
 
 import (
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"github.com/ethereum/go-ethereum/qmanager/global"
 	"os"
 	"syscall"
 	"time"
@@ -58,7 +58,7 @@ func readUpFile() ([]byte, error)  {
 	buffer := make([]byte, bufferSize)
 
 	flags := os.O_RDONLY | os.O_EXCL  | syscall.O_DIRECT
-	upFile, err := os.OpenFile(podc_global.QRNGFilePrefix+"up.ini", flags, 0644)
+	upFile, err := os.OpenFile(global.QRNGFilePrefix+"up.ini", flags, 0644)
 	if err != nil {
 		log.Error("QRNG Device", "Open Error", err.Error())
 		return nil, err
@@ -74,8 +74,8 @@ func readUpFile() ([]byte, error)  {
 }
 
 func writeDnFile(data byte) error {
- 	os.Remove(podc_global.QRNGFilePrefix + "dn.ini")
-	dnFile, err := os.OpenFile(podc_global.QRNGFilePrefix+"dn.ini", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
+ 	os.Remove(global.QRNGFilePrefix + "dn.ini")
+	dnFile, err := os.OpenFile(global.QRNGFilePrefix+"dn.ini", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		log.Error("QRNG Device", "Create Error", err.Error())
 		return err

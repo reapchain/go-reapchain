@@ -23,7 +23,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
+	"github.com/ethereum/go-ethereum/qmanager/global"
+	"github.com/ethereum/go-ethereum/qmanager/utils"
 	"net"
 	"time"
 
@@ -235,9 +236,9 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 		return nil, err
 	}
 	conn, err := net.ListenUDP("udp", addr)  //socket setup ?
-	if(podc_global.IsBootNode){
-		podc_global.BootNodePort = addr.Port
-		podc_global.BootNodeID = PubkeyID(&priv.PublicKey).String()
+	if(global.IsBootNode){
+		global.BootNodePort = addr.Port
+		global.BootNodeID = PubkeyID(&priv.PublicKey).String()
 	}
 	log.Info("net.ListenUDP up: addr ", "self",laddr)
 	if err != nil {
@@ -668,7 +669,7 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		}
 	}
 
-	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
+	if global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
 		//if !podc_global.BootNodeReady{
 		//	ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
 		//	fmt.Println("Bootnode Requesting Qmanager Connection")
@@ -684,8 +685,8 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			timestamp := time.Now().Format("2006-01-02 15:04:05")
 
 
-			qNode := podc_global.QManDBStruct{ID: fromID.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: 2 }
-			podc_global.BootNodeSendData(qNode)
+			qNode := global.QManDBStruct{ID: fromID.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: 2 }
+			utils.BootNodeToQmanager(qNode)
 
 
 			//if from.String() != podc_global.QManagerAddress.String(){
