@@ -80,13 +80,11 @@ func writeDnFile(data byte) error {
 		log.Error("QRNG Device", "Create Error", err.Error())
 		return err
 	}
-
 	writtenSize, err := dnFile.WriteAt([]byte{data}, 0)
 	if err != nil || writtenSize == 0 {
 		log.Error("QRNG Device", "Write Error", err.Error())
 		return err
 	}
-
 	dnFile.Close()
 	return nil
 }

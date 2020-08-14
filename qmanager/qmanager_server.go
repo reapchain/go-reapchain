@@ -18,53 +18,13 @@ var (
 	DBName string
 )
 
-//func ECCDecrypt(ct []byte, prk ecies.PrivateKey) ([]byte, error) {
-//	pt, err := prk.Decrypt(rand.Reader, ct, nil, nil)
-//	return pt, err
-//}
-//func hello(w http.ResponseWriter, req *http.Request) {
-//
-//	// fmt.Fprintf(w, "hello\n")
-//	w.Header().Set("Content-Type", "application/json")
-//	body, err := ioutil.ReadAll(req.Body)
-//    if err != nil {
-//        panic(err)
-//    }
-//	log.Println(string(body))
-//    var t []test_struct
-//    err = json.Unmarshal(body, &t)
-//    if err != nil {
-//        panic(err)
-//    }
-//	log.Println(t[0].Validator)
-//	m := Message{
-//		Message: "Success",
-//		Code: http.StatusOK,
-//	}
-//	// b, err := json.Marshal(m)
-//
-//	// p := "[{'Code': 'SUCCESS'},]"
-//	json.NewEncoder(w).Encode(m)
-//	b, err := json.Marshal(m)
-//	if err != nil {
-//		fmt.Println("error:", err)
-//	}
-//	// w.WriteHeader(http.StatusCreated)
-//    // json.NewEncoder(w).Encode(data)
-//}
-
 func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 
-	// fmt.Fprintf(w, "hello\n")
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
 		panic(err)
 	}
-	//log.Print(string(body))
-
-	//log.Info("QManager Server Started")
-
 
 	var govStruct []global.GovStruct
 	err = json.Unmarshal(body, &govStruct)
@@ -73,123 +33,27 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 			Message: "Error",
 			Code: http.StatusBadRequest,
 		}
-
 		json.NewEncoder(w).Encode(m)
 		return
 	}
-
-
-
-
-
-	// // b, err := json.Marshal(m)
-
-	// // p := "[{'Code': 'SUCCESS'},]"
-	//for index, element := range t {
-	//	// log.Println(element)
-	//	// log.Println("%d",index);
-	//	log.Printf("Index: %d, Address:  %s, Tag: %s", index, element.Validator, element.Tag)
-	//	// log.Println("Index: " + index + ", Address: " + element.Validator + ", Tag: " + element.Tag)
-	//	// index is the index where we are
-	//	// element is the element from someSlice for where we are
-	//}
-
-	// privateKeyFile, err := os.Open("private_key.pem")
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
-
-	// pemfileinfo, _ := privateKeyFile.Stat()
-	// var size int64 = pemfileinfo.Size()
-	// pembytes := make([]byte, size)
-	// buffer := bufio.NewReader(privateKeyFile)
-	// _, err = buffer.Read(pembytes)
-	// data, _ := pem.Decode([]byte(pembytes))
-	// privateKeyFile.Close()
-
-	// privateKeyImported, err := x509.ParsePKCS8PrivateKey(data.Bytes)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// 	os.Exit(1)
-	// }
-
-	// var privKey *ecdsa.PrivateKey
-	// var ok bool
-	// privKey, ok = privateKeyImported.(*ecdsa.PrivateKey)
-	// if !ok {
-	// 	fmt.Println("Error")
-
-	// }
-
-	// fmt.Println(privKey)
-
-	// eciesKey := ecies.ImportECDSA(privKey)
-	// dedata, err := ECCDecrypt(body, *eciesKey)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Println("Decrypt", string(dedata))
-	//timestamp := time.Now().String()
-	//ts, _ := time.Parse(timestamp, "2006-01-02 15:04:05")
-	//fmt.Println(ts)
-
-
-	// w.WriteHeader(http.StatusCreated)
-	// json.NewEncoder(w).Encode(data)
-
 	global.GovernanceList = govStruct
 
 	m := global.Message{
 		Message: "Success",
 		Code: http.StatusOK,
 	}
-
 	json.NewEncoder(w).Encode(m)
-
 	go  UpdateSenatorCandidateNodes()
-
-	//log.Printf("HTTP Server Response Sent")
-
-
 }
 
 
 func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 
-
-
-	// bodyBytes := []byte{91, 66, 64, 51, 102, 100, 97, 100, 49, 56, 56}
-
-	//timestamp := time.Now().Format("2006-01-02 15:04:05")
-	//fmt.Println(timestamp)
-	//
-	//secondTime := time.Now().Add(time.Second * time.Duration(12)).Format("2006-01-02 15:04:05")
-	//
-	//fmt.Println(secondTime)
-	//
-	//
-	//t, _ := time.Parse("2006-01-02 15:04:05", timestamp )
-	//t2, _ := time.Parse("2006-01-02 15:04:05", secondTime )
-	//fmt.Println(t)
-	//
-	//
-	//
-	//diff := t2.Sub(t)
-	//fmt.Println(diff)
-	// s := string(bodyBytes[:])
-	// log.Println(s)
-	// myString := hex.EncodeToString(bodyBytes)
-	// log.Println(myString)
-	//http.HandleFunc("/hello", hello)
 	http.HandleFunc("/RequestQmanager", RequestQmanager)
 	http.HandleFunc("/ExtraData", handleExtraData)
 	http.HandleFunc("/BootNodeSendData", BootNodeSendData)
 	http.HandleFunc("/CoordinatorConfirmation", CoordinatorConfirmation)
 
-
-
-	//addr, err := net.ResolveUDPAddr("udp", *Addr)
 	s := strings.Split(*Addr, ":")
 	DBName = s[1]
 	http.ListenAndServe(*Addr, nil)
@@ -212,10 +76,7 @@ func  CoordinatorConfirmation(w http.ResponseWriter, req *http.Request)  {
 	if err != nil {
 		panic(err)
 	}
-
-
 	log.Info("QMAN ", "DIVISOR: ", Divisor)
-
 
 	if coordiStruct.QRND%uint64(Divisor) == 0 {
 		log.Info("QMAN COORDI TRUE")
@@ -247,8 +108,6 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 		log.Info("Qmanager is not alive")
 		panic(err)
 	}
-	//log.Info(string(body))
-
 	var nodeStruct global.QManDBStruct
 	err = json.Unmarshal(body, &nodeStruct)
 	if err != nil {
@@ -256,11 +115,6 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 	}
 
 	log.Info("Bootnode Data ", "Addr: ", nodeStruct.Address)
-
-
-	//log.Info("Bootnode Sent Data Address" )
-	//log.Info(nodeStruct.Address)
-
 
 	if nodeStruct.Address != ""{
 		if !FindNode(nodeStruct.Address){
@@ -275,18 +129,9 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 
 	json.NewEncoder(w).Encode(m)
 
-
-
 }
 
-//
-////For Qmanager, event handler to receive msg from geth
 func  handleExtraData (w http.ResponseWriter, req *http.Request){
-
-	//ConnectDB()
-	//GetDBData()
-	//CloseDB()
-
 		w.Header().Set("Content-Type", "application/json")
 		body, err := ioutil.ReadAll(req.Body)
 		if err != nil {
@@ -300,8 +145,6 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		panic(err)
 	}
 
-
-
 		proposerAddress := common.HexToAddress(reqStruct.Proposer)
 
 		log.Info("Received EXTRA DATA REQUEST from geth")
@@ -314,7 +157,6 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		Counter = Counter + 1
 		log.Info("Round ", "Count: ", Counter)
 
-
 		var extra []common.ValidatorInfo
 
 		outerLoop := 0
@@ -326,7 +168,6 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 
 			index := 0
 			for index < len(extra) {
-				//log.Print("Qmanager ", "Generating Random Numbers ", "InnerLoop")
 
 				if  proposerAddress != extra[index].Address {
 					//if extra[index].Tag == common.Senator{
@@ -340,52 +181,26 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 						}
 					//}
 				}
-				//log.Print("ExtraData list", "Address", extra[index].Address , "Qrnd", extra[index].Qrnd, "Tag",  extra[index].Tag)
 				index++
 			}
 			outerLoop++
 			if completed{
 				log.Info("QManager ExtraData ", "For Loop Index: ", outerLoop)
-
 				break
 			}
-
 			if outerLoop == 30{
 				log.Error("QManager ExtraData ", "Error", "Cannot Select Coordinator")
 				break
 			}
 
 		}
-
-
-		//log.Print("ExtraData list", "extradata", extra)
-
-		//defer db.Close()
 		log.Info("QManager ", "ExtraData Length: ", len(extra))
 		log.Info("QManager ", "ExtraData: ", extra)
-	//	extraDataJson, err := json.Marshal(extra)
-	//
-	//	if err != nil {
-	//		log.Print("Failed to encode JSON", err)
-	//	}
-	//
-	//log.Print("QManager", "ExtraDataJSON: ", extraDataJson)
-
-
-		//m := podc_global.Message{
-		//		Message: "Success",
-		//		Code: http.StatusOK,
-		//	}
-
 		json.NewEncoder(w).Encode(extra)
-
 }
 
 
 func generateExtraData() []common.ValidatorInfo{
-
-	//qManager.ConnectDB()
-	//log.Info("Qmanager", "DB Status", "4. Connected")
 
 	var extra []common.ValidatorInfo
 	for _, validator := range global.DBDataList {
@@ -393,15 +208,10 @@ func generateExtraData() []common.ValidatorInfo{
 		var num uint64
 
 		if global.QRNGDeviceStat == true{
-			//log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
  			randomIndex := rand.Intn(12280) + 1
-
-
 			num = global.RandomNumbers[randomIndex]
 
-
 		} else {
-			//log.Info("Suedo Random "  ,   " Random Nums", podc_global.QRNDDeviceStat)
 			num = rand.Uint64()
 		}
 		validatorInfo := common.ValidatorInfo{}
@@ -410,9 +220,6 @@ func generateExtraData() []common.ValidatorInfo{
 		validatorInfo.Tag = common.Tag(validator.Tag)
 
 		extra = append(extra, validatorInfo)
-
 	}
-
 	return extra
-
 }
