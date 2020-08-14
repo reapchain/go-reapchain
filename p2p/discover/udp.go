@@ -70,9 +70,6 @@ const (
 	pongPacket        // 2
 	findnodePacket
 	neighborsPacket
-	qmanagerPacket    // 4 - for reapchain
-	requestQmanPacket
-	receiveQmanPacket
 )
 
 // RPC request structures
@@ -85,7 +82,6 @@ type (
 		Rest []rlp.RawValue `rlp:"tail"`
 
 	}
-
 	// pong is the reply to ping.
 	pong struct {
 		// This field should mirror the UDP envelope address
@@ -113,32 +109,6 @@ type (
 		Expiration uint64
 		// Ignore additional fields (for forward compatibility).
 		Rest []rlp.RawValue `rlp:"tail"`
-	}
-
-	// reply to findnode
-	qmanager struct {
-		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
-		Expiration uint64
-		// Ignore additional fields (for forward compatibility).
-	}
-
-	requestQman struct {
-		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
-		Expiration uint64
-		// Ignore additional fields (for forward compatibility).
-	}
-
-	receiveQman struct {
-		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
-		Expiration uint64
-		// Ignore additional fields (for forward compatibility).
-	}
-
-	bootNodePacket struct {
-		Node      NodeID  //? whether set NodeID or []rpcNode, select something to martin
-		Expiration uint64
-		QManNodeIDStr string
-		// Ignore additional fields (for forward compatibility).
 	}
 
 	rpcNode struct {
@@ -610,12 +580,6 @@ func decodePacket(buf []byte) (packet, NodeID, []byte, error) {
 		req = new(findnode)
 	case neighborsPacket:
 		req = new(neighbors)
-	case qmanagerPacket:
-		req = new(qmanager)
-	case requestQmanPacket:
-		req = new(requestQman)
-	case receiveQmanPacket:
-		req = new(receiveQman)
 
 	default:
 		return nil, fromID, hash, fmt.Errorf("unknown type: %d", ptype)
@@ -774,86 +738,86 @@ func expired(ts uint64) bool {
 	return time.Unix(int64(ts), 0).Before(time.Now())
 }
 
-
-
-func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
-	if expired(req.Expiration) {
-		return errExpired
-	}
-
-	node_pubKey, _ := req.Node.Pubkey()
-	pubBytes := crypto.FromECDSAPub(node_pubKey)
-	nodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
-	timestamp := time.Now().Format("2006-01-02 15:04:05")
-
-
-	qNode := podc_global.QManDBStruct{ID: req.Node.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: 2 }
-	podc_global.BootNodeSendData(qNode)
-	//nodeFound := qManager.FindNode(nodeAddress.String())
-	//
-	//if !nodeFound {
-	//	log.Info("Qmanager New Entry", "ID = ", req.Node.String())
-	//	saveError := qManager.Save(qNode)
-	//	if !saveError {
-	//		//fmt.Println("Save Error")
-	//		log.Info("Save ERR", "err = ", saveError)
-	//	}
-	//}
-
-	return nil
-}
-
-func (req qmanager) name() string {
-	return "QMANAGER/v4"
-}
-
-
-
-func (req *requestQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
-	if expired(req.Expiration) {
-		return errExpired
-	}
-
-	log.Info("Bootnode Requesting Reply", "Node ID = ", t.self.ID.String())
-
-
-	if podc_global.QManConnected {
-		fmt.Println("Qman Sending Address")
-		ps := receiveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-		fmt.Println(fromID)
-		t.send(from , receiveQmanPacket, &ps)
-
-
-	}
-	return nil
-}
-
-func (req requestQman) name() string {
-	return "QManager Request/v4"
-}
-
-
-func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
-	if expired(req.Expiration) {
-		return errExpired
-	}
-
-
-	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
-		//if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
-		fmt.Println("Recieved Qman Address")
-		//ps := recieveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-		//fmt.Println(fromID)
-		//t.send(from , recieveQmanPacket, &ps)
-
-		podc_global.QManagerAddress = from
-		podc_global.BootNodeReady = true
-
-
-	}
-	return nil
-}
-
-func (req receiveQman) name() string {
-	return "QManager Receive/v4"
-}
+//
+//
+//func (req *qmanager) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+//	if expired(req.Expiration) {
+//		return errExpired
+//	}
+//
+//	node_pubKey, _ := req.Node.Pubkey()
+//	pubBytes := crypto.FromECDSAPub(node_pubKey)
+//	nodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
+//	timestamp := time.Now().Format("2006-01-02 15:04:05")
+//
+//
+//	qNode := podc_global.QManDBStruct{ID: req.Node.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: 2 }
+//	podc_global.BootNodeSendData(qNode)
+//	//nodeFound := qManager.FindNode(nodeAddress.String())
+//	//
+//	//if !nodeFound {
+//	//	log.Info("Qmanager New Entry", "ID = ", req.Node.String())
+//	//	saveError := qManager.Save(qNode)
+//	//	if !saveError {
+//	//		//fmt.Println("Save Error")
+//	//		log.Info("Save ERR", "err = ", saveError)
+//	//	}
+//	//}
+//
+//	return nil
+//}
+//
+//func (req qmanager) name() string {
+//	return "QMANAGER/v4"
+//}
+//
+//
+//
+//func (req *requestQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+//	if expired(req.Expiration) {
+//		return errExpired
+//	}
+//
+//	log.Info("Bootnode Requesting Reply", "Node ID = ", t.self.ID.String())
+//
+//
+//	if podc_global.QManConnected {
+//		fmt.Println("Qman Sending Address")
+//		ps := receiveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+//		fmt.Println(fromID)
+//		t.send(from , receiveQmanPacket, &ps)
+//
+//
+//	}
+//	return nil
+//}
+//
+//func (req requestQman) name() string {
+//	return "QManager Request/v4"
+//}
+//
+//
+//func (req *receiveQman) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) error {
+//	if expired(req.Expiration) {
+//		return errExpired
+//	}
+//
+//
+//	if podc_global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
+//		//if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
+//		fmt.Println("Recieved Qman Address")
+//		//ps := recieveQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
+//		//fmt.Println(fromID)
+//		//t.send(from , recieveQmanPacket, &ps)
+//
+//		podc_global.QManagerAddress = from
+//		podc_global.BootNodeReady = true
+//
+//
+//	}
+//	return nil
+//}
+//
+//func (req receiveQman) name() string {
+//	return "QManager Receive/v4"
+//}

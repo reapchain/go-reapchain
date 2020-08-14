@@ -19,13 +19,9 @@ import (
 	"time"
 )
 
-const NodeIDBits = 512
-
 var IsInUse = false
 
-
-func CheckQRNDStatus(){
-
+func CheckQRNGStatus(){
 	operatingSystem := runtime.GOOS
 	switch operatingSystem {
 	case "windows":
@@ -40,80 +36,68 @@ func CheckQRNDStatus(){
 		podc_global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
 	}
 
-	log.Info("Qmanager", "QRND = ", podc_global.QRNGFilePrefix)
+	log.Info("Qmanager", "QRNG = ", podc_global.QRNGFilePrefix)
 	if fileExists(podc_global.QRNGFilePrefix + "up.ini") {
-		podc_global.QRNDDeviceStat = true
+		podc_global.QRNGDeviceStat = true
 		//log.Info("QRND", "Buffer: ", "GENERATING NUMS")
-		podc_global.RandomNumbers = generateRandomNumbers()
-		go StartQRNDRefresher()
-
+		var expectedErr error
+		podc_global.RandomNumbers, expectedErr = generateRandomNumbers()
+		if expectedErr == nil{
+			go StartQRNGRefresher()
+		}else{
+			podc_global.QRNGDeviceStat = false
+		}
 	} else {
-		podc_global.QRNDDeviceStat = false
+		podc_global.QRNGDeviceStat = false
 	}
 }
 
 func ConnectDB(){
 	//log.Info("Qmanager", "IsInUse OPEN = ", IsInUse)
-
 	if IsInUse == false {
 		IsInUse = true
-
 		//log.Info("Qmanager", "DB = ", "STARTING---------------------------------------")
-
 		var err error
 		podc_global.QManagerStorage, err = leveldb.OpenFile("qman-" + DBName, nil)
 		if err != nil{
 			log.Info("DB ERROR", "err = ", err)
 			IsInUse = false
 		}
-
-
 	}else{
 		//log.Info("Qmanager", "DB = ", "WAITING---------------------------------------")
 		time.Sleep(100 *time.Millisecond)
 		ConnectDB()
 	}
-
-
 }
 func CloseDB(){
 	//log.Info("Qmanager", "IsInUse CLOSE = ", IsInUse)
-
 	podc_global.QManagerStorage.Close()
 	IsInUse = false
 }
 
 func InitializeQManager() {
-
-
 	go StartExpirationChecker()
-	CheckQRNDStatus()
-
-
+	CheckQRNGStatus()
 	//if podc_global.QRNDDeviceStat == true{
-	//
 	//	//podc_global.RandomNumbers = generateRandomNumbers()
-
-
 	//}
-
 	//go Start()
-
 }
 
 func IsQmanager() (isQMan bool){
 	return podc_global.QManConnected
 }
 
-func StartQRNDRefresher(){
-
-
+func StartQRNGRefresher(){
 	uptimeTicker := time.NewTicker(60 * time.Second)
-
 	for {
 		select {
 		case <-uptimeTicker.C:
-			podc_global.RandomNumbers = generateRandomNumbers()
+			var expectedErr error
+			podc_global.RandomNumbers, expectedErr = generateRandomNumbers()
+			if expectedErr != nil{
+				podc_global.QRNGDeviceStat = false
+			}
 		}
 	}
 }
@@ -121,7 +105,6 @@ func StartQRNDRefresher(){
 func StartExpirationChecker(){
 
 	uptimeTicker := time.NewTicker(30 * time.Second)
-
 	for {
 		select {
 		case <-uptimeTicker.C:
@@ -164,9 +147,7 @@ func expirationCheck() {
 
 		timestamp := time.Now().Format("2006-01-02 15:04:05")
 		nowtimestamp, _ := time.Parse("2006-01-02 15:04:05", timestamp )
-
 		dbtimestamp, _ := time.Parse("2006-01-02 15:04:05", decodedBytes.Timestamp)
-
 
 		diff := nowtimestamp.Sub(dbtimestamp).Seconds()
 		if diff > 30 {
@@ -209,9 +190,6 @@ func UpdateSenatorCandidateNodes() {
 	if podc_global.QManConnected {
 		//log.Info("Qmanager", "DB Status", "2. Connected")
 		ConnectDB()
-
-
-
 		for _, element := range podc_global.GovernanceList {
 			nodeAddress := element.Validator
 
@@ -269,18 +247,13 @@ func UpdateSenatorCandidateNodes() {
 
 func FindNode(nodeAddress string) ( found bool) {
 	node_address_encoded,_ := rlp.EncodeToBytes(nodeAddress)
-
 	//ecies.Encrypt()
-
-
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
 	//var data []byte
 	if podc_global.QManConnected {
 		//log.Info("Qmanager", "DB Status", "3. Connected")
 		ConnectDB()
-
-
 		//var nodeIDString string
 		//decode_err := rlp.DecodeBytes(nodeId, &nodeIDString)
 		//
@@ -295,9 +268,7 @@ func FindNode(nodeAddress string) ( found bool) {
 		if err != nil {
 			CloseDB()
 			//log.Info("Qmanager", "DB Status", "3. Disconnected")
-
 			log.Info("QManager ", "DB --", "Node Not Found")
-
 			return false
 		}
 
@@ -312,7 +283,6 @@ func FindNode(nodeAddress string) ( found bool) {
 
 		if err != nil {
 			log.Info("QManager DB Save", "err --", err)
-
 		}
 		timestamp := time.Now().Format("2006-01-02 15:04:05")
 		encodedStruct = &podc_global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address, Timestamp: timestamp, Tag: decodedBytes.Tag }
@@ -325,22 +295,16 @@ func FindNode(nodeAddress string) ( found bool) {
 			log.Info("QManager DB Save", "err --", err)
 
 		}
-
-
-
-
 		updateError := podc_global.QManagerStorage.Put(node_address_encoded, initBytes, nil)
 
 		if updateError != nil {
 			log.Info("QManager DB Save", "UPDATE ERROR --", updateError)
 		}
 		GetDBData()
-
 		//saved :=  SaveToDB(node_address_encoded, initBytes)
 		//if !saved {
 		//	log.Info("QManager DB Save", "err --", "UPDATE ERROR")
 		//}
-
 
 		//log.Info(data)
 
@@ -353,71 +317,46 @@ func FindNode(nodeAddress string) ( found bool) {
 		//log.Info("Qmanager", "DB Status", "3. Disconnected")
 
 		return true
-
-
 	}
-
 	return true
-
 }
 
 
 func  Save( dbStruct podc_global.QManDBStruct) (saved bool) {
 
 	encodedAddress,_ := rlp.EncodeToBytes(dbStruct.Address)
-
-
 	var encodedStruct *podc_global.QManDBStruct
 	initBytes, err := rlp.EncodeToBytes(encodedStruct)
-
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)
-
 	}
-
-
 	encodedStruct = &podc_global.QManDBStruct{ID: dbStruct.ID,  Address: dbStruct.Address, Timestamp: dbStruct.Timestamp, Tag: dbStruct.Tag}
-
 	initBytes, err = rlp.EncodeToBytes(encodedStruct)
-
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)
-
 	}
-
-
-
 	saved =  SaveToDB(encodedAddress, initBytes)
 	if !saved {
 		return false
 	}
-
 	return true
 }
-
 
 func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
 	if podc_global.QManConnected {
 		//log.Info("Qmanager", "DB Status", "4. Connected")
 		ConnectDB()
-
-
 		saveErr := podc_global.QManagerStorage.Put(Address, NodeDetails, nil)
-
 		if saveErr != nil {
 			log.Info("QManager DB Save", "err --", saveErr)
 			CloseDB()
 			log.Info("Qmanager", "DB Status", "4. Disconnected")
-
 			return false
-
 		}
 		GetDBData()
 		CloseDB()
 		//log.Info("Qmanager", "DB Status", "4. Disconnected")
-
 		return true
-
 	}
 	return false
 }
@@ -430,24 +369,23 @@ func fileExists(filename string) bool {
 	return !info.IsDir()
 }
 
-func generateRandomNumbers() (RandomNumbers []uint64) {
-
-	generatedBUFFER := quantum.GenerateQrnd()
+func generateRandomNumbers() (RandomNumbers []uint64, err error) {
+	generatedBUFFER, err := quantum.GenerateQRNGData()
 	//log.Info("QRND", "Buffer: ", generatedBUFFER)
-
-
-	one := make([]byte, 8)
-	var RandomNums []uint64
-	counter := 0
-	for i:=0; i<len(generatedBUFFER) - 4; i++{
-
-		one[counter] = generatedBUFFER[i]
-		counter = counter + 1
-		if counter == 4{
-			RandomNums = append(RandomNums, binary.LittleEndian.Uint64(one))
-			counter = 0
+	if err == nil{
+		one := make([]byte, 8)
+		var RandomNums []uint64
+		counter := 0
+		for i:=0; i<len(generatedBUFFER) - 4; i++{
+			one[counter] = generatedBUFFER[i]
+			counter = counter + 1
+			if counter == 4{
+				RandomNums = append(RandomNums, binary.LittleEndian.Uint64(one))
+				counter = 0
+			}
 		}
+		return RandomNums, nil
+	}else{
+		return nil, err
 	}
-
-	return RandomNums
 }

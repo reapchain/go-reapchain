@@ -12,7 +12,7 @@ var (
 	QManConnected bool  //If I'm Qmanager, this is true. when start p2p node, check whether Qman or not.
 	QManagerAddress *net.UDPAddr
 	BootNodeReady bool
-	QRNDDeviceStat bool
+	QRNGDeviceStat bool
 	QRNGFilePrefix string
 	RandomNumbers []uint64
 	BootNodePort int

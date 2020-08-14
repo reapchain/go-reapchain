@@ -321,7 +321,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 		proposerAddress := common.HexToAddress(reqStruct.Proposer)
 
 		log.Info("Received EXTRA DATA REQUEST from geth")
-		if podc_global.QRNDDeviceStat == true{
+		if podc_global.QRNGDeviceStat == true{
 			log.Info("Random Number Generator " ,  "Using - " , "Quantum Device")
 		} else {
 			log.Info("Random Number Generator " ,  "Using - " , "Pusedo Random")
@@ -408,7 +408,7 @@ func generateExtraData() []common.ValidatorInfo{
 
 		var num uint64
 
-		if podc_global.QRNDDeviceStat == true{
+		if podc_global.QRNGDeviceStat == true{
 			//log.Info("QRND " ,  " Random Nums" , podc_global.QRNDDeviceStat)
  			randomIndex := rand.Intn(12280) + 1
 
@@ -430,27 +430,5 @@ func generateExtraData() []common.ValidatorInfo{
 	}
 
 	return extra
-
-}
-
-
-func  TestQmanServer (w http.ResponseWriter, req *http.Request){
-
-	w.Header().Set("Content-Type", "application/json")
-	body, err := ioutil.ReadAll(req.Body)
-	if err != nil {
-		panic(err)
-	}
-	log.Info(string(body))
-
-
-	m := podc_global.Message{
-		Message: "Success",
-		Code: http.StatusOK,
-	}
-
-	json.NewEncoder(w).Encode(m)
-
-
 
 }

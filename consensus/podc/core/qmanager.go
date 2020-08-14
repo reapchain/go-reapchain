@@ -44,15 +44,15 @@ func generateExtraData() []common.ValidatorInfo{
 
 		var num uint64
 
-		if podc_global.QRNDDeviceStat == true{
-			log.Info("QRND " + string(index), " Random Nums" , podc_global.QRNDDeviceStat)
+		if podc_global.QRNGDeviceStat == true{
+			log.Info("QRNG " + string(index), " Random Nums" , podc_global.QRNGDeviceStat)
 			rand.Seed(time.Now().UnixNano())
 			randomIndex := rand.Intn(12280)
 			num = podc_global.RandomNumbers[randomIndex]
 
 
 		} else {
-			log.Info("Suedo Random "  + string(index) , " Random Nums", podc_global.QRNDDeviceStat)
+			log.Info("Suedo Random "  + string(index) , " Random Nums", podc_global.QRNGDeviceStat)
 			num = rand.Uint64()
 		}
 		validatorInfo := common.ValidatorInfo{}
