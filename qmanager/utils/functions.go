@@ -1,4 +1,4 @@
-package podc_global
+package qmanager
 
 import (
 	"bytes"
@@ -6,6 +6,7 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/log"
+	"github.com/ethereum/go-ethereum/qmanager/global"
 	"net/http"
 	"strings"
 )
@@ -18,7 +19,7 @@ func RequestExtraData(Properser string) common.ValidatorInfos {
 	s := strings.Split(QManagerURLs, "@")
 	QManagerURL := s[1]
 
-	requestStruct := RequestStruct{
+	requestStruct := global.RequestStruct{
 		Proposer: Properser,
 	}
 	//message := map[string]interface{}{
@@ -61,7 +62,7 @@ func RequestExtraData(Properser string) common.ValidatorInfos {
 	//log.Info(result["data"])
 }
 
-func BootNodeSendData(NodeData QManDBStruct) {
+func BootNodeToQmanager(NodeData global.QManDBStruct) {
     if  len(config.Config.QManagers) == 0 {
     	log.Info("File Not Found:", "QManagers", config.Config.QManagers[0] )
 	}
@@ -90,17 +91,16 @@ func BootNodeSendData(NodeData QManDBStruct) {
 
 	//json.NewDecoder(resp.Body).Decode(&result)
 
-
-	var result Message
+	var result global.Message
 
 	json.NewDecoder(resp.Body).Decode(&result)
 
-	log.Info("BootnodeToQmanager", "Send Status : ", result.Message)
+	log.Info("Bootnode To Qmanager", "Send Status : ", result.Message)
 
 
 }
 
-func CooridnatorConfirmation(coordiReq RequestCoordiStruct) bool {
+func CooridnatorConfirmation(coordiReq global.RequestCoordiStruct) bool {
 	if  len(config.Config.QManagers) == 0 {
 		log.Info("File Not Found:", "QManagers", config.Config.QManagers[0] )
 	}
@@ -134,7 +134,7 @@ func CooridnatorConfirmation(coordiReq RequestCoordiStruct) bool {
 	//json.NewDecoder(resp.Body).Decode(&result)
 
 
-	var result CoordiDecideStruct
+	var result global.CoordiDecideStruct
 
 	json.NewDecoder(resp.Body).Decode(&result)
 

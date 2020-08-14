@@ -1,4 +1,4 @@
-package podc_global
+package qmanager
 
 import (
 	"crypto/ecdsa"
@@ -63,7 +63,7 @@ func CheckBootNodePortAndID(NodeID string, Port int) bool{
 	//log.Info("Global", "ID = ", BootNodeID)
 	//log.Info("Global", "IP Addr = ", BootNodePort)
 
-	 if NodeID == BootNodeID && Port == BootNodePort{
+	 if NodeID == BootNodeID && Port == BootNodePort {
 	 	return true
 	 }
 

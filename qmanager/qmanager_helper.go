@@ -1,4 +1,4 @@
-package qManager
+package qmanager
 
 import (
 	"bytes"
@@ -6,12 +6,11 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/common/math"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/qManager/quantum"
+	"github.com/ethereum/go-ethereum/qmanager/quantum"
 	"runtime"
 
 	//"fmt"
 
-	"github.com/ethereum/go-ethereum/qManager/podc_global"
 	"github.com/ethereum/go-ethereum/rlp"
 	"github.com/syndtr/goleveldb/leveldb"
 	//"math/rand"
@@ -27,28 +26,28 @@ func CheckQRNGStatus(){
 	case "windows":
 		fmt.Println("Windows")
 	case "darwin":
-		podc_global.QRNGFilePrefix = "/Volumes/PSoC USB/"
+		QRNGFilePrefix = "/Volumes/PSoC USB/"
 	case "linux":
 		user := os.Getenv("USER")
-		podc_global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
+		QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
 	default:
 		user := os.Getenv("USER")
-		podc_global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
+		QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
 	}
 
-	log.Info("Qmanager", "QRNG = ", podc_global.QRNGFilePrefix)
-	if fileExists(podc_global.QRNGFilePrefix + "up.ini") {
-		podc_global.QRNGDeviceStat = true
+	log.Info("Qmanager", "QRNG = ", QRNGFilePrefix)
+	if fileExists(QRNGFilePrefix + "up.ini") {
+		QRNGDeviceStat = true
 		//log.Info("QRND", "Buffer: ", "GENERATING NUMS")
 		var expectedErr error
-		podc_global.RandomNumbers, expectedErr = generateRandomNumbers()
+		RandomNumbers, expectedErr = generateRandomNumbers()
 		if expectedErr == nil{
 			go StartQRNGRefresher()
 		}else{
-			podc_global.QRNGDeviceStat = false
+			QRNGDeviceStat = false
 		}
 	} else {
-		podc_global.QRNGDeviceStat = false
+		QRNGDeviceStat = false
 	}
 }
 
@@ -58,7 +57,7 @@ func ConnectDB(){
 		IsInUse = true
 		//log.Info("Qmanager", "DB = ", "STARTING---------------------------------------")
 		var err error
-		podc_global.QManagerStorage, err = leveldb.OpenFile("qman-" + DBName, nil)
+		QManagerStorage, err = leveldb.OpenFile("qman-" + DBName, nil)
 		if err != nil{
 			log.Info("DB ERROR", "err = ", err)
 			IsInUse = false
@@ -71,7 +70,7 @@ func ConnectDB(){
 }
 func CloseDB(){
 	//log.Info("Qmanager", "IsInUse CLOSE = ", IsInUse)
-	podc_global.QManagerStorage.Close()
+	QManagerStorage.Close()
 	IsInUse = false
 }
 
@@ -85,7 +84,7 @@ func InitializeQManager() {
 }
 
 func IsQmanager() (isQMan bool){
-	return podc_global.QManConnected
+	return QManConnected
 }
 
 func StartQRNGRefresher(){
@@ -94,9 +93,9 @@ func StartQRNGRefresher(){
 		select {
 		case <-uptimeTicker.C:
 			var expectedErr error
-			podc_global.RandomNumbers, expectedErr = generateRandomNumbers()
+			RandomNumbers, expectedErr = generateRandomNumbers()
 			if expectedErr != nil{
-				podc_global.QRNGDeviceStat = false
+				QRNGDeviceStat = false
 			}
 		}
 	}
@@ -114,11 +113,11 @@ func StartExpirationChecker(){
 }
 
 func GetDBData(){
-	var tempDBDataList []podc_global.QManDBStruct
-	iter :=  podc_global.QManagerStorage.NewIterator(nil, nil)
+	var tempDBDataList []QManDBStruct
+	iter :=  QManagerStorage.NewIterator(nil, nil)
 	for iter.Next() {
 		value := iter.Value()
-		var decodedBytes podc_global.QManDBStruct
+		var decodedBytes QManDBStruct
 		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
 		if err != nil {
 			log.Info("Qmanager", "Decoding Error", err.Error())
@@ -126,7 +125,7 @@ func GetDBData(){
 		tempDBDataList = append(tempDBDataList, decodedBytes)
 	}
 
-	podc_global.DBDataList = tempDBDataList
+	DBDataList = tempDBDataList
 }
 
 func expirationCheck() {
@@ -134,12 +133,12 @@ func expirationCheck() {
 	//log.Info("Qmanager", "DB Status", "1. Connected")
 	ConnectDB()
 
-	iter :=  podc_global.QManagerStorage.NewIterator(nil, nil)
+	iter :=  QManagerStorage.NewIterator(nil, nil)
 	for iter.Next() {
 		key := iter.Key()
 		value := iter.Value()
 
-		var decodedBytes podc_global.QManDBStruct
+		var decodedBytes QManDBStruct
 		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
 		if err != nil {
 			log.Info("Qmanager", "Decoding Error", err.Error())
@@ -158,7 +157,7 @@ func expirationCheck() {
 			log.Info("Qmanager", "Expired Node", string(key))
 
 
-			err = podc_global.QManagerStorage.Delete(key, nil)
+			err = QManagerStorage.Delete(key, nil)
 			GetDBData()
 			if err != nil {
 				log.Info("Qmanager", "Decoding Error", err.Error())
@@ -187,27 +186,27 @@ func expirationCheck() {
 
 
 func UpdateSenatorCandidateNodes() {
-	if podc_global.QManConnected {
+	if QManConnected {
 		//log.Info("Qmanager", "DB Status", "2. Connected")
 		ConnectDB()
-		for _, element := range podc_global.GovernanceList {
+		for _, element := range GovernanceList {
 			nodeAddress := element.Validator
 
 			node_address_encoded,_ := rlp.EncodeToBytes(nodeAddress)
-			foundNode, err := podc_global.QManagerStorage.Get(node_address_encoded, nil)
+			foundNode, err := QManagerStorage.Get(node_address_encoded, nil)
 			if err != nil {
 				log.Info("QManager", "DB --", "Node Not Found")
 
 			}
 
 			if foundNode != nil{
-				var decodedBytes  podc_global.QManDBStruct
+				var decodedBytes QManDBStruct
 				DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
 				if DecodeErr != nil {
 					log.Info("Qmanager", "Decoding Error", DecodeErr.Error())
 				}
 
-				var encodedStruct *podc_global.QManDBStruct
+				var encodedStruct *QManDBStruct
 				initBytes, err := rlp.EncodeToBytes(encodedStruct)
 
 				if err != nil {
@@ -215,7 +214,7 @@ func UpdateSenatorCandidateNodes() {
 
 				}
 				tagConverted, _ := math.ParseUint64(element.Tag)
-				encodedStruct = &podc_global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address,
+				encodedStruct = &QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address,
 					Timestamp: decodedBytes.Timestamp, Tag:tagConverted }
 
 				initBytes, err = rlp.EncodeToBytes(encodedStruct)
@@ -224,7 +223,7 @@ func UpdateSenatorCandidateNodes() {
 					log.Info("QManager", "RLP Error --", err)
 
 				}
-				saveError := podc_global.QManagerStorage.Put(node_address_encoded, initBytes, nil)
+				saveError := QManagerStorage.Put(node_address_encoded, initBytes, nil)
 
 				if saveError != nil {
 					log.Info("QManager DB Save", "err --", saveError)
@@ -251,7 +250,7 @@ func FindNode(nodeAddress string) ( found bool) {
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
 	//var data []byte
-	if podc_global.QManConnected {
+	if QManConnected {
 		//log.Info("Qmanager", "DB Status", "3. Connected")
 		ConnectDB()
 		//var nodeIDString string
@@ -264,7 +263,7 @@ func FindNode(nodeAddress string) ( found bool) {
 		//
 		//log.Info("Decoded ID", "qman = ", nodeIDString)
 
-		foundNode, err := podc_global.QManagerStorage.Get(node_address_encoded, nil)
+		foundNode, err := QManagerStorage.Get(node_address_encoded, nil)
 		if err != nil {
 			CloseDB()
 			//log.Info("Qmanager", "DB Status", "3. Disconnected")
@@ -272,20 +271,20 @@ func FindNode(nodeAddress string) ( found bool) {
 			return false
 		}
 
-		var decodedBytes  podc_global.QManDBStruct
+		var decodedBytes QManDBStruct
 		DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
 		if DecodeErr != nil {
 			log.Info("Qmanager ", "Decoding Error", DecodeErr.Error())
 		}
 
-		var encodedStruct *podc_global.QManDBStruct
+		var encodedStruct *QManDBStruct
 		initBytes, err := rlp.EncodeToBytes(encodedStruct)
 
 		if err != nil {
 			log.Info("QManager DB Save", "err --", err)
 		}
 		timestamp := time.Now().Format("2006-01-02 15:04:05")
-		encodedStruct = &podc_global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address, Timestamp: timestamp, Tag: decodedBytes.Tag }
+		encodedStruct = &QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address, Timestamp: timestamp, Tag: decodedBytes.Tag }
 
 		//t, _ := time.Parse("2006-01-02 15:04:05", encodedStruct.Timestamp)
 		//fmt.Infoln(t)
@@ -295,7 +294,7 @@ func FindNode(nodeAddress string) ( found bool) {
 			log.Info("QManager DB Save", "err --", err)
 
 		}
-		updateError := podc_global.QManagerStorage.Put(node_address_encoded, initBytes, nil)
+		updateError := QManagerStorage.Put(node_address_encoded, initBytes, nil)
 
 		if updateError != nil {
 			log.Info("QManager DB Save", "UPDATE ERROR --", updateError)
@@ -322,15 +321,15 @@ func FindNode(nodeAddress string) ( found bool) {
 }
 
 
-func  Save( dbStruct podc_global.QManDBStruct) (saved bool) {
+func  Save( dbStruct QManDBStruct) (saved bool) {
 
 	encodedAddress,_ := rlp.EncodeToBytes(dbStruct.Address)
-	var encodedStruct *podc_global.QManDBStruct
+	var encodedStruct *QManDBStruct
 	initBytes, err := rlp.EncodeToBytes(encodedStruct)
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)
 	}
-	encodedStruct = &podc_global.QManDBStruct{ID: dbStruct.ID,  Address: dbStruct.Address, Timestamp: dbStruct.Timestamp, Tag: dbStruct.Tag}
+	encodedStruct = &QManDBStruct{ID: dbStruct.ID,  Address: dbStruct.Address, Timestamp: dbStruct.Timestamp, Tag: dbStruct.Tag}
 	initBytes, err = rlp.EncodeToBytes(encodedStruct)
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)
@@ -343,10 +342,10 @@ func  Save( dbStruct podc_global.QManDBStruct) (saved bool) {
 }
 
 func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
-	if podc_global.QManConnected {
+	if QManConnected {
 		//log.Info("Qmanager", "DB Status", "4. Connected")
 		ConnectDB()
-		saveErr := podc_global.QManagerStorage.Put(Address, NodeDetails, nil)
+		saveErr := QManagerStorage.Put(Address, NodeDetails, nil)
 		if saveErr != nil {
 			log.Info("QManager DB Save", "err --", saveErr)
 			CloseDB()
