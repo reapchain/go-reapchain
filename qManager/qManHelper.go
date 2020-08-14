@@ -120,7 +120,7 @@ func StartQRNDRefresher(){
 
 func StartExpirationChecker(){
 
-	uptimeTicker := time.NewTicker(60 * time.Second)
+	uptimeTicker := time.NewTicker(30 * time.Second)
 
 	for {
 		select {
@@ -169,7 +169,7 @@ func expirationCheck() {
 
 
 		diff := nowtimestamp.Sub(dbtimestamp).Seconds()
-		if diff > 300 {
+		if diff > 30 {
 			log.Info("Qmanager", "Current Time", nowtimestamp)
 			log.Info("Qmanager", "DB Last Updated", dbtimestamp)
 
