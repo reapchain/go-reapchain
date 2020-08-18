@@ -16,8 +16,8 @@ type EnvConfig struct {
 	Token		TokenConfig		`json:"token"`
 	Bootnodes	[]string		`json:"bootnodes"`
 	QManagers	[]string		`json:"qmanagers"`
-	//Senatornodes []string       `json:"Senatornodes"`
-	//Candidatenodes []string     `json:"Candidatenodes"`
+	Senatornodes []string       `json:"Senatornodes"`
+	Candidatenodes []string     `json:"Candidatenodes"`
 
 }
 
