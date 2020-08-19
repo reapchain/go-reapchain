@@ -32,7 +32,7 @@ func CheckQRNGStatus(){
 		global.QRNGFilePrefix = "/media/"+ user +"/E8EE-1C60/"
 	}
 
-	log.Info("Qmanager", "QRNG = ", global.QRNGFilePrefix)
+	log.Info("QRNG Device ", "Path = ", global.QRNGFilePrefix)
 	if fileExists(global.QRNGFilePrefix + "up.ini") {
 		global.QRNGDeviceStat = true
 		//log.Info("QRND", "Buffer: ", "GENERATING NUMS")
@@ -134,7 +134,7 @@ func expirationCheck() {
 		var decodedBytes global.QManDBStruct
 		err := rlp.Decode(bytes.NewReader(value), &decodedBytes)
 		if err != nil {
-			log.Info("Qmanager", "Decoding Error", err.Error())
+			log.Info("Qmanager RLP", "Decoding Error", err.Error())
 		}
 
 		timestamp := time.Now().Format("2006-01-02 15:04:05")
@@ -143,17 +143,17 @@ func expirationCheck() {
 
 		diff := nowtimestamp.Sub(dbtimestamp).Seconds()
 		if diff > 30 {
-			log.Info("Qmanager", "Current Time", nowtimestamp)
-			log.Info("Qmanager", "DB Last Updated", dbtimestamp)
+			log.Info("Qman Expired Node", "Current Time", nowtimestamp)
+			log.Info("Qman Expired Node", "DB Last Updated", dbtimestamp)
 
 
-			log.Info("Qmanager", "Expired Node", string(key))
+			log.Info("Qman Expired Node", "Expired Node", string(key))
 
 
 			err = global.QManagerStorage.Delete(key, nil)
 			GetDBData()
 			if err != nil {
-				log.Info("Qmanager", "Decoding Error", err.Error())
+				log.Info("Qmanager RLP", "Decoding Error", err.Error())
 			}
 		}
 	}
@@ -172,7 +172,7 @@ func UpdateSenatorCandidateNodes() {
 			node_address_encoded,_ := rlp.EncodeToBytes(nodeAddress)
 			foundNode, err := global.QManagerStorage.Get(node_address_encoded, nil)
 			if err != nil {
-				log.Info("QManager", "DB --", "Node Not Found")
+				log.Info("QManager ", "DB --", "Node Not Found")
 
 			}
 

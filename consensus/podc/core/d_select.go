@@ -68,24 +68,27 @@ func (c *core) sendExtraDataRequest() {
 
 	log.Info("Extra Data Requesting To Standalone QMANAGER")
 
-	extra := utils.RequestExtraData(c.valSet.GetProposer().Address().String())
-	log.Info("Qmanager", "Recieved ExtraData", extra)
+	extra, err := utils.RequestExtraData(c.valSet.GetProposer().Address().String())
 
+	if err != nil{
+		log.Error("Extra Data Request Failure", "Error", err.Error())
 
-	extraDataJson, err := json.Marshal(extra)
-	log.Info("Qmanager", "Recieved extraDataJson", extraDataJson)
+	} else{
+		log.Info("Qmanager", "Recieved ExtraData", extra)
 
+		extraDataJson, err := json.Marshal(extra)
+		log.Info("Qmanager", "Recieved extraDataJson", extraDataJson)
 
-	if err != nil {
-		log.Error("Failed to encode", "extra data", extra)
+		if err != nil {
+			log.Error("Failed to encode", "extra data", extra)
+		}
+		c.ExtraDataLength = len(extra)
+
+		c.broadcast(&message{
+			Code: msgDSelect,
+			Msg: extraDataJson,
+		})
 	}
-	c.ExtraDataLength = len(extra)
-
-
-	c.broadcast(&message{
-		Code: msgDSelect,
-		Msg: extraDataJson,
-	})
 }
 
 func (c *core) sendCoordinatorDecide() {
@@ -182,10 +185,12 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		c.ExtraDataLength = len(extraData)
 		c.criteria = 29
 
-		isCoordinator := utils.CooridnatorConfirmation(global.RequestCoordiStruct{QRND: QRND})
+		isCoordinator, err := utils.CooridnatorConfirmation(global.RequestCoordiStruct{QRND: QRND})
 
 		//log.Info("common.Coordinator", "isCoordinator", isCoordinator)
-
+		if err != nil{
+			log.Error("Coordinator Confirm Failure", "Error", err.Error() )
+		}
 		if isCoordinator{
 
 			var err error

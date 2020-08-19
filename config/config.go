@@ -15,25 +15,26 @@ func (c *EnvConfig) GetConfig(env string, setupenv string) {
 
 	confenv := os.Getenv(env)
 	if confenv == "" {
-		log.Info("Configurations","REAPCHAIN_ENV environment var not set",  "local will set")
+		log.Info("Configurations","REAPCHAIN_ENV environment var not set",  "'local' is Default")
 	}else {
 		log.Info("Configurations","Current ", confenv)
 
 	}
 
-
-	if setupInfo := os.Getenv(setupenv); setupInfo ==""{
-		log.Info("Configurations","SETUP_INFO environment var not set",  "you should set SETUP_INFO var")
+	var filename string
+	if setupInfo := os.Getenv(setupenv); setupInfo =="" {
+		log.Info("Configurations Failure", "SETUP_INFO environment var not set", "Please set SETUP_INFO var")
+		pwd, err := os.Getwd()
+		log.Info("Configurations", "Current Directory: ", pwd)
+		if err != nil {
+			log.Error("Configurations Failure", "Error Message: ", err)
+		}
+		filename = pwd + "/config.json"
+	} else {
+		log.Info("Configurations","SETUP_INFO: ", os.Getenv( "SETUP_INFO"))
+		filename = os.Getenv( "SETUP_INFO") + "/config.json"
 	}
-	pwd, err := os.Getwd()
-	log.Info("Configurations","Current Directory: ",  pwd)
-	if err != nil {
-		log.Info("Configurations Failure","Error Message: ", err)
-	}
 
-
-	log.Info("Configurations","SETUP_INFO: ", os.Getenv( "SETUP_INFO"))
-    filename := os.Getenv( "SETUP_INFO") + "/config.json"
    // log.Info("confi.json is located at ", "filename", filename )
 	log.Info("Configurations","current config file: ",  filename)
 

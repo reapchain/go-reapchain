@@ -686,7 +686,10 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 
 
 			qNode := global.QManDBStruct{ID: fromID.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: 2 }
-			utils.BootNodeToQmanager(qNode)
+			err := utils.BootNodeToQmanager(qNode)
+			if err != nil{
+				log.Error("Bootnode to Qman Failure", "Error", err.Error())
+			}
 
 
 			//if from.String() != podc_global.QManagerAddress.String(){

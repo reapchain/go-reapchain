@@ -3,143 +3,133 @@ package utils
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qmanager/global"
+	"net"
 	"net/http"
 	"strings"
+	"time"
 )
 
-func RequestExtraData(Properser string) common.ValidatorInfos {
-	if  len(config.Config.QManagers) == 0 {
-		log.Info("File Not Found:", "QManagers", config.Config.QManagers[0] )
+var (
+
+	ActiveQmanager string
+)
+
+func CheckQmanagerStatus()  {
+	var QManagerAddresses= config.Config.QManagers
+
+	for _, qman := range QManagerAddresses{
+		split := strings.Split(qman, "@")
+		QManager := split[1]
+		timeout := 10 * time.Millisecond
+		conn, err := net.DialTimeout("http", qman , timeout)
+		if err != nil {
+			log.Info("QManager Not Available", "ADDR", QManager )
+		} else {
+			conn.Close()
+			ActiveQmanager = QManager
+		}
 	}
-	var QManagerURLs= config.Config.QManagers[0]
-	s := strings.Split(QManagerURLs, "@")
-	QManagerURL := s[1]
-
-	requestStruct := global.RequestStruct{
-		Proposer: Properser,
-	}
-	//message := map[string]interface{}{
-	//	"hello": "world",
-	//	"life":  42,
-	//	"embedded": map[string]string{
-	//		"yes": "of course!",
-	//	},
-	//}
-
-	bytesRepresentation, err := json.Marshal(requestStruct)
-	if err != nil {
-		log.Error(err.Error())
-	}
-
-	log.Info("GET EXTRADAT", "QMANAGER URL : ", "http://"+ QManagerURL + "/ExtraData")
-
-	resp, err := http.Post("http://"+ QManagerURL + "/ExtraData", "application/json", bytes.NewBuffer(bytesRepresentation))
-	if err != nil {
-		log.Error(err.Error())
-	}
-
-
-	//var reqStruct []common.ValidatorInfo
-	//if err != nil {
-	//	panic(err)
-	//}
-
-	var result []common.ValidatorInfo
-	json.NewDecoder(resp.Body).Decode(&result)
-	log.Info("VALIDATOR LIST", "Full List : ", result)
-
-	log.Info("VALIDATOR LIST", "Full BODY : ", resp)
-
-	//data := []common.ValidatorInfo{}
-	//json.Unmarshal([]byte(s), &data)
-
-	return result
-
-	//log.Info(result["data"])
-}
-
-func BootNodeToQmanager(NodeData global.QManDBStruct) {
-    if  len(config.Config.QManagers) == 0 {
-    	log.Info("File Not Found:", "QManagers", config.Config.QManagers[0] )
-	}
-
-	var QManagerURLs = config.Config.QManagers[0]
-	s := strings.Split(QManagerURLs, "@")
-	QManagerURL := s[1]
-
-	//message := map[string]interface{}{
-	//	"hello": "world",
-	//	"life":  42,
-	//	"embedded": map[string]string{
-	//		"yes": "of course!",
-	//	},
-	//}
-
-	bytesRepresentation, err := json.Marshal(NodeData)
-	if err != nil {
-		log.Error(err.Error())
-	}
-
-	resp, err := http.Post("http://"+ QManagerURL + "/BootNodeSendData", "application/json", bytes.NewBuffer(bytesRepresentation))
-	if err != nil {
-		log.Error(err.Error())
-	}
-
-	//json.NewDecoder(resp.Body).Decode(&result)
-
-	var result global.Message
-
-	json.NewDecoder(resp.Body).Decode(&result)
-
-	log.Info("Bootnode To Qmanager", "Send Status : ", result.Message)
 
 
 }
 
-func CooridnatorConfirmation(coordiReq global.RequestCoordiStruct) bool {
-	if  len(config.Config.QManagers) == 0 {
-		log.Info("File Not Found:", "QManagers", config.Config.QManagers[0] )
+func CheckAddressValidity() bool {
+	var QManagerAddresses= config.Config.QManagers
+	if  len(QManagerAddresses) == 0 {
+			log.Error("QManager Connection Error", "Address Not Found ", "Please insert qmanager address into Config.json" )
+		return false
+	} else{
+		return true
 	}
-	var QManagerURLs= config.Config.QManagers[0]
-	s := strings.Split(QManagerURLs, "@")
-	QManagerURL := s[1]
+}
 
-	//message := map[string]interface{}{
-	//	"hello": "world",
-	//	"life":  42,
-	//	"embedded": map[string]string{
-	//		"yes": "of course!",
-	//	},
-	//}
+func RequestExtraData(Properser string) (common.ValidatorInfos, error) {
+	if CheckAddressValidity(){
+
+		CheckQmanagerStatus()
+		requestStruct := global.RequestStruct{
+			Proposer: Properser,
+		}
+
+		bytesRepresentation, err := json.Marshal(requestStruct)
+		if err != nil {
+			log.Error(err.Error())
+		}
+
+		log.Info("Get ExtraData", "QMANAGER Address : ", "http://"+ ActiveQmanager + "/ExtraData")
+
+		resp, err := http.Post("http://"+ ActiveQmanager + "/ExtraData", "application/json", bytes.NewBuffer(bytesRepresentation))
+		if err != nil {
+			log.Error(err.Error())
+			return nil, err
+		}
+
+		var result []common.ValidatorInfo
+		json.NewDecoder(resp.Body).Decode(&result)
+		log.Info("VALIDATOR LIST", "Full List : ", result)
+		//log.Info("VALIDATOR LIST", "Full BODY : ", resp)
+
+		return result, nil
+
+	}else {
+		return nil, errors.New("Unavailable QManager Address")
+	}
+}
+
+func BootNodeToQmanager(NodeData global.QManDBStruct) error {
+	if CheckAddressValidity(){
+		CheckQmanagerStatus()
+		bytesRepresentation, err := json.Marshal(NodeData)
+		if err != nil {
+			log.Error(err.Error())
+		}
+		resp, err := http.Post("http://"+ ActiveQmanager + "/BootNodeSendData", "application/json", bytes.NewBuffer(bytesRepresentation))
+		if err != nil {
+			log.Error(err.Error())
+			return err
+		}
+
+		var result global.Message
+
+		json.NewDecoder(resp.Body).Decode(&result)
+
+		log.Info("Bootnode To Qmanager", "Send Status : ", result.Message)
+		return nil
+	}else {
+		return errors.New("Unavailable QManager Address")
+	}
+}
+
+func CooridnatorConfirmation(coordiReq global.RequestCoordiStruct) (bool, error) {
+	if CheckAddressValidity(){
 
 	bytesRepresentation, err := json.Marshal(coordiReq)
 	if err != nil {
 		log.Error(err.Error())
-		return false
+		return false, err
 	}
 
-	resp, err := http.Post("http://"+ QManagerURL + "/CoordinatorConfirmation", "application/json", bytes.NewBuffer(bytesRepresentation))
+	resp, err := http.Post("http://"+ ActiveQmanager + "/CoordinatorConfirmation", "application/json", bytes.NewBuffer(bytesRepresentation))
 	if err != nil {
 		log.Error(err.Error())
-		return false
+		return false, err
 	}
-
-
-
-
-	//json.NewDecoder(resp.Body).Decode(&result)
-
 
 	var result global.CoordiDecideStruct
 
 	json.NewDecoder(resp.Body).Decode(&result)
 
-	return result.Status
+	return result.Status, nil
 
-
+	}else {
+		return false, errors.New("Unavailable QManager Address")
+	}
 
 }
+
+
