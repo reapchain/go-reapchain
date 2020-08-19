@@ -46,9 +46,20 @@ func RequestQmanager(w http.ResponseWriter, req *http.Request) {
 	go  UpdateSenatorCandidateNodes()
 }
 
+func Ping(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	m := global.Message{
+		Message: "Success",
+		Code: http.StatusOK,
+	}
+	json.NewEncoder(w).Encode(m)
+}
+
 
 func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 
+	http.HandleFunc("/Ping", Ping)
 	http.HandleFunc("/RequestQmanager", RequestQmanager)
 	http.HandleFunc("/ExtraData", handleExtraData)
 	http.HandleFunc("/BootNodeSendData", BootNodeSendData)

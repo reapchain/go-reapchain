@@ -8,14 +8,11 @@ import (
 	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qmanager/global"
-	"net"
 	"net/http"
 	"strings"
-	"time"
 )
 
 var (
-
 	ActiveQmanager string
 )
 
@@ -25,17 +22,16 @@ func CheckQmanagerStatus()  {
 	for _, qman := range QManagerAddresses{
 		split := strings.Split(qman, "@")
 		QManager := split[1]
-		timeout := 10 * time.Millisecond
-		conn, err := net.DialTimeout("http", qman , timeout)
-		if err != nil {
-			log.Info("QManager Not Available", "ADDR", QManager )
-		} else {
-			conn.Close()
-			ActiveQmanager = QManager
-		}
+		ActiveQmanager = QManager
+		//timeout := 1 * time.Second
+		//conn, err := net.DialTimeout("http", qman + "/Ping" , timeout)
+		//if err != nil {
+		//	log.Info("QManager Not Available", "ADDR", QManager )
+		//} else {
+		//	conn.Close()
+		//	ActiveQmanager = QManager
+		//}
 	}
-
-
 }
 
 func CheckAddressValidity() bool {
