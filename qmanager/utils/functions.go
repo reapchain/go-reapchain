@@ -33,7 +33,9 @@ func CheckQmanagerStatus() bool {
 		//	ActiveQmanager = QManager
 		//}
 	}
-	trial := net.ParseIP(ActiveQmanager)
+	split := strings.Split(ActiveQmanager, ":")
+	Address := split[0]
+	trial := net.ParseIP(Address)
 	if trial == nil {
 		log.Error("QManager Adrress Error", "Invalid Address ", trial )
 		return false
