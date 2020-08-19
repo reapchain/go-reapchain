@@ -8,6 +8,7 @@ import (
 	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qmanager/global"
+	"net"
 	"net/http"
 	"strings"
 )
@@ -16,7 +17,7 @@ var (
 	ActiveQmanager string
 )
 
-func CheckQmanagerStatus()  {
+func CheckQmanagerStatus() bool {
 	var QManagerAddresses= config.Config.QManagers
 
 	for _, qman := range QManagerAddresses{
@@ -32,6 +33,14 @@ func CheckQmanagerStatus()  {
 		//	ActiveQmanager = QManager
 		//}
 	}
+	trial := net.ParseIP(ActiveQmanager)
+	if trial == nil {
+		log.Error("QManager Adrress Error", "Invalid Address ", trial )
+		return false
+	} else {
+		return true
+	}
+
 }
 
 func CheckAddressValidity() bool {
@@ -40,16 +49,19 @@ func CheckAddressValidity() bool {
 			log.Error("QManager Connection Error", "Address Not Found ", "Please insert qmanager address into Config.json" )
 		return false
 	} else{
-		return true
+		if CheckQmanagerStatus(){
+			return true
+		}else {
+			return false
+		}
 	}
 }
 
-func RequestExtraData(Properser string) (common.ValidatorInfos, error) {
+func RequestExtraData(Proposer string) (common.ValidatorInfos, error) {
 	if CheckAddressValidity(){
 
-		CheckQmanagerStatus()
 		requestStruct := global.RequestStruct{
-			Proposer: Properser,
+			Proposer: Proposer,
 		}
 
 		bytesRepresentation, err := json.Marshal(requestStruct)
@@ -79,7 +91,6 @@ func RequestExtraData(Properser string) (common.ValidatorInfos, error) {
 
 func BootNodeToQmanager(NodeData global.QManDBStruct) error {
 	if CheckAddressValidity(){
-		CheckQmanagerStatus()
 		bytesRepresentation, err := json.Marshal(NodeData)
 		if err != nil {
 			log.Error(err.Error())
@@ -101,9 +112,8 @@ func BootNodeToQmanager(NodeData global.QManDBStruct) error {
 	}
 }
 
-func CooridnatorConfirmation(coordiReq global.RequestCoordiStruct) (bool, error) {
+func CoordinatorConfirmation(coordiReq global.RequestCoordiStruct) (bool, error) {
 	if CheckAddressValidity(){
-
 	bytesRepresentation, err := json.Marshal(coordiReq)
 	if err != nil {
 		log.Error(err.Error())

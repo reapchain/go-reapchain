@@ -185,7 +185,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		c.ExtraDataLength = len(extraData)
 		c.criteria = 29
 
-		isCoordinator, err := utils.CooridnatorConfirmation(global.RequestCoordiStruct{QRND: QRND})
+		isCoordinator, err := utils.CoordinatorConfirmation(global.RequestCoordiStruct{QRND: QRND})
 
 		//log.Info("common.Coordinator", "isCoordinator", isCoordinator)
 		if err != nil{
