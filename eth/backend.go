@@ -207,6 +207,8 @@ func makeExtraData(extra []byte) []byte {
 	//check for Byte or Kilo Byte?
 	if len(extra) == 0 {
 		// create default extradata
+
+
 		extra, _ = rlp.EncodeToBytes([]interface{}{
 			uint(params.VersionMajor<<16 | params.VersionMinor<<8 | params.VersionPatch),
 			"geth",
