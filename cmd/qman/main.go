@@ -26,7 +26,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p/discover"
 	"github.com/ethereum/go-ethereum/qmanager"
-	"github.com/ethereum/go-ethereum/qmanager/global"
 	"os"
 )
 func main() {
@@ -92,7 +91,6 @@ func main() {
 
 	//log.Info("QManager Standalone Started")
 
-	global.QManConnected = true
 	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
 		//var account common.Address
 		//account = PubkeyToAddress(nodeKey.PublicKey)
@@ -101,10 +99,6 @@ func main() {
 	log.Info("QManager ID: ", "self",  NodeID + "@" + *listenAddr)
 		qmanager.InitializeQManager()
 		qmanager.Start(listenAddr, qmanKey)
-
-
-
-
 
 	select {}
 }

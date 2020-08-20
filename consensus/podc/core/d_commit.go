@@ -20,7 +20,6 @@ import (
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/qmanager/global"
 	"reflect"
 	"time"
 )
@@ -30,7 +29,7 @@ func (c *core) sendDCommit() {   //전송
 	//logger.Warn("sendDCommit:")
 
 
-	if( !global.QManConnected && c.state== StateDSelected ){
+	if c.state== StateDSelected {
 
 		logger := c.logger.New("state", c.state)
 		//logger.Warn("sendDCommit(StateDSelected)")
@@ -60,7 +59,7 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수
 	// Decode commit message
 	var commit *podc.Subject
 	err := msg.Decode(&commit)  //commit 으로 메모리번지를 통해서, round와 sequence를 가져옴.
-	if( !global.QManConnected && c.state != StateRequestQman ) {
+	if c.state != StateRequestQman {
 		//log.Info("I'm  not the Qmanager : handleDCommit ", "commit.View.Sequence", commit.View.Sequence, "commit.View.Round", commit.View.Round)
 		if err != nil {
 			return errFailedDecodeCommit

@@ -116,7 +116,7 @@ type Config struct {
 
 	// Istanbul istanbul.Config
 	PoDC podc.Config  //podc added , to do review later
-	Qmanager common.Address //added by choi for test
+	//Qmanager common.Address //added by choi for test
 
 //	podc  PoDC.Config  for reapchain
 	// Miscellaneous options

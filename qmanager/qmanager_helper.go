@@ -76,10 +76,6 @@ func InitializeQManager() {
 	CheckQRNGStatus()
 }
 
-func IsQmanager() (isQMan bool){
-	return global.QManConnected
-}
-
 func StartQRNGRefresher(){
 	uptimeTicker := time.NewTicker(60 * time.Second)
 	for {
@@ -163,7 +159,6 @@ func expirationCheck() {
 }
 
 func UpdateSenatorCandidateNodes() {
-	if global.QManConnected {
 		//log.Info("Qmanager", "DB Status", "2. Connected")
 		ConnectDB()
 		for _, element := range global.GovernanceList {
@@ -212,7 +207,6 @@ func UpdateSenatorCandidateNodes() {
 		CloseDB()
 		//log.Info("Qmanager", "DB Status", "2. Disconnected")
 
-	}
 }
 
 
@@ -222,7 +216,6 @@ func FindNode(nodeAddress string) ( found bool) {
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
 	//var data []byte
-	if global.QManConnected {
 		//log.Info("Qmanager", "DB Status", "3. Connected")
 		ConnectDB()
 		foundNode, err := global.QManagerStorage.Get(node_address_encoded, nil)
@@ -260,8 +253,7 @@ func FindNode(nodeAddress string) ( found bool) {
 		//log.Info("Qmanager", "DB Status", "3. Disconnected")
 
 		return true
-	}
-	return true
+
 }
 
 
@@ -286,7 +278,6 @@ func  Save( dbStruct global.QManDBStruct) (saved bool) {
 }
 
 func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
-	if global.QManConnected {
 		//log.Info("Qmanager", "DB Status", "4. Connected")
 		ConnectDB()
 		saveErr := global.QManagerStorage.Put(Address, NodeDetails, nil)
@@ -300,8 +291,6 @@ func SaveToDB(Address []byte, NodeDetails []byte) ( saved bool) {
 		CloseDB()
 		//log.Info("Qmanager", "DB Status", "4. Disconnected")
 		return true
-	}
-	return false
 }
 
 func fileExists(filename string) bool {
