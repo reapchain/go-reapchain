@@ -83,6 +83,7 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수
 		if c.current.Commits.Size() > 2*c.valSet.F() && c.state.Cmp(StateCommitted) < 0 {
 			c.commit()
 			log.Info("6. D-commit end", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+			c.intervalTime =time.Now()
 			log.Info("Total Time", "elapsed", common.PrettyDuration(time.Since(c.startTime)))
 		}
 	}

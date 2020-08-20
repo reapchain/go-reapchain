@@ -393,7 +393,7 @@ func (d *Downloader) syncWithPeer(p *peer, hash common.Hash, td *big.Int) (err e
 	}
 
 
-	log.Debug("Synchronising with the network", "peer", p.id, "eth", p.version, "head", hash, "td", td, "mode", d.mode)
+	log.Debug("1.Synchronising with the network", "peer", p.id, "eth", p.version, "head", hash, "td", td, "mode", d.mode)
 	defer func(start time.Time) {
 		log.Debug("Synchronisation terminated", "elapsed", time.Since(start))
 	}(time.Now())
@@ -528,7 +528,7 @@ func (d *Downloader) Terminate() {
 // fetchHeight retrieves the head header of the remote peer to aid in estimating
 // the total time a pending synchronisation would take.
 func (d *Downloader) fetchHeight(p *peer) (*types.Header, error) {
-	p.log.Debug("Retrieving remote chain height")
+	p.log.Debug("2.Retrieving remote chain height")
 
 	// Request the advertised remote head block and wait for the response
 	head, _ := p.currentHead()
@@ -554,7 +554,7 @@ func (d *Downloader) fetchHeight(p *peer) (*types.Header, error) {
 				return nil, errBadPeer
 			}
 			head := headers[0]
-			p.log.Debug("Remote head header identified", "number", head.Number, "hash", head.Hash())
+			p.log.Debug("4.Remote head header identified", "number", head.Number, "hash", head.Hash())
 			return head, nil
 
 		case <-timeout:
@@ -578,9 +578,10 @@ func (d *Downloader) findAncestor(p *peer, height uint64) (uint64, error) {
 	// Figure out the valid ancestor range to prevent rewrite attacks
 	floor, ceil := int64(-1), d.headHeader().Number.Uint64()
 
-	p.log.Debug("Looking for common ancestor", "local", ceil, "remote", height)
+	p.log.Debug("5.Looking for common ancestor", "local", ceil, "remote", height, "floor", floor)
 	if d.mode == FullSync {
 		ceil = d.headBlock().NumberU64()
+		p.log.Debug("5-1. FullSync", "local", ceil, "remote", height)
 	} else if d.mode == FastSync {
 		ceil = d.headFastBlock().NumberU64()
 	}
@@ -670,7 +671,7 @@ func (d *Downloader) findAncestor(p *peer, height uint64) (uint64, error) {
 			p.log.Warn("Ancestor below allowance", "number", number, "hash", hash, "allowance", floor)
 			return 0, errInvalidAncestor
 		}
-		p.log.Debug("Found common ancestor", "number", number, "hash", hash)
+		p.log.Debug("6.Found common ancestor", "number", number, "hash", hash)
 		return number, nil
 	}
 	// Ancestor not found, we need to binary search over our chain
@@ -735,7 +736,7 @@ func (d *Downloader) findAncestor(p *peer, height uint64) (uint64, error) {
 		p.log.Warn("Ancestor below allowance", "number", start, "hash", hash, "allowance", floor)
 		return 0, errInvalidAncestor
 	}
-	p.log.Debug("Found common ancestor", "number", start, "hash", hash)
+	p.log.Debug("6.Found common ancestor", "number", start, "hash", hash, "floor", floor)
 	return start, nil
 }
 
@@ -747,6 +748,10 @@ func (d *Downloader) findAncestor(p *peer, height uint64) (uint64, error) {
 // other peers are only accepted if they map cleanly to the skeleton. If no one
 // can fill in the skeleton - not even the origin peer - it's assumed invalid and
 // the origin is dropped.
+//// fetchHeaders는 더 이상 반환되지 않을 때까지 요청 된 수에서 동시에 헤더를 검색하여 잠재적으로 제한됩니다.
+//동시성을 촉진하면서도 잘못된 헤더를 보내는 악의적 인 노드로부터 보호하기 위해 동기화하는 "origin"피어를 사용하여 헤더 체인 스켈레톤을
+//구성하고 다른 사람을 사용하여 누락 된 헤더를 채 웁니다. 다른 피어의 헤더는 스켈레톤에 깔끔하게 매핑 된 경우에만 허용됩니다.
+//	원점 피어조차도 골격을 채울 수있는 사람이 없으면 유효하지 않은 것으로 가정하고 원점이 삭제됩니다.
 func (d *Downloader) fetchHeaders(p *peer, from uint64) error {
 	p.log.Debug("Directing header downloads", "origin", from)
 	defer p.log.Debug("Header download terminated")
