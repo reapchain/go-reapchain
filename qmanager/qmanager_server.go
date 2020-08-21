@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -16,9 +17,14 @@ var (
 	Counter int
 	Divisor int
 	DBName string
+
+	ConfigValidatorsParsed bool
 )
 
-func RequestQmanager(w http.ResponseWriter, req *http.Request) {
+
+
+
+func GovernanceSendList(w http.ResponseWriter, req *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
@@ -60,7 +66,7 @@ func Ping(w http.ResponseWriter, req *http.Request) {
 func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
 
 	http.HandleFunc("/Ping", Ping)
-	http.HandleFunc("/RequestQmanager", RequestQmanager)
+	http.HandleFunc("/GovernanceSendList", GovernanceSendList)
 	http.HandleFunc("/ExtraData", handleExtraData)
 	http.HandleFunc("/BootNodeSendData", BootNodeSendData)
 	http.HandleFunc("/CoordinatorConfirmation", CoordinatorConfirmation)
@@ -181,7 +187,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 			for index < len(extra) {
 
 				if  proposerAddress != extra[index].Address {
-					//if extra[index].Tag == common.Senator{
+					if extra[index].Tag == common.Senator{
 						randomNumber := extra[index].Qrnd
 						if randomNumber%uint64(divisor) == 0 {
 							extra[index].Tag = common.Coordinator
@@ -190,7 +196,7 @@ func  handleExtraData (w http.ResponseWriter, req *http.Request){
 							completed = true
 							Divisor = divisor
 						}
-					//}
+					}
 				}
 				index++
 			}
@@ -228,7 +234,8 @@ func generateExtraData() []common.ValidatorInfo{
 		validatorInfo := common.ValidatorInfo{}
 		validatorInfo.Address = common.HexToAddress(validator.Address)
 		validatorInfo.Qrnd = num
-		validatorInfo.Tag = common.Tag(validator.Tag)
+		convertedTag, _ := strconv.Atoi(validator.Tag)
+		validatorInfo.Tag = common.Tag(convertedTag)
 
 		extra = append(extra, validatorInfo)
 	}

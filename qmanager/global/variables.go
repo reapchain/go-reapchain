@@ -2,6 +2,7 @@ package global
 
 import (
 	"crypto/ecdsa"
+	"github.com/ethereum/go-ethereum/common"
 	"github.com/syndtr/goleveldb/leveldb"
 	"net"
 )
@@ -27,7 +28,7 @@ type (
 		ID      string
 		Address  string
 		Timestamp	string
-		Tag uint64
+		Tag string
 	}
 )
 type Message struct {
@@ -36,7 +37,7 @@ type Message struct {
 }
 type GovStruct struct {
 	Validator string
-	Tag string
+	Tag common.Tag
 }
 type RequestStruct struct {
 	Proposer string

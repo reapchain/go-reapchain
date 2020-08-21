@@ -81,7 +81,7 @@ func RequestExtraData(Proposer string) (common.ValidatorInfos, error) {
 
 		var result []common.ValidatorInfo
 		json.NewDecoder(resp.Body).Decode(&result)
-		log.Info("VALIDATOR LIST", "Full List : ", result)
+		//log.Info("VALIDATOR LIST", "Full List : ", result)
 		//log.Info("VALIDATOR LIST", "Full BODY : ", resp)
 
 		return result, nil

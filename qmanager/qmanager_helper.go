@@ -4,7 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common/math"
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qmanager/global"
 	"github.com/ethereum/go-ethereum/qmanager/quantum"
@@ -74,6 +75,35 @@ func CloseDB(){
 func InitializeQManager() {
 	go StartExpirationChecker()
 	CheckQRNGStatus()
+	go StartValidatorConfigParsing()
+}
+
+func CheckConfiValidators() {
+	var ConfigSenatorList= config.Config.Senatornodes
+	var ConfigCandidateList= config.Config.Candidatenodes
+	ConfigValidatorsParsed = false
+
+	if  len(ConfigSenatorList) == 0 || len(ConfigCandidateList) == 0 {
+		log.Error("Config Error", "Senator & Candidate List", "Insert Senator & Candidate into Config.Json" )
+	} else{
+		log.Error("Config Parsing - Candidate and Senator" )
+		var govStruct []global.GovStruct
+		for _, item := range ConfigSenatorList{
+			senate := global.GovStruct{Validator: item, Tag: common.Senator}
+			govStruct = append(govStruct, senate)
+			log.Error("Config Parsing", "Senator Struct", senate )
+		}
+		for _, item := range ConfigCandidateList{
+			candidate := global.GovStruct{Validator: item, Tag: common.Candidate}
+			govStruct = append(govStruct, candidate)
+			log.Error("Config Parsing", "Candidate Struct", candidate )
+
+		}
+		global.GovernanceList = govStruct
+		go  UpdateSenatorCandidateNodes()
+		ConfigValidatorsParsed = true
+
+	}
 }
 
 func StartQRNGRefresher(){
@@ -86,6 +116,16 @@ func StartQRNGRefresher(){
 			if expectedErr != nil{
 				global.QRNGDeviceStat = false
 			}
+		}
+	}
+}
+
+func StartValidatorConfigParsing(){
+	uptimeTicker := time.NewTicker(30 * time.Second)
+	for {
+		select {
+		case <-uptimeTicker.C:
+			CheckConfiValidators()
 		}
 	}
 }
@@ -142,7 +182,6 @@ func expirationCheck() {
 			log.Info("Qman Expired Node", "Current Time", nowtimestamp)
 			log.Info("Qman Expired Node", "DB Last Updated", dbtimestamp)
 
-
 			log.Info("Qman Expired Node", "Expired Node", string(key))
 
 
@@ -160,14 +199,17 @@ func expirationCheck() {
 
 func UpdateSenatorCandidateNodes() {
 		//log.Info("Qmanager", "DB Status", "2. Connected")
-		ConnectDB()
+	log.Info("Sentor & Candidate Update ", "List", global.GovernanceList)
+
+	ConnectDB()
 		for _, element := range global.GovernanceList {
 			nodeAddress := element.Validator
+			log.Info("Sentor & Candidate Update ", "Node Address", nodeAddress)
 
 			node_address_encoded,_ := rlp.EncodeToBytes(nodeAddress)
 			foundNode, err := global.QManagerStorage.Get(node_address_encoded, nil)
 			if err != nil {
-				log.Info("QManager ", "DB --", "Node Not Found")
+				log.Info("Sentor & Candidate Update ", "DB Error", "Node Not Found")
 
 			}
 
@@ -175,30 +217,30 @@ func UpdateSenatorCandidateNodes() {
 				var decodedBytes global.QManDBStruct
 				DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
 				if DecodeErr != nil {
-					log.Info("Qmanager", "Decoding Error", DecodeErr.Error())
+					log.Info("Sentor & Candidate Update", "Decoding Error", DecodeErr.Error())
 				}
 
 				var encodedStruct *global.QManDBStruct
 				initBytes, err := rlp.EncodeToBytes(encodedStruct)
 
 				if err != nil {
-					log.Info("QManager DB Save", "err --", err)
+					log.Info("Sentor & Candidate Update", "RLP Error", err)
 
 				}
-				tagConverted, _ := math.ParseUint64(element.Tag)
+				log.Info("Sentor & Candidate Update ", "Node Tag", element.Tag)
 				encodedStruct = &global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address,
-					Timestamp: decodedBytes.Timestamp, Tag:tagConverted }
+					Timestamp: decodedBytes.Timestamp, Tag: string(element.Tag) }
 
 				initBytes, err = rlp.EncodeToBytes(encodedStruct)
 
 				if err != nil {
-					log.Info("QManager", "RLP Error --", err)
+					log.Info("Sentor & Candidate Update", "RLP Error", err)
 
 				}
 				saveError := global.QManagerStorage.Put(node_address_encoded, initBytes, nil)
 
 				if saveError != nil {
-					log.Info("QManager DB Save", "err --", saveError)
+					log.Info("Sentor & Candidate Update", "err --", saveError)
 				}
 				GetDBData()
 

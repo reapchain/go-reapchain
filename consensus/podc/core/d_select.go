@@ -66,7 +66,7 @@ func (c *core) sendExtraDataRequest() {
 	//	Msg: []byte("extra data request testing."),
 	//}, c.qmanager)
 
-	log.Info("Extra Data Requesting To Standalone QMANAGER")
+	log.Info("Extra Data Request", "Status", "Requesting to Standalone Qmanager")
 
 	extra, err := utils.RequestExtraData(c.valSet.GetProposer().Address().String())
 
@@ -74,10 +74,12 @@ func (c *core) sendExtraDataRequest() {
 		log.Error("Extra Data Request Failure", "Error", err.Error())
 
 	} else{
-		log.Info("Qmanager", "Recieved ExtraData", extra)
+		//log.Info("Qmanager", "Recieved ExtraData", extra)
 
 		extraDataJson, err := json.Marshal(extra)
-		log.Info("Qmanager", "Recieved extraDataJson", extraDataJson)
+		//log.Info("Qmanager", "Recieved extraDataJson", extraDataJson)
+		log.Info("Extra Data Request", "Status", "Recieved ExtraData")
+
 
 		if err != nil {
 			log.Error("Failed to encode", "extra data", extra)

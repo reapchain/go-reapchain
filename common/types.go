@@ -27,7 +27,7 @@ import (
 )
 
 
-type Tag uint64
+type Tag int
 
 const (
 	Senator         Tag = iota		// 상원
