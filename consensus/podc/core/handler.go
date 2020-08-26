@@ -127,8 +127,8 @@ func (c *core) handleMsg(payload []byte) error {
 	// Decode message and check its signature
 	msg := new(message)
 	if err := msg.FromPayload(payload, c.validateFn); err != nil {
-		logger.Error("Failed to decode message from payload", "err", err)
-		return err
+		logger.Error("Failed to decode message from payload", "err", err)  //getbyaddress에서, validator에 있는지 체크 안하고 넘어오면, 여기서 또 에러..
+		// return err  //unauthorixed address
 	}
 
 	// Only accept message if the address is valid

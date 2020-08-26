@@ -307,7 +307,7 @@ func (pm *protocolManager) handle(p *peer, handleMsg func(*peer, p2p.Msg) error)
 	td, head, genesis := pm.blockchain.Status()
 	// eth 정보(버전넘버,네트웤ID,Difficulties, head,genesis 블록에 관련된 정보)에 대한 핸드쉐이킹을 한다.
 	if err := p.Handshake(pm.networkId, td, head, genesis); err != nil {
-		p.Log().Debug("Ethereum handshake failed", "err", err)
+		p.Log().Debug("Ethereum handshake failed", "err", err)  //일반노드에서 에러 발생.
 		return err
 	}
 	if rw, ok := p.rw.(*meteredMsgReadWriter); ok {

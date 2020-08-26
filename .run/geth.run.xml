@@ -228,6 +228,704 @@
   </configuration>
   <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
     <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$USER_HOME$/martin" />
+    <go_parameters value="-i" />
+    <useCustomBuildTags value="true" />
+    <parameters value="--networkid 2017 --port 30535 $USER_HOME$/martin/node0 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0 --password $USER_HOME$/martin/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8740 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <envs>
+      <env name="REAPCHAIN_ENV" value="local" />
+      <env name="SETUP_INFO" value="$USER_HOME$/martin/setup_info" />
+    </envs>
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --maxpeers 100 --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
+    <working_directory value="$PROJECT_DIR$/build/int_geth" />
+    <go_parameters value="-i" />
+    <parameters value="--networkid 2017 --port 30550 --datadir $PROJECT_DIR$/build/int_geth/node50 --mine --minerthreads 1 --syncmode full --maxpeers 100 --unlock 0,1 --password $PROJECT_DIR$/build/int_geth/setup_info/passwd.txt --rpc --rpcaddr 192.168.0.80 --rpcport 8690 --rpccorsdomain * --rpcapi=db,eth,net,web3,personal,miner,admin,debug,ssh,txpool,PoDC --verbosity 4 --nat none" />
+    <kind value="DIRECTORY" />
+    <filePath value="$PROJECT_DIR$/" />
+    <package value="github.com/ethereum/go-ethereum" />
+    <directory value="$PROJECT_DIR$/cmd/geth" />
+    <output_directory value="$PROJECT_DIR$/build/int_geth/bin" />
+    <option name="run" value="false" />
+    <method v="2" />
+  </configuration>
+  <configuration default="false" name="geth" type="GoApplicationRunConfiguration" factoryName="Go Application">
+    <module name="go-ethereum" />
     <working_directory value="$USER_HOME$/martin" />
     <go_parameters value="-i" />
     <useCustomBuildTags value="true" />
