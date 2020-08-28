@@ -84,19 +84,19 @@ func CheckConfiValidators() {
 	ConfigValidatorsParsed = false
 
 	if  len(ConfigSenatorList) == 0 || len(ConfigCandidateList) == 0 {
-		log.Error("Config Error", "Senator & Candidate List", "Insert Senator & Candidate into Config.Json" )
+		log.Error("Config.json Error", "Senator & Candidate List", "Insert Senator & Candidate into Config.Json" )
 	} else{
-		log.Error("Config Parsing - Candidate and Senator" )
+		log.Info("Parsing Config.json - Senator & Candidate List" )
 		var govStruct []global.GovStruct
 		for _, item := range ConfigSenatorList{
 			senate := global.GovStruct{Validator: item, Tag: common.Senator}
 			govStruct = append(govStruct, senate)
-			log.Error("Config Parsing", "Senator Struct", senate )
+			log.Info("Parsing Config.json", "Senator Struct", senate )
 		}
 		for _, item := range ConfigCandidateList{
 			candidate := global.GovStruct{Validator: item, Tag: common.Candidate}
 			govStruct = append(govStruct, candidate)
-			log.Error("Config Parsing", "Candidate Struct", candidate )
+			log.Info("Parsing Config.json", "Candidate Struct", candidate )
 
 		}
 		global.GovernanceList = govStruct
