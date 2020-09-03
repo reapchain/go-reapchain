@@ -75,7 +75,22 @@ func CloseDB(){
 func InitializeQManager() {
 	go StartExpirationChecker()
 	CheckQRNGStatus()
+	go InitialConfigParsing()
 	go StartValidatorConfigParsing()
+}
+
+func InitialConfigParsing(){
+	uptimeTicker := time.NewTicker(5 * time.Second)
+	for {
+		select {
+		case <-uptimeTicker.C:
+			if len(global.DBDataList) > 10 {
+				go CheckConfiValidators()
+				uptimeTicker.Stop()
+				break
+			}
+		}
+	}
 }
 
 func CheckConfiValidators() {
@@ -153,7 +168,6 @@ func GetDBData(){
 		}
 		tempDBDataList = append(tempDBDataList, decodedBytes)
 	}
-
 	global.DBDataList = tempDBDataList
 }
 
@@ -204,7 +218,7 @@ func UpdateSenatorCandidateNodes() {
 	ConnectDB()
 		for _, element := range global.GovernanceList {
 			nodeAddress := element.Validator
-			log.Info("Sentor & Candidate Update ", "Node Address", nodeAddress)
+			//log.Info("Sentor & Candidate Update ", "Node Address", nodeAddress)
 
 			node_address_encoded,_ := rlp.EncodeToBytes(nodeAddress)
 			foundNode, err := global.QManagerStorage.Get(node_address_encoded, nil)
@@ -227,9 +241,11 @@ func UpdateSenatorCandidateNodes() {
 					log.Info("Sentor & Candidate Update", "RLP Error", err)
 
 				}
-				log.Info("Sentor & Candidate Update ", "Node Tag", element.Tag)
+
+				convertedTag := convertTagToString(element.Tag)
+				//log.Info("Sentor & Candidate Update ", "Node Tag", convertedTag)
 				encodedStruct = &global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address,
-					Timestamp: decodedBytes.Timestamp, Tag: string(element.Tag) }
+					Timestamp: decodedBytes.Timestamp, Tag: convertedTag}
 
 				initBytes, err = rlp.EncodeToBytes(encodedStruct)
 
@@ -361,4 +377,15 @@ func generateRandomNumbers() (RandomNumbers []uint64, err error) {
 	}else{
 		return nil, err
 	}
+}
+
+func convertTagToString(typeTag common.Tag)( tag string) {
+	if typeTag == common.Senator{
+		return "0"
+	} else if typeTag == common.Candidate{
+		return "2"
+	} else {
+		return "3"
+	}
+
 }
