@@ -81,11 +81,8 @@ func (b *BlockGen) SetExtra(data []byte) {
 // added. Notably, contract code relying on the BLOCKHASH instruction
 // will panic during execution.
 func (b *BlockGen) AddTx(tx *types.Transaction) {
-	fmt.Printf("\nfunc (b *BlockGen) AddTx\n AccountNonce = %v\n Price = %v\n GasLimit = %v\n Amount = %v\n Governance = %t\n", tx.Nonce(), tx.GasPrice(), tx.Gas(), tx.Value(), tx.Governance())	// yhheo
 	if b.gasPool == nil {
-		//b.SetCoinbase(common.Address{})
-		b.SetCoinbase(params.FeeAddress)	// yhheo common.Address{} -> params.FeeAddress
-		fmt.Println("AddTx : b.header.Coinbase =", b.header.Coinbase)	// yhheo
+		b.SetCoinbase(params.FeeAddress)
 	}
 	b.statedb.Prepare(tx.Hash(), common.Hash{}, len(b.txs))
 	receipt, _, err := ApplyTransaction(b.config, nil, &b.header.Coinbase, b.gasPool, b.statedb, b.header, tx, b.header.GasUsed, vm.Config{})
@@ -233,7 +230,6 @@ func makeHeader(config *params.ChainConfig, parent *types.Block, state *state.St
 // chain. Depending on the full flag, if creates either a full block chain or a
 // header only chain.
 func newCanonical(n int, full bool) (ethdb.Database, *BlockChain, error) {
-	fmt.Printf("\nfunc newCanonical\n n = %d\n full = %t\n", n, full)	// yhheo
 	// Initialize a fresh chain with only a genesis block
 	gspec := new(Genesis)
 	db, _ := ethdb.NewMemDatabase()
@@ -269,8 +265,7 @@ func makeHeaderChain(parent *types.Header, n int, db ethdb.Database, seed int) [
 // makeBlockChain creates a deterministic chain of blocks rooted at parent.
 func makeBlockChain(parent *types.Block, n int, db ethdb.Database, seed int) []*types.Block {
 	blocks, _ := GenerateChain(params.TestChainConfig, parent, db, n, func(i int, b *BlockGen) {
-		//b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})	// yhheo
-		b.SetCoinbase(params.FeeAddress)    // yhheo : common.Address{0: byte(seed), 19: byte(i)} --> params.FeeAddress
+		b.SetCoinbase(params.FeeAddress)
 	})
 	return blocks
 }
