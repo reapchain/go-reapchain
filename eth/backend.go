@@ -380,7 +380,7 @@ func (s *Ethereum) StartMining(local bool) error {
 		// mechanism introduced to speed sync times. CPU mining on mainnet is ludicrous
 		// so noone will ever hit this path, whereas marking sync done on CPU mining
 		// will ensure that private networks work in single miner mode too.
-		s.protocolManager.SetAcceptTxs(1)
+		s.protocolManager.SetAcceptTxs(1)  //Tx를 받아들인다. -miner option 이 true면. sync 고려
 	}
 	go s.miner.Start(eb)
 	return nil

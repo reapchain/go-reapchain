@@ -46,10 +46,12 @@ import (
 )
 
 var (
-	blockInsertTimer = metrics.NewTimer("chain/inserts")
-
+	blockInsertTimer = metrics.NewTimer("chain/inserts")  //?
+   // blockStartTimer = metrics.NewTimer("chain/bstarts")  //? yichoi
 	ErrNoGenesis = errors.New("Genesis not found in chain")
 )
+
+var Blockstart time.Time
 
 const (
 	bodyCacheLimit      = 256
@@ -62,6 +64,12 @@ const (
 	BlockChainVersion = 3
 )
 
+var unixZero = time.Unix(0, 0)
+// Timestamp is a wrapper around time.Time which adds methods to marshal and
+// unmarshal the value as a unix timestamp instead of a formatted string
+type Timestamp struct {
+	time.Time
+}
 // BlockChain represents the canonical chain given a database with a genesis
 // block. The Blockchain manages chain imports, reverts, chain reorganisations.
 //
@@ -869,7 +877,12 @@ func (bc *BlockChain) WriteBlock(block *types.Block) (status WriteStatus, err er
 
 	return
 }
-
+//func TimestampFromInt64(ts int64) Timestamp {
+//	return Timestamp{time.Unix(ts, 0)}
+//}
+//func TimestampFromInt64(ts int64) time.Time {
+//	return time.Time{time.Unix(ts, 0)}
+//}
 // InsertChain will attempt to insert the given chain in to the canonical chain or, otherwise, create a fork. If an error is returned
 // it will return the index number of the failing block as well an error describing what went wrong (for possible errors see core/errors.go).
 func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
@@ -907,7 +920,7 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 		headers[i] = block.Header()
 		seals[i] = true
 	}
-	abort, results := bc.engine.VerifyHeaders(bc, headers, seals)
+	abort, results := bc.engine.VerifyHeaders(bc, headers, seals)   // <------------------|
 	defer close(abort)
 
 	// Iterate over the blocks and insert when the verifier permits
@@ -925,7 +938,7 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 		// Wait for the block's verification to complete
 		bstart := time.Now()
 
-		err := <-results
+		err := <-results   // <----------------Waiting channel result from VerifyHeaders().. -------------------------------------------|
 		if err == nil {
 			err = bc.Validator().ValidateBody(block)
 		}
@@ -1004,7 +1017,12 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 		case CanonStatTy:
 			log.Debug("Inserted new block", "number", block.Number(), "hash", block.Hash(), "uncles", len(block.Uncles()),
 				"txs", len(block.Transactions()), "gas", block.GasUsed(), "elapsed", common.PrettyDuration(time.Since(bstart)))
+			//block.Time() = bigInt
+			EndTime := 	time.Unix( block.Time().Int64(), 0  )
 
+			//log.Debug("Block Chain End Time", "elapsed", block.Time() , "Time(int64)", block.Time().Int64()) // 체인에 들어간 이후 최종 경과 시간.
+			log.Debug("2. Block Chain Chain End Time(From Timestamp of Block)", "elapsed", block.Time() , "Time(int64)", common.PrettyDuration(time.Since(  EndTime )  ) ) // 체인에 들어간 이후 최종 경과 시간.
+			log.Debug("3. Block Chain Fetch End Time", "elapsed", block.Time() , "Time(int64)", common.PrettyDuration(time.Since(  Blockstart )  ) )
 			blockInsertTimer.UpdateSince(bstart)
 			events = append(events, ChainEvent{block, block.Hash(), logs})
 

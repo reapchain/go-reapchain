@@ -44,7 +44,9 @@ const (
 	miningLogAtDepth = 5
 )
 
-// Agent can register themself with the worker
+
+
+// Agent can register them self with the worker
 type Agent interface {
 	Work() chan<- *Work
 	SetReturnCh(chan<- *Result)
@@ -386,10 +388,13 @@ func (self *worker) commitNewWork() {
 	self.currentMu.Lock()
 	defer self.currentMu.Unlock()
 
-	tstart := time.Now()
+	tstart := time.Now()  //시작타임
+
+	core.Blockstart = tstart
+	log.Info("1. Block fetch started(parent <- CurrentBlock):", "start time:commitNewWork", core.Blockstart )
 	parent := self.chain.CurrentBlock()
 
-	tstamp := tstart.Unix()
+	tstamp := tstart.Unix()  //현재 블럭을 가져온 후  타임 찍기
 	if parent.Time().Cmp(new(big.Int).SetInt64(tstamp)) >= 0 {
 		tstamp = parent.Time().Int64() + 1
 	}
@@ -407,7 +412,7 @@ func (self *worker) commitNewWork() {
 		GasLimit:   core.CalcGasLimit(parent),
 		GasUsed:    new(big.Int),
 		Extra:      self.extra,
-		Time:       big.NewInt(tstamp),
+		Time:       big.NewInt(tstamp),  //block time stamp  tstamp (int64) -> big.Int로 변환
 	}
 	// Only set the coinbase if we are mining (avoid spurious block rewards)
 	if atomic.LoadInt32(&self.mining) == 1 {
@@ -447,9 +452,9 @@ func (self *worker) commitNewWork() {
 		return
 	}
 	txs := types.NewTransactionsByPriceAndNonce(pending)
-	work.commitTransactions(self.mux, txs, self.chain, self.coinbase)
+	work.commitTransactions(self.mux, txs, self.chain, self.coinbase)  //Tx를 작업자에게 보낸다.
 
-	self.eth.TxPool().RemoveBatch(work.failedTxs)
+	self.eth.TxPool().RemoveBatch(work.failedTxs)  //실패한 Tx들을 작업자에게서 배치로 지운다.
 
 	// compute uncles for the new block.
 	var (
@@ -481,6 +486,7 @@ func (self *worker) commitNewWork() {
 	// We only care about logging if we're actually mining.
 	if atomic.LoadInt32(&self.mining) == 1 {
 		log.Info("Commit new mining work", "number", work.Block.Number(), "txs", work.tcount, "uncles", len(uncles), "elapsed", common.PrettyDuration(time.Since(tstart)))
+		//현재 블럭을 parent 로 가져오기 전 시작시간부터, 최종 워커한테 전달하는데까지 걸린 경과 시간.
 		self.unconfirmed.Shift(work.Block.NumberU64() - 1)
 	}
 	self.push(work)

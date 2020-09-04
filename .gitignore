@@ -45,3 +45,4 @@ config/config.toml
 .DS_Store
 /build/int_geth/
 /build/int_geth/log/
+/.run/
