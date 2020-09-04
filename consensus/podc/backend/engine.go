@@ -496,9 +496,10 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 	}
 
 	if _, val := snap.ValSet.GetByAddress(addr); val == nil {
-		sb.logger.Error("Not in validator set", "peerAddr", addr)
-		// 일반노드는 ValSet에 없음.
-		//temp disble: return podc.ErrUnauthorizedAddress
+		//if len(curHeader.Extra)!= 0 {
+			sb.logger.Error("Not in validator set", "peerAddr", addr)
+		//}
+		return podc.ErrUnauthorizedAddress
 	}
 
 	go sb.podcEventMux.Post(podc.MessageEvent{
@@ -580,6 +581,7 @@ func (sb *simpleBackend) snapshot(chain consensus.ChainReader, number uint64, ha
 				return nil, err
 			}
 			podcExtra, err := types.ExtractPoDCExtra(genesis)
+			log.Info("podcExtra", "podcExtra", podcExtra)
 			if err != nil {
 				return nil, err
 			}

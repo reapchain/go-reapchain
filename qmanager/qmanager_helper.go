@@ -75,33 +75,35 @@ func CloseDB(){
 func InitializeQManager() {
 	go StartExpirationChecker()
 	CheckQRNGStatus()
-	go StartValidatorConfigParsing()
+	go InitialValidatorConfigParsing()
+	go PeriodicValidatorConfigParsing()
+}
+
+func InitialValidatorConfigParsing(){
+	CheckConfiValidators()
 }
 
 func CheckConfiValidators() {
 	var ConfigSenatorList= config.Config.Senatornodes
 	var ConfigCandidateList= config.Config.Candidatenodes
-	ConfigValidatorsParsed = false
 
 	if  len(ConfigSenatorList) == 0 || len(ConfigCandidateList) == 0 {
-		log.Error("Config Error", "Senator & Candidate List", "Insert Senator & Candidate into Config.Json" )
+		log.Error("Config.json Error", "Senator & Candidate List", "Insert Senator & Candidate into Config.Json" )
 	} else{
-		log.Error("Config Parsing - Candidate and Senator" )
+		log.Info("Parsing Config.json - Senator & Candidate List" )
 		var govStruct []global.GovStruct
 		for _, item := range ConfigSenatorList{
 			senate := global.GovStruct{Validator: item, Tag: common.Senator}
 			govStruct = append(govStruct, senate)
-			log.Error("Config Parsing", "Senator Struct", senate )
+			log.Info("Parsing Config.json", "Senator Struct", senate )
 		}
 		for _, item := range ConfigCandidateList{
 			candidate := global.GovStruct{Validator: item, Tag: common.Candidate}
 			govStruct = append(govStruct, candidate)
-			log.Error("Config Parsing", "Candidate Struct", candidate )
+			log.Info("Parsing Config.json", "Candidate Struct", candidate )
 
 		}
 		global.GovernanceList = govStruct
-		go  UpdateSenatorCandidateNodes()
-		ConfigValidatorsParsed = true
 
 	}
 }
@@ -120,12 +122,14 @@ func StartQRNGRefresher(){
 	}
 }
 
-func StartValidatorConfigParsing(){
-	uptimeTicker := time.NewTicker(30 * time.Second)
+func PeriodicValidatorConfigParsing(){
+	uptimeTicker := time.NewTicker(60 * time.Second)
 	for {
 		select {
 		case <-uptimeTicker.C:
+			config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
 			CheckConfiValidators()
+			go  UpdateSenatorCandidateNodes()
 		}
 	}
 }
@@ -153,7 +157,6 @@ func GetDBData(){
 		}
 		tempDBDataList = append(tempDBDataList, decodedBytes)
 	}
-
 	global.DBDataList = tempDBDataList
 }
 
@@ -204,7 +207,7 @@ func UpdateSenatorCandidateNodes() {
 	ConnectDB()
 		for _, element := range global.GovernanceList {
 			nodeAddress := element.Validator
-			log.Info("Sentor & Candidate Update ", "Node Address", nodeAddress)
+			//log.Info("Sentor & Candidate Update ", "Node Address", nodeAddress)
 
 			node_address_encoded,_ := rlp.EncodeToBytes(nodeAddress)
 			foundNode, err := global.QManagerStorage.Get(node_address_encoded, nil)
@@ -212,30 +215,25 @@ func UpdateSenatorCandidateNodes() {
 				log.Info("Sentor & Candidate Update ", "DB Error", "Node Not Found")
 
 			}
-
 			if foundNode != nil{
 				var decodedBytes global.QManDBStruct
 				DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
 				if DecodeErr != nil {
 					log.Info("Sentor & Candidate Update", "Decoding Error", DecodeErr.Error())
 				}
-
 				var encodedStruct *global.QManDBStruct
 				initBytes, err := rlp.EncodeToBytes(encodedStruct)
 
 				if err != nil {
 					log.Info("Sentor & Candidate Update", "RLP Error", err)
-
 				}
-				log.Info("Sentor & Candidate Update ", "Node Tag", element.Tag)
+				convertedTag := convertTagToString(element.Tag)
+				//log.Info("Sentor & Candidate Update ", "Node Tag", convertedTag)
 				encodedStruct = &global.QManDBStruct{ID: decodedBytes.ID,  Address: decodedBytes.Address,
-					Timestamp: decodedBytes.Timestamp, Tag: string(element.Tag) }
-
+					Timestamp: decodedBytes.Timestamp, Tag: convertedTag}
 				initBytes, err = rlp.EncodeToBytes(encodedStruct)
-
 				if err != nil {
 					log.Info("Sentor & Candidate Update", "RLP Error", err)
-
 				}
 				saveError := global.QManagerStorage.Put(node_address_encoded, initBytes, nil)
 
@@ -307,7 +305,15 @@ func  Save( dbStruct global.QManDBStruct) (saved bool) {
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)
 	}
-	encodedStruct = &global.QManDBStruct{ID: dbStruct.ID,  Address: dbStruct.Address, Timestamp: dbStruct.Timestamp, Tag: dbStruct.Tag}
+	nodeTag := dbStruct.Tag
+	for _, element := range global.GovernanceList {
+		nodeAddress := element.Validator
+		if dbStruct.Address == nodeAddress{
+			nodeTag = convertTagToString(element.Tag)
+			break
+		}
+	}
+	encodedStruct = &global.QManDBStruct{ID: dbStruct.ID,  Address: dbStruct.Address, Timestamp: dbStruct.Timestamp, Tag: nodeTag}
 	initBytes, err = rlp.EncodeToBytes(encodedStruct)
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)
@@ -361,4 +367,15 @@ func generateRandomNumbers() (RandomNumbers []uint64, err error) {
 	}else{
 		return nil, err
 	}
+}
+
+func convertTagToString(typeTag common.Tag)( tag string) {
+	if typeTag == common.Senator{
+		return "0"
+	} else if typeTag == common.Candidate{
+		return "2"
+	} else {
+		return "3"
+	}
+
 }

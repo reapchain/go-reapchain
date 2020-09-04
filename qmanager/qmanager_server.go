@@ -131,7 +131,7 @@ func  BootNodeSendData (w http.ResponseWriter, req *http.Request){
 		panic(err)
 	}
 
-	log.Info("Bootnode Data ", "Addr: ", nodeStruct.Address)
+	log.Info("Bootnode Data ", "Addr: ", nodeStruct.Address )
 
 	if nodeStruct.Address != ""{
 		if !FindNode(nodeStruct.Address){

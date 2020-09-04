@@ -26,6 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/qmanager/global"
 	"github.com/ethereum/go-ethereum/qmanager/utils"
 	"net"
+	"strconv"
 	"time"
 
 	"github.com/ethereum/go-ethereum/crypto"
@@ -685,7 +686,7 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 			timestamp := time.Now().Format("2006-01-02 15:04:05")
 
 
-			qNode := global.QManDBStruct{ID: fromID.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: string(common.Senator) }
+			qNode := global.QManDBStruct{ID: fromID.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: strconv.Itoa(3)  }
 			err := utils.BootNodeToQmanager(qNode)
 			if err != nil{
 				log.Error("Bootnode to Qman Failure", "Error", err.Error())
