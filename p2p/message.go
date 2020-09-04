@@ -224,7 +224,8 @@ func (p *MsgPipeRW) ReadMsg() (Msg, error) {
 		case <-p.closing:
 		}
 	}
-	return Msg{}, ErrPipeClosed
+
+	return Msg{}, ErrPipeClosed  //왜 pipe가 닫히나, ?
 }
 
 // Close unblocks any pending ReadMsg and WriteMsg calls on both ends

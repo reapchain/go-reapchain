@@ -216,7 +216,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 		c.ExtraDataLength = 0
 		c.criteria = 0
-		log.Info("handleDSelect", "c.ExtraDataLength", c.ExtraDataLength)
+		//log.Info("handleDSelect", "c.ExtraDataLength", c.ExtraDataLength)
 
 	}
 

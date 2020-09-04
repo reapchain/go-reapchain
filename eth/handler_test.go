@@ -49,6 +49,8 @@ func TestProtocolCompatibility(t *testing.T) {
 	}{
 		{61, downloader.FullSync, true}, {62, downloader.FullSync, true}, {63, downloader.FullSync, true},
 		{61, downloader.FastSync, false}, {62, downloader.FastSync, false}, {63, downloader.FastSync, true},
+		{64, downloader.FullSync, true}, {64, downloader.FullSync, true},
+		{64, downloader.FastSync, false},{64, downloader.FastSync, false},
 	}
 	// Make sure anything we screw up is restored
 	backup := ProtocolVersions
@@ -71,6 +73,7 @@ func TestProtocolCompatibility(t *testing.T) {
 // Tests that block headers can be retrieved from a remote chain based on user queries.
 func TestGetBlockHeaders62(t *testing.T) { testGetBlockHeaders(t, 62) }
 func TestGetBlockHeaders63(t *testing.T) { testGetBlockHeaders(t, 63) }
+func TestGetBlockHeaders64(t *testing.T) { testGetBlockHeaders(t, 64) }
 
 func testGetBlockHeaders(t *testing.T, protocol int) {
 	pm := newTestProtocolManagerMust(t, downloader.FullSync, downloader.MaxHashFetch+15, nil, nil)
