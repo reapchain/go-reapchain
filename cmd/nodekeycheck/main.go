@@ -23,14 +23,9 @@ import (
 	"fmt"
 	"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/p2p/discover"
-	"github.com/ethereum/go-ethereum/p2p/discv5"
-	"github.com/ethereum/go-ethereum/p2p/nat"
-	"github.com/ethereum/go-ethereum/p2p/netutil"
-	"github.com/ethereum/go-ethereum/qmanager/global"
 	"net"
 	"os"
 	"strings"
@@ -209,9 +204,9 @@ func main() {
 		writeAccount   = flag.Bool("writeAccount", false, "write out the node's account hash and quit")
 		nodeKeyFile = flag.String("nodekey", "", "private key filename")
 		nodeKeyHex  = flag.String("nodekeyhex", "", "private key as hex (for testing)")
-		natdesc     = flag.String("nat", "none", "port mapping mechanism (any|none|upnp|pmp|extip:<IP>)")
-		netrestrict = flag.String("netrestrict", "", "restrict network communication to the given IP networks (CIDR masks)")
-		runv5       = flag.Bool("v5", false, "run a v5 topic discovery bootnode")
+		//natdesc     = flag.String("nat", "none", "port mapping mechanism (any|none|upnp|pmp|extip:<IP>)")
+		//netrestrict = flag.String("netrestrict", "", "restrict network communication to the given IP networks (CIDR masks)")
+		//runv5       = flag.Bool("v5", false, "run a v5 topic discovery bootnode")
 		verbosity   = flag.Int("verbosity", int(log.LvlInfo), "log verbosity (0-9)")
 		vmodule     = flag.String("vmodule", "", "log verbosity pattern")
 		qman        = flag.String( "qman", "", "boot as bootnode and qmanager")
@@ -228,7 +223,7 @@ func main() {
 	glogger.Vmodule(*vmodule)
 	log.Root().SetHandler(glogger)
 
-	natm, err := nat.Parse(*natdesc)
+	//natm, err := nat.Parse(*natdesc)
 	if err != nil {
 		utils.Fatalf("-nat: %v", err)
 	}
@@ -285,17 +280,17 @@ func main() {
 		//}
 		//os.Exit(0)
 	}
-	var restrictList *netutil.Netlist
-	if *netrestrict != "" {
-		restrictList, err = netutil.ParseNetlist(*netrestrict)  //// ParseCIDR parses s as a CIDR notation IP address and prefix length,
-		// like "192.0.2.0/24"
-		//amazon:inet 172.31.6.169  netmask 255.255.240.0  broadcast 172.31.15.255 => CIDR TYPE:   	172.31.6.169/20
-		//제한 ip 범위: 172.31.0.0 ~ 172.31.15.255
-	    // https://www.ipaddressguide.com/cidr
-		if err != nil {
-			utils.Fatalf("-netrestrict: %v", err)
-		}
-	}
+	//var restrictList *netutil.Netlist
+	//if *netrestrict != "" {
+	//	restrictList, err = netutil.ParseNetlist(*netrestrict)  //// ParseCIDR parses s as a CIDR notation IP address and prefix length,
+	//	// like "192.0.2.0/24"
+	//	//amazon:inet 172.31.6.169  netmask 255.255.240.0  broadcast 172.31.15.255 => CIDR TYPE:   	172.31.6.169/20
+	//	//제한 ip 범위: 172.31.0.0 ~ 172.31.15.255
+	//    // https://www.ipaddressguide.com/cidr
+	//	if err != nil {
+	//		utils.Fatalf("-netrestrict: %v", err)
+	//	}
+	//}
 	if( *qman !="" ){
 		fmt.Printf("%v\n", qman )
 		//p2p.Send(p.rw, 0, event.Data)
@@ -312,23 +307,23 @@ func main() {
 		log.Info("I've get Local IP on this machine!")
 	}
 
-
-	if *runv5 {
-		if _, err := discv5.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {
-			utils.Fatalf("%v", err)
-		}
-	} else {  //main Listen server init and run discovery
-
-		var account common.Address
-		account = PubkeyToAddress(nodeKey.PublicKey)
-		fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
-
-		config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
-		global.IsBootNode = true
-		if _, err := discover.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {  //main
-			utils.Fatalf("%v", err)
-		}
-	}
-
-	select {}
+	//
+	//if *runv5 {
+	//	if _, err := discv5.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {
+	//		utils.Fatalf("%v", err)
+	//	}
+	//} else {  //main Listen server init and run discovery
+	//
+	//	var account common.Address
+	//	account = PubkeyToAddress(nodeKey.PublicKey)
+	//	fmt.Printf("Address(20byte account) : %v\n, %x\n", PubkeyToAddress(nodeKey.PublicKey),account )
+	//
+	//	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
+	//	global.IsBootNode = true
+	//	if _, err := discover.ListenUDP(nodeKey, *listenAddr, natm, "", restrictList); err != nil {  //main
+	//		utils.Fatalf("%v", err)
+	//	}
+	//}
+	//
+	//select {}
 }

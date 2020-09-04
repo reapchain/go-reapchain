@@ -496,9 +496,9 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 	}
 
 	if _, val := snap.ValSet.GetByAddress(addr); val == nil {
-		if len(curHeader.Extra)!= 0 {
+		//if len(curHeader.Extra)!= 0 {
 			sb.logger.Error("Not in validator set", "peerAddr", addr)
-		}
+		//}
 		return podc.ErrUnauthorizedAddress
 	}
 
