@@ -369,6 +369,7 @@ func (pool *TxPool) SetLocal(tx *types.Transaction) {
 
 // validateTx checks whether a transaction is valid according
 // to the consensus rules.
+// 여기서 합의 룰에 부합하는 Tx transaction이 유효한지 체크
 func (pool *TxPool) validateTx(tx *types.Transaction) error {
 	local := pool.locals.contains(tx.Hash())
 	// Drop transactions under our own minimal accepted gas price
@@ -384,7 +385,7 @@ func (pool *TxPool) validateTx(tx *types.Transaction) error {
 
 	from, err := types.Sender(pool.signer, tx)
 	if err != nil {
-		return ErrInvalidSender
+		return ErrInvalidSender  //잘못된 송신자 체크
 	}
 	// Last but not least check for nonce errors
 	if currentState.GetNonce(from) > tx.Nonce() {
@@ -395,7 +396,7 @@ func (pool *TxPool) validateTx(tx *types.Transaction) error {
 	// block limit gas.
 	if pool.gasLimit().Cmp(tx.Gas()) < 0 {
 		if tx.Governance() != true {
-			return ErrGasLimit
+			return ErrGasLimit   //Block Gas Limit 체크 : gas=693594097
 		}
 	}
 

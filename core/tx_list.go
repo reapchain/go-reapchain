@@ -115,7 +115,7 @@ func (m *txSortedMap) Filter(filter func(*types.Transaction) bool) types.Transac
 		for nonce := range m.items {
 			*m.index = append(*m.index, nonce)
 		}
-		heap.Init(m.index)
+		heap.Init(m.index)  //heap에서, m.index 만큼 힙을 초기화 한다. 트랜잭션이 지원지면, 힙과 캐시를 비운다.
 
 		m.cache = nil
 	}

@@ -18,12 +18,15 @@ package core
 
 import (
 	"crypto/ecdsa"
+	"fmt"
 	"math/big"
 	"math/rand"
+	"reflect"
 	"testing"
 	"time"
 
 	"github.com/ethereum/go-ethereum/common"
+	//"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
@@ -31,7 +34,33 @@ import (
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/params"
 )
-
+func getSize(v interface{}) int {
+	size := int(reflect.TypeOf(v).Size())
+	switch reflect.TypeOf(v).Kind() {
+	case reflect.Slice:
+		s := reflect.ValueOf(v)
+		for i := 0; i < s.Len(); i++ {
+			size += getSize(s.Index(i).Interface())
+		}
+	case reflect.Map:
+		s := reflect.ValueOf(v)
+		keys := s.MapKeys()
+		size += int(float64(len(keys)) * 10.79) // approximation from https://golang.org/src/runtime/hashmap.go
+		for i := range (keys) {
+			size += getSize(keys[i].Interface()) + getSize(s.MapIndex(keys[i]).Interface())
+		}
+	case reflect.String:
+		size += reflect.ValueOf(v).Len()
+	case reflect.Struct:
+		s := reflect.ValueOf(v)
+		for i := 0; i < s.NumField(); i++ {
+			if s.Field(i).CanInterface() {
+				size += getSize(s.Field(i).Interface())
+			}
+		}
+	}
+	return size
+}
 func transaction(nonce uint64, gaslimit *big.Int, key *ecdsa.PrivateKey) *types.Transaction {
 	return pricedTransaction(nonce, gaslimit, big.NewInt(1), key)
 }
@@ -132,11 +161,12 @@ func TestStateChangeDuringPoolReset(t *testing.T) {
 
 func TestInvalidTransactions(t *testing.T) {
 	pool, key := setupTxPool()
-
-	tx := transaction(0, big.NewInt(100), key)
+	//log.Info("pool:", "size", getSize(pool).string())
+	fmt.Printf("pool size = %d\n", getSize(pool) )
+	tx := transaction(1, big.NewInt(100000), key)
 	from, _ := deriveSender(tx)
 	currentState, _ := pool.currentState()
-	currentState.AddBalance(from, big.NewInt(1))
+	currentState.AddBalance(from, big.NewInt(100000000))
 	if err := pool.Add(tx); err != ErrInsufficientFunds {
 		t.Error("expected", ErrInsufficientFunds)
 	}
