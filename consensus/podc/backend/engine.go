@@ -495,16 +495,21 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 		return err
 	}
 
+	isInValSet := true
 	if _, val := snap.ValSet.GetByAddress(addr); val == nil {
 		//if len(curHeader.Extra)!= 0 {
-			sb.logger.Error("Not in validator set", "peerAddr", addr)
+		//	sb.logger.Error("Not in validator set", "peerAddr", addr)
 		//}
-		return podc.ErrUnauthorizedAddress
+		//return podc.ErrUnauthorizedAddress
+		isInValSet = false
 	}
 
-	go sb.podcEventMux.Post(podc.MessageEvent{
-		Payload: data,
-	})
+	if isInValSet{
+		go sb.podcEventMux.Post(podc.MessageEvent{
+			Payload: data,
+		})
+	}
+
 	return nil
 }
 
