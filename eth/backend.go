@@ -174,6 +174,8 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	newPool := core.NewTxPool(config.TxPool, eth.chainConfig, eth.EventMux(), eth.blockchain.State, eth.blockchain.GasLimit)
 	eth.txPool = newPool
 
+	eth.blockchain.SetTxPool(eth.txPool)
+
 	maxPeers := config.MaxPeers
 	if config.LightServ > 0 {
 		// if we are running a light server, limit the number of ETH peers so that we reserve some space for incoming LES connections

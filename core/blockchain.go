@@ -117,6 +117,7 @@ type BlockChain struct {
 	engine    consensus.Engine
 	processor Processor // block processor interface
 	validator Validator // block and state validator interface
+	txpool    TxPoolIf
 	vmConfig  vm.Config
 
 	badBlocks *lru.Cache // Bad block cache
@@ -373,6 +374,12 @@ func (bc *BlockChain) SetValidator(validator Validator) {
 	bc.validator = validator
 }
 
+func (bc *BlockChain) SetTxPool(txpool TxPoolIf) {
+	bc.procmu.Lock()
+	defer bc.procmu.Unlock()
+	bc.txpool = txpool
+}
+
 // Validator returns the current validator.
 func (bc *BlockChain) Validator() Validator {
 	bc.procmu.RLock()
@@ -385,6 +392,12 @@ func (bc *BlockChain) Processor() Processor {
 	bc.procmu.RLock()
 	defer bc.procmu.RUnlock()
 	return bc.processor
+}
+
+func (bc *BlockChain) TxPool() TxPoolIf {
+	bc.procmu.Lock()
+	defer bc.procmu.Unlock()
+	return bc.txpool
 }
 
 // State returns a new mutable state based on the current HEAD block.

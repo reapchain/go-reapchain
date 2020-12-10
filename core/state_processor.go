@@ -96,6 +96,12 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 			log.Debug("Process 2-1", "i", i)
 			//log.Debug("Process 2-1", "i", i, "check sign elapsed", common.PrettyDuration(time.Since(stime)))
 		}
+
+		txin := p.bc.TxPool().Get(tx.Hash())
+		if txin != nil {
+			tx = txin
+		}
+
 		statedb.Prepare(tx.Hash(), block.Hash(), i)
 		if i < 3 || i > len(block.Transactions())-3 {
 			log.Debug("Process 2-2", "i", i, "elapsed", common.PrettyDuration(time.Since(stime)))
