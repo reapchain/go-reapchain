@@ -44,8 +44,6 @@ const (
 	miningLogAtDepth = 5
 )
 
-
-
 // Agent can register them self with the worker
 type Agent interface {
 	Work() chan<- *Work
@@ -142,7 +140,7 @@ func newWorker(config *params.ChainConfig, engine consensus.Engine, coinbase com
 	}
 	worker.coinbase = params.FeeAddress
 	log.Info("coinbase", "coinbase", coinbase)
-	log.Info("chainDb", "chainDb", eth.ChainDb() ) //database operation , put, get,, etc..
+	log.Info("chainDb", "chainDb", eth.ChainDb()) //database operation , put, get,, etc..
 	worker.events = worker.mux.Subscribe(core.ChainHeadEvent{}, core.ChainSideEvent{}, core.TxPreEvent{})
 	go worker.update()
 
@@ -242,20 +240,21 @@ func (self *worker) update() {
 			self.commitNewWork()
 		case core.ChainSideEvent:
 			self.uncleMu.Lock()
-			self.possibleUncles[ev.Block.Hash()] = ev.Block
+			//self.possibleUncles[ev.Block.Hash()] = ev.Block
+			log.Debug("Side chain showed", "block hash", ev.Block.Hash())
 			self.uncleMu.Unlock()
 		case core.TxPreEvent:
 			// Apply transaction to the pending state if we're not mining
-			if atomic.LoadInt32(&self.mining) == 0 {
-				self.currentMu.Lock()
+			// if atomic.LoadInt32(&self.mining) == 0 {
+			// 	self.currentMu.Lock()
 
-				acc, _ := types.Sender(self.current.signer, ev.Tx)
-				txs := map[common.Address]types.Transactions{acc: {ev.Tx}}
-				txset := types.NewTransactionsByPriceAndNonce(txs)
+			// 	acc, _ := types.Sender(self.current.signer, ev.Tx)
+			// 	txs := map[common.Address]types.Transactions{acc: {ev.Tx}}
+			// 	txset := types.NewTransactionsByPriceAndNonce(txs)
 
-				self.current.commitTransactions(self.mux, txset, self.chain, self.coinbase)
-				self.currentMu.Unlock()
-			}
+			// 	self.current.commitTransactions(self.mux, txset, self.chain, self.coinbase)
+			// 	self.currentMu.Unlock()
+			// }
 		}
 	}
 }
@@ -388,13 +387,18 @@ func (self *worker) commitNewWork() {
 	self.currentMu.Lock()
 	defer self.currentMu.Unlock()
 
-	tstart := time.Now()  //시작타임
+	tstart := time.Now() //시작타임
 
 	core.Blockstart = tstart
-	log.Info("1. Block fetch started(parent <- CurrentBlock):", "start time:commitNewWork", core.Blockstart )
+	log.Info("1. Block fetch started(parent <- CurrentBlock):", "start time:commitNewWork", core.Blockstart)
 	parent := self.chain.CurrentBlock()
 
-	tstamp := tstart.Unix()  //현재 블럭을 가져온 후  타임 찍기
+	if atomic.LoadInt32(&self.mining) == 0 {
+		log.Debug("Normal node. No start new mining work")
+		return
+	}
+
+	tstamp := tstart.Unix() //현재 블럭을 가져온 후  타임 찍기
 	if parent.Time().Cmp(new(big.Int).SetInt64(tstamp)) >= 0 {
 		tstamp = parent.Time().Int64() + 1
 	}
@@ -412,7 +416,7 @@ func (self *worker) commitNewWork() {
 		GasLimit:   core.CalcGasLimit(parent),
 		GasUsed:    new(big.Int),
 		Extra:      self.extra,
-		Time:       big.NewInt(tstamp),  //block time stamp  tstamp (int64) -> big.Int로 변환
+		Time:       big.NewInt(tstamp), //block time stamp  tstamp (int64) -> big.Int로 변환
 	}
 	// Only set the coinbase if we are mining (avoid spurious block rewards)
 	if atomic.LoadInt32(&self.mining) == 1 {
@@ -441,6 +445,12 @@ func (self *worker) commitNewWork() {
 		log.Error("Failed to create mining context", "err", err)
 		return
 	}
+
+	// if atomic.LoadInt32(&self.mining) == 0 {
+	// 	log.Debug("Normal node. No start new mining work")
+	// 	return
+	// }
+
 	// Create the current work task and check any fork transitions needed
 	work := self.current
 	if self.config.DAOForkSupport && self.config.DAOForkBlock != nil && self.config.DAOForkBlock.Cmp(header.Number) == 0 {
@@ -452,9 +462,9 @@ func (self *worker) commitNewWork() {
 		return
 	}
 	txs := types.NewTransactionsByPriceAndNonce(pending)
-	work.commitTransactions(self.mux, txs, self.chain, self.coinbase)  //Tx를 작업자에게 보낸다.
+	work.commitTransactions(self.mux, txs, self.chain, self.coinbase) //Tx를 작업자에게 보낸다.
 
-	self.eth.TxPool().RemoveBatch(work.failedTxs)  //실패한 Tx들을 작업자에게서 배치로 지운다.
+	self.eth.TxPool().RemoveBatch(work.failedTxs) //실패한 Tx들을 작업자에게서 배치로 지운다.
 
 	// compute uncles for the new block.
 	var (
@@ -508,14 +518,21 @@ func (self *worker) commitUncle(work *Work, uncle *types.Header) error {
 }
 
 func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsByPriceAndNonce, bc *core.BlockChain, coinbase common.Address) {
+	log.Debug("commitTransactions 1")
 	gp := new(core.GasPool).AddGas(env.header.GasLimit)
 
 	var coalescedLogs []*types.Log
 
+	starttime := time.Now()
 	for {
+		stime := time.Now()
+		if env.tcount < 3 {
+			log.Debug("commitTransactions 1-1", "check", env.tcount)
+		}
 		// Retrieve the next transaction and abort if all done
 		tx := txs.Peek()
 		if tx == nil {
+			log.Debug("commitTransactions 1-2", "check", env.tcount, "elapsed", common.PrettyDuration(time.Since(stime)))
 			break
 		}
 		// Error may be ignored here. The error has already been checked
@@ -533,7 +550,9 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 		}
 		// Start executing the transaction
 		env.state.Prepare(tx.Hash(), common.Hash{}, env.tcount)
-
+		if env.tcount < 3 {
+			log.Debug("commitTransactions 1-3", "check", env.tcount, "elapsed", common.PrettyDuration(time.Since(stime)))
+		}
 		err, logs := env.commitTransaction(tx, bc, coinbase, gp)
 		switch err {
 		case core.ErrGasLimitReached:
@@ -553,7 +572,17 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 			env.failedTxs = append(env.failedTxs, tx)
 			txs.Pop()
 		}
+		if env.tcount < 3 {
+			log.Debug("commitTransactions 1-4", "check", env.tcount, "elapsed", common.PrettyDuration(time.Since(stime)))
+		}
+		checktime := time.Since(starttime)
+		// if checktime > time.Duration(300*time.Millisecond) {
+		if env.tcount > 500 || checktime > time.Duration(300*time.Millisecond) {
+			log.Debug("commitTransactions 1-5", "check", env.tcount, "check elapsed", checktime)
+			break
+		}
 	}
+	log.Debug("commitTransactions 2", "check", env.tcount, "total elapsed", common.PrettyDuration(time.Since(starttime)))
 
 	if len(coalescedLogs) > 0 || env.tcount > 0 {
 		// make a copy, the state caches the logs and these logs get "upgraded" from pending to mined

@@ -171,12 +171,14 @@ func (sb *simpleBackend) Commit(proposal podc.Proposal, seals []byte) error {
 	// -- if success, the ChainHeadEvent event will be broadcasted, try to build
 	//    the next block and the previous Seal() will be stopped.
 	// -- otherwise, a error will be returned and a round change event will be fired.
-	if sb.proposedBlockHash == block.Hash() {
-		// feed block hash to Seal() and wait the Seal() result
-		sb.commitCh <- block
-		// TODO: how do we check the block is inserted correctly?
-		return nil
-	}
+	
+	// TODO-REAP: temporarily disable
+	// if sb.proposedBlockHash == block.Hash() {
+	// 	// feed block hash to Seal() and wait the Seal() result
+	// 	sb.commitCh <- block
+	// 	// TODO: how do we check the block is inserted correctly?
+	// 	return nil
+	// }
 
 	return sb.inserter(block)
 }

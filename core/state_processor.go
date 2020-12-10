@@ -18,6 +18,7 @@ package core
 
 import (
 	"math/big"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
@@ -26,6 +27,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params"
 )
 
@@ -56,6 +58,7 @@ func NewStateProcessor(config *params.ChainConfig, bc *BlockChain, engine consen
 // returns the amount of gas that was used in the process. If any of the
 // transactions failed to execute due to insufficient gas it will return an error.
 func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg vm.Config) (types.Receipts, []*types.Log, *big.Int, error) {
+	log.Debug("Process 1")
 	var (
 		receipts     types.Receipts
 		totalUsedGas = big.NewInt(0)
@@ -67,18 +70,53 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 	if p.config.DAOForkSupport && p.config.DAOForkBlock != nil && p.config.DAOForkBlock.Cmp(block.Number()) == 0 {
 		misc.ApplyDAOHardFork(statedb)
 	}
+	log.Debug("Process 2")
+	//txs := block.Transactions()
 	// Iterate over and process the individual transactions
+	starttime := time.Now()
+
+	// for i, tx := range block.Transactions() {
+	// 	// from, err := types.Sender(types.MakeSigner(p.config, block.Number()), txs[i])
+	// 	from, err := types.Sender(types.NewEIP155Signer(p.config.ChainId), tx)
+	// 	if err != nil {
+	// 		log.Warn("tx sign error", "i", i, "from", from.Hex(), "err", err)
+	// 	}
+	// }
+	// log.Debug("Process 2-0", "check sign elapsed", common.PrettyDuration(time.Since(starttime)))
+
 	for i, tx := range block.Transactions() {
+		stime := time.Now()
+
+		// from, err := types.Sender(types.NewEIP155Signer(p.config.ChainId), tx)
+		// if err != nil {
+		// 	log.Warn("tx sign error", "i", i, "from", from.Hex(), "err", err)
+		// }
+
+		if i < 3 || i > len(block.Transactions())-3 {
+			log.Debug("Process 2-1", "i", i)
+			//log.Debug("Process 2-1", "i", i, "check sign elapsed", common.PrettyDuration(time.Since(stime)))
+		}
 		statedb.Prepare(tx.Hash(), block.Hash(), i)
-		receipt, _, err := ApplyTransaction(p.config, p.bc, nil, gp, statedb, header, tx, totalUsedGas, cfg)
+		if i < 3 || i > len(block.Transactions())-3 {
+			log.Debug("Process 2-2", "i", i, "elapsed", common.PrettyDuration(time.Since(stime)))
+		}
+		coinbase := params.FeeAddress
+		receipt, _, err := ApplyTransaction(p.config, p.bc, &coinbase, gp, statedb, header, tx, totalUsedGas, vm.Config{})
 		if err != nil {
 			return nil, nil, nil, err
 		}
 		receipts = append(receipts, receipt)
 		allLogs = append(allLogs, receipt.Logs...)
+
+		//elapsed := common.PrettyDuration(time.Since(stime))
+		if i < 3 || i > len(block.Transactions())-3 {
+			log.Info("Process 2-3", "i", i, "elapsed", common.PrettyDuration(time.Since(stime)))
+		}
 	}
+	log.Debug("Process 3", "total elapsed", common.PrettyDuration(time.Since(starttime)))
 	// Finalize the block, applying any consensus engine specific extras (e.g. block rewards)
 	p.engine.Finalize(p.bc, header, statedb, block.Transactions(), block.Uncles(), receipts)
+	log.Debug("Process 4")
 
 	return receipts, allLogs, totalUsedGas, nil
 }

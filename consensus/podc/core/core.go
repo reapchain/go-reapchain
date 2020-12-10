@@ -26,7 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
-	"github.com/ethereum/go-ethereum/metrics"
+	// "github.com/ethereum/go-ethereum/metrics"
 	goMetrics "github.com/rcrowley/go-metrics"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
 )
@@ -45,9 +45,12 @@ func New(backend podc.Backend, config *podc.Config) Engine {
 		pendingRequestsMu:  new(sync.Mutex),
 		consensusTimestamp: time.Time{},
 
-		roundMeter:         metrics.NewMeter("consensus/podc/core/round"),
-		sequenceMeter:      metrics.NewMeter("consensus/podc/core/sequence"),
-		consensusTimer:     metrics.NewTimer("consensus/podc/core/consensus"),
+		// roundMeter:         metrics.NewMeter("consensus/podc/core/round"),
+		// sequenceMeter:      metrics.NewMeter("consensus/podc/core/sequence"),
+		// consensusTimer:     metrics.NewTimer("consensus/podc/core/consensus"),
+		roundMeter:     goMetrics.NewRegisteredMeter("consensus/podc/core/round", nil),
+		sequenceMeter:  goMetrics.NewRegisteredMeter("consensus/podc/core/sequence", nil),
+		consensusTimer: goMetrics.NewRegisteredTimer("consensus/podc/core/consensus", nil),
 		racingMu:			new(sync.Mutex),
 
 	}
