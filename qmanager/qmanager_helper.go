@@ -187,12 +187,12 @@ func expirationCheck() {
 
 			log.Info("Qman Expired Node", "Expired Node", string(key))
 
-
-			err = global.QManagerStorage.Delete(key, nil)
+			//TODO-REAP: Remove deleting node info due to stopping consensus issue.
+			//err = global.QManagerStorage.Delete(key, nil)
 			GetDBData()
-			if err != nil {
-				log.Info("Qmanager RLP", "Decoding Error", err.Error())
-			}
+			// if err != nil {
+			// 	log.Info("Qmanager RLP", "Decoding Error", err.Error())
+			// }
 		}
 	}
 	CloseDB()
