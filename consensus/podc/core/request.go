@@ -69,7 +69,7 @@ func (c *core) checkRequestMsg(request *podc.Request) error {
 func (c *core) storeRequestMsg(request *podc.Request) {
 	logger := c.logger.New("state", c.state)
 
-	logger.Trace("Store future requests", "request", request)
+	logger.Debug("Store future requests", "request", request)
 
 	c.pendingRequestsMu.Lock()
 	defer c.pendingRequestsMu.Unlock()
@@ -80,6 +80,8 @@ func (c *core) storeRequestMsg(request *podc.Request) {
 func (c *core) processPendingRequests() {
 	c.pendingRequestsMu.Lock()
 	defer c.pendingRequestsMu.Unlock()
+
+	log.Debug("processPendingRequests")
 
 	for !(c.pendingRequests.Empty()) {
 		m, prio := c.pendingRequests.Pop()
@@ -94,14 +96,14 @@ func (c *core) processPendingRequests() {
 		err := c.checkRequestMsg(r)
 		if err != nil {
 			if err == errFutureMessage {
-				c.logger.Trace("Stop processing request", "request", r)
+				c.logger.Debug("Stop processing request", "request", r)
 				c.pendingRequests.Push(m, prio)
 				break
 			}
-			c.logger.Trace("Skip the pending request", "request", r, "err", err)
+			c.logger.Debug("Skip the pending request", "request", r, "err", err)
 			continue
 		}
-		c.logger.Trace("Post pending request", "request", r)
+		c.logger.Debug("Post pending request", "request", r)
 
 		go c.sendEvent(podc.RequestEvent{
 

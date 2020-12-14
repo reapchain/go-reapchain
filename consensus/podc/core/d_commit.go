@@ -25,6 +25,7 @@ import (
 )
 
 func (c *core) sendDCommit() {   //전송
+	log.Debug("sendDCommit")
 	//logger := c.logger.New("state", c.state)
 	//logger.Warn("sendDCommit:")
 
@@ -54,6 +55,7 @@ func (c *core) sendDCommit() {   //전송
 }
 //==============================
 func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수신 핸들러가 같은 프로그램에 있음. 상태 천이로,, 해야함.
+	log.Debug("handleDCommit")
 	//logger := c.logger.New("from", src, "state", c.state)
 	//logger.Warn("handleDCommit:")
 	// Decode commit message
@@ -75,11 +77,13 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수
 
 		c.acceptDCommit(msg, src)
 
+		log.Debug("handleDCommit", "commit count", c.current.Commits.Size())
 		// Commit the proposal once we have enough commit messages and we are not in StateCommitted.
 		//
 		// If we already have a proposal, we may have chance to speed up the consensus process
 		// by committing the proposal without prepare messages.
 		if c.current.Commits.Size() > 2*c.valSet.F() && c.state.Cmp(StateCommitted) < 0 {
+			log.Debug("handleDCommit - aceepted dcommit 2/3")
 			c.commit()
 			log.Info("6. D-commit end", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 			c.intervalTime =time.Now()

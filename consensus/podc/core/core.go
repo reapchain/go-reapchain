@@ -243,6 +243,8 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())  //1.
 	}
 
+	c.ExtraDataLength = 0 //TODO-REAP: workaround for disappeared racing msg
+
 	c.valSet = c.backend.Validators(c.lastProposal)
 	// Clear invalid round change messages
 	c.roundChangeSet = newRoundChangeSet(c.valSet)
@@ -253,6 +255,7 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 	c.waitingForRoundChange = false
 	c.setState(StateRequestQman)
 	if roundChange && c.isProposer() {
+		log.Debug("force next round")
 		c.backend.NextRound()
 	}
 	c.newRoundChangeTimer()
@@ -297,6 +300,7 @@ func (c *core) newRoundChangeTimer() {
 	timeout := time.Duration(c.config.RequestTimeout)*time.Millisecond + time.Duration(c.current.Round().Uint64()*c.config.BlockPeriod)*time.Second
 	           // 타임아웃 시간은 우측 수식에 의해서 계산됨 값.
 	c.roundChangeTimer = time.AfterFunc(timeout, func() {
+		log.Debug("timeout round change")
 		// If we're not waiting for round change yet, we can try to catch up
 		// the max round with F+1 round change message. We only need to catch up
 		// if the max round is larger than current round.
@@ -335,8 +339,10 @@ func (c *core) SetTag(t common.Tag) {
 
 func (c *core) GetValidatorListExceptQman() []common.Address {
 	var addrList []common.Address
+	log.Debug("GetValidatorListExceptQman", "c.valSet.List()", len(c.valSet.List()))
 
 	for _, val := range c.valSet.List() {
+		log.Debug("GetValidatorListExceptQman", "addr", val.Address().Hex())
 		//if val.Address() != c.qmanager {
 			addrList = append(addrList, val.Address())
 		//}

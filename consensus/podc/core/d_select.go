@@ -94,6 +94,7 @@ func (c *core) sendExtraDataRequest() {
 }
 
 func (c *core) sendCoordinatorDecide() {
+	log.Debug("sendCoordinatorDecide")
 	coordinatorData := c.valSet.GetProposer()
 	encodedCoordinatorData, err := Encode(&coordinatorData)
 
@@ -109,6 +110,7 @@ func (c *core) sendCoordinatorDecide() {
 }
 
 func (c *core) sendRacing(addr common.Address) {
+	log.Debug("sendRacing")
 	c.send(&message{
 		Code: msgRacing,
 		Msg: []byte("racing testing"),
@@ -117,6 +119,7 @@ func (c *core) sendRacing(addr common.Address) {
 
 
 func (c *core) sendCandidateDecide() {
+	log.Debug("sendCandidateDecide")
 	c.multicast(&message{
 		Code: msgCandidateDecide,
 		Msg: []byte("Candidate decide testing"),
@@ -144,6 +147,7 @@ func (c *core) handleSentExtraData(msg *message, src podc.Validator) error {
 
 func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	log.Info("4. Get extra data and start d-select", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
+	log.Debug("handleDSelect")
 	c.racingFlag = false
 	c.count = 0
 	c.intervalTime = time.Now()
@@ -157,7 +161,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		return errFailedDecodePrepare
 	}
 
-	//log.Info("handleDSelect", "extraData", extraData)
+	log.Debug("handleDSelect", "extraData", extraData)
 
 	nodename, err := os.Getwd()
 	if err != nil {
@@ -172,14 +176,14 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 		}
 	}
 
-	//log.Info("handleDSelect", "QRND", QRND)
-	//log.Info("handleDSelect", "c.tag", c.tag)
-	//log.Info("handleDSelect", "c.address", c.address)
+	log.Debug("handleDSelect", "QRND", QRND)
+	log.Debug("handleDSelect", "c.tag", c.tag)
+	log.Debug("handleDSelect", "c.address", c.address)
 
 
 
 	if c.tag == common.Coordinator {
-		//log.Info("common.Coordinator", "c.tag", c.tag)
+		log.Debug("common.Coordinator", "c.tag", c.tag)
 
 		//QRNDArray := make([]byte, 8)
 		//binary.LittleEndian.PutUint64(QRNDArray, QRND)
@@ -189,7 +193,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 		isCoordinator, err := utils.CoordinatorConfirmation(global.RequestCoordiStruct{QRND: QRND})
 
-		//log.Info("common.Coordinator", "isCoordinator", isCoordinator)
+		log.Debug("common.Coordinator", "isCoordinator", isCoordinator)
 		if err != nil{
 			log.Error("Coordinator Confirm Failure", "Error", err.Error() )
 		}
@@ -216,7 +220,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 		c.ExtraDataLength = 0
 		c.criteria = 0
-		//log.Info("handleDSelect", "c.ExtraDataLength", c.ExtraDataLength)
+		log.Debug("handleDSelect - not coordinator", "c.ExtraDataLength", c.ExtraDataLength)
 
 	}
 
@@ -243,7 +247,10 @@ func (c *core) handleCoordinatorConfirm(msg *message, src podc.Validator) error 
 }
 
 func (c *core) handleCoordinatorDecide(msg *message, src podc.Validator) error {
-	if c.tag != common.Coordinator {
+	log.Debug("handleCoordinatorDecide", "extra", c.ExtraDataLength, "criteria", c.criteria)
+	// if c.tag != common.Coordinator {
+	if c.tag != common.Coordinator || c.ExtraDataLength == 0 {	//TODO-REAP: workaround for disappeared racing msg
+		log.Debug("handleCoordinatorDecide - send racing", "extra", c.ExtraDataLength, "criteria", c.criteria)
 		c.sendRacing(src.Address())  //레이싱 시작 메시지 전송
 	}
 
@@ -251,12 +258,15 @@ func (c *core) handleCoordinatorDecide(msg *message, src podc.Validator) error {
 }
 
 func (c *core) handleRacing(msg *message, src podc.Validator) error {
+	log.Debug("handleRacing")
 	c.racingMu.Lock()
 	defer c.racingMu.Unlock()
 	if c.tag == common.Coordinator {
 
 		c.count = c.count + 1
+		log.Debug("handleRacing 1", "c.count", c.count, )
 		if c.count > uint(c.criteria) && !c.racingFlag {
+			log.Debug("handleRacing 2", "c.count", c.count, "c.criteria", c.criteria, "c.racingFlag", c.racingFlag)
 			c.racingFlag = true
 			c.sendCandidateDecide()
 		}
@@ -266,8 +276,9 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 }
 
 func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error {  //커밋단계로 진입
+	log.Debug("handleCandidateDecide", "c.state", c.state)
 	if c.state == StatePreprepared {
-		log.Info( "handleCandidateDecide: StatePreprepared")
+		log.Debug( "handleCandidateDecide: StatePreprepared")
 		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		c.intervalTime = time.Now()
 		c.setState(StateDSelected)  //D-selected 상태로 설정하고, 커밋 상태로 진입.

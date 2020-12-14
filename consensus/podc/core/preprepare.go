@@ -30,6 +30,7 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 
 	// If I'm the proposer and I have the same sequence with the proposal
 	if c.current.Sequence().Cmp(request.Proposal.Number()) == 0 && c.isProposer() { //?
+		log.Debug("sendRequestExtraDataToQman 1", "seq", c.current.Sequence())
 		curView := c.currentView()
 		preprepare, err := Encode(&podc.Preprepare{
 			View:     curView,
@@ -40,6 +41,7 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 			return
 		}
 		if c.valSet.IsProposer(c.Address()) {
+			log.Debug("sendRequestExtraDataToQman 2")
 
 			//c.handleQmanager(preprepare, c.valSet.GetProposer())
 			c.broadcast(&message{
@@ -76,6 +78,7 @@ func (c *core) sendPreprepare(request *podc.Request) {
 
 
 func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //request to qman
+	log.Debug("handleQmanager")
 	logger := c.logger.New("from", src, "state", c.state)
 
 		var preprepare *podc.Preprepare
