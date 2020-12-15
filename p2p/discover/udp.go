@@ -22,12 +22,13 @@ import (
 	"crypto/ecdsa"
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/qmanager/global"
-	"github.com/ethereum/go-ethereum/qmanager/utils"
 	"net"
 	"strconv"
 	"time"
+
+	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/qmanager/global"
+	"github.com/ethereum/go-ethereum/qmanager/utils"
 
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/log"
@@ -38,6 +39,7 @@ import (
 
 const Version = 4
 const ReapChainFlag = 65
+
 //const boot_node_port = 30301
 //var boot_node_port int  //temp , 30301, or 30391
 
@@ -69,7 +71,7 @@ const (
 // RPC packet types
 const (
 	pingPacket = iota + 1 // zero is 'reserved'  //1
-	pongPacket        // 2
+	pongPacket            // 2
 	findnodePacket
 	neighborsPacket
 )
@@ -82,7 +84,6 @@ type (
 		Expiration uint64
 		// Ignore additional fields (for forward compatibility).
 		Rest []rlp.RawValue `rlp:"tail"`
-
 	}
 	// pong is the reply to ping.
 	pong struct {
@@ -121,9 +122,9 @@ type (
 	}
 
 	rpcEndpoint struct {
-		IP  net.IP // len 4 for IPv4 or 16 for IPv6
-		UDP uint16 // for discovery protocol
-		TCP uint16 // for RLPx protocol
+		IP   net.IP // len 4 for IPv4 or 16 for IPv6
+		UDP  uint16 // for discovery protocol
+		TCP  uint16 // for RLPx protocol
 		Flag uint16
 	}
 
@@ -134,8 +135,6 @@ type (
 	//	QRND uint64
 	//}
 )
-
-
 
 func makeEndpoint(addr *net.UDPAddr, tcpPort uint16) rpcEndpoint {
 	ip := addr.IP.To4()
@@ -236,12 +235,12 @@ func ListenUDP(priv *ecdsa.PrivateKey, laddr string, natm nat.Interface, nodeDBP
 	if err != nil {
 		return nil, err
 	}
-	conn, err := net.ListenUDP("udp", addr)  //socket setup ?
-	if(global.IsBootNode){
+	conn, err := net.ListenUDP("udp", addr) //socket setup ?
+	if global.IsBootNode {
 		global.BootNodePort = addr.Port
 		global.BootNodeID = PubkeyID(&priv.PublicKey).String()
 	}
-	log.Info("net.ListenUDP up: addr ", "self",laddr)
+	log.Info("net.ListenUDP up: addr ", "self", laddr)
 	if err != nil {
 		return nil, err
 	}
@@ -264,10 +263,10 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 		gotreply:    make(chan reply),
 		addpending:  make(chan *pending),
 	}
-	realaddr := c.LocalAddr().(*net.UDPAddr)  //? local ip or upnp public ip  c는 discover pkg , cast연산자,, ?
+	realaddr := c.LocalAddr().(*net.UDPAddr) //? local ip or upnp public ip  c는 discover pkg , cast연산자,, ?
 
 	//fmt.Printf("======================> realaddr <======================= %s", realaddr )
-	if natm != nil {  //doit=any, none, extip , etc
+	if natm != nil { //doit=any, none, extip , etc
 		if !realaddr.IP.IsLoopback() {
 			go nat.Map(natm, udp.closing, "udp", realaddr.Port, realaddr.Port, "ethereum discovery")
 		} else {
@@ -277,7 +276,6 @@ func newUDP(priv *ecdsa.PrivateKey, c conn, natm nat.Interface, nodeDBPath strin
 		if ext, err := natm.ExternalIP(); err == nil {
 			realaddr = &net.UDPAddr{IP: ext, Port: realaddr.Port}
 		}
-
 
 	}
 	// TODO: separate TCP port
@@ -621,13 +619,9 @@ func (req *pong) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte) er
 		return errUnsolicitedReply
 	}
 
-
-
-
 	//if t.conn.LocalAddr().(*net.UDPAddr).Port == qManager.BootNodePort {
 	//	fmt.Println("Pong From:", fromID)
 	//}
-
 
 	return nil
 }
@@ -649,7 +643,6 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		return errUnknownNode
 	}
 
-
 	target := crypto.Keccak256Hash(req.Target[:])
 	t.mutex.Lock()
 	closest := t.closest(target, bucketSize).entries
@@ -670,60 +663,22 @@ func (req *findnode) handle(t *udp, from *net.UDPAddr, fromID NodeID, mac []byte
 		}
 	}
 
-	if global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)){
-		//if !podc_global.BootNodeReady{
-		//	ps := requestQman{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-		//	fmt.Println("Bootnode Requesting Qmanager Connection")
-		//
-		//	fmt.Println(from, fromID)
-		//	t.send(from , requestQmanPacket, &ps)  //broadcast to all to the world. ..
-		//}
-
-		//if podc_global.BootNodeReady {
+	if global.CheckBootNodePortAndID(t.self.ID.String(), int(t.self.UDP)) {
+		go func() {
 			node_pubKey, _ := fromID.Pubkey()
 			pubBytes := crypto.FromECDSAPub(node_pubKey)
 			nodeAddress := common.BytesToAddress(crypto.Keccak256(pubBytes[1:])[12:])
 			timestamp := time.Now().Format("2006-01-02 15:04:05")
-
-
-			qNode := global.QManDBStruct{ID: fromID.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: strconv.Itoa(3)  }
+			qNode := global.QManDBStruct{ID: fromID.String(), Address: nodeAddress.String(), Timestamp: timestamp, Tag: strconv.Itoa(3)}
 			err := utils.BootNodeToQmanager(qNode)
-			if err != nil{
+			if err != nil {
 				log.Error("Bootnode to Qman Failure", "Error", err.Error())
 			}
-
-
-			//if from.String() != podc_global.QManagerAddress.String(){
-			//	ps := qmanager{Node: fromID, Expiration: uint64(time.Now().Add(expiration).Unix())}
-			//	//fmt.Println("QMANAGER ", podc_global.QManagerAddress)
-			//	fmt.Println("BOOTNODE SEND DATA TO QMANAGER")
-			//	fmt.Println("Address: ", from)
-			//	fmt.Println("ID: ", fromID)
-			//
-			//	t.send(podc_global.QManagerAddress , qmanagerPacket, &ps)
-			//}
-
-		//}
-
+		}()
 	}
-
-
-
-
-
-	//
-	//if t.conn.LocalAddr().(*net.UDPAddr).Port == podc_global.BootNodePort  {
-	//
-	//
-	//
-	//}
-
-
 
 	return nil
 }
-
-
 
 func (req *findnode) name() string { return "FINDNODE/v4" }
 
