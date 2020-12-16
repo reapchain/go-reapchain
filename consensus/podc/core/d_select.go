@@ -22,6 +22,7 @@ import (
 
 
 func (c *core) sendDSelect() {
+	log.Debug("sendDSelect")
 	logger := c.logger.New("state", c.state)
 	var extra [7]common.ValidatorInfo  // 최소 7개 노드에서 추가?  기동시 최소 7개 이상 띄워야함.
 	//var extra [50]ValidatorInfo  //debugging... 7 -> 50 ,, logical bug. 임시로 50개,, 나중에 수정할 것.

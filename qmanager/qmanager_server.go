@@ -1,6 +1,7 @@
 package qmanager
 
 import (
+	"bytes"
 	"crypto/ecdsa"
 	"encoding/json"
 	"io/ioutil"
@@ -8,10 +9,13 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qmanager/global"
+	"github.com/ethereum/go-ethereum/rlp"
+	"github.com/syndtr/goleveldb/leveldb"
 )
 
 var (
@@ -22,6 +26,33 @@ var (
 
 	ConfigValidatorsParsed bool
 )
+
+func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
+
+	http.HandleFunc("/Ping", Ping)
+	http.HandleFunc("/GovernanceSendList", GovernanceSendList)
+	http.HandleFunc("/GovernanceAddValidators", GovernanceAddValidators)
+	http.HandleFunc("/GovernanceRemoveValidators", GovernanceRemoveValidators)
+	http.HandleFunc("/GovernanceGetValidatorList", GovernanceGetValidatorList)
+	http.HandleFunc("/ExtraData", handleExtraData)
+	http.HandleFunc("/BootNodeSendData", BootNodeSendData)
+	http.HandleFunc("/CoordinatorConfirmation", CoordinatorConfirmation)
+
+	s := strings.Split(*Addr, ":")
+	DBName = s[1]
+	http.ListenAndServe(*Addr, nil)
+
+}
+
+func Ping(w http.ResponseWriter, req *http.Request) {
+
+	w.Header().Set("Content-Type", "application/json")
+	m := global.Message{
+		Message: "Success",
+		Code:    http.StatusOK,
+	}
+	json.NewEncoder(w).Encode(m)
+}
 
 func GovernanceSendList(w http.ResponseWriter, req *http.Request) {
 
@@ -51,9 +82,83 @@ func GovernanceSendList(w http.ResponseWriter, req *http.Request) {
 	go UpdateSenatorCandidateNodes()
 }
 
-func Ping(w http.ResponseWriter, req *http.Request) {
-
+func GovernanceAddValidators(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Error("Request error")
+		return
+	}
+
+	var govStruct []global.GovStruct
+	err = json.Unmarshal(body, &govStruct)
+	if err != nil {
+		log.Error("Json unmarshal error")
+		m := global.Message{
+			Message: "Error",
+			Code:    http.StatusBadRequest,
+		}
+		json.NewEncoder(w).Encode(m)
+		return
+	}
+
+	ConnectDB()
+	list := make(map[string]common.Tag, len(govStruct))
+	for _, node := range govStruct {
+		if node.Tag != common.Senator && node.Tag != common.Candidate {
+			continue
+		}
+
+		encodekey, _ := rlp.EncodeToBytes(node.Validator)
+		foundNode, err := global.QManagerStorage.Get(encodekey, nil)
+		if err != nil {
+			log.Debug("Node not found in DB", "error", err)
+			if err != leveldb.ErrNotFound {
+				continue
+			}
+		}
+
+		id := ""
+		if foundNode != nil {
+			var decodedBytes global.QManDBStruct
+			err = rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
+			if err != nil {
+				log.Warn("Rlp decode error", "error", err)
+				continue
+			}
+			id = decodedBytes.ID
+		}
+
+		var encodedStruct *global.QManDBStruct
+		//convertedTag := convertTagToString(node.Tag)
+		timestamp := time.Now().Format("2006-01-02 15:04:05")
+		//encodedStruct = &global.QManDBStruct{ID: decodedBytes.ID, Address: decodedBytes.Address, Timestamp: timestamp, Tag: convertTagToString(node.Tag)}
+		encodedStruct = &global.QManDBStruct{ID: id, Address: node.Validator, Timestamp: timestamp, Tag: convertTagToString(node.Tag)}
+		initBytes, err := rlp.EncodeToBytes(encodedStruct)
+		if err != nil {
+			log.Warn("Rlp encode error", "error", err)
+			continue
+		}
+
+		err = global.QManagerStorage.Put(encodekey, initBytes, nil)
+		if err != nil {
+			log.Warn("DB Save error", "error", err)
+			continue
+		}
+
+		list[node.Validator] = node.Tag
+	}
+	GetDBData()
+	CloseDB()
+
+	for i, vlist := range global.GovernanceList {
+		if tag, ok := list[vlist.Validator]; ok {
+			global.GovernanceList[i].Tag = tag
+		} else {
+			global.GovernanceList = append(global.GovernanceList, vlist)
+		}
+	}
+
 	m := global.Message{
 		Message: "Success",
 		Code:    http.StatusOK,
@@ -61,18 +166,94 @@ func Ping(w http.ResponseWriter, req *http.Request) {
 	json.NewEncoder(w).Encode(m)
 }
 
-func Start(Addr *string, qmanKey *ecdsa.PrivateKey) {
+func GovernanceRemoveValidators(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Error("Request error")
+		return
+	}
 
-	http.HandleFunc("/Ping", Ping)
-	http.HandleFunc("/GovernanceSendList", GovernanceSendList)
-	http.HandleFunc("/ExtraData", handleExtraData)
-	http.HandleFunc("/BootNodeSendData", BootNodeSendData)
-	http.HandleFunc("/CoordinatorConfirmation", CoordinatorConfirmation)
+	var govStruct []global.GovStruct
+	err = json.Unmarshal(body, &govStruct)
+	if err != nil {
+		log.Error("Json unmarshal error")
+		m := global.Message{
+			Message: "Error",
+			Code:    http.StatusBadRequest,
+		}
+		json.NewEncoder(w).Encode(m)
+		return
+	}
 
-	s := strings.Split(*Addr, ":")
-	DBName = s[1]
-	http.ListenAndServe(*Addr, nil)
+	ConnectDB()
+	list := make(map[string]common.Tag, len(govStruct))
+	for _, node := range govStruct {
+		encodekey, _ := rlp.EncodeToBytes(node.Validator)
+		err = global.QManagerStorage.Delete(encodekey, nil)
+		if err != nil {
+			log.Warn("DB delete error", "error", err)
+			continue
+		}
 
+		list[node.Validator] = node.Tag
+	}
+	GetDBData()
+	CloseDB()
+
+	for i, vlist := range global.GovernanceList {
+		if _, ok := list[vlist.Validator]; ok {
+			global.GovernanceList = append(global.GovernanceList[:i], global.GovernanceList[i+1:]...)
+		}
+	}
+
+	m := global.Message{
+		Message: "Success",
+		Code:    http.StatusOK,
+	}
+	json.NewEncoder(w).Encode(m)
+}
+
+func GovernanceGetValidatorList(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Error("Request error")
+		return
+	}
+
+	var addrs []string
+	err = json.Unmarshal(body, &addrs)
+	if err != nil {
+		log.Error("Json unmarshal error")
+		m := global.Message{
+			Message: "Error",
+			Code:    http.StatusBadRequest,
+		}
+		json.NewEncoder(w).Encode(m)
+		return
+	}
+
+	ConnectDB()
+	GetDBData()
+	CloseDB()
+
+	var retList []global.QManDBStruct
+	if len(addrs) != 0 {
+		list := make(map[string]int, len(addrs))
+		for i, addr := range addrs {
+			list[addr] = i
+		}
+		for _, vlist := range global.DBDataList {
+			if _, ok := list[vlist.Address]; ok {
+				retList = append(retList, vlist)
+			}
+		}
+	} else {
+		retList = global.DBDataList
+	}
+
+	json.NewEncoder(w).Encode(retList)
 }
 
 func CoordinatorConfirmation(w http.ResponseWriter, req *http.Request) {
@@ -130,7 +311,7 @@ func BootNodeSendData(w http.ResponseWriter, req *http.Request) {
 	log.Info("Bootnode Data ", "Addr: ", nodeStruct.Address)
 
 	if nodeStruct.Address != "" {
-		if !FindNode(nodeStruct.Address) {
+		if !FindNode(nodeStruct) {
 			Save(nodeStruct)
 		}
 	}
@@ -222,6 +403,10 @@ func generateExtraData() []common.ValidatorInfo {
 		nodeTag, _ := strconv.Atoi(validator.Tag)
 		if common.Tag(nodeTag) != common.Senator && common.Tag(nodeTag) != common.Candidate {
 			log.Debug("Normal node", "addr", validator.Address)
+			continue
+		}
+		if validator.ID == "" {
+			log.Debug("Node is not alive", "addr", validator.Address)
 			continue
 		}
 

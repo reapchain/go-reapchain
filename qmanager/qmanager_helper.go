@@ -247,7 +247,8 @@ func UpdateSenatorCandidateNodes() {
 	//log.Info("Qmanager", "DB Status", "2. Disconnected")
 }
 
-func FindNode(nodeAddress string) (found bool) {
+func FindNode(dbStruct global.QManDBStruct) (found bool) {
+	nodeAddress := dbStruct.Address
 	node_address_encoded, _ := rlp.EncodeToBytes(nodeAddress)
 	//ecies.Encrypt()
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
@@ -271,7 +272,8 @@ func FindNode(nodeAddress string) (found bool) {
 
 	var encodedStruct *global.QManDBStruct
 	timestamp := time.Now().Format("2006-01-02 15:04:05")
-	encodedStruct = &global.QManDBStruct{ID: decodedBytes.ID, Address: decodedBytes.Address, Timestamp: timestamp, Tag: decodedBytes.Tag}
+	// encodedStruct = &global.QManDBStruct{ID: decodedBytes.ID, Address: decodedBytes.Address, Timestamp: timestamp, Tag: decodedBytes.Tag}
+	encodedStruct = &global.QManDBStruct{ID: dbStruct.ID, Address: decodedBytes.Address, Timestamp: timestamp, Tag: decodedBytes.Tag}
 	initBytes, err := rlp.EncodeToBytes(encodedStruct)
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)

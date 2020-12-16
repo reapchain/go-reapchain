@@ -125,6 +125,7 @@ func (c *core) handleQmanager(msg *message, src podc.Validator) error {  //reque
 }
 
 func (c *core) handlePreprepare(msg *message, src podc.Validator) error{
+	log.Debug("handlePreprepare")
 		logger := c.logger.New("from", src, "state", c.state)
 
 		// Decode preprepare
