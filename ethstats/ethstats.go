@@ -352,12 +352,24 @@ func (s *Service) login(conn *websocket.Conn) error {
 	infos := s.server.NodeInfo()
 
 	var network, protocol string
+	// if info := infos.Protocols["eth"]; info != nil {
+	// 	network = fmt.Sprintf("%d", info.(*eth.EthNodeInfo).Network)
+	// 	protocol = fmt.Sprintf("eth/%d", eth.ProtocolVersions[0])
+	// } else {
+	// 	network = fmt.Sprintf("%d", infos.Protocols["les"].(*eth.EthNodeInfo).Network)
+	// 	protocol = fmt.Sprintf("les/%d", les.ProtocolVersions[0])
+	// }
 	if info := infos.Protocols["eth"]; info != nil {
 		network = fmt.Sprintf("%d", info.(*eth.EthNodeInfo).Network)
 		protocol = fmt.Sprintf("eth/%d", eth.ProtocolVersions[0])
 	} else {
-		network = fmt.Sprintf("%d", infos.Protocols["les"].(*eth.EthNodeInfo).Network)
-		protocol = fmt.Sprintf("les/%d", les.ProtocolVersions[0])
+		if info = infos.Protocols["podc"]; info != nil {
+			network = fmt.Sprintf("%d", info.(*eth.EthNodeInfo).Network)
+			protocol = fmt.Sprintf("podc/%d", eth.ProtocolVersions[0])
+		} else {
+			network = fmt.Sprintf("%d", infos.Protocols["les"].(*eth.EthNodeInfo).Network)
+			protocol = fmt.Sprintf("les/%d", les.ProtocolVersions[0])
+		}
 	}
 	auth := &authMsg{
 		Id: s.node,
@@ -517,7 +529,7 @@ func (s *Service) assembleBlockStats(block *types.Block) *blockStats {
 		txs = make([]txStats, len(block.Transactions()))
 		for i, tx := range block.Transactions() {
 			txs[i].Hash = tx.Hash()
-			log.Info("transaction ID( hash ID ) = ","txs", txs[i].Hash )
+			log.Info("transaction ID( hash ID ) = ", "txs", txs[i].Hash)
 		}
 		uncles = block.Uncles()
 	} else {
