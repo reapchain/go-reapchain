@@ -17,20 +17,20 @@
 package core
 
 import (
+	"reflect"
+	"time"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
-	"reflect"
-	"time"
 )
 
-func (c *core) sendDCommit() {   //전송
+func (c *core) sendDCommit() { //전송
 	log.Debug("sendDCommit")
 	//logger := c.logger.New("state", c.state)
 	//logger.Warn("sendDCommit:")
 
-
-	if c.state== StateDSelected {
+	if c.state == StateDSelected {
 
 		logger := c.logger.New("state", c.state)
 		//logger.Warn("sendDCommit(StateDSelected)")
@@ -53,14 +53,14 @@ func (c *core) sendDCommit() {   //전송
 		})
 	}
 }
+
 //==============================
-func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수신 핸들러가 같은 프로그램에 있음. 상태 천이로,, 해야함.
-	log.Debug("handleDCommit")
+func (c *core) handleDCommit(msg *message, src podc.Validator) error { //2. 수신 핸들러가 같은 프로그램에 있음. 상태 천이로,, 해야함.
 	//logger := c.logger.New("from", src, "state", c.state)
 	//logger.Warn("handleDCommit:")
 	// Decode commit message
 	var commit *podc.Subject
-	err := msg.Decode(&commit)  //commit 으로 메모리번지를 통해서, round와 sequence를 가져옴.
+	err := msg.Decode(&commit) //commit 으로 메모리번지를 통해서, round와 sequence를 가져옴.
 	if c.state != StateRequestQman {
 		//log.Info("I'm  not the Qmanager : handleDCommit ", "commit.View.Sequence", commit.View.Sequence, "commit.View.Round", commit.View.Round)
 		if err != nil {
@@ -77,16 +77,16 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error {  //2. 수
 
 		c.acceptDCommit(msg, src)
 
-		log.Debug("handleDCommit", "commit count", c.current.Commits.Size())
+		log.Debug("handleDCommit 1", "commit count", c.current.Commits.Size())
 		// Commit the proposal once we have enough commit messages and we are not in StateCommitted.
 		//
 		// If we already have a proposal, we may have chance to speed up the consensus process
 		// by committing the proposal without prepare messages.
 		if c.current.Commits.Size() > 2*c.valSet.F() && c.state.Cmp(StateCommitted) < 0 {
-			log.Debug("handleDCommit - aceepted dcommit 2/3")
+			log.Debug("handleDCommit 2 - accepted dcommit 2/3")
 			c.commit()
 			log.Info("6. D-commit end", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
-			c.intervalTime =time.Now()
+			c.intervalTime = time.Now()
 			log.Info("Total Time", "elapsed", common.PrettyDuration(time.Since(c.startTime)))
 		}
 	}
@@ -100,20 +100,19 @@ func (c *core) verifyDCommit(commit *podc.Subject, src podc.Validator) error {
 	sub := c.current.Subject()
 	//if( !qManager.QManConnected ) { // if I'm not Qman and general geth.
 
-
-		//if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
-		//log.Info("I'm not Qmanager : verifyDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
-		//if !reflect.DeepEqual(commit, sub) {
-		//	logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
-		//	return errInconsistentSubject
-		//}
-		//}
+	//if (!reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm not Qmanager
+	//log.Info("I'm not Qmanager : verifyDCommit ", "sub.View.Sequence", sub.View.Sequence, "sub.View.Round", sub.View.Round)
+	//if !reflect.DeepEqual(commit, sub) {
+	//	logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
+	//	return errInconsistentSubject
+	//}
+	//}
 	//}else{
 	//	log.Info("verifyDCommit ", "Sequence", sub.View.Sequence, "Round", sub.View.Round)
-		if !reflect.DeepEqual(commit, sub) {
-			logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
-			return errInconsistentSubject
-		}
+	if !reflect.DeepEqual(commit, sub) {
+		logger.Warn("Inconsistent subjects between commit and proposal(verifyDCommit)", "expected", sub, "got", commit)
+		return errInconsistentSubject
+	}
 
 	//}
 	return nil

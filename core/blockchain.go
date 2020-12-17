@@ -902,7 +902,7 @@ func (bc *BlockChain) WriteBlock(block *types.Block) (status WriteStatus, err er
 // InsertChain will attempt to insert the given chain in to the canonical chain or, otherwise, create a fork. If an error is returned
 // it will return the index number of the failing block as well an error describing what went wrong (for possible errors see core/errors.go).
 func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
-	log.Debug("InsertChain 1", "len(chain)", len(chain))
+	log.Debug("InsertChain", "len(chain)", len(chain))
 	// Do a sanity check that the provided chain is actually ordered and linked
 	for i := 1; i < len(chain); i++ {
 		if chain[i].NumberU64() != chain[i-1].NumberU64()+1 || chain[i].ParentHash() != chain[i-1].Hash() {
@@ -914,15 +914,13 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 				chain[i-1].Hash().Bytes()[:4], i, chain[i].NumberU64(), chain[i].Hash().Bytes()[:4], chain[i].ParentHash().Bytes()[:4])
 		}
 	}
-	log.Debug("InsertChain 2")
+
 	// Pre-checks passed, start the full block imports
 	bc.wg.Add(1)
 	defer bc.wg.Done()
 
 	bc.chainmu.Lock()
 	defer bc.chainmu.Unlock()
-
-	log.Debug("InsertChain 3")
 
 	// A queued approach to delivering events. This is generally
 	// faster than direct delivery and requires much less mutex
@@ -940,14 +938,11 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 		headers[i] = block.Header()
 		seals[i] = true
 	}
-	log.Debug("InsertChain 4")
 	abort, results := bc.engine.VerifyHeaders(bc, headers, seals) // <------------------|
 	defer close(abort)
-	log.Debug("InsertChain 5")
 
 	// Iterate over the blocks and insert when the verifier permits
 	for i, block := range chain {
-		log.Debug("InsertChain 6", "i", i)
 		// If the chain is terminating, stop processing blocks
 		if atomic.LoadInt32(&bc.procInterrupt) == 1 {
 			log.Debug("Premature abort during blocks processing")
@@ -961,14 +956,12 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 		// Wait for the block's verification to complete
 		bstart := time.Now()
 
-		log.Debug("InsertChain 7")
 		err := <-results // <----------------Waiting channel result from VerifyHeaders().. -------------------------------------------|
 		if err == nil {
 			err = bc.Validator().ValidateBody(block)
-			log.Debug("InsertChain 7-1", "err", err)
 		}
 		if err != nil {
-			log.Debug("InsertChain 7-2", "err", err)
+			log.Debug("InsertChain - ValidateBody error", "err", err)
 			if err == ErrKnownBlock {
 				stats.ignored++
 				continue
@@ -996,58 +989,38 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 			bc.reportBlock(block, nil, err)
 			return i, err
 		}
-		log.Debug("InsertChain 8")
+
 		// Create a new statedb using the parent block and report an
 		// error if it fails.
-
-		/////////////////
-		// if i == 0 {
-		// 	bc.stateCache, err = state.New(bc.GetBlock(block.ParentHash(), block.NumberU64()-1).Root(), bc.chainDb)
-		// } else {
-		// 	bc.stateCache, err = state.New(chain[i-1].Root(), bc.chainDb)
-		// }
-		// if err != nil {
-		// 	bc.reportBlock(block, nil, err)
-		// 	return i, err
-		// }
-		////////////////
-		//var statedb *state.StateDB
 		switch {
 		case i == 0:
 			err = bc.stateCache.Reset(bc.GetBlock(block.ParentHash(), block.NumberU64()-1).Root())
-			//statedb, err = bc.StateAt(bc.GetBlock(block.ParentHash(), block.NumberU64()-1).Root())
 		default:
 			err = bc.stateCache.Reset(chain[i-1].Root())
-			//statedb, err = bc.StateAt(chain[i-1].Root())
 		}
 		if err != nil {
 			bc.reportBlock(block, nil, err)
 			return i, err
 		}
-		//bc.stateCache = statedb.Copy()
 
-		log.Debug("InsertChain 9")
 		// Process block using the parent state as reference point.
 		receipts, logs, usedGas, err := bc.processor.Process(block, bc.stateCache, bc.vmConfig)
 		if err != nil {
-			log.Debug("InsertChain 9-1", "err", err)
+			log.Debug("InsertChain - tx process error", "err", err)
 			bc.reportBlock(block, receipts, err)
 			return i, err
 		}
-		log.Debug("InsertChain 10")
 		// Validate the state using the default validator
 		err = bc.Validator().ValidateState(block, bc.GetBlock(block.ParentHash(), block.NumberU64()-1), bc.stateCache, receipts, usedGas)
 		if err != nil {
 			bc.reportBlock(block, receipts, err)
 			return i, err
 		}
-		log.Debug("InsertChain 11")
 		// Write state changes to database
 		_, err = bc.stateCache.Commit(bc.config.IsEIP158(block.Number()))
 		if err != nil {
 			return i, err
 		}
-		log.Debug("InsertChain 12")
 
 		// coalesce logs for later processing
 		coalescedLogs = append(coalescedLogs, logs...)
@@ -1055,14 +1028,12 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 		if err = WriteBlockReceipts(bc.chainDb, block.Hash(), block.NumberU64(), receipts); err != nil {
 			return i, err
 		}
-		log.Debug("InsertChain 13")
 
 		// write the block to the chain and get the status
 		status, err := bc.WriteBlock(block)
 		if err != nil {
 			return i, err
 		}
-		log.Debug("InsertChain 14")
 
 		switch status {
 		case CanonStatTy:
@@ -1104,7 +1075,6 @@ func (bc *BlockChain) InsertChain(chain types.Blocks) (int, error) {
 		stats.usedGas += usedGas.Uint64()
 		stats.report(chain, i)
 	}
-	log.Debug("InsertChain 15")
 	go bc.postChainEvents(events, coalescedLogs)
 
 	return 0, nil

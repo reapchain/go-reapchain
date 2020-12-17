@@ -17,9 +17,10 @@
 package core
 
 import (
-	"github.com/ethereum/go-ethereum/log"
 	"math/big"
 	"time"
+
+	"github.com/ethereum/go-ethereum/log"
 
 	//"github.com/ethereum/go-ethereum/cmd/utils"
 	"github.com/ethereum/go-ethereum/common"
@@ -27,7 +28,7 @@ import (
 )
 
 // Start implements core.Engine.Start
-func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal ) error {
+func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastProposal podc.Proposal) error {
 	// Initialize last proposer
 	//log.Info("lastSequence", "lastSequence", lastSequence)
 
@@ -36,26 +37,25 @@ func (c *core) Start(lastSequence *big.Int, lastProposer common.Address, lastPro
 	//if qmanager == nil  {
 	//	return err
 	//}
-    //if len(qmanager) <= 0 {
-    //	log.Debug("Qmanager node is not exist")
-    //    return nil // err ?
+	//if len(qmanager) <= 0 {
+	//	log.Debug("Qmanager node is not exist")
+	//    return nil // err ?
 	//}
 	//
-    //QmanEnode := qmanager[0].ID[:]  //여기까지 정상
+	//QmanEnode := qmanager[0].ID[:]  //여기까지 정상
 
 	//c.qmanager = crypto.PublicKeyBytesToAddress(QmanEnode) //common.Address output from this [account addr]              //slice ->
-	                                                       //Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
+	//Qmanager account address(20byte): 926ea01d982c8aeafab7f440084f90fe078cba92
 	c.lastProposal = lastProposal
 	c.lastSequence = lastSequence
-	c.valSet = c.backend.Validators(c.lastProposal)  // Validator array 관리
-
+	c.valSet = c.backend.Validators(c.lastProposal) // Validator array 관리
 
 	// Start a new round from last sequence + 1
-	start :=time.Now()
-	log.Info("start time of consensus of core engine start()", "start time", start )
+	start := time.Now()
+	log.Info("start time of consensus of core engine start()", "start time", start)
 	c.startNewRound(&podc.View{
-		Sequence: new(big.Int).Add(lastSequence, common.Big1),   //lastSequence +1
-		Round:    common.Big0,                                   //round 0
+		Sequence: new(big.Int).Add(lastSequence, common.Big1), //lastSequence +1
+		Round:    common.Big0,                                 //round 0
 	}, false)
 
 	// Tests will handle events itself, so we have to make subscribeEvents()
@@ -101,7 +101,7 @@ func (c *core) handleEvents() {
 			r := &podc.Request{
 				Proposal: ev.Proposal,
 			}
-			err := c.handleRequest(r)  //send qman here
+			err := c.handleRequest(r) //send qman here
 			if err == errFutureMessage {
 				c.storeRequestMsg(r)
 			}
@@ -109,7 +109,7 @@ func (c *core) handleEvents() {
 			c.handleMsg(ev.Payload)
 		case podc.FinalCommittedEvent:
 			c.handleFinalCommitted(ev.Proposal, ev.Proposer)
-		case backlogEvent:  //내부에서만 받는 이벤트, 서명 불필요.
+		case backlogEvent: //내부에서만 받는 이벤트, 서명 불필요.
 			// No need to check signature for internal messages
 			c.handleCheckedMsg(ev.msg, ev.src)
 		}
@@ -127,10 +127,10 @@ func (c *core) handleMsg(payload []byte) error {
 	// Decode message and check its signature
 	msg := new(message)
 	if err := msg.FromPayload(payload, c.validateFn); err != nil {
-		logger.Error("Failed to decode message from payload", "err", err)  //getbyaddress에서, validator에 있는지 체크 안하고 넘어오면, 여기서 또 에러..
+		logger.Error("Failed to decode message from payload", "err", err) //getbyaddress에서, validator에 있는지 체크 안하고 넘어오면, 여기서 또 에러..
 		// return err  //unauthorixed address
 	}
-	log.Debug("handleMsg", "code", msg.Code)
+	//log.Debug("handleMsg", "code", msg.Code)
 
 	// Only accept message if the address is valid
 	_, src := c.valSet.GetByAddress(msg.Address)
@@ -158,16 +158,16 @@ func (c *core) handleCheckedMsg(msg *message, src podc.Validator) error {
 	switch msg.Code {
 
 	case msgHandleQman:
-	/* Qmanager handler for receiving from geth : sending qmanager event */
-	//case msgRequest:
-		return testBacklog(c.handleQmanager(msg, src))  //Sending to Qmanager  event hadler  // this geth only proposer.
+		/* Qmanager handler for receiving from geth : sending qmanager event */
+		//case msgRequest:
+		return testBacklog(c.handleQmanager(msg, src)) //Sending to Qmanager  event hadler  // this geth only proposer.
 
 	case msgPreprepare:
 		return testBacklog(c.handlePreprepare(msg, src))
 	case msgDSelect:
 		return testBacklog(c.handleDSelect(msg, src))
 	case msgCoordinatorDecide:
-		return testBacklog(c.handleCoordinatorDecide(msg, src))  //레이싱 시작 메시지 전송
+		return testBacklog(c.handleCoordinatorDecide(msg, src)) //레이싱 시작 메시지 전송
 	case msgRacing:
 		return testBacklog(c.handleRacing(msg, src))
 	case msgCandidateDecide:

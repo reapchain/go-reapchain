@@ -26,6 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/event"
 	"github.com/ethereum/go-ethereum/log"
+
 	// "github.com/ethereum/go-ethereum/metrics"
 	goMetrics "github.com/rcrowley/go-metrics"
 	"gopkg.in/karalabe/cookiejar.v2/collections/prque"
@@ -36,7 +37,7 @@ func New(backend podc.Backend, config *podc.Config) Engine {
 	c := &core{
 		config:             config,
 		address:            backend.Address(),
-		state:              StateAcceptRequest,  //다 Qman에 ExtraData를 요청하는게 맞나? 아니면, 프런트 노드만 요청하는가?
+		state:              StateAcceptRequest, //다 Qman에 ExtraData를 요청하는게 맞나? 아니면, 프런트 노드만 요청하는가?
 		logger:             log.New("address", backend.Address()),
 		backend:            backend,
 		backlogs:           make(map[podc.Validator]*prque.Prque),
@@ -51,8 +52,7 @@ func New(backend podc.Backend, config *podc.Config) Engine {
 		roundMeter:     goMetrics.NewRegisteredMeter("consensus/podc/core/round", nil),
 		sequenceMeter:  goMetrics.NewRegisteredMeter("consensus/podc/core/sequence", nil),
 		consensusTimer: goMetrics.NewRegisteredTimer("consensus/podc/core/consensus", nil),
-		racingMu:			new(sync.Mutex),
-
+		racingMu:       new(sync.Mutex),
 	}
 	c.validateFn = c.checkValidatorSignature
 	return c
@@ -69,20 +69,19 @@ type core struct {
 	backend podc.Backend
 	events  *event.TypeMuxSubscription
 
-
 	//qmanager common.Address
 
-	lastProposer          common.Address
+	lastProposer common.Address
 
-	lastProposal          podc.Proposal
-	lastSequence          *big.Int  //yichoi added for solving inconsistent
-	valSet                podc.ValidatorSet
+	lastProposal podc.Proposal
+	lastSequence *big.Int //yichoi added for solving inconsistent
+	valSet       podc.ValidatorSet
 
 	waitingForRoundChange bool
 	//waitingForStateChange bool // added for PoDC, because Proposer release it's right to random coordinator
-    //statechange flag will be need, I think , by yichoi
+	//statechange flag will be need, I think , by yichoi
 
-	validateFn            func([]byte, []byte) (common.Address, error)
+	validateFn func([]byte, []byte) (common.Address, error)
 
 	backlogs   map[podc.Validator]*prque.Prque
 	backlogsMu *sync.Mutex
@@ -103,26 +102,27 @@ type core struct {
 	// the timer to record consensus duration (from accepting a preprepare to final committed stage)
 	consensusTimer goMetrics.Timer
 
-	tag common.Tag
-	count uint
-	racingFlag bool
-	racingMu *sync.Mutex
-	startTime time.Time
-	intervalTime time.Time
-	criteria float64   //Criteria 	int		`json:"criteria"` type.go에서는  int 로 받았다가, 여기서는 float64
+	tag             common.Tag
+	count           uint
+	racingFlag      bool
+	racingMu        *sync.Mutex
+	startTime       time.Time
+	intervalTime    time.Time
+	criteria        float64 //Criteria 	int		`json:"criteria"` type.go에서는  int 로 받았다가, 여기서는 float64
 	ExtraDataLength int
 }
+
 // 최종 전송할 메시지를 만듦
 func (c *core) finalizeMessage(msg *message) ([]byte, error) {
 	var err error
 	// Add sender address
-	msg.Address = c.Address()  //message 에 송신자 enode 주소를 탑재
+	msg.Address = c.Address() //message 에 송신자 enode 주소를 탑재
 
 	// Add proof of consensus
-	msg.CommittedSeal = []byte{}  // CommittedSeal 배열 초기화
+	msg.CommittedSeal = []byte{} // CommittedSeal 배열 초기화
 	// Assign the CommittedSeal if it's a commit message and proposal is not nil
 	if msg.Code == msgCommit && c.current.Proposal() != nil {
-		seal := PrepareCommittedSeal(c.current.Proposal().Hash())  // message 구조체에 CommittedSeal 배열을 채움
+		seal := PrepareCommittedSeal(c.current.Proposal().Hash()) // message 구조체에 CommittedSeal 배열을 채움
 		msg.CommittedSeal, err = c.backend.Sign(seal)
 		if err != nil {
 			return nil, err
@@ -163,11 +163,12 @@ func (c *core) send(msg *message, target common.Address) {
 		return
 	}
 }
+
 // message 구조체 내에 enode address가 있음.
 func (c *core) broadcast(msg *message) {
 	logger := c.logger.New("state", c.state)
 
-	payload, err := c.finalizeMessage(msg)  //최종적으로 메시지 구조체에 탑재할 모든 메시지를 만듦
+	payload, err := c.finalizeMessage(msg) //최종적으로 메시지 구조체에 탑재할 모든 메시지를 만듦
 	if err != nil {
 		logger.Error("Failed to finalize message", "msg", msg, "err", err)
 		return
@@ -206,15 +207,15 @@ func (c *core) isRequestQman() bool {
 	if v == nil {
 		return false
 	}
-	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,  함수 내부 수정해야함.
-	         //Front node 인가
+	return v.IsProposer(c.backend.Address()) //Proposer인지 체크함. 여기서 ,  함수 내부 수정해야함.
+	//Front node 인가
 }
 func (c *core) isProposer() bool {
 	v := c.valSet
 	if v == nil {
 		return false
 	}
-	return v.IsProposer(c.backend.Address())  //Proposer인지 체크함. 여기서 ,
+	return v.IsProposer(c.backend.Address()) //Proposer인지 체크함. 여기서 ,
 }
 
 func (c *core) commit() {
@@ -235,12 +236,11 @@ func (c *core) commit() {
 }
 
 func (c *core) startNewRound(newView *podc.View, roundChange bool) {
-
 	var logger log.Logger
 	if c.current == nil {
 		logger = c.logger.New("old_round", -1, "old_seq", 0, "old_proposer", c.valSet.GetProposer())
 	} else {
-		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer())  //1.
+		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer()) //1.
 	}
 
 	c.ExtraDataLength = 0 //TODO-REAP: workaround for disappeared racing msg
@@ -277,8 +277,8 @@ func (c *core) catchUpRound(view *podc.View) {
 	logger.Trace("Catch up round", "new_round", view.Round, "new_seq", view.Sequence, "new_proposer", c.valSet)
 }
 
-func (c *core) 	setState(state State) {
-	if c.state != state {  //상태가 다르면, 입력 파라미터 상태로 설
+func (c *core) setState(state State) {
+	if c.state != state { //상태가 다르면, 입력 파라미터 상태로 설
 		c.state = state
 	}
 	if state == StateAcceptRequest || state == StateRequestQman {
@@ -298,13 +298,13 @@ func (c *core) newRoundChangeTimer() {
 
 	// set timeout based on the round number
 	timeout := time.Duration(c.config.RequestTimeout)*time.Millisecond + time.Duration(c.current.Round().Uint64()*c.config.BlockPeriod)*time.Second
-	           // 타임아웃 시간은 우측 수식에 의해서 계산됨 값.
+	// 타임아웃 시간은 우측 수식에 의해서 계산됨 값.
 	c.roundChangeTimer = time.AfterFunc(timeout, func() {
 		log.Debug("timeout round change")
 		// If we're not waiting for round change yet, we can try to catch up
 		// the max round with F+1 round change message. We only need to catch up
 		// if the max round is larger than current round.
-		if !c.waitingForRoundChange {  // bool 값
+		if !c.waitingForRoundChange { // bool 값
 			maxRound := c.roundChangeSet.MaxRound(c.valSet.F() + 1)
 			if maxRound != nil && maxRound.Cmp(c.current.Round()) > 0 {
 				c.sendRoundChange(maxRound)
@@ -339,12 +339,12 @@ func (c *core) SetTag(t common.Tag) {
 
 func (c *core) GetValidatorListExceptQman() []common.Address {
 	var addrList []common.Address
-	log.Debug("GetValidatorListExceptQman", "c.valSet.List()", len(c.valSet.List()))
+	// log.Debug("GetValidatorListExceptQman", "c.valSet.List()", len(c.valSet.List()))
 
 	for _, val := range c.valSet.List() {
-		log.Debug("GetValidatorListExceptQman", "addr", val.Address().Hex())
+		// log.Debug("GetValidatorListExceptQman", "addr", val.Address().Hex())
 		//if val.Address() != c.qmanager {
-			addrList = append(addrList, val.Address())
+		addrList = append(addrList, val.Address())
 		//}
 	}
 

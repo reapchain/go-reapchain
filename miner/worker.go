@@ -518,21 +518,16 @@ func (self *worker) commitUncle(work *Work, uncle *types.Header) error {
 }
 
 func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsByPriceAndNonce, bc *core.BlockChain, coinbase common.Address) {
-	log.Debug("commitTransactions 1")
+	log.Debug("commitTransactions")
 	gp := new(core.GasPool).AddGas(env.header.GasLimit)
 
 	var coalescedLogs []*types.Log
 
 	starttime := time.Now()
 	for {
-		stime := time.Now()
-		if env.tcount < 3 {
-			log.Debug("commitTransactions 1-1", "check", env.tcount)
-		}
 		// Retrieve the next transaction and abort if all done
 		tx := txs.Peek()
 		if tx == nil {
-			log.Debug("commitTransactions 1-2", "check", env.tcount, "elapsed", common.PrettyDuration(time.Since(stime)))
 			break
 		}
 		// Error may be ignored here. The error has already been checked
@@ -550,9 +545,6 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 		}
 		// Start executing the transaction
 		env.state.Prepare(tx.Hash(), common.Hash{}, env.tcount)
-		if env.tcount < 3 {
-			log.Debug("commitTransactions 1-3", "check", env.tcount, "elapsed", common.PrettyDuration(time.Since(stime)))
-		}
 		err, logs := env.commitTransaction(tx, bc, coinbase, gp)
 		switch err {
 		case core.ErrGasLimitReached:
@@ -572,17 +564,14 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 			env.failedTxs = append(env.failedTxs, tx)
 			txs.Pop()
 		}
-		if env.tcount < 3 {
-			log.Debug("commitTransactions 1-4", "check", env.tcount, "elapsed", common.PrettyDuration(time.Since(stime)))
-		}
 		checktime := time.Since(starttime)
 		// if checktime > time.Duration(300*time.Millisecond) {
 		if env.tcount > 1500 || checktime > time.Duration(300*time.Millisecond) {
-			log.Debug("commitTransactions 1-5", "check", env.tcount, "check elapsed", checktime)
+			//log.Debug("commitTransactions 1-5", "check", env.tcount, "check elapsed", checktime)
 			break
 		}
 	}
-	log.Debug("commitTransactions 2", "check", env.tcount, "total elapsed", common.PrettyDuration(time.Since(starttime)))
+	log.Debug("commitTransactions - duration check", "check", env.tcount, "elapsed", common.PrettyDuration(time.Since(starttime)))
 
 	if len(coalescedLogs) > 0 || env.tcount > 0 {
 		// make a copy, the state caches the logs and these logs get "upgraded" from pending to mined
