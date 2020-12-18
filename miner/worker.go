@@ -393,11 +393,6 @@ func (self *worker) commitNewWork() {
 	log.Info("1. Block fetch started(parent <- CurrentBlock):", "start time:commitNewWork", core.Blockstart)
 	parent := self.chain.CurrentBlock()
 
-	if atomic.LoadInt32(&self.mining) == 0 {
-		log.Debug("Normal node. No start new mining work")
-		return
-	}
-
 	tstamp := tstart.Unix() //현재 블럭을 가져온 후  타임 찍기
 	if parent.Time().Cmp(new(big.Int).SetInt64(tstamp)) >= 0 {
 		tstamp = parent.Time().Int64() + 1
@@ -446,10 +441,10 @@ func (self *worker) commitNewWork() {
 		return
 	}
 
-	// if atomic.LoadInt32(&self.mining) == 0 {
-	// 	log.Debug("Normal node. No start new mining work")
-	// 	return
-	// }
+	if atomic.LoadInt32(&self.mining) == 0 {
+		log.Debug("Normal node. No start new mining work")
+		return
+	}
 
 	// Create the current work task and check any fork transitions needed
 	work := self.current
