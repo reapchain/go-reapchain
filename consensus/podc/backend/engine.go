@@ -116,6 +116,7 @@ func (sb *simpleBackend) verifyHeader(chain consensus.ChainReader, header *types
 
 	// Don't waste time checking blocks from the future
 	if header.Time.Cmp(big.NewInt(now().Unix())) > 0 {
+		log.Debug("future block", "header.Time", header.Time, "now", big.NewInt(now().Unix()))
 		return consensus.ErrFutureBlock
 	}
 
@@ -316,7 +317,7 @@ func (sb *simpleBackend) Prepare(chain consensus.ChainReader, header *types.Head
 	// unused fields, force to set to empty
 	header.Coinbase = common.Address{}
 	header.Nonce = emptyNonce
-	header.MixDigest = types.PoDCDigest  //
+	header.MixDigest = types.PoDCDigest //
 
 	// copy the parent extra data as the header extra data
 	number := header.Number.Uint64()
@@ -381,6 +382,7 @@ func (sb *simpleBackend) Finalize(chain consensus.ChainReader, header *types.Hea
 // Seal generates a new block for the given input block with the local miner's
 // seal place on top.
 func (sb *simpleBackend) Seal(chain consensus.ChainReader, block *types.Block, stop <-chan struct{}) (*types.Block, error) {
+	log.Debug("Seal")
 	// update the block header timestamp and signature and propose the block to core engine
 	header := block.Header()
 	number := header.Number.Uint64()
@@ -475,9 +477,9 @@ func (sb *simpleBackend) updateBlock(parent *types.Header, block *types.Block) (
 func (sb *simpleBackend) APIs(chain consensus.ChainReader) []rpc.API {
 
 	return []rpc.API{{
-		Namespace: "PoDC",  //PoDC와 Web3ext.go Namespace PoDC 여기서 연결 ? 
+		Namespace: "PoDC", //PoDC와 Web3ext.go Namespace PoDC 여기서 연결 ?
 		Version:   "1.0",
-		Service:   &API{chain: chain, podc: sb},   /* podc */
+		Service:   &API{chain: chain, podc: sb}, /* podc */
 		Public:    true,
 	}}
 
@@ -504,7 +506,7 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 		isInValSet = false
 	}
 
-	if isInValSet{
+	if isInValSet {
 		go sb.podcEventMux.Post(podc.MessageEvent{
 			Payload: data,
 		})
@@ -529,7 +531,7 @@ func (sb *simpleBackend) NewChainHead(block *types.Block) {
 }
 
 // Start implements consensus
-func (sb *simpleBackend) Start(chain consensus.ChainReader,  inserter func(block *types.Block) error) error {  //?
+func (sb *simpleBackend) Start(chain consensus.ChainReader, inserter func(block *types.Block) error) error { //?
 	sb.chain = chain
 	sb.inserter = inserter
 	sb.core = podcCore.New(sb, sb.config)

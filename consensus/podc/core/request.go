@@ -17,13 +17,14 @@
 package core
 
 import (
+	"time"
+
 	"github.com/ethereum/go-ethereum/consensus/podc"
 	"github.com/ethereum/go-ethereum/log"
-	"time"
 )
 
-
 func (c *core) handleRequest(request *podc.Request) error {
+	log.Debug("handleRequest", "state", c.state, "seq", c.current.sequence)
 	logger := c.logger.New("state", c.state, "seq", c.current.sequence)
 	c.startTime = time.Now()
 	log.Info("1. Start")
@@ -32,14 +33,13 @@ func (c *core) handleRequest(request *podc.Request) error {
 		return err
 	}
 
+	log.Debug("handleRequest", "request", request.Proposal.Number())
 	logger.Trace("handleRequest", "request", request.Proposal.Number())
 	//if (reflect.DeepEqual(c.qmanager, c.Address())) { //if I'm Qmanager
 	//	log.Info("I'm the Qman in handleRequest" )
 	//}
 
-
-
-	if c.state ==StateRequestQman {
+	if c.state == StateRequestQman {
 		// c.sendPre_prepare()  //send to Qman to get Extradata
 		c.sendRequestExtraDataToQman(request)
 	}
@@ -111,7 +111,6 @@ func (c *core) processPendingRequests() {
 		})
 	}
 }
-
 
 //PendingRequest 는 지연 요청으로, 곧바로 보내지않고, 고루틴을 써서, 지연 처리.. ?
 //func (c *core) processPendingRequestsQman() {
