@@ -14,7 +14,6 @@ import (
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qmanager/global"
 	"github.com/ethereum/go-ethereum/qmanager/utils"
-	"github.com/ethereum/go-ethereum/rlp"
 )
 
 //var ExtraDataLength int = 0  //int value is zero,
@@ -118,21 +117,21 @@ func (c *core) sendRacing(addr common.Address) {
 func (c *core) sendCandidateDecide() {
 	log.Debug("sendCandidateDecide")
 
-	var addrs []common.Address
-	for _, val := range c.voteSet.List() {
-		addrs = append(addrs, val.Address())
-	}
+	// var addrs []common.Address
+	// for _, val := range c.voteSet.List() {
+	// 	addrs = append(addrs, val.Address())
+	// }
 
-	enc, err := rlp.EncodeToBytes(addrs)
-	if err != nil {
-		log.Error("Rlp encode error", "err", err)
-		return
-	}
+	// enc, err := rlp.EncodeToBytes(addrs)
+	// if err != nil {
+	// 	log.Error("Rlp encode error", "err", err)
+	// 	return
+	// }
 
 	c.multicast(&message{
 		Code: msgCandidateDecide,
-		//Msg:  []byte("Candidate decide testing"),
-		Msg: enc,
+		Msg:  []byte("Candidate decide testing"),
+		//Msg: enc,
 	}, c.GetValidatorListExceptQman())
 	// c.multicast(&message{
 	// 	Code: msgCandidateDecide,
@@ -293,12 +292,12 @@ func (c *core) handleCandidateDecide(msg *message, src podc.Validator) error { /
 	if c.state == StatePreprepared {
 		log.Info("5. Racing complete and d-select finished.", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
 		//decode msg
-		var addrs []common.Address
-		err := rlp.DecodeBytes(msg.Msg, &addrs)
-		if err != nil {
-			log.Error("Rlp decode error", "err", err)
-			return err
-		}
+		// var addrs []common.Address
+		// err := rlp.DecodeBytes(msg.Msg, &addrs)
+		// if err != nil {
+		// 	log.Error("Rlp decode error", "err", err)
+		// 	return err
+		// }
 		// for _, addr := range addrs {
 		// 	if c.address == addr {
 		// 		c.intervalTime = time.Now()
