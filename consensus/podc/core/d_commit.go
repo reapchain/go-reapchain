@@ -83,6 +83,7 @@ func (c *core) handleDCommit(msg *message, src podc.Validator) error { //2. ìˆ˜ì
 		// If we already have a proposal, we may have chance to speed up the consensus process
 		// by committing the proposal without prepare messages.
 		if c.current.Commits.Size() > 2*c.valSet.F() && c.state.Cmp(StateCommitted) < 0 {
+			//if c.current.Commits.Size() > 2*c.voteSet.F() && c.state.Cmp(StateCommitted) < 0 {
 			log.Debug("handleDCommit 2 - accepted dcommit 2/3")
 			c.commit()
 			log.Info("6. D-commit end", "elapsed", common.PrettyDuration(time.Since(c.intervalTime)))
