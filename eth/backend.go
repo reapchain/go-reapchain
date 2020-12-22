@@ -20,7 +20,6 @@ package eth
 import (
 	"errors"
 	"fmt"
-	"github.com/ethereum/go-ethereum/consensus/podc"
 	"math/big"
 	"runtime"
 	"sync"
@@ -31,7 +30,7 @@ import (
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/clique"
 	"github.com/ethereum/go-ethereum/consensus/ethash"
-	//"github.com/ethereum/go-ethereum/consensus/podc"
+	"github.com/ethereum/go-ethereum/consensus/podc"
 	podcBackend "github.com/ethereum/go-ethereum/consensus/podc/backend"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -72,17 +71,17 @@ type Ethereum struct {
 	// DB interfaces
 	chainDb ethdb.Database // Block chain database
 
-	eventMux       *event.TypeMux
-	engine         consensus.Engine
+	eventMux *event.TypeMux
+	engine   consensus.Engine
 	//qmanager       []*discover.Node  // Node enode list slice same as array
 	accountManager *accounts.Manager
 
 	ApiBackend *EthApiBackend
 
-	miner     *miner.Miner
-	gasPrice  *big.Int
-	etherbase common.Address
-	feebase   common.Address
+	miner         *miner.Miner
+	gasPrice      *big.Int
+	etherbase     common.Address
+	feebase       common.Address
 	networkId     uint64
 	netRPCService *ethapi.PublicNetAPI
 
@@ -132,7 +131,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		chainConfig:    chainConfig,
 		eventMux:       ctx.EventMux,
 		accountManager: ctx.AccountManager,
-		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb),  //Qmanager account deliver through config vararible
+		engine:         CreateConsensusEngine(ctx, config, chainConfig, chainDb), //Qmanager account deliver through config vararible
 		shutdownChan:   make(chan bool),
 		stopDbUpgrade:  stopDbUpgrade,
 		networkId:      config.NetworkId,
@@ -140,9 +139,9 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		etherbase:      config.Etherbase,
 	}
 
-	if  (chainConfig.PoDC != nil) {
+	if chainConfig.PoDC != nil {
 		eth.etherbase = params.FeeAddress
-		log.Info("Now :", "chainConfig.PoDC", chainConfig.PoDC )
+		log.Info("Now :", "chainConfig.PoDC", chainConfig.PoDC)
 	}
 	if err := addMipmapBloomBins(chainDb); err != nil {
 		return nil, err
@@ -157,7 +156,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 		core.WriteBlockChainVersion(chainDb, core.BlockChainVersion)
 	}
 
-	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording}  //vm의 옵션값을 설정함
+	vmConfig := vm.Config{EnablePreimageRecording: config.EnablePreimageRecording} //vm의 옵션값을 설정함
 
 	// 새로운 블록체인을 만들고
 	eth.blockchain, err = core.NewBlockChain(chainDb, eth.chainConfig, eth.engine, eth.eventMux, vmConfig)
@@ -192,7 +191,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 	}
 
 	eth.miner = miner.New(eth, eth.chainConfig, eth.EventMux(), eth.engine)
-	eth.miner.SetExtra(makeExtraData(config.ExtraData))  //블럭의 Extra data 설정
+	eth.miner.SetExtra(makeExtraData(config.ExtraData)) //블럭의 Extra data 설정
 
 	eth.ApiBackend = &EthApiBackend{eth, nil}
 	gpoParams := config.GPO
@@ -205,11 +204,10 @@ func New(ctx *node.ServiceContext, config *Config) (*Ethereum, error) {
 }
 
 func makeExtraData(extra []byte) []byte {
-	log.Info("current params.MaximumExtraDataSize=", "extra" , uint(params.MaximumExtraDataSize)  )
+	log.Info("current params.MaximumExtraDataSize=", "extra", uint(params.MaximumExtraDataSize))
 	//check for Byte or Kilo Byte?
 	if len(extra) == 0 {
 		// create default extradata
-
 
 		extra, _ = rlp.EncodeToBytes([]interface{}{
 			uint(params.VersionMajor<<16 | params.VersionMinor<<8 | params.VersionPatch),
@@ -230,11 +228,10 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (ethdb.Data
 	db, err := ctx.OpenDatabase(name, config.DatabaseCache, config.DatabaseHandles)
 	if db, ok := db.(*ethdb.LDBDatabase); ok {
 		db.Meter("eth/db/chaindata/")
-	} else
-	{
-		log.Info("CreateDB(db) interface : ", "db", db )
+	} else {
+		log.Info("CreateDB(db) interface : ", "db", db)
 	}
-	log.Info("CreateDB finished  : ", "db", db )
+	log.Info("CreateDB finished  : ", "db", db)
 	return db, err
 }
 
@@ -351,11 +348,11 @@ func (s *Ethereum) Etherbase() (eb common.Address, err error) {
 
 // set in js console via admin interface or wrapper from cli flags
 func (self *Ethereum) SetEtherbase(etherbase common.Address) {
-	self.lock.Lock()
 	if _, ok := self.engine.(consensus.PoDC); ok {
 		log.Error("Cannot set etherbase in PoDC consensus")
 		return
 	}
+	self.lock.Lock()
 	self.etherbase = etherbase
 	self.lock.Unlock()
 
@@ -363,7 +360,7 @@ func (self *Ethereum) SetEtherbase(etherbase common.Address) {
 }
 
 func (s *Ethereum) StartMining(local bool) error {
-	log.Info("StartMining:", "s", s , "bool", local )
+	log.Info("StartMining:", "s", s, "bool", local)
 	eb, err := s.Etherbase()
 	if err != nil {
 		log.Error("Cannot start mining without etherbase", "err", err)
@@ -382,7 +379,7 @@ func (s *Ethereum) StartMining(local bool) error {
 		// mechanism introduced to speed sync times. CPU mining on mainnet is ludicrous
 		// so noone will ever hit this path, whereas marking sync done on CPU mining
 		// will ensure that private networks work in single miner mode too.
-		s.protocolManager.SetAcceptTxs(1)  //Tx를 받아들인다. -miner option 이 true면. sync 고려
+		s.protocolManager.SetAcceptTxs(1) //Tx를 받아들인다. -miner option 이 true면. sync 고려
 	}
 	go s.miner.Start(eb)
 	return nil
@@ -417,10 +414,10 @@ func (s *Ethereum) Protocols() []p2p.Protocol {
 // Ethereum protocol implementation.
 func (s *Ethereum) Start(srvr *p2p.Server) error {
 	s.netRPCService = ethapi.NewPublicNetAPI(srvr, s.NetVersion())
-    //srvr.Config.QmanagerNodes 값이 들어있음.
-    //s.qmanager = srvr.Config.QmanagerNodes // Qmanager enode 목록을 넘겨줌. 포인터로
+	//srvr.Config.QmanagerNodes 값이 들어있음.
+	//s.qmanager = srvr.Config.QmanagerNodes // Qmanager enode 목록을 넘겨줌. 포인터로
 
-	s.protocolManager.Start()  //Ethereum 객체의 protocolManager의 인터페이스함수  -> jump
+	s.protocolManager.Start() //Ethereum 객체의 protocolManager의 인터페이스함수  -> jump
 	if s.lesServer != nil {
 		s.lesServer.Start(srvr)
 	}
