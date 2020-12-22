@@ -405,13 +405,16 @@ func (sb *simpleBackend) Seal(chain consensus.ChainReader, block *types.Block, s
 		return nil, err
 	}
 
+	log.Debug("before waiting", "block time", time.Unix(block.Header().Time.Int64(), 0).Format("01-02|15:04:05.000"))
 	// wait for the timestamp of header, use this to adjust the block period
-	delay := time.Unix(block.Header().Time.Int64(), 0).Sub(now())
+	pause := int64(100000000) //100ms delay more, workaround for race condition during block time validation
+	delay := time.Unix(block.Header().Time.Int64(), pause).Sub(now())
 	select {
 	case <-time.After(delay):
 	case <-stop:
 		return nil, nil
 	}
+	log.Debug("after waiting")
 
 	// get the proposed block hash and clear it if the seal() is completed.
 	sb.sealMu.Lock()
