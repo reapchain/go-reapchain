@@ -39,7 +39,7 @@ import (
 )
 
 const (
-	clientIdentifier = "agent" // Client identifier to advertise over the network
+	clientIdentifier = "chainadapter" // Client identifier to advertise over the network
 )
 
 var (
@@ -53,7 +53,7 @@ var (
 
 func init() {
 	// Initialize the CLI app and start Geth
-	app.Action = agent
+	app.Action = chainadapter
 	app.HideVersion = true // we have a command to print the version
 	app.Copyright = "Copyright 2013-2020 The go-ethereum Authors"
 	app.Commands = []cli.Command{
@@ -77,10 +77,10 @@ func main() {
 	}
 }
 
-// agent is the main entry point into the system if no special subcommand is ran.
+// chainadapter is the main entry point into the system if no special subcommand is ran.
 // It creates a default node based on the command line arguments and runs it in
 // blocking mode, waiting for it to be shut down.
-func agent(ctx *cli.Context) error {
+func chainadapter(ctx *cli.Context) error {
 	if args := ctx.Args(); len(args) > 0 {
 		return fmt.Errorf("invalid command: %q", args[0])
 	}
