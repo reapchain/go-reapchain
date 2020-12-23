@@ -181,7 +181,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 	}
 
 	var QRND uint64
-	var vaddrs []common.Address
+	//var vaddrs []common.Address
 	var saddrs []common.Address
 	scount := 0
 	for _, v := range extraData {
@@ -193,10 +193,10 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 			saddrs = append(saddrs, v.Address)
 			scount++
 		}
-		vaddrs = append(vaddrs, v.Address)
+		//vaddrs = append(vaddrs, v.Address)
 	}
 
-	c.valSet = validator.NewSet(vaddrs, c.config.ProposerPolicy)
+	//c.valSet = validator.NewSet(vaddrs, c.config.ProposerPolicy)
 	c.voteSet = validator.NewSet(saddrs, c.config.ProposerPolicy)
 	c.agreeCriteria = int((float64(scount)+math.Ceil(float64(scount)*float64(1.08)))*2/3) + 1
 
