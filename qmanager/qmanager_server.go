@@ -59,12 +59,15 @@ func GovernanceSendList(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		panic(err)
+		log.Error("request failed", "err", err)
+		//panic(err)
+		return
 	}
 
 	var govStruct []global.GovStruct
 	err = json.Unmarshal(body, &govStruct)
 	if err != nil {
+		log.Error("request body error", "err", err)
 		m := global.Message{
 			Message: "Error",
 			Code:    http.StatusBadRequest,
@@ -86,14 +89,14 @@ func GovernanceAddValidators(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Error("Request error")
+		log.Error("request failed", "err", err)
 		return
 	}
 
 	var govStruct []global.GovStruct
 	err = json.Unmarshal(body, &govStruct)
 	if err != nil {
-		log.Error("Json unmarshal error")
+		log.Error("request body error", "err", err)
 		m := global.Message{
 			Message: "Error",
 			Code:    http.StatusBadRequest,
@@ -170,14 +173,14 @@ func GovernanceRemoveValidators(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Error("Request error")
+		log.Error("request failed", "err", err)
 		return
 	}
 
 	var govStruct []global.GovStruct
 	err = json.Unmarshal(body, &govStruct)
 	if err != nil {
-		log.Error("Json unmarshal error")
+		log.Error("request body error", "err", err)
 		m := global.Message{
 			Message: "Error",
 			Code:    http.StatusBadRequest,
@@ -218,14 +221,14 @@ func GovernanceGetValidatorList(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Error("Request error")
+		log.Error("request failed", "err", err)
 		return
 	}
 
 	var addrs []string
 	err = json.Unmarshal(body, &addrs)
 	if err != nil {
-		log.Error("Json unmarshal error")
+		log.Error("request body error", "err", err)
 		m := global.Message{
 			Message: "Error",
 			Code:    http.StatusBadRequest,
@@ -261,7 +264,9 @@ func CoordinatorConfirmation(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		panic(err)
+		log.Error("request failed", "err", err)
+		//panic(err)
+		return
 	}
 	log.Info("COORDINATOR CONFIRMATION")
 
@@ -270,7 +275,9 @@ func CoordinatorConfirmation(w http.ResponseWriter, req *http.Request) {
 	var coordiStruct global.RequestCoordiStruct
 	err = json.Unmarshal(body, &coordiStruct)
 	if err != nil {
-		panic(err)
+		log.Error("request body error", "err", err)
+		//panic(err)
+		return
 	}
 	// log.Info("QMAN ", "DIVISOR: ", Divisor)
 	log.Info("QMAN ", "CoordiQrnd: ", CoordiQrnd)
@@ -299,13 +306,16 @@ func BootNodeSendData(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Info("Qmanager is not alive")
-		panic(err)
+		log.Error("request failed", "err", err)
+		//panic(err)
+		return
 	}
 	var nodeStruct global.QManDBStruct
 	err = json.Unmarshal(body, &nodeStruct)
 	if err != nil {
-		panic(err)
+		log.Error("request body error", "err", err)
+		//panic(err)
+		return
 	}
 
 	log.Info("Bootnode Data ", "Addr: ", nodeStruct.Address)
@@ -328,14 +338,18 @@ func handleExtraData(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		panic(err)
+		log.Error("request failed", "err", err)
+		//panic(err)
+		return
 	}
 	log.Info(string(body))
 
 	var reqStruct global.RequestStruct
 	err = json.Unmarshal(body, &reqStruct)
 	if err != nil {
-		panic(err)
+		log.Error("request body error", "err", err)
+		//panic(err)
+		return
 	}
 
 	proposerAddress := common.HexToAddress(reqStruct.Proposer)

@@ -55,12 +55,14 @@ func ConnectDB() {
 	if IsInUse == false {
 		IsInUse = true
 		//log.Info("Qmanager", "DB = ", "STARTING---------------------------------------")
-		var err error
-		global.QManagerStorage, err = leveldb.OpenFile("qman-"+DBName, nil)
+		//var err error
+		storage, err := leveldb.OpenFile("qman-"+DBName, nil)
 		if err != nil {
 			log.Info("DB ERROR", "err = ", err)
 			IsInUse = false
+			return
 		}
+		global.QManagerStorage = storage
 	} else {
 		//log.Info("Qmanager", "DB = ", "WAITING---------------------------------------")
 		time.Sleep(100 * time.Millisecond)
@@ -249,7 +251,11 @@ func UpdateSenatorCandidateNodes() {
 
 func FindNode(dbStruct global.QManDBStruct) (found bool) {
 	nodeAddress := dbStruct.Address
-	node_address_encoded, _ := rlp.EncodeToBytes(nodeAddress)
+	node_address_encoded, err := rlp.EncodeToBytes(nodeAddress)
+	if err != nil {
+		log.Warn("QManager FindNode failed", "err", err)
+		return false
+	}
 	//ecies.Encrypt()
 	//QManagerStorage, err = leveldb.OpenFile("level", nil)
 
@@ -258,9 +264,9 @@ func FindNode(dbStruct global.QManDBStruct) (found bool) {
 	ConnectDB()
 	foundNode, err := global.QManagerStorage.Get(node_address_encoded, nil)
 	if err != nil {
-		CloseDB()
 		//log.Info("Qmanager", "DB Status", "3. Disconnected")
 		log.Info("QManager ", "DB --", "Node Not Found")
+		CloseDB()
 		return false
 	}
 
@@ -268,6 +274,8 @@ func FindNode(dbStruct global.QManDBStruct) (found bool) {
 	DecodeErr := rlp.Decode(bytes.NewReader(foundNode), &decodedBytes)
 	if DecodeErr != nil {
 		log.Info("Qmanager ", "Decoding Error", DecodeErr.Error())
+		CloseDB()
+		return false
 	}
 
 	var encodedStruct *global.QManDBStruct
@@ -277,10 +285,14 @@ func FindNode(dbStruct global.QManDBStruct) (found bool) {
 	initBytes, err := rlp.EncodeToBytes(encodedStruct)
 	if err != nil {
 		log.Info("QManager DB Save", "err --", err)
+		CloseDB()
+		return false
 	}
 	updateError := global.QManagerStorage.Put(node_address_encoded, initBytes, nil)
 	if updateError != nil {
 		log.Info("QManager DB Save", "UPDATE ERROR --", updateError)
+		CloseDB()
+		return false
 	}
 	GetDBData()
 	CloseDB()

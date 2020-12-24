@@ -561,7 +561,7 @@ func (env *Work) commitTransactions(mux *event.TypeMux, txs *types.TransactionsB
 		}
 		checktime := time.Since(starttime)
 		// if checktime > time.Duration(300*time.Millisecond) {
-		if env.tcount > 1500 || checktime > time.Duration(300*time.Millisecond) {
+		if env.tcount > 2500 || checktime > time.Duration(300*time.Millisecond) {
 			//log.Debug("commitTransactions 1-5", "check", env.tcount, "check elapsed", checktime)
 			break
 		}

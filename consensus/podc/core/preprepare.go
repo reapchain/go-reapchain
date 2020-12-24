@@ -42,6 +42,8 @@ func (c *core) sendRequestExtraDataToQman(request *podc.Request) {
 			return
 		}
 		if c.valSet.IsProposer(c.Address()) {
+			time.Sleep(100 * time.Millisecond) //Add delay for ensure receiving proposal in other nodes
+
 			log.Debug("sendRequestExtraDataToQman 2")
 
 			//c.handleQmanager(preprepare, c.valSet.GetProposer())

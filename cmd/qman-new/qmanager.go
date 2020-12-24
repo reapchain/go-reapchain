@@ -92,6 +92,7 @@ func NewQmanager(db ethdb.Database, config *config.EnvConfig, addr string) *Qman
 	//http.HandleFunc("/GovernanceSendList", qman.GovernanceSendList)
 	http.HandleFunc("/GovernanceAddValidators", qman.AddValidators)
 	http.HandleFunc("/GovernanceRemoveValidators", qman.RemoveValidators)
+	http.HandleFunc("/GovernanceGetValidatorList", qman.GetValidatorList)
 	http.HandleFunc("/ExtraData", qman.HandleExtraData)
 	http.HandleFunc("/BootNodeSendData", qman.BootNodeSendData)
 	http.HandleFunc("/CoordinatorConfirmation", qman.CoordinatorConfirmation)
@@ -133,7 +134,7 @@ func (qm *Qmanager) AddValidators(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Warn("http read fail", "err", err)
+		log.Warn("http request fail", "err", err)
 		qm.responseFail(w, http.StatusBadRequest)
 		return
 	}
@@ -149,7 +150,6 @@ func (qm *Qmanager) AddValidators(w http.ResponseWriter, req *http.Request) {
 			log.Warn("invalid tag", "addr", validator.Validator, "tag", validator.Tag)
 			continue
 		}
-		qm.all[common.HexToAddress(validator.Validator)] = validator.Tag
 		if validator.Tag == common.Senator {
 			if err := WriteSenator(qm.db, common.HexToAddress(validator.Validator), int(validator.Tag)); err != nil {
 				continue
@@ -159,6 +159,7 @@ func (qm *Qmanager) AddValidators(w http.ResponseWriter, req *http.Request) {
 				continue
 			}
 		}
+		qm.all[common.HexToAddress(validator.Validator)] = validator.Tag
 		log.Info("add validator", "addr", validator.Validator, "tag", validator.Tag)
 	}
 
@@ -175,7 +176,7 @@ func (qm *Qmanager) RemoveValidators(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Warn("http read fail", "err", err)
+		log.Warn("http request fail", "err", err)
 		qm.responseFail(w, http.StatusBadRequest)
 		return
 	}
@@ -191,7 +192,6 @@ func (qm *Qmanager) RemoveValidators(w http.ResponseWriter, req *http.Request) {
 			log.Warn("invalid tag", "addr", validator.Validator, "tag", validator.Tag)
 			continue
 		}
-		delete(qm.all, common.HexToAddress(validator.Validator))
 		if validator.Tag == common.Senator {
 			if err := RemoveSenator(qm.db, common.HexToAddress(validator.Validator)); err != nil {
 				continue
@@ -201,6 +201,7 @@ func (qm *Qmanager) RemoveValidators(w http.ResponseWriter, req *http.Request) {
 				continue
 			}
 		}
+		delete(qm.all, common.HexToAddress(validator.Validator))
 		log.Info("remove validator", "addr", validator.Validator, "tag", validator.Tag)
 	}
 
@@ -209,6 +210,47 @@ func (qm *Qmanager) RemoveValidators(w http.ResponseWriter, req *http.Request) {
 		Code:    http.StatusOK,
 	}
 	json.NewEncoder(w).Encode(m)
+
+	qm.printInfo()
+}
+
+func (qm *Qmanager) GetValidatorList(w http.ResponseWriter, req *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	body, err := ioutil.ReadAll(req.Body)
+	if err != nil {
+		log.Warn("http request fail", "err", err)
+		qm.responseFail(w, http.StatusBadRequest)
+		return
+	}
+
+	var addrs []string
+	err = json.Unmarshal(body, &addrs)
+	if err != nil {
+		log.Warn("json unmarshal error", "err", err)
+		qm.responseFail(w, http.StatusBadRequest)
+		return
+	}
+
+	// var retList []global.QManDBStruct
+	var retList []global.GovStruct
+	if len(addrs) != 0 {
+		for _, addr := range addrs {
+			if tag, ok := qm.all[common.HexToAddress(addr)]; ok {
+				retList = append(retList, global.GovStruct{Validator: addr, Tag: tag})
+			} else {
+				//read db, if success, return data and update qm.all
+			}
+		}
+	} else {
+		for addr, tag := range qm.all {
+			retList = append(retList, global.GovStruct{Validator: addr.Hex(), Tag: tag})
+		}
+	}
+	log.Info("Get validator list", "count", len(retList))
+
+	//qm.responseSuccess(w)
+	//json.NewEncoder(w).Encode(retList)
+	qm.responseData(w, retList)
 
 	qm.printInfo()
 }
@@ -226,7 +268,7 @@ func (qm *Qmanager) HandleExtraData(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Warn("http read fail", "err", err)
+		log.Warn("http request fail", "err", err)
 		qm.responseFail(w, http.StatusBadRequest)
 		return
 	}
@@ -320,7 +362,7 @@ func (qm *Qmanager) CoordinatorConfirmation(w http.ResponseWriter, req *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Warn("http read fail", "err", err)
+		log.Warn("http request fail", "err", err)
 		qm.responseFail(w, http.StatusBadRequest)
 		return
 	}
@@ -351,7 +393,7 @@ func (qm *Qmanager) BootNodeSendData(w http.ResponseWriter, req *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	body, err := ioutil.ReadAll(req.Body)
 	if err != nil {
-		log.Warn("http read fail", "err", err)
+		log.Warn("http request fail", "err", err)
 		qm.responseFail(w, http.StatusBadRequest)
 		return
 	}
@@ -399,4 +441,16 @@ func (qm *Qmanager) responseFail(w http.ResponseWriter, code int) {
 		Code:    code,
 	}
 	json.NewEncoder(w).Encode(m)
+}
+
+func (qm *Qmanager) responseSuccess(w http.ResponseWriter) {
+	m := global.Message{
+		Message: "Success",
+		Code:    http.StatusOK,
+	}
+	json.NewEncoder(w).Encode(m)
+}
+
+func (qm *Qmanager) responseData(w http.ResponseWriter, data interface{}) {
+	json.NewEncoder(w).Encode(data)
 }
