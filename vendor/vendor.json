@@ -93,6 +93,12 @@
 			"revisionTime": "2017-01-17T22:23:42Z"
 		},
 		{
+			"checksumSHA1": "rD6O1FRhmhGR0+tGc1hh3fsiM04=",
+			"path": "github.com/go-sql-driver/mysql",
+			"revision": "f6dcc3d870a826fb4212f2f124acd2e4658632c5",
+			"revisionTime": "2020-11-27T13:54:36Z"
+		},
+		{
 			"checksumSHA1": "2sj/DbXoXdnPAfjAEyhS0Jj5QL0=",
 			"path": "github.com/go-stack/stack",
 			"revision": "100eb0c0a9c5b306ca2fb4f165df21d80ada4b82",
@@ -172,6 +178,42 @@
 			"tree": true
 		},
 		{
+			"checksumSHA1": "Ll5OM6FF9loBDk9OzHLAaOELqAw=",
+			"path": "github.com/klauspost/compress",
+			"revision": "8c54b4233d2eb52a57db691b12eadf00c5fe6d06",
+			"revisionTime": "2020-12-08T12:20:01Z"
+		},
+		{
+			"checksumSHA1": "Bo4T9B025gOrC/14IDE80MUV+Lk=",
+			"path": "github.com/klauspost/compress/fse",
+			"revision": "8c54b4233d2eb52a57db691b12eadf00c5fe6d06",
+			"revisionTime": "2020-12-08T12:20:01Z"
+		},
+		{
+			"checksumSHA1": "8pzI2IF8j2aMJAsRXsS97AUSUCU=",
+			"path": "github.com/klauspost/compress/huff0",
+			"revision": "8c54b4233d2eb52a57db691b12eadf00c5fe6d06",
+			"revisionTime": "2020-12-08T12:20:01Z"
+		},
+		{
+			"checksumSHA1": "tNh2IRye15m0ddyaEKsU2JrJWgI=",
+			"path": "github.com/klauspost/compress/snappy",
+			"revision": "8c54b4233d2eb52a57db691b12eadf00c5fe6d06",
+			"revisionTime": "2020-12-08T12:20:01Z"
+		},
+		{
+			"checksumSHA1": "TL5EoFyZwMadb5YpA2EeKhz855E=",
+			"path": "github.com/klauspost/compress/zstd",
+			"revision": "8c54b4233d2eb52a57db691b12eadf00c5fe6d06",
+			"revisionTime": "2020-12-08T12:20:01Z"
+		},
+		{
+			"checksumSHA1": "e8kyonoHHVgdusN5daTpm45mWnM=",
+			"path": "github.com/klauspost/compress/zstd/internal/xxhash",
+			"revision": "8c54b4233d2eb52a57db691b12eadf00c5fe6d06",
+			"revisionTime": "2020-12-08T12:20:01Z"
+		},
+		{
 			"checksumSHA1": "7hln62oZPZmyqEmgXaybf9WxQ7A=",
 			"path": "github.com/maruel/panicparse/stack",
 			"revision": "ad661195ed0e88491e0f14be6613304e3b1141d6",
@@ -236,6 +278,18 @@
 			"path": "github.com/peterh/liner",
 			"revision": "bf27d3ba8e1d9899d45a457ffac16c953eb2d647",
 			"revisionTime": "2017-02-11T19:53:22Z"
+		},
+		{
+			"checksumSHA1": "e5OSiIPU1W/Sn8U2c0sKf8Puw2E=",
+			"path": "github.com/pierrec/lz4",
+			"revision": "0e583d326e0ec6b9c1ad223188dc709af385408e",
+			"revisionTime": "2020-10-31T10:21:20Z"
+		},
+		{
+			"checksumSHA1": "XxQwMkOgl4p0iuaVClAr0KIDtLg=",
+			"path": "github.com/pierrec/lz4/internal/xxh32",
+			"revision": "0e583d326e0ec6b9c1ad223188dc709af385408e",
+			"revisionTime": "2020-10-31T10:21:20Z"
 		},
 		{
 			"checksumSHA1": "KAzbLjI9MzW2tjfcAsK75lVRp6I=",
@@ -308,6 +362,138 @@
 			"path": "github.com/rs/xhandler",
 			"revision": "ed27b6fd65218132ee50cd95f38474a3d8a2cd12",
 			"revisionTime": "2016-06-18T19:32:21Z"
+		},
+		{
+			"checksumSHA1": "HqQHG39f/zWi8QoEddx7v99IgDI=",
+			"path": "github.com/segmentio/kafka-go",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "joxRdDsMuHeEqfUWo96Uz4WKx3o=",
+			"path": "github.com/segmentio/kafka-go/compress",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "iMnEl4R90CaZPQ+6v15TaIP6sdA=",
+			"path": "github.com/segmentio/kafka-go/compress/gzip",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "UYnHkLv7EuP01KQUbuQ0NYZ1iGE=",
+			"path": "github.com/segmentio/kafka-go/compress/lz4",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "933MMt6N/03TgEGPANZWJdM02ZU=",
+			"path": "github.com/segmentio/kafka-go/compress/snappy",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "nInzTvVaLvd3f0lbXN1jw26Ao8g=",
+			"path": "github.com/segmentio/kafka-go/compress/zstd",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "IOo6aiVL49PRc2grkQuF/6Y1hgE=",
+			"path": "github.com/segmentio/kafka-go/protocol",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "NxH7XQmdK+JtcSiiY/LeSwAwj2c=",
+			"path": "github.com/segmentio/kafka-go/protocol/alterconfigs",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "BYxj9itBEB1OF8obWWEdfwf4pd8=",
+			"path": "github.com/segmentio/kafka-go/protocol/apiversions",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "zcYZP32J+EqTuZhy6gzd5WpFUDQ=",
+			"path": "github.com/segmentio/kafka-go/protocol/createpartitions",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "rcP9dcNpIQTsB5s85TqiQMyyuig=",
+			"path": "github.com/segmentio/kafka-go/protocol/createtopics",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "y0cHRuZX+U/lFG0EAQRi/7XK+hQ=",
+			"path": "github.com/segmentio/kafka-go/protocol/deletetopics",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "RIqimgihgJ00M961dhkjrIiHQ7U=",
+			"path": "github.com/segmentio/kafka-go/protocol/describeconfigs",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "DRS4zwB4Y8LNoByVJXGPQQOvafI=",
+			"path": "github.com/segmentio/kafka-go/protocol/fetch",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "wwtV0c0QUedoMgTlOiF04XI6eKk=",
+			"path": "github.com/segmentio/kafka-go/protocol/findcoordinator",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "5oYEb40hzqPdJTUBxHIoE0fhDCY=",
+			"path": "github.com/segmentio/kafka-go/protocol/listoffsets",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "V0IrBgYbYHLY48GPnUiaeAAMUns=",
+			"path": "github.com/segmentio/kafka-go/protocol/metadata",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "nnVcgP6vEoYPeHrBEz9ZVx8Ddi8=",
+			"path": "github.com/segmentio/kafka-go/protocol/offsetfetch",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "2yVHZpWE2eus3zz6k2eS0lkJVOw=",
+			"path": "github.com/segmentio/kafka-go/protocol/produce",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "AkZbEiGFoPbY3CWbCrL5gpGxwBw=",
+			"path": "github.com/segmentio/kafka-go/protocol/saslauthenticate",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "VnJ307+HsXo4pNuPOvEIV5PaeSM=",
+			"path": "github.com/segmentio/kafka-go/protocol/saslhandshake",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
+		},
+		{
+			"checksumSHA1": "JGDT0mBs8CQLavGQyKqU1EJU4eY=",
+			"path": "github.com/segmentio/kafka-go/sasl",
+			"revision": "f4ae85751b01b56c47362004ca9d0edb60ce5e36",
+			"revisionTime": "2020-10-19T13:38:38Z"
 		},
 		{
 			"checksumSHA1": "QvOrAO5S37PL/6XZVWIVGyAbn60=",
@@ -650,6 +836,12 @@
 			"path": "gopkg.in/urfave/cli.v1",
 			"revision": "0bdeddeeb0f650497d603c4ad7b20cfe685682f6",
 			"revisionTime": "2016-11-22T04:36:10Z"
+		},
+		{
+			"checksumSHA1": "wZxi5gt6Zfs4vh8795dNA/lva7g=",
+			"path": "gopkg.in/yaml.v2",
+			"revision": "0b1645d91e851e735d3e23330303ce81f70adbe3",
+			"revisionTime": "2020-05-06T23:08:38Z"
 		}
 	],
 	"rootPath": "github.com/ethereum/go-ethereum"
