@@ -18,6 +18,7 @@ package eth
 
 import (
 	"fmt"
+
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus"
 	"github.com/ethereum/go-ethereum/consensus/podc"
@@ -38,8 +39,8 @@ const (
 	PoDCName           = "podc"
 	PoDCVersion        = 64
 	PoDCProtocolLength = 18
-	PoDCMsg = 0x11
-	QmanMsg = 0x12
+	PoDCMsg            = 0x11
+	QmanMsg            = 0x12
 )
 
 type PoDCProtocolManager struct {
@@ -75,11 +76,11 @@ func newPoDCProtocolManager(config *params.ChainConfig, mode downloader.SyncMode
 					manager.wg.Add(1)
 					defer manager.wg.Done()
 					return manager.handle(peer, manager.handleMsg)
-//
-//				case manager.ValidatorSyncCh <- peer:
-//					manager.wg.Add(1)  //? 양수, 음수 구분 및 나중에,, 추가 검
-//					defer manager.wg.Done()
-//					return manager.handle(peer, manager.handleMsg)
+					//
+					//				case manager.ValidatorSyncCh <- peer:
+					//					manager.wg.Add(1)  //? 양수, 음수 구분 및 나중에,, 추가 검
+					//					defer manager.wg.Done()
+					//					return manager.handle(peer, manager.handleMsg)
 
 					//
 
@@ -101,6 +102,7 @@ func newPoDCProtocolManager(config *params.ChainConfig, mode downloader.SyncMode
 
 	return manager, nil
 }
+
 // 비로소 이스탄불 프로토콜 매니저가 시작되는 부분 중
 func (pm *PoDCProtocolManager) Start() {
 	// Subscribe required events
@@ -109,9 +111,9 @@ func (pm *PoDCProtocolManager) Start() {
 	//이스탄불데이터이벤트에 일단은 포함시킨다. Qmanager와 데이터교환을 ConsensusDataEvent에 부분으로 등록한다.
 
 	//Qmanager list에서 하나의 address만 뽑는다.
-	go pm.eventLoop()  // //고루틴으로 동시성 처리 // 순서 중요할듯 1. 이벤트루프
-	pm.protocolManager.Start() //    2. 프로토콜매니저의 일반 핸들러 시작
-	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock)  // 합의 엔진 핸들러 시작
+	go pm.eventLoop()                                              // //고루틴으로 동시성 처리 // 순서 중요할듯 1. 이벤트루프
+	pm.protocolManager.Start()                                     //    2. 프로토콜매니저의 일반 핸들러 시작
+	pm.engine.Start(pm.protocolManager.blockchain, pm.commitBlock) // 합의 엔진 핸들러 시작
 }
 
 func (pm *PoDCProtocolManager) Stop() {
@@ -125,14 +127,13 @@ func (pm *PoDCProtocolManager) Stop() {
 // fallback to default procotol manager's handler
 // PoDC handler and  general handler decision and conditional jump
 
-
 func (pm *PoDCProtocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 	// Handle Istanbul messages
 	switch {
 	case msg.Code == PoDCMsg:
-		pubKey, err := p.ID().Pubkey()  //enode://"public key@IP address: port number"
-		                                //if PoDC message, for example a response ( extradata from Qmanager)
-		                                // extract pubkey and err
+		pubKey, err := p.ID().Pubkey() //enode://"public key@IP address: port number"
+		//if PoDC message, for example a response ( extradata from Qmanager)
+		// extract pubkey and err
 		if err != nil {
 			return err
 		}
@@ -140,16 +141,8 @@ func (pm *PoDCProtocolManager) handleMsg(p *peer, msg p2p.Msg) error {
 		if err := msg.Decode(&data); err != nil {
 			return errResp(ErrDecode, "msg %v: %v", msg, err)
 		}
-		return pm.engine.HandleMsg(pubKey, data)  // -> PoDC message handler : type PoDC interface.. /consensus.go
+		return pm.engine.HandleMsg(pubKey, data) // -> PoDC message handler : type PoDC interface.. /consensus.go
 	//
-
-
-
-
-
-
-
-
 
 	//
 
@@ -164,7 +157,7 @@ func (pm *PoDCProtocolManager) eventLoop() {
 	for obj := range pm.eventSub.Chan() {
 		switch ev := obj.Data.(type) {
 		case podc.ConsensusDataEvent:
-			pm.sendEvent(ev)
+			go pm.sendEvent(ev)
 		case core.ChainHeadEvent:
 			pm.newHead(ev)
 		}

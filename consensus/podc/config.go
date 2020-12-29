@@ -1,4 +1,3 @@
-
 // Copyright 2019 Reapchain
 // This file is part of the go-ethereum library.
 //
@@ -34,11 +33,10 @@ type Config struct {
 }
 
 var DefaultConfig = &Config{
-	RequestTimeout: 10000,
+	RequestTimeout: 5000,
 	//BlockPeriod:    1,
 	BlockPeriod:    2,
 	BlockPauseTime: 2,
 	ProposerPolicy: RoundRobin,
 	Epoch:          30000,
 }
-
