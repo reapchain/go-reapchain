@@ -521,10 +521,19 @@ func (sb *simpleBackend) HandleMsg(pubKey *ecdsa.PublicKey, data []byte) error {
 // NewChainHead implements consensus.PoDC.NewChainHead
 // 새로 블럭체인 헤더를 받는다. // 합의 시작되기 전에,
 func (sb *simpleBackend) NewChainHead(block *types.Block) {
-	p, err := sb.Author(block.Header())
-
+	snap, err := sb.snapshot(sb.chain, block.NumberU64(), block.Hash(), nil)
 	if err != nil {
-		sb.logger.Error("Failed to get block proposer", "err", err)
+		log.Error("NewChainHead - Cannot get latest snapshot", "err", err)
+		return
+	}
+	if _, val := snap.ValSet.GetByAddress(sb.Address()); val == nil {
+		//log.Debug("NewChainHead - Normal node")
+		return
+	}
+
+	p, err := sb.Author(block.Header())
+	if err != nil {
+		log.Error("Failed to get block proposer", "err", err)
 		return
 	}
 	go sb.podcEventMux.Post(podc.FinalCommittedEvent{
