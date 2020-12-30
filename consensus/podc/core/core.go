@@ -76,7 +76,7 @@ type core struct {
 	lastProposal podc.Proposal
 	lastSequence *big.Int //yichoi added for solving inconsistent
 	valSet       podc.ValidatorSet
-	voteSet      podc.ValidatorSet
+	//voteSet      podc.ValidatorSet
 
 	waitingForRoundChange bool
 	//waitingForStateChange bool // added for PoDC, because Proposer release it's right to random coordinator
@@ -103,14 +103,14 @@ type core struct {
 	// the timer to record consensus duration (from accepting a preprepare to final committed stage)
 	consensusTimer goMetrics.Timer
 
-	tag             common.Tag
-	count           uint
-	racingFlag      bool
-	racingMu        *sync.Mutex
-	startTime       time.Time
-	intervalTime    time.Time
-	criteria        float64 //Criteria 	int		`json:"criteria"` type.go에서는  int 로 받았다가, 여기서는 float64
-	agreeCriteria   int
+	tag          common.Tag
+	count        uint
+	racingFlag   bool
+	racingMu     *sync.Mutex
+	startTime    time.Time
+	intervalTime time.Time
+	criteria     float64 //Criteria 	int		`json:"criteria"` type.go에서는  int 로 받았다가, 여기서는 float64
+	//agreeCriteria   int
 	ExtraDataLength int
 }
 
@@ -245,7 +245,7 @@ func (c *core) startNewRound(newView *podc.View, roundChange bool) {
 		logger = c.logger.New("old_round", c.current.Round(), "old_seq", c.current.Sequence(), "old_proposer", c.valSet.GetProposer()) //1.
 	}
 
-	//c.ExtraDataLength = 0 //TODO-REAP: workaround for disappeared racing msg
+	c.ExtraDataLength = 0 //TODO-REAP: workaround for disappeared racing msg
 
 	c.valSet = c.backend.Validators(c.lastProposal)
 	// Clear invalid round change messages

@@ -10,7 +10,6 @@ import (
 
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
-	"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/qmanager/global"
 	"github.com/ethereum/go-ethereum/qmanager/utils"
@@ -182,23 +181,23 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 	var QRND uint64
 	//var vaddrs []common.Address
-	var saddrs []common.Address
-	scount := 0
+	// var saddrs []common.Address
+	// scount := 0
 	for _, v := range extraData {
 		if v.Address == c.address {
 			c.tag = v.Tag
 			QRND = v.Qrnd
 		}
-		if v.Tag == common.Senator || v.Tag == common.Coordinator {
-			saddrs = append(saddrs, v.Address)
-			scount++
-		}
+		// if v.Tag == common.Senator || v.Tag == common.Coordinator {
+		// 	saddrs = append(saddrs, v.Address)
+		// 	scount++
+		// }
 		//vaddrs = append(vaddrs, v.Address)
 	}
 
 	//c.valSet = validator.NewSet(vaddrs, c.config.ProposerPolicy)
-	c.voteSet = validator.NewSet(saddrs, c.config.ProposerPolicy)
-	c.agreeCriteria = int((float64(scount)+math.Ceil(float64(scount)*float64(1.08)))*2/3) + 1
+	// c.voteSet = validator.NewSet(saddrs, c.config.ProposerPolicy)
+	// c.agreeCriteria = int((float64(scount)+math.Ceil(float64(scount)*float64(1.08)))*2/3) + 1
 
 	log.Debug("handleDSelect 2", "c.address", c.address, "c.tag", c.tag, "QRND", QRND)
 
@@ -217,8 +216,8 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 			var err error
 			log.Info(fmt.Sprintf("I am Coordinator! ExtraDataLength %d", c.ExtraDataLength)) //grep -r 'I am Coordinator!' *.log
 			if c.ExtraDataLength != 0 {
-				// c.criteria = math.Ceil(((float64(c.ExtraDataLength) - 1.00) * float64(0.51))) //Ceil.. >= 수 리턴.
-				c.criteria = math.Ceil(float64(scount) * float64(1.08)) // Parliamentarian 52% = Senator*52/48, racing criteria
+				c.criteria = math.Ceil(((float64(c.ExtraDataLength) - 1.00) * float64(0.51))) //Ceil.. >= 수 리턴.
+				// c.criteria = math.Ceil(float64(scount) * float64(1.08)) // Parliamentarian 52% = Senator*52/48, racing criteria
 			} else {
 				log.Error("ExtraDataLength has problem")
 				//utils.Fatalf("ExtraDataLength has problem)
@@ -258,8 +257,8 @@ func (c *core) handleCoordinatorConfirm(msg *message, src podc.Validator) error 
 func (c *core) handleCoordinatorDecide(msg *message, src podc.Validator) error {
 	log.Debug("handleCoordinatorDecide", "extra", c.ExtraDataLength, "criteria", c.criteria)
 	// if c.tag != common.Coordinator {
-	// if c.tag != common.Coordinator || c.ExtraDataLength == 0 { //TODO-REAP: workaround for disappeared racing msg
-	if c.tag == common.Candidate { //TODO-REAP: workaround for disappeared racing msg
+	if c.tag != common.Coordinator || c.ExtraDataLength == 0 { //TODO-REAP: workaround for disappeared racing msg
+		// if c.tag == common.Candidate { //TODO-REAP: workaround for disappeared racing msg
 		log.Debug("handleCoordinatorDecide - send racing", "extra", c.ExtraDataLength, "criteria", c.criteria)
 		c.sendRacing(src.Address()) //레이싱 시작 메시지 전송
 	}
@@ -273,9 +272,9 @@ func (c *core) handleRacing(msg *message, src podc.Validator) error {
 	if c.tag == common.Coordinator {
 		c.count = c.count + 1
 		log.Debug("handleRacing 1", "c.count", c.count)
-		if c.count <= uint(c.criteria) && !c.racingFlag {
-			c.voteSet.AddValidator(src.Address())
-		}
+		// if c.count <= uint(c.criteria) && !c.racingFlag {
+		// 	c.voteSet.AddValidator(src.Address())
+		// }
 		if c.count >= uint(c.criteria) && !c.racingFlag {
 			log.Debug("handleRacing 2", "c.count", c.count, "c.criteria", c.criteria, "c.racingFlag", c.racingFlag)
 			c.racingFlag = true

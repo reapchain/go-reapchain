@@ -181,7 +181,7 @@ func (pm *PoDCProtocolManager) commitBlock(block *types.Block) error {
 		return err
 	}
 	// Only announce the block, don't broadcast it
-	go pm.BroadcastBlock(block, false)
+	pm.BroadcastBlock(block, false)
 	return nil
 }
 
