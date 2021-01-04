@@ -19,7 +19,6 @@ package main
 
 import (
 	"fmt"
-	"github.com/ethereum/go-ethereum/config"
 	"os"
 	"runtime"
 	"strings"
@@ -203,7 +202,7 @@ func main() {
 // It creates a default node based on the command line arguments and runs it in
 // blocking mode, waiting for it to be shut down.
 func geth(ctx *cli.Context) error {
-	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
+	//config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
 	node := makeFullNode(ctx)
 	startNode(ctx, node)
 	node.Wait()
@@ -231,7 +230,7 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 	}
 	// Register wallet event handlers to open and auto-derive wallets
 	events := make(chan accounts.WalletEvent, 16)
-	stack.AccountManager().Subscribe(events)  // 이벤트 핸들러 등록
+	stack.AccountManager().Subscribe(events) // 이벤트 핸들러 등록
 
 	go func() {
 		// Create an chain state reader for self-derivation
@@ -243,7 +242,7 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 
 		}
 		stateReader := ethclient.NewClient(rpcClient) //RPC  clinet 생성 ,, RPC client를 만들어야, geth가 네트웍 노드에서
-		                                              //RPC 이벤트 들을 받을 수 있다.
+		//RPC 이벤트 들을 받을 수 있다.
 
 		// Open and self derive any wallets already attached
 		for _, wallet := range stack.AccountManager().Wallets() {

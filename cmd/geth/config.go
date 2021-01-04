@@ -29,6 +29,7 @@ import (
 	cli "gopkg.in/urfave/cli.v1"
 
 	"github.com/ethereum/go-ethereum/cmd/utils"
+	"github.com/ethereum/go-ethereum/config"
 	"github.com/ethereum/go-ethereum/contracts/release"
 	"github.com/ethereum/go-ethereum/eth"
 	"github.com/ethereum/go-ethereum/node"
@@ -106,6 +107,8 @@ func defaultNodeConfig() node.Config {
 }
 
 func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
+	config.Config.GetConfig("REAPCHAIN_ENV", "SETUP_INFO")
+
 	// Load defaults.
 	cfg := gethConfig{
 		Eth:  eth.DefaultConfig,
@@ -120,7 +123,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	}
 
 	// Apply flags.
-	utils.SetNodeConfig(ctx, &cfg.Node)  //add local ip flag
+	utils.SetNodeConfig(ctx, &cfg.Node) //add local ip flag
 	stack, err := node.New(&cfg.Node)
 	if err != nil {
 		utils.Fatalf("Failed to create the protocol stack: %v", err)
@@ -135,14 +138,14 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 
 func makeFullNode(ctx *cli.Context) *node.Node {
 	stack, cfg := makeConfigNode(ctx)
-    //important
-	utils.RegisterEthService(stack, &cfg.Eth)  //jump to PoDC or istanbul
+	//important
+	utils.RegisterEthService(stack, &cfg.Eth) //jump to PoDC or istanbul
 
 	// Whisper must be explicitly enabled, but is auto-enabled in --dev mode.
 	shhEnabled := ctx.GlobalBool(utils.WhisperEnabledFlag.Name)
 	shhAutoEnabled := !ctx.GlobalIsSet(utils.WhisperEnabledFlag.Name) && ctx.GlobalIsSet(utils.DevModeFlag.Name)
 	if shhEnabled || shhAutoEnabled {
-		utils.RegisterShhService(stack)  // --dev option  //stack에 넣는 작업
+		utils.RegisterShhService(stack) // --dev option  //stack에 넣는 작업
 	}
 
 	// Add the Ethereum Stats daemon if requested.
