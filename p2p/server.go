@@ -459,8 +459,9 @@ func (srv *Server) startListening() error {
 	if err != nil {
 		return err //왜 에러 ?
 	}
-	laddr := listener.Addr().(*net.TCPAddr)       //192.168.0.2:5003 this type ㄱㅏ져와야함.
-	fmt.Printf("\n laddr(TCPAddr) : %v\n", laddr) //error , important
+	laddr := listener.Addr().(*net.TCPAddr) //192.168.0.2:5003 this type ㄱㅏ져와야함.
+	// fmt.Printf("\n laddr(TCPAddr) : %v\n", laddr) //error , important
+	log.Debug("start listening", "laddr(TCPAddr)", laddr) //error , important
 	srv.ListenAddr = laddr.String()
 	srv.listener = listener
 	srv.loopWG.Add(1)

@@ -176,7 +176,7 @@ func (c *core) handleDSelect(msg *message, src podc.Validator) error {
 
 	nodename, err := os.Getwd()
 	if err != nil {
-		fmt.Printf("current nodename= %v , err=%v", nodename, err)
+		log.Debug("handleDSelect", "current nodename", nodename, "err", err)
 	}
 
 	var QRND uint64
