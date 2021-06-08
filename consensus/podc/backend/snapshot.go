@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/consensus/podc"
+	"github.com/ethereum/go-ethereum/consensus/podc/validator"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethdb"
 )
@@ -45,7 +46,6 @@ type Tally struct {
 	Votes     int  `json:"votes"`     // Number of votes until now wanting to pass the proposal
 }
 
-
 type Snapshot struct {
 	Epoch uint64 // The number of blocks after which to checkpoint and reset the pending votes
 
@@ -53,10 +53,7 @@ type Snapshot struct {
 	Hash   common.Hash              `json:"hash"`       // Block hash where the snapshot was created
 	Votes  []*Vote                  `json:"votes"`      // List of votes cast in chronological order
 	Tally  map[common.Address]Tally `json:"tally"`      // Current vote tally to avoid recalculating
-	ValSet podc.ValidatorSet    `json:"validators"` // Set of authorized validators at this moment
-
-
-
+	ValSet podc.ValidatorSet        `json:"validators"` // Set of authorized validators at this moment
 }
 
 // newSnapshot create a new snapshot with the specified startup parameters. This
@@ -73,13 +70,14 @@ func newSnapshot(epoch uint64, number uint64, hash common.Hash, valSet podc.Vali
 	return snap
 }
 
-
 func loadSnapshot(epoch uint64, db ethdb.Database, hash common.Hash) (*Snapshot, error) {
 	blob, err := db.Get(append([]byte(dbKeySnapshotPrefix), hash[:]...))
 	if err != nil {
 		return nil, err
 	}
 	snap := new(Snapshot)
+	var addrs []common.Address
+	snap.ValSet = validator.NewSet(addrs, podc.RoundRobin)
 	if err := json.Unmarshal(blob, snap); err != nil {
 		return nil, err
 	}

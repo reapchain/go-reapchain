@@ -587,6 +587,16 @@ func (sb *simpleBackend) snapshot(chain consensus.ChainReader, number uint64, ha
 		// If an on-disk checkpoint snapshot can be found, use that
 		if number%checkpointInterval == 0 {
 			if s, err := loadSnapshot(sb.config.Epoch, sb.db, hash); err == nil {
+				if s.ValSet.Size() == 0 {
+					block := chain.GetHeaderByNumber(number)
+					podcExtra, err := types.ExtractPoDCExtra(block)
+					if err != nil {
+						return nil, err
+					}
+					s.ValSet = validator.NewSet(podcExtra.Validators, sb.config.ProposerPolicy)
+					//snap = newSnapshot(sb.config.Epoch, number, block.Hash(), validator.NewSet(podcExtra.Validators, sb.config.ProposerPolicy))
+					//log.Debug("Updated validator list to voting snapshot", "number", number, "hash", hash, "block.Hash()", block.Hash())
+				}
 				log.Trace("Loaded voting snapshot form disk", "number", number, "hash", hash)
 				snap = s
 				break
@@ -600,10 +610,11 @@ func (sb *simpleBackend) snapshot(chain consensus.ChainReader, number uint64, ha
 				return nil, err
 			}
 			podcExtra, err := types.ExtractPoDCExtra(genesis)
-			log.Info("podcExtra", "podcExtra", podcExtra)
 			if err != nil {
+				log.Debug("genesis podcExtra error", "err", err)
 				return nil, err
 			}
+			log.Info("genesis podcExtra", "podcExtra", podcExtra)
 			// istanbulExtra.Validators 는 20바이트 계정 주소 목록
 			snap = newSnapshot(sb.config.Epoch, 0, genesis.Hash(), validator.NewSet(podcExtra.Validators, sb.config.ProposerPolicy))
 			if err := snap.store(sb.db); err != nil {
